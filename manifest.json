@@ -1,0 +1,13 @@
+{
+  "manifest_version": 2,
+  "name": "synology",
+  "version": "0.1.0",
+  "description": "",
+  "content_scripts": [
+    {
+      "matches": [ "*" ],
+      "js": [ "lib/index.js" ]
+    }
+  ]
+
+}
