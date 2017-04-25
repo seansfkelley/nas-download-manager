@@ -1,3 +1,4 @@
-import { foo } from './api';
+import { login } from './api';
+import { USERNAME, PASSWORD } from './secrets';
 
-foo();
+login(USERNAME, PASSWORD);

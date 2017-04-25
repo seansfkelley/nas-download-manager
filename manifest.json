@@ -3,10 +3,11 @@
   "name": "synology",
   "version": "0.1.0",
   "description": "",
-  "content_scripts": [
-    {
-      "matches": ["*://*.mozilla.org/*"],
-      "js": [ "dist/bundle.js" ]
-    }
+  "content_scripts": [{
+    "matches": ["*://*.mozilla.org/*"],
+    "js": [ "dist/bundle.js" ]
+  }],
+  "permissions": [
+    "webRequest"
   ]
 }

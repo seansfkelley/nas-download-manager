@@ -7,8 +7,8 @@
     "test": "exit 0",
     "build:transpile": "tsc",
     "watch:transpile": "tsc -w",
-    "build:bundle": "rollup lib/index.js --format es --output dist/bundle.js",
-    "watch:bundle": "rollup lib/index.js --format es --output dist/bundle.js -w",
+    "build:bundle": "rollup -c",
+    "watch:bundle": "rollup -cw",
     "build": "npm-run-all build:transpile build:bundle",
     "watch": "npm-run-all watch:transpile watch:bundle"
   },
@@ -20,7 +20,16 @@
   "devDependencies": {
     "npm-run-all": "^4.0.2",
     "rollup": "^0.41.6",
+    "rollup-plugin-commonjs": "^8.0.2",
+    "rollup-plugin-node-builtins": "^2.1.0",
+    "rollup-plugin-node-globals": "^1.1.0",
+    "rollup-plugin-node-resolve": "^3.0.0",
     "rollup-watch": "^3.2.2",
     "typescript": "^2.2.2"
+  },
+  "dependencies": {
+    "@types/query-string": "^4.3.1",
+    "axios": "^0.16.1",
+    "query-string": "^4.3.4"
   }
 }
