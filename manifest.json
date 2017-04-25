@@ -5,9 +5,8 @@
   "description": "",
   "content_scripts": [
     {
-      "matches": [ "*" ],
-      "js": [ "lib/index.js" ]
+      "matches": ["*://*.mozilla.org/*"],
+      "js": [ "dist/bundle.js" ]
     }
   ]
-
 }

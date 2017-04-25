@@ -1,1 +1,3 @@
-export default 1;
+import { foo } from './api';
+
+foo();

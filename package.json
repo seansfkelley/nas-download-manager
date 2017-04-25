@@ -4,7 +4,13 @@
   "description": "",
   "main": "lib/index.js",
   "scripts": {
-    "test": "exit 0"
+    "test": "exit 0",
+    "build:transpile": "tsc",
+    "watch:transpile": "tsc -w",
+    "build:bundle": "rollup lib/index.js --format es --output dist/bundle.js",
+    "watch:bundle": "rollup lib/index.js --format es --output dist/bundle.js -w",
+    "build": "npm-run-all build:transpile build:bundle",
+    "watch": "npm-run-all watch:transpile watch:bundle"
   },
   "repository": {
     "type": "git",
@@ -12,6 +18,9 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "npm-run-all": "^4.0.2",
+    "rollup": "^0.41.6",
+    "rollup-watch": "^3.2.2",
     "typescript": "^2.2.2"
   }
 }
