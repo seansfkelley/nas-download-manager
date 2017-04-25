@@ -1,0 +1,17 @@
+{
+  "name": "synology",
+  "version": "0.1.0",
+  "description": "",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/seansfkelley/synology.git"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^2.2.2"
+  }
+}
