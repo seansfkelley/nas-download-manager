@@ -18,7 +18,7 @@ export function login(username: string, password: string): Promise<string> {
     })}`
   })
     .then(result => {
-      console.log(result);
+      console.log(result.data);
       return result.data;
     })
     .catch(error => {
