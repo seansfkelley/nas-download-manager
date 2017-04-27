@@ -3,4 +3,7 @@ import { USERNAME, PASSWORD } from './secrets';
 
 console.log('running index script...')
 
-login(USERNAME, PASSWORD);
+login(USERNAME, PASSWORD)
+  .then(result => {
+    console.log(result.data.sid);
+  })

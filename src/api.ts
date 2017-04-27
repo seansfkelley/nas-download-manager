@@ -5,7 +5,19 @@ import { PROTOCOL, HOSTNAME, PORT } from './secrets';
 
 const BASE_URL = `${PROTOCOL}://${HOSTNAME}:${PORT}`;
 
-export function login(username: string, password: string): Promise<string> {
+export type LoginResult = {
+  success: true;
+  data: {
+    sid: string;
+  };
+} | {
+  success: false;
+  error: {
+    code: number;
+  };
+}
+
+export function login(username: string, password: string): Promise<LoginResult> {
   return Axios({
     url: `${BASE_URL}/webapi/auth.cgi?${stringify({
       api: 'SYNO.API.Auth',
@@ -17,11 +29,5 @@ export function login(username: string, password: string): Promise<string> {
       format: 'sid'
     })}`
   })
-    .then(result => {
-      console.log(result.data);
-      return result.data;
-    })
-    .catch(error => {
-      console.log(error);
-    });
+    .then(response => response.data);
 }
