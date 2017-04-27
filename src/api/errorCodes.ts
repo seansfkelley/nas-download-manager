@@ -15,5 +15,16 @@ export const ERROR_CODES = {
     402: 'Permission denied.',
     403: 'Two-step verification needed.',
     404: 'Two-step verification failed.'
+  },
+  'task': {
+    400: 'File upload failed.',
+    401: 'Max number of tasks reached.',
+    402: 'Destination denied.',
+    403: 'Destination does not exist.',
+    404: 'Invalid task id.',
+    405: 'Invalid task action.',
+    406: 'No default destination.',
+    407: 'Set destination failed.',
+    408: 'File does not exist.'
   }
 };

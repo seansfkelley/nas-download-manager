@@ -22,7 +22,7 @@ new Promise(resolve => {
     }
   })
   .then(() => {
-    return DownloadStation.Task.List(sid, { limit: 2, additional: [ 'detail', 'transfer', 'file', 'tracker', 'peer' ] });
+    return DownloadStation.Statistic.GetInfo(sid);
   })
   .then(result => {
     console.log(result);
