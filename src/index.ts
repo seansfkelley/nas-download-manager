@@ -22,7 +22,7 @@ new Promise(resolve => {
     }
   })
   .then(() => {
-    return DownloadStation.Schedule.SetConfig(sid, { enabled: false });
+    return DownloadStation.Task.List(sid, { limit: 2, additional: [ 'detail', 'transfer', 'file', 'tracker', 'peer' ] });
   })
   .then(result => {
     console.log(result);

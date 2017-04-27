@@ -74,15 +74,94 @@ function Schedule_SetConfig(sid: string, config: Partial<DownloadStationSchedule
   })}`);
 }
 
-export type ListResult = SynologyResponse<{}>;
+export type Task_ListResult = SynologyResponse<{}>;
 
-function List(sid: string, additional: ('detail' | 'transfer' | 'file' | 'tracker' | 'peer')[] = []): Promise<ListResult> {
+export interface DownloadStationTaskListRequest {
+  offset?: number;
+  limit?: number;
+  additional?: ('detail' | 'transfer' | 'file' | 'tracker' | 'peer')[];
+}
+
+export interface DownloadStationTaskListResponse {
+  // total is the number of results that came back, NOT the total number that exist on the remote.
+  total: number;
+  offset: number;
+  tasks: DownloadStationTask[];
+}
+
+export interface DownloadStationTaskDetail {
+  completed_time: number;
+  connected_leechers: number;
+  connected_peers: number;
+  connected_seeders: number;
+  create_time: number;
+  destination: string;
+  seedelapsed: number;
+  started_time: number;
+  total_peers: number;
+  total_pieces: number;
+  unzip_password: string;
+  uri: string;
+  waiting_seconds: number;
+}
+
+export interface DownloadStationTaskFile {
+  filename: string;
+  index: number;
+  priority: 'low' | 'normal' | 'high';
+  size: number;
+  size_downloaded: number;
+  wanted: boolean;
+}
+
+export interface DownloadStationTaskPeer {
+  // ???
+}
+
+export interface DownloadStationTaskTracker {
+  peers: number;
+  seeds: number;
+  status: string;
+  update_time: number;
+  url: string;
+}
+
+export interface DownloadStationTaskTransfer {
+  downloaded_pieces: number;
+  size_downloaded: number;
+  size_uploaded: number;
+  speed_download: number;
+  speed_upload: number;
+}
+
+export interface DownloadStationTask {
+  id: string;
+  type: string;
+  username: string;
+  title: string;
+  size: number;
+  status: string;
+  status_extra?: string;
+  // It's unclear to me if the values of these keys are a function of the type of task.
+  // I also don't know what the optionality of these are -- it's not documented, so this is
+  // guesswork from experimental results.
+  additional?: {
+    detail?: DownloadStationTaskDetail;
+    file?: DownloadStationTaskFile[];
+    peer?: DownloadStationTaskPeer[];
+    tracker?: DownloadStationTaskTracker[];
+    transfer?: DownloadStationTaskTransfer;
+  };
+}
+
+function Task_List(sid: string, options?: DownloadStationTaskListRequest): Promise<any> {
   return get(`${BASE_URL}/webapi/DownloadStation/task.cgi?${stringify({
     api: 'SYNO.DownloadStation.Task',
     version: 1,
     method: 'list',
-    additional: additional.join(','),
-    _sid: sid
+    _sid: sid,
+    ...options,
+    additional: options && options.additional && options.additional.length ? options.additional.join(',') : undefined
   })}`);
 }
 
@@ -97,6 +176,6 @@ export const DownloadStation = {
     SetConfig: Schedule_SetConfig
   },
   Task: {
-    List
+    List: Task_List
   }
 };
