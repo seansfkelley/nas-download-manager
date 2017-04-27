@@ -22,7 +22,7 @@ new Promise(resolve => {
     }
   })
   .then(() => {
-    return DownloadStation.Info.GetConfig(sid);
+    return DownloadStation.Schedule.SetConfig(sid, { enabled: false });
   })
   .then(result => {
     console.log(result);
