@@ -1,4 +1,4 @@
-import { Info, Auth, LoginResult, DownloadStation } from './api';
+import { Auth, LoginResult, DownloadStation } from './api';
 import { USERNAME, PASSWORD } from './api/secrets';
 
 let sid: string;
@@ -8,12 +8,6 @@ console.log('running extension!');
 new Promise(resolve => {
   setTimeout(() => { resolve(); }, 500);
 })
-  .then(() => {
-    return Info.Query();
-  })
-  .then(result => {
-    console.log(result);
-  })
   .then(() => {
     return Auth.Login(USERNAME, PASSWORD);
   })
