@@ -3,4 +3,4 @@ node_modules/
 *.log
 lib/
 dist/
-src/secrets.ts
+src/api/secrets.ts
