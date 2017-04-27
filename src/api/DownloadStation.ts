@@ -1,18 +1,22 @@
-import { stringify } from 'query-string';
+import { SynologyResponse, get } from './shared';
 
-import { SynologyResponse, get, BASE_URL } from './shared';
+const CGI_BASE_NAME = 'DownloadStation';
+const CGI_NAME_INFO = `${CGI_BASE_NAME}/info`;
+const CGI_NAME_SCHEDULE = `${CGI_BASE_NAME}/schedule`;
+const CGI_NAME_TASK = `${CGI_BASE_NAME}/task`;
+const CGI_NAME_STATISTIC = `${CGI_BASE_NAME}/statistic`;
 
 function Info_GetInfo(sid: string): Promise<SynologyResponse<{
   is_manager: boolean;
   version: number;
   version_string: string;
 }>> {
-  return get(`${BASE_URL}/webapi/DownloadStation/info.cgi?${stringify({
+  return get(CGI_NAME_INFO, {
     api: 'SYNO.DownloadStation.Info',
     version: 1,
     method: 'getinfo',
-    _sid: sid
-  })}`);
+    sid
+  });
 }
 
 export interface DownloadStationInfoConfig {
@@ -30,24 +34,24 @@ export interface DownloadStationInfoConfig {
 };
 
 function Info_GetConfig(sid: string): Promise<SynologyResponse<DownloadStationInfoConfig>> {
-  return get(`${BASE_URL}/webapi/DownloadStation/info.cgi?${stringify({
+  return get(CGI_NAME_INFO, {
     api: 'SYNO.DownloadStation.Info',
     version: 1,
     method: 'getconfig',
-    _sid: sid
-  })}`);
+    sid
+  });
 }
 
 // Note that, if you aren't a user allowed to do this, it will return successfully without performing any changes.
 function Info_SetServerConfig(sid: string, config: Partial<DownloadStationInfoConfig>): Promise<SynologyResponse<{}>> {
   // Yeah, not POST...
-  return get(`${BASE_URL}/webapi/DownloadStation/info.cgi?${stringify({
+  return get(CGI_NAME_INFO, {
     api: 'SYNO.DownloadStation.Info',
     version: 1,
     method: 'setserverconfig',
-    _sid: sid,
+    sid,
     ...config
-  })}`);
+  });
 }
 
 export interface DownloadStationScheduleConfig {
@@ -56,22 +60,22 @@ export interface DownloadStationScheduleConfig {
 }
 
 function Schedule_GetConfig(sid: string): Promise<SynologyResponse<DownloadStationScheduleConfig>> {
-  return get(`${BASE_URL}/webapi/DownloadStation/schedule.cgi?${stringify({
+  return get(CGI_NAME_SCHEDULE, {
     api: 'SYNO.DownloadStation.Schedule',
     version: 1,
     method: 'getconfig',
-    _sid: sid
-  })}`);
+    sid
+  });
 }
 
 function Schedule_SetConfig(sid: string, config: Partial<DownloadStationScheduleConfig>): Promise<SynologyResponse<{}>> {
-  return get(`${BASE_URL}/webapi/DownloadStation/schedule.cgi?${stringify({
+  return get(CGI_NAME_SCHEDULE, {
     api: 'SYNO.DownloadStation.Schedule',
     version: 1,
     method: 'setconfig',
-    _sid: sid,
+    sid,
     ...config
-  })}`);
+  });
 }
 
 export type DownloadStationTaskAdditionalType = 'detail' | 'transfer' | 'file' | 'tracker' | 'peer';
@@ -204,14 +208,14 @@ export interface DownloadStationTask {
 }
 
 function Task_List(sid: string, options?: DownloadStationTaskListRequest): Promise<SynologyResponse<DownloadStationTaskListResponse>> {
-  return get(`${BASE_URL}/webapi/DownloadStation/task.cgi?${stringify({
+  return get(CGI_NAME_TASK, {
     api: 'SYNO.DownloadStation.Task',
     version: 1,
     method: 'list',
-    _sid: sid,
+    sid,
     ...options,
     additional: options && options.additional && options.additional.length ? options.additional.join(',') : undefined
-  })}`);
+  });
 }
 
 export interface DownloadStationTaskGetInfoRequest {
@@ -224,15 +228,15 @@ export interface DownloadStationTaskGetInfoResponse {
 }
 
 function Task_GetInfo(sid: string, options: DownloadStationTaskGetInfoRequest): Promise<SynologyResponse<DownloadStationTaskGetInfoResponse>> {
-  return get(`${BASE_URL}/webapi/DownloadStation/task.cgi?${stringify({
+  return get(CGI_NAME_TASK, {
     api: 'SYNO.DownloadStation.Task',
     version: 1,
     method: 'getinfo',
-    _sid: sid,
+    sid,
     ...options,
     id: options.id.join(','),
     additional: options.additional && options.additional.length ? options.additional.join(',') : undefined
-  })}`);
+  });
 }
 
 export interface DownloadStationTaskCreateRequest {
@@ -251,14 +255,14 @@ function Task_Create(sid: string, options: DownloadStationTaskCreateRequest): Pr
     throw new Error(`Unimplemented behavior: cannot send file data to Task.Create!`);
   }
 
-  return get(`${BASE_URL}/webapi/DownloadStation/task.cgi?${stringify({
+  return get(CGI_NAME_TASK, {
     api: 'SYNO.DownloadStation.Task',
     version: 1,
     method: 'create',
-    _sid: sid,
+    sid,
     ...options,
     uri: options.uri && options.uri.length ? options.uri.join(',') : undefined
-  })}`);
+  });
 }
 
 export interface DownloadStationTaskDeleteRequest {
@@ -272,47 +276,47 @@ export type DownloadStationTaskActionResponse = {
 }[];
 
 function Task_Delete(sid: string, options: DownloadStationTaskDeleteRequest): Promise<SynologyResponse<DownloadStationTaskActionResponse>> {
-  return get(`${BASE_URL}/webapi/DownloadStation/task.cgi?${stringify({
+  return get(CGI_NAME_TASK, {
     api: 'SYNO.DownloadStation.Task',
     version: 1,
     method: 'delete',
-    _sid: sid,
+    sid,
     ...options,
     id: options.id.length ? options.id.join(',') : undefined
-  })}`);
+  });
 }
 
 function Task_Pause(sid: string, options: { id: string[]; }): Promise<SynologyResponse<DownloadStationTaskActionResponse>> {
-  return get(`${BASE_URL}/webapi/DownloadStation/task.cgi?${stringify({
+  return get(CGI_NAME_TASK, {
     api: 'SYNO.DownloadStation.Task',
     version: 1,
     method: 'pause',
-    _sid: sid,
+    sid,
     ...options,
     id: options.id.length ? options.id.join(',') : undefined
-  })}`);
+  });
 }
 
 function Task_Resume(sid: string, options: { id: string[]; }): Promise<SynologyResponse<DownloadStationTaskActionResponse>> {
-  return get(`${BASE_URL}/webapi/DownloadStation/task.cgi?${stringify({
+  return get(CGI_NAME_TASK, {
     api: 'SYNO.DownloadStation.Task',
     version: 1,
     method: 'resume',
-    _sid: sid,
+    sid,
     ...options,
     id: options.id.length ? options.id.join(',') : undefined
-  })}`);
+  });
 }
 
 function Task_Edit(sid: string, options: { id: string[]; destination?: string; }): Promise<SynologyResponse<DownloadStationTaskActionResponse>> {
-  return get(`${BASE_URL}/webapi/DownloadStation/task.cgi?${stringify({
+  return get(CGI_NAME_TASK, {
     api: 'SYNO.DownloadStation.Task',
     version: 1,
     method: 'edit',
-    _sid: sid,
+    sid,
     ...options,
     id: options.id.length ? options.id.join(',') : undefined
-  })}`);
+  });
 }
 
 export interface DownloadStationStatisticGetInfoResponse {
@@ -323,12 +327,12 @@ export interface DownloadStationStatisticGetInfoResponse {
 }
 
 function Statistic_GetInfo(sid: string): Promise<SynologyResponse<DownloadStationStatisticGetInfoResponse>> {
-  return get(`${BASE_URL}/webapi/DownloadStation/statistic.cgi?${stringify({
+  return get(CGI_NAME_STATISTIC, {
     api: 'SYNO.DownloadStation.Statistic',
     version: 1,
     method: 'getinfo',
-    _sid: sid
-  })}`);
+    sid
+  });
 }
 
 export const DownloadStation = {

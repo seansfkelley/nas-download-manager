@@ -1,11 +1,11 @@
-import { stringify } from 'query-string';
-
-import { SynologyResponse, get, BASE_URL, SESSION_NAME } from './shared';
+import { SynologyResponse, get, SESSION_NAME } from './shared';
 
 export type LoginResult = SynologyResponse<{ sid: string; }>;
 
+const CGI_NAME = 'auth';
+
 function Login(username: string, password: string): Promise<LoginResult> {
-  return get(`${BASE_URL}/webapi/auth.cgi?${stringify({
+  return get(CGI_NAME, {
     api: 'SYNO.API.Auth',
     version: 2,
     method: 'login',
@@ -13,19 +13,19 @@ function Login(username: string, password: string): Promise<LoginResult> {
     passwd: password,
     session: SESSION_NAME,
     format: 'sid'
-  })}`);
+  });
 }
 
 export type LogoutResult = SynologyResponse<{}>;
 
 function Logout(sid: string): Promise<LogoutResult> {
-  return get(`${BASE_URL}/webapi/auth.cgi?${stringify({
+  return get(CGI_NAME, {
     api: 'SYNO.API.Auth',
     version: 1,
     method: 'logout',
     session: SESSION_NAME,
-    _sid: sid
-  })}`);
+    sid
+  });
 }
 
 export const Auth = { Login, Logout };
