@@ -3,8 +3,6 @@ import { USERNAME, PASSWORD } from './api/secrets';
 
 let sid: string;
 
-console.log('running extension!');
-
 new Promise(resolve => {
   setTimeout(() => { resolve(); }, 500);
 })

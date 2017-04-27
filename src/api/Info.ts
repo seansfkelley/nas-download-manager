@@ -1,6 +1,7 @@
 import { SynologyResponse, get } from './shared';
 
 const CGI_NAME = 'query';
+const API_NAME = 'SYNO.API.Info';
 
 export type QueryResponse = SynologyResponse<Record<string, {
   minVersion: number;
@@ -11,7 +12,7 @@ export type QueryResponse = SynologyResponse<Record<string, {
 
 function Query(query: 'ALL' | string[] = 'ALL'): Promise<QueryResponse> {
   return get(CGI_NAME, {
-    api: 'SYNO.API.Info',
+    api: API_NAME,
     version: 1,
     method: 'query',
     query: query === 'ALL' ? query : query.join(',')
