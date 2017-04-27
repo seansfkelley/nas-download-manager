@@ -1,30 +1,31 @@
-import { SynologyResponse, get, SESSION_NAME } from './shared';
+import { SynologyResponse, get } from './shared';
+import { SessionName } from './constants';
 
 export type LoginResult = SynologyResponse<{ sid: string; }>;
 
 const CGI_NAME = 'auth';
 const API_NAME = 'SYNO.API.Auth';
 
-function Login(username: string, password: string): Promise<LoginResult> {
+function Login(options: { account: string; passwd: string; session: SessionName; }): Promise<LoginResult> {
   return get(CGI_NAME, {
     api: API_NAME,
     version: 2,
     method: 'login',
-    account: username,
-    passwd: password,
-    session: SESSION_NAME,
+    account: options.account,
+    passwd: options.passwd,
+    session: options.session,
     format: 'sid'
   });
 }
 
 export type LogoutResult = SynologyResponse<{}>;
 
-function Logout(sid: string): Promise<LogoutResult> {
+function Logout(sid: string, options: { session: SessionName }): Promise<LogoutResult> {
   return get(CGI_NAME, {
     api: API_NAME,
     version: 1,
     method: 'logout',
-    session: SESSION_NAME,
+    session: options.session,
     sid
   });
 }

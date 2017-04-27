@@ -6,7 +6,7 @@
   </head>
 
   <body>
-    <div id="options">
+    <form id="options">
       <div class="option-group">
         <div class="row">
           <h3>Host and Authentication</h3>
@@ -30,18 +30,20 @@
         </div>
       </div>
       <div class="row">
-        <button>
+        <button id="test-connection">
           Test Connection
         </button>
         <div id="test-output"/>
       </div>
 
-      <div class="option-group">
-        <button id="save">Save Settings</button>
-      </div>
-    </div>
+      <hr/>
 
-    <script src="dist/settings.js"></script>
+      <div class="option-group">
+        <button type="submit">Save Settings</button>
+      </div>
+    </form>
+
+    <script src="../dist/settings.js"></script>
   </body>
 
 </html>

@@ -28,3 +28,9 @@ export const ERROR_CODES = {
     408: 'File does not exist.'
   }
 };
+
+export const SessionName = {
+  DownloadStation: 'DownloadStation' as 'DownloadStation'
+};
+
+export type SessionName = keyof typeof SessionName;
