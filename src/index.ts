@@ -1,12 +1,23 @@
-import { Auth, DownloadStation } from './api';
+import { Info, Auth, LoginResult, DownloadStation } from './api';
 import { USERNAME, PASSWORD } from './api/secrets';
 
 let sid: string;
 
 console.log('running extension!');
 
-Auth.Login(USERNAME, PASSWORD)
+new Promise(resolve => {
+  setTimeout(() => { resolve(); }, 500);
+})
+  .then(() => {
+    return Info.Query();
+  })
   .then(result => {
+    console.log(result);
+  })
+  .then(() => {
+    return Auth.Login(USERNAME, PASSWORD);
+  })
+  .then((result: LoginResult) => {
     console.log(result);
     if (result.success) {
       sid = result.data.sid;
@@ -34,4 +45,7 @@ Auth.Login(USERNAME, PASSWORD)
     } else {
       return;
     }
+  })
+  .catch(error => {
+    console.log(error);
   });

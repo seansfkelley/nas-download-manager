@@ -1,6 +1,6 @@
 import { stringify } from 'query-string';
 
-import { SynologyResponse, get, BASE_URL, SESSION_NAME } from './shared';
+import { SynologyResponse, get, BASE_URL } from './shared';
 
 export type GetInfoResult = SynologyResponse<{
   is_manager: boolean;
@@ -13,8 +13,7 @@ function GetInfo(sid: string): Promise<GetInfoResult> {
     api: 'SYNO.DownloadStation.Info',
     version: 1,
     method: 'getinfo',
-    session: SESSION_NAME,
-    sid
+    _sid: sid
   })}`);
 }
 
@@ -25,8 +24,19 @@ function GetConfig(sid: string): Promise<GetConfigResult> {
     api: 'SYNO.DownloadStation.Info',
     version: 1,
     method: 'getconfig',
-    session: SESSION_NAME,
-    sid
+    _sid: sid
+  })}`);
+}
+
+export type ListResult = SynologyResponse<{}>;
+
+function List(sid: string, additional: ('detail' | 'transfer' | 'file' | 'tracker' | 'peer')[] = []): Promise<ListResult> {
+  return get(`${BASE_URL}/webapi/DownloadStation/task.cgi?${stringify({
+    api: 'SYNO.DownloadStation.Task',
+    version: 1,
+    method: 'list',
+    additional: additional.join(','),
+    _sid: sid
   })}`);
 }
 
@@ -34,5 +44,8 @@ export const DownloadStation = {
   Info: {
     GetInfo,
     GetConfig
+  },
+  Task: {
+    List
   }
 };

@@ -2,11 +2,7 @@ import { stringify } from 'query-string';
 
 import { SynologyResponse, get, BASE_URL, SESSION_NAME } from './shared';
 
-export type LoginResult = SynologyResponse<{
-  data: {
-    sid: string;
-  };
-}>;
+export type LoginResult = SynologyResponse<{ sid: string; }>;
 
 function Login(username: string, password: string): Promise<LoginResult> {
   return get(`${BASE_URL}/webapi/auth.cgi?${stringify({
@@ -28,7 +24,7 @@ function Logout(sid: string): Promise<LogoutResult> {
     version: 1,
     method: 'logout',
     session: SESSION_NAME,
-    sid
+    _sid: sid
   })}`);
 }
 
