@@ -7,8 +7,8 @@
     "test": "exit 0",
     "build:transpile": "tsc",
     "watch:transpile": "tsc -w",
-    "build:bundle": "rollup -c",
-    "watch:bundle": "rollup -cw",
+    "build:bundle": "node build.js",
+    "watch:bundle": "node build.js -w",
     "build": "npm-run-all build:transpile build:bundle",
     "watch": "npm-run-all watch:transpile watch:bundle"
   },

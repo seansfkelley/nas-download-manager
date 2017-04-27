@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+  </head>
+
+  <body>
+    <div id="options">
+      <div class="option-group">
+        <div class="row">
+          <h3>Host and Authentication</h3>
+        </div>
+        <div class="row">
+          <label class="labeled-input">
+            Host
+            <input type="text" id="host"/>
+          </label>
+        </div>
+        <div class="row">
+          <label class="labeled-input">
+            Username
+            <input type="text" id="username"/>
+          </label>
+
+          <label class="labeled-input">
+            Password
+            <input type="password" id="password"/>
+          </label>
+        </div>
+      </div>
+      <div class="row">
+        <button>
+          Test Connection
+        </button>
+        <div id="test-output"/>
+      </div>
+
+      <div class="option-group">
+        <button id="save">Save Settings</button>
+      </div>
+    </div>
+
+    <script src="dist/settings.js"></script>
+  </body>
+
+</html>
