@@ -12,5 +12,15 @@
   },
   "permissions": [
     "*://*.synology.me/*"
-  ]
+  ],
+  "browser_action": {
+    "browser_style": true,
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "64": "icons/icon-64.png",
+      "256": "icons/icon-256.png"
+    }
+  }
 }
