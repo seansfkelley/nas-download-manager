@@ -1,0 +1,15 @@
+.error-message {
+  color: red;
+}
+
+#hostname-container .error-message {
+  display: none;
+}
+
+#hostname-container.is-errored .error-message {
+  display: initial;
+}
+
+#hostname-container.is-errored input {
+  border: 1px solid red;
+}

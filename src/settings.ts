@@ -1,4 +1,4 @@
-import { Auth, SessionName, DownloadStation, ERROR_CODES } from './api';
+import { Auth, SessionName, DownloadStation, ERROR_CODES, LEGAL_HOST_SUFFIXES } from './api';
 
 declare const browser: {
   storage: {
@@ -8,6 +8,8 @@ declare const browser: {
     };
   }
 };
+
+const HOSTNAME_REGEX = new RegExp(`^https?://.+\\.(${LEGAL_HOST_SUFFIXES.join('|').replace('.', '\\.')}):\\d+$`);
 
 interface Settings {
   host?: string;
@@ -72,14 +74,32 @@ function loadSettings() {
 
 const TEST_BUTTON = document.getElementById('test-connection-button') as HTMLButtonElement;
 const TEST_OUTPUT = document.getElementById('test-output') as HTMLDivElement;
+const HOSTNAME_CONTAINER = document.getElementById('hostname-container') as HTMLLabelElement;
+const HOSTNAME_INPUT = document.getElementById('host') as HTMLInputElement;
+
+function onHostnameChange() {
+  HOSTNAME_INPUT.value = HOSTNAME_INPUT.value.trim();
+}
+
+HOSTNAME_INPUT.addEventListener('input', onHostnameChange);
+// HOSTNAME_INPUT.addEventListener('change', onHostnameChange);
 
 const DEFAULT_ERROR_MESSAGE = 'Unknown error; please check your internet connetion and hostname.';
 
 function testConnection() {
   const settings = getSettingsFromDom();
 
-  if (!settings.host || !settings.username || !settings.password) {
+  if (settings.host == null || settings.username == null || settings.password == null) {
     throw new Error(`settings in invalid state: cannot test connection without host/username/password all set`);
+  }
+
+  const isValidHostname = HOSTNAME_REGEX.test(settings.host);
+
+  HOSTNAME_CONTAINER.classList.remove('is-errored');
+
+  if (!isValidHostname) {
+    HOSTNAME_CONTAINER.classList.add('is-errored');
+    return;
   }
 
   TEST_BUTTON.disabled = true;

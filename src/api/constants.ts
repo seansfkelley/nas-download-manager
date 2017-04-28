@@ -36,5 +36,5 @@ export const SessionName = {
 export type SessionName = keyof typeof SessionName;
 
 export const LEGAL_HOST_SUFFIXES = [
-  '.synology.me'
+  'synology.me'
 ];

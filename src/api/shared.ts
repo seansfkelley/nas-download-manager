@@ -26,5 +26,8 @@ export function get<I extends SynologyApiRequest, O>(baseUrl: string, cgi: strin
     _sid: request.sid
   })}`;
   console.log(url);
-  return Axios({ url }).then(response => response.data);
+  return Axios({ url }).then(response => {
+    console.log(response.data);
+    return response.data;
+  });
 }
