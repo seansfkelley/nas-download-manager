@@ -29,6 +29,8 @@ export const ERROR_CODES = {
   } as Record<string, string>
 };
 
+export const AUTH_BAD_CREDENTIALS_CODE = 400;
+
 export const SessionName = {
   DownloadStation: 'DownloadStation' as 'DownloadStation'
 };

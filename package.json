@@ -29,7 +29,12 @@
   },
   "dependencies": {
     "@types/query-string": "^4.3.1",
+    "@types/react": "^15.0.23",
+    "@types/react-dom": "^15.5.0",
     "axios": "^0.16.1",
-    "query-string": "^4.3.4"
+    "preact": "^8.1.0",
+    "preact-compat": "^3.15.0",
+    "query-string": "^4.3.4",
+    "rollup-plugin-alias": "^1.3.1"
   }
 }

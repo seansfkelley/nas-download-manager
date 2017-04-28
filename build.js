@@ -1,9 +1,11 @@
+const path = require('path');
 const rollup = require('rollup');
 const watch = require('rollup-watch');
 const resolve = require('rollup-plugin-node-resolve');
 const commonjs = require('rollup-plugin-commonjs');
 const builtins = require('rollup-plugin-node-builtins');
 const globals = require('rollup-plugin-node-globals');
+const alias = require('rollup-plugin-alias');
 
 function watchEventHandler(event, filename) {
   switch (event.code) {
@@ -35,9 +37,17 @@ function bundleAndMaybeWatch(baseFilename) {
         main: true,
         browser: true
       }),
-      commonjs(),
+      commonjs({
+        namedExports: {
+          'preact-compat': [ 'Component', 'PureComponent', 'render', 'createElement' ]
+        }
+      }),
       globals(),
-      builtins()
+      builtins(),
+      alias({
+        'react': path.resolve(__dirname, 'node_modules/preact-compat/dist/preact-compat'),
+        'react-dom': path.resolve(__dirname, 'node_modules/preact-compat/dist/preact-compat')
+      })
     ]
   };
 
@@ -54,5 +64,5 @@ function bundleAndMaybeWatch(baseFilename) {
   }
 }
 
-bundleAndMaybeWatch('settings');
+bundleAndMaybeWatch('settings/settings');
 bundleAndMaybeWatch('background');
