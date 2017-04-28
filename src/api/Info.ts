@@ -10,8 +10,8 @@ export type QueryResponse = SynologyResponse<Record<string, {
   requestFormat: string;
 }>>;
 
-function Query(query: 'ALL' | string[] = 'ALL'): Promise<QueryResponse> {
-  return get(CGI_NAME, {
+function Query(baseUrl: string, query: 'ALL' | string[] = 'ALL'): Promise<QueryResponse> {
+  return get(baseUrl, CGI_NAME, {
     api: API_NAME,
     version: 1,
     method: 'query',

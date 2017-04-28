@@ -3,10 +3,6 @@
 import Axios from 'axios';
 import { stringify } from 'query-string';
 
-import { PROTOCOL, HOSTNAME, PORT } from './secrets';
-
-export const BASE_URL = `${PROTOCOL}://${HOSTNAME}:${PORT}`;
-
 export type SynologyResponse<S> = {
   success: true;
   data: S;
@@ -24,8 +20,8 @@ export interface SynologyApiRequest {
   sid?: string;
 }
 
-export function get<I extends SynologyApiRequest, O>(cgi: string, request: I): Promise<SynologyResponse<O>> {
-  const url = `${BASE_URL}/webapi/${cgi}.cgi?${stringify({
+export function get<I extends SynologyApiRequest, O>(baseUrl: string, cgi: string, request: I): Promise<SynologyResponse<O>> {
+  const url = `${baseUrl}/webapi/${cgi}.cgi?${stringify({
     ...(request as object),
     _sid: request.sid
   })}`;

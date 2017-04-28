@@ -6,8 +6,8 @@ export type LoginResult = SynologyResponse<{ sid: string; }>;
 const CGI_NAME = 'auth';
 const API_NAME = 'SYNO.API.Auth';
 
-function Login(options: { account: string; passwd: string; session: SessionName; }): Promise<LoginResult> {
-  return get(CGI_NAME, {
+function Login(baseUrl: string, options: { account: string; passwd: string; session: SessionName; }): Promise<LoginResult> {
+  return get(baseUrl, CGI_NAME, {
     api: API_NAME,
     version: 2,
     method: 'login',
@@ -20,8 +20,8 @@ function Login(options: { account: string; passwd: string; session: SessionName;
 
 export type LogoutResult = SynologyResponse<{}>;
 
-function Logout(sid: string, options: { session: SessionName }): Promise<LogoutResult> {
-  return get(CGI_NAME, {
+function Logout(baseUrl: string, sid: string, options: { session: SessionName }): Promise<LogoutResult> {
+  return get(baseUrl, CGI_NAME, {
     api: API_NAME,
     version: 1,
     method: 'logout',

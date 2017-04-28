@@ -4,8 +4,8 @@ import { DownloadStationScheduleConfig } from './ScheduleTypes';
 const CGI_NAME = `DownloadStation/schedule`;
 const API_NAME = 'SYNO.DownloadStation.Schedule';
 
-function GetConfig(sid: string): Promise<SynologyResponse<DownloadStationScheduleConfig>> {
-  return get(CGI_NAME, {
+function GetConfig(baseUrl: string, sid: string): Promise<SynologyResponse<DownloadStationScheduleConfig>> {
+  return get(baseUrl, CGI_NAME, {
     api: API_NAME,
     version: 1,
     method: 'getconfig',
@@ -13,8 +13,8 @@ function GetConfig(sid: string): Promise<SynologyResponse<DownloadStationSchedul
   });
 }
 
-function SetConfig(sid: string, config: Partial<DownloadStationScheduleConfig>): Promise<SynologyResponse<{}>> {
-  return get(CGI_NAME, {
+function SetConfig(baseUrl: string, sid: string, config: Partial<DownloadStationScheduleConfig>): Promise<SynologyResponse<{}>> {
+  return get(baseUrl, CGI_NAME, {
     api: API_NAME,
     version: 1,
     method: 'setconfig',

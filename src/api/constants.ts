@@ -8,14 +8,14 @@ export const ERROR_CODES = {
     105: 'The logged in session does not have permission.',
     106: 'Session timeout.',
     107: 'Session interrupted by duplicate login.'
-  },
-  'login': {
+  } as Record<string, string>,
+  'auth': {
     400: 'No such username or incorrect password.',
     401: 'Account disabled.',
     402: 'Permission denied.',
     403: 'Two-step verification needed.',
     404: 'Two-step verification failed.'
-  },
+  } as Record<string, string>,
   'task': {
     400: 'File upload failed.',
     401: 'Max number of tasks reached.',
@@ -26,7 +26,7 @@ export const ERROR_CODES = {
     406: 'No default destination.',
     407: 'Set destination failed.',
     408: 'File does not exist.'
-  }
+  } as Record<string, string>
 };
 
 export const SessionName = {
@@ -34,3 +34,7 @@ export const SessionName = {
 };
 
 export type SessionName = keyof typeof SessionName;
+
+export const LEGAL_HOST_SUFFIXES = [
+  '.synology.me'
+];
