@@ -29,8 +29,8 @@ interface SettingsFormState {
 
 const ORDERED_VISIBLE_TASK_TYPE_NAMES: Record<keyof VisibleTaskSettings, string> = {
   downloading: 'Downloading',
-  uploading: 'Uploading',
-  completed: 'Completed (not uploading)',
+  uploading: 'Completed, uploading',
+  completed: 'Completed, not uploading',
   errored: 'Errored',
   other: 'Other'
 };
@@ -46,14 +46,15 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
 
     return (
       <div className='settings-form'>
-        <div className='option-group'>
-          <header className='row'>
-            <h3>Connection</h3>
-            <p className='preferences-description'>
-              The hostname should be a URL of the form <pre>http://your.host.name:1234</pre> (or <pre>https</pre>, as appropriate).
-            </p>
-          </header>
-          <div className='row'>
+        <header>
+          <h3>Connection</h3>
+          <p className={classNames({ 'error-message': this.state.connectionTest === 'invalid-host' })}>
+            The hostname must be a URL of the form <pre>http(s)://{'<hostname>:<port>'}</pre>.
+          </p>
+        </header>
+
+        <ul className='settings-list'>
+          <li>
             <label className='labeled-input'>
               Host
               <input
@@ -65,8 +66,9 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
                 }}
               />
             </label>
-          </div>
-          <div className='row'>
+          </li>
+
+          <li>
             <label className='labeled-input'>
               Username
               <input
@@ -90,9 +92,9 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
                 }}
               />
             </label>
-          </div>
+          </li>
 
-          <div className='row'>
+          <li>
             <button
               onClick={this.testConnection}
               {...this.disabledPropAndClassName(
@@ -106,56 +108,56 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
               Test Connection
             </button>
             {this.renderConnectionTestResult()}
-          </div>
-        </div>
+          </li>
+        </ul>
 
-        <hr/>
+        <div className='panel-section-separator'/>
 
-        <div className='option-group'>
-          <header className='row'>
-            <h3>Downloads List</h3>
-            <p>Display these task types in the popup menu</p>
-          </header>
+        <header>
+          <h3>Downloads List</h3>
+          <p>Display these task types in the popup menu.</p>
+        </header>
 
-          <div>
-            {Object.keys(ORDERED_VISIBLE_TASK_TYPE_NAMES).map((type: keyof VisibleTaskSettings) => (
-              <div key={type}>
-                <input
-                  id={`${type}-input`}
-                  type='checkbox'
-                  checked={this.state.settings.visibleTasks[type]}
-                  onChange={() => {
-                    this.toggleVisibilitySetting(type)
-                  }}
-                />
-                <label htmlFor={`${type}-input`}>
-                  {ORDERED_VISIBLE_TASK_TYPE_NAMES[type]}
-                </label>
-              </div>
-            ))}
-          </div>
-        </div>
+        <ul className='settings-list'>
+          {Object.keys(ORDERED_VISIBLE_TASK_TYPE_NAMES).map((type: keyof VisibleTaskSettings) => (
+            <li key={type}>
+              <input
+                id={`${type}-input`}
+                type='checkbox'
+                checked={this.state.settings.visibleTasks[type]}
+                onChange={() => {
+                  this.toggleVisibilitySetting(type)
+                }}
+              />
+              <label htmlFor={`${type}-input`}>
+                {ORDERED_VISIBLE_TASK_TYPE_NAMES[type]}
+              </label>
+            </li>
+          ))}
+        </ul>
 
-        <hr/>
+        <div className='panel-section-separator'/>
 
-        <div className='option-group'>
-          <div className='row'>
-            <h3>Notifications</h3>
-          </div>
+        <header>
+          <h3>Notifications</h3>
+        </header>
 
-          <input
-            id='notifications-checkbox'
-            type='checkbox'
-            checked={this.state.settings.notifications.enabled}
-            onChange={() => {
-              this.setNotificationSetting('enabled', !this.state.settings.notifications.enabled);
-            }}
-          />
-          <label htmlFor='notifications-checkbox'>
-            Enable Notifications
-          </label>
+        <ul className='settings-list'>
+          <li>
+            <input
+              id='notifications-checkbox'
+              type='checkbox'
+              checked={this.state.settings.notifications.enabled}
+              onChange={() => {
+                this.setNotificationSetting('enabled', !this.state.settings.notifications.enabled);
+              }}
+            />
+            <label>
+              Enable Notifications
+            </label>
+          </li>
 
-          <label>
+          <li>
             Polling Interval
             <input
               type='number'
@@ -168,10 +170,10 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
                 this.setNotificationSetting('pollingInterval', +e.currentTarget.value);
               }}
             />
-          </label>
-        </div>
+          </li>
+        </ul>
 
-        <hr/>
+        <div className='panel-section-separator'/>
 
         <div className='option-group'>
           <button

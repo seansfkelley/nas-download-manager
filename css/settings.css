@@ -2,14 +2,28 @@
   color: red;
 }
 
-#hostname-container .error-message {
-  display: none;
+header p {
+  font-size: .9em;
+  color: #999;
 }
 
-#hostname-container.is-errored .error-message {
-  display: initial;
+p pre {
+  display: inline;
 }
 
-#hostname-container.is-errored input {
-  border: 1px solid red;
+button {
+  padding: 6px;
+  height: auto;
+}
+
+ul.settings-list {
+  list-style: none;
+  padding-left: 15px;
+}
+
+ul.settings-list li {
+  margin: 4px auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
 }
