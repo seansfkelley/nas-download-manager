@@ -1,4 +1,4 @@
-import { Auth, SessionName, DownloadStation, ERROR_CODES, LEGAL_HOST_SUFFIXES, AUTH_BAD_CREDENTIALS_CODE } from '../api';
+import { Auth, SessionName, ERROR_CODES, LEGAL_HOST_SUFFIXES, AUTH_BAD_CREDENTIALS_CODE } from '../api';
 
 declare const browser: {
   storage: {
@@ -9,16 +9,48 @@ declare const browser: {
   }
 };
 
-export interface Settings {
+export interface ConnectionSettings {
   host: string;
   username: string;
   password: string;
 }
 
-export const EMPTY_SETTINGS: Settings = {
-  host: '',
-  username: '',
-  password: ''
+export interface VisibleTaskSettings {
+  downloading: boolean;
+  uploading: boolean;
+  completed: boolean;
+  errored: boolean;
+  other: boolean;
+}
+
+export interface NotificationSettings {
+  enabled: boolean;
+  pollingInterval: number;
+}
+
+export interface Settings {
+  connection: ConnectionSettings;
+  visibleTasks: VisibleTaskSettings;
+  notifications: NotificationSettings;
+}
+
+export const DEFAULT_SETTINGS: Settings = {
+  connection: {
+    host: '',
+    username: '',
+    password: '',
+  },
+  visibleTasks: {
+    downloading: true,
+    uploading: true,
+    completed: false,
+    errored: true,
+    other: true
+  },
+  notifications: {
+    enabled: false,
+    pollingInterval: 60
+  }
 };
 
 const HOSTNAME_REGEX = new RegExp(`^https?://.+\\.(${LEGAL_HOST_SUFFIXES.join('|').replace('.', '\\.')}):\\d+$`);
@@ -30,9 +62,9 @@ export function isValidHost(host: string) {
 // Somewhat awkward trick to make sure the compiler enforces that this runtime constant
 // includes all the compile-time type names.
 const _settingNames: Record<keyof Settings, true> = {
-  'host': true,
-  'username': true,
-  'password': true
+  'connection': true,
+  'visibleTasks': true,
+  'notifications': true
 };
 
 export const SETTING_NAMES = Object.keys(_settingNames) as (keyof Settings)[];
@@ -52,18 +84,16 @@ export function loadSettings() {
     .then<Settings>(settings => {
       console.log('loaded persisted settings');
       return {
-        ...EMPTY_SETTINGS,
+        ...DEFAULT_SETTINGS,
         ...settings
       };
     });
 }
 
-export type ConnectionTestResult = 'good' | 'missing-values' | 'invalid-host' | 'unknown-error' | 'bad-credentials' | { failMessage: string };
+export type ConnectionTestResult = 'good' | 'invalid-host' | 'unknown-error' | 'bad-credentials' | { failMessage: string };
 
 export function testConnection(settings: Settings): Promise<ConnectionTestResult> {
-  if (settings.host == null || settings.username == null || settings.password == null) {
-    return Promise.resolve('missing-values' as 'missing-values');
-  } else if (!isValidHost(settings.host)) {
+  if (!isValidHost(settings.connection.host)) {
     return Promise.resolve('invalid-host' as 'invalid-host');
   } else {
     function failureMessage(failMessage?: string) {
@@ -74,10 +104,10 @@ export function testConnection(settings: Settings): Promise<ConnectionTestResult
       }
     }
 
-    const host = settings.host;
+    const host = settings.connection.host;
     return Auth.Login(host, {
-      account: settings.username,
-      passwd: settings.password,
+      account: settings.connection.username,
+      passwd: settings.connection.password,
       session: SessionName.DownloadStation
     })
       .then(result => {
@@ -90,16 +120,7 @@ export function testConnection(settings: Settings): Promise<ConnectionTestResult
             return failureMessage(ERROR_CODES.common[result.error.code] || ERROR_CODES.auth[result.error.code]);
           }
         } else {
-          return DownloadStation.Info.GetConfig(host, result.data.sid)
-            .then(result => {
-              if (!result) {
-                return 'unknown-error';
-              } else if (!result.success) {
-                return failureMessage(ERROR_CODES.common[result.error.code] || ERROR_CODES.auth[result.error.code]);
-              } else {
-                return 'good';
-              }
-            })
+          return 'good';
         }
       })
       .catch((error?: any) => {
