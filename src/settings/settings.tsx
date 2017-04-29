@@ -1,5 +1,8 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import * as classNamesProxy from 'classnames';
+
+const classNames: ClassNamesFn = (classNamesProxy as any).default || classNamesProxy;
 
 import {
   Settings,
@@ -21,7 +24,7 @@ interface SettingsFormProps {
 interface SettingsFormState {
   settings: Settings;
   connectionTest?: 'in-progress' | ConnectionTestResult;
-  savingStatus?: 'in-progress' | 'failed' | 'finished';
+  savingStatus: 'unchanged' | 'pending-changes' | 'in-progress' | 'failed' | 'saved';
 }
 
 const ORDERED_VISIBLE_TASK_TYPE_NAMES: Record<keyof VisibleTaskSettings, string> = {
@@ -34,24 +37,28 @@ const ORDERED_VISIBLE_TASK_TYPE_NAMES: Record<keyof VisibleTaskSettings, string>
 
 class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState> {
   state: SettingsFormState = {
-    settings: this.props.initialSettings
+    settings: this.props.initialSettings,
+    savingStatus: 'unchanged'
   };
 
   render() {
     console.log(this.state.settings);
+
     return (
       <div className='settings-form'>
         <div className='option-group'>
           <header className='row'>
             <h3>Connection</h3>
-            <p>The hostname should be a URL of the form <pre>http://your.host.name:1234</pre> (or <pre>https</pre>, as appropriate).</p>
+            <p className='preferences-description'>
+              The hostname should be a URL of the form <pre>http://your.host.name:1234</pre> (or <pre>https</pre>, as appropriate).
+            </p>
           </header>
           <div className='row'>
             <label className='labeled-input'>
               Host
               <input
                 type='text'
-                disabled={this.state.connectionTest === 'in-progress'}
+                {...this.disabledPropAndClassName(this.state.connectionTest === 'in-progress')}
                 value={this.state.settings.connection.host}
                 onChange={e => {
                   this.setConnectionSetting('host', e.currentTarget.value.trim());
@@ -64,7 +71,7 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
               Username
               <input
                 type='text'
-                disabled={this.state.connectionTest === 'in-progress'}
+                {...this.disabledPropAndClassName(this.state.connectionTest === 'in-progress')}
                 value={this.state.settings.connection.username}
                 onChange={e => {
                   this.setConnectionSetting('username', e.currentTarget.value);
@@ -76,7 +83,7 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
               Password
               <input
                 type='password'
-                disabled={this.state.connectionTest === 'in-progress'}
+                {...this.disabledPropAndClassName(this.state.connectionTest === 'in-progress')}
                 value={this.state.settings.connection.password}
                 onChange={e => {
                   this.setConnectionSetting('password', e.currentTarget.value);
@@ -88,13 +95,13 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
           <div className='row'>
             <button
               onClick={this.testConnection}
-              disabled={
+              {...this.disabledPropAndClassName(
                 !this.state.settings.connection.host ||
                 !this.state.settings.connection.username ||
                 !this.state.settings.connection.password ||
                 this.state.connectionTest === 'in-progress' ||
                 this.state.connectionTest === 'good'
-              }
+              )}
             >
               Test Connection
             </button>
@@ -110,19 +117,21 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
             <p>Display these task types in the popup menu</p>
           </header>
 
-
           <div>
             {Object.keys(ORDERED_VISIBLE_TASK_TYPE_NAMES).map((type: keyof VisibleTaskSettings) => (
-              <label key={type}>
+              <div key={type}>
                 <input
+                  id={`${type}-input`}
                   type='checkbox'
                   checked={this.state.settings.visibleTasks[type]}
                   onChange={() => {
                     this.toggleVisibilitySetting(type)
                   }}
                 />
-                {ORDERED_VISIBLE_TASK_TYPE_NAMES[type]}
-              </label>
+                <label htmlFor={`${type}-input`}>
+                  {ORDERED_VISIBLE_TASK_TYPE_NAMES[type]}
+                </label>
+              </div>
             ))}
           </div>
         </div>
@@ -134,14 +143,15 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
             <h3>Notifications</h3>
           </div>
 
-          <label>
-            <input
-              type='checkbox'
-              checked={this.state.settings.notifications.enabled}
-              onChange={() => {
-                this.setNotificationSetting('enabled', !this.state.settings.notifications.enabled);
-              }}
-            />
+          <input
+            id='notifications-checkbox'
+            type='checkbox'
+            checked={this.state.settings.notifications.enabled}
+            onChange={() => {
+              this.setNotificationSetting('enabled', !this.state.settings.notifications.enabled);
+            }}
+          />
+          <label htmlFor='notifications-checkbox'>
             Enable Notifications
           </label>
 
@@ -149,7 +159,7 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
             Polling Interval
             <input
               type='number'
-              disabled={!this.state.settings.notifications.enabled}
+              {...this.disabledPropAndClassName(!this.state.settings.notifications.enabled)}
               min='5'
               max='3600'
               step='5'
@@ -166,13 +176,18 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
         <div className='option-group'>
           <button
             onClick={this.saveSettings}
-            disabled={this.state.savingStatus === 'in-progress'}
+            {...this.disabledPropAndClassName(this.state.savingStatus === 'in-progress' || this.state.savingStatus === 'unchanged' || this.state.savingStatus === 'saved')}
           >
             Save Settings
           </button>
           {this.state.savingStatus === 'failed' && (
             <div className='error-message'>
               Failed to save settings!
+            </div>
+          )}
+          {this.state.savingStatus === 'saved' && (
+            <div className='success-message'>
+              Saved settings!
             </div>
           )}
         </div>
@@ -182,7 +197,6 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
 
   private renderConnectionTestResult() {
     switch (this.state.connectionTest) {
-      case null:
       case undefined:
         return null;
 
@@ -203,11 +217,19 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
 
   }
 
+  private disabledPropAndClassName(disabled: boolean, otherClassNames?: string) {
+    return {
+      disabled,
+      className: classNames({ 'disabled': disabled }, otherClassNames)
+    };
+  }
+
   private setConnectionSetting<K extends keyof ConnectionSettings>(key: K, value: ConnectionSettings[K]) {
     this.setState({
+      savingStatus: 'pending-changes',
+      connectionTest: undefined,
       settings: {
         ...this.state.settings,
-        connectionTest: undefined,
         connection: {
           ...this.state.settings.connection,
           [key as string]: value
@@ -218,6 +240,7 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
 
   private toggleVisibilitySetting<K extends keyof VisibleTaskSettings>(key: K) {
     this.setState({
+      savingStatus: 'pending-changes',
       settings: {
         ...this.state.settings,
         visibleTasks: {
@@ -230,6 +253,7 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
 
   private setNotificationSetting<K extends keyof NotificationSettings>(key: K, value: NotificationSettings[K]) {
     this.setState({
+      savingStatus: 'pending-changes',
       settings: {
         ...this.state.settings,
         notifications: {
@@ -259,13 +283,15 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
 
     this.props.saveSettings(this.state.settings)
       .then(() => this.setState({
-        savingStatus: 'finished'
+        savingStatus: 'saved'
       }))
       .catch(() => this.setState({
         savingStatus: 'failed'
       }));
   };
 }
+
+const ELEMENT = document.body;
 
 loadSettings()
   .then(settings => {
@@ -274,7 +300,7 @@ loadSettings()
       <SettingsForm
         initialSettings={settings}
         saveSettings={saveSettings}
-      />, document.body);
+      />, ELEMENT);
   })
   .catch(error => {
     console.error('error while loading settings', error);
@@ -282,5 +308,5 @@ loadSettings()
       <SettingsForm
         initialSettings={DEFAULT_SETTINGS}
         saveSettings={saveSettings}
-      />, document.body);
+      />, ELEMENT);
   })

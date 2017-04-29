@@ -2,6 +2,10 @@
 # yarn lockfile v1
 
 
+"@types/classnames@^0.0.32":
+  version "0.0.32"
+  resolved "https://registry.yarnpkg.com/@types/classnames/-/classnames-0.0.32.tgz#449abcd9a826807811ef101e58df9f83cfc61713"
+
 "@types/query-string@^4.3.1":
   version "4.3.1"
   resolved "https://registry.yarnpkg.com/@types/query-string/-/query-string-4.3.1.tgz#59ea5c75d425817370158789aa4f6197e5abd987"
@@ -201,6 +205,10 @@ cipher-base@^1.0.0, cipher-base@^1.0.1:
   resolved "https://registry.yarnpkg.com/cipher-base/-/cipher-base-1.0.3.tgz#eeabf194419ce900da3018c207d212f2a6df0a07"
   dependencies:
     inherits "^2.0.1"
+
+classnames@^2.2.5:
+  version "2.2.5"
+  resolved "https://registry.yarnpkg.com/classnames/-/classnames-2.2.5.tgz#fb3801d453467649ef3603c7d61a02bd129bde6d"
 
 clone@~0.1.9:
   version "0.1.19"

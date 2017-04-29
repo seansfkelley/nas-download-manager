@@ -28,10 +28,12 @@
     "typescript": "^2.2.2"
   },
   "dependencies": {
+    "@types/classnames": "^0.0.32",
     "@types/query-string": "^4.3.1",
     "@types/react": "^15.0.23",
     "@types/react-dom": "^15.5.0",
     "axios": "^0.16.1",
+    "classnames": "^2.2.5",
     "preact": "^8.1.0",
     "preact-compat": "^3.15.0",
     "query-string": "^4.3.4",
