@@ -72,6 +72,7 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
       <div className='settings-form'>
         <header>
           <h3>Connection</h3>
+          <p>Please note that QuickConnect IDs are not currently supported.</p>
         </header>
 
         <ul className='settings-list'>
@@ -289,24 +290,20 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
   }
 
   private renderConnectionTestResult() {
+    let content: React.ReactChild | null;
     switch (this.state.connectionTest) {
       case undefined:
-        return null;
-
+        content = null; break;
       case 'in-progress':
-        return <span>in progress...</span>;
-
+        content = 'Testing...'; break;
       case 'good':
-        return <span>good!</span>;
-
+        content = 'Connection successful!'; break;
       case 'unknown-error':
-      case 'bad-credentials':
-        return <span>{this.state.connectionTest}</span>;
-
+        content = 'An unexpected error occured -- check your host settings and internet connection.'; break;
       default:
         return this.state.connectionTest.failMessage;
     }
-
+    return content;
   }
 
   private disabledPropAndClassName(disabled: boolean, otherClassNames?: string) {

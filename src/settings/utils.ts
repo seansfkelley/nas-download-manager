@@ -1,4 +1,4 @@
-import { Auth, SessionName, ERROR_CODES, AUTH_BAD_CREDENTIALS_CODE, SYNOLOGY_HOST_DOMAINS } from '../api';
+import { Auth, SessionName, ERROR_CODES, SYNOLOGY_HOST_DOMAINS } from '../api';
 
 declare const browser: {
   storage: {
@@ -90,7 +90,7 @@ export function loadSettings() {
     });
 }
 
-export type ConnectionTestResult = 'good' | 'unknown-error' | 'bad-credentials' | { failMessage: string };
+export type ConnectionTestResult = 'good' | 'unknown-error' | { failMessage: string };
 
 export function testConnection(settings: Settings): Promise<ConnectionTestResult> {
   function failureMessage(failMessage?: string) {
@@ -111,11 +111,7 @@ export function testConnection(settings: Settings): Promise<ConnectionTestResult
       if (!result) {
         return 'unknown-error';
       } else if (!result.success) {
-        if (result.error.code === AUTH_BAD_CREDENTIALS_CODE) {
-          return 'bad-credentials';
-        } else {
-          return failureMessage(ERROR_CODES.common[result.error.code] || ERROR_CODES.auth[result.error.code]);
-        }
+        return failureMessage(ERROR_CODES.common[result.error.code] || ERROR_CODES.auth[result.error.code]);
       } else {
         return 'good';
       }
