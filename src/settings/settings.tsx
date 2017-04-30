@@ -7,6 +7,8 @@ const classNames: ClassNamesFn = (classNamesProxy as any).default || classNamesP
 
 import {
   Settings,
+  Protocol,
+  PROTOCOLS,
   ConnectionSettings,
   VisibleTaskSettings,
   NotificationSettings,
@@ -84,12 +86,13 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
                   {...connectionDisabledProps}
                   value={this.state.settings.connection.protocol}
                   onChange={e => {
-                    this.setConnectionSetting('protocol', e.currentTarget.value as 'http' | 'https');
+                    this.setConnectionSetting('protocol', e.currentTarget.value as Protocol);
                   }}
                   ref={kludgeRefSetClassname('protocol-setting')}
                 >
-                  <option value='http'>http</option>
-                  <option value='https'>https</option>
+                  {PROTOCOLS.map(protocol => (
+                    <option key={protocol} value={protocol}>{protocol}</option>
+                  ))}
                 </select>
                 ://
                 <input

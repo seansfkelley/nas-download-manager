@@ -9,8 +9,17 @@ declare const browser: {
   }
 };
 
+export type Protocol = 'http' | 'https';
+
+const _protocolNames: Record<Protocol, true> = {
+  'http': true,
+  'https': true
+};
+
+export const PROTOCOLS = Object.keys(_protocolNames) as Protocol[];
+
 export interface ConnectionSettings {
-  protocol: 'http' | 'https';
+  protocol: Protocol;
   hostname: string;
   domain: string;
   port: number;
