@@ -1,4 +1,4 @@
-import { Auth, SessionName, ERROR_CODES, LEGAL_HOST_SUFFIXES, AUTH_BAD_CREDENTIALS_CODE } from '../api';
+import { Auth, SessionName, ERROR_CODES, AUTH_BAD_CREDENTIALS_CODE, SYNOLOGY_HOST_DOMAINS } from '../api';
 
 declare const browser: {
   storage: {
@@ -10,7 +10,10 @@ declare const browser: {
 };
 
 export interface ConnectionSettings {
-  host: string;
+  protocol: 'http' | 'https';
+  hostname: string;
+  domain: string;
+  port: number;
   username: string;
   password: string;
 }
@@ -36,7 +39,10 @@ export interface Settings {
 
 export const DEFAULT_SETTINGS: Settings = {
   connection: {
-    host: '',
+    protocol: 'https',
+    hostname: '',
+    domain: SYNOLOGY_HOST_DOMAINS[0],
+    port: 5001,
     username: '',
     password: '',
   },
@@ -52,12 +58,6 @@ export const DEFAULT_SETTINGS: Settings = {
     pollingInterval: 60
   }
 };
-
-const HOSTNAME_REGEX = new RegExp(`^https?://.+\\.(${LEGAL_HOST_SUFFIXES.join('|').replace('.', '\\.')}):\\d+$`);
-
-export function isValidHost(host: string) {
-  return HOSTNAME_REGEX.test(host);
-}
 
 // Somewhat awkward trick to make sure the compiler enforces that this runtime constant
 // includes all the compile-time type names.
@@ -90,42 +90,42 @@ export function loadSettings() {
     });
 }
 
-export type ConnectionTestResult = 'good' | 'invalid-host' | 'unknown-error' | 'bad-credentials' | { failMessage: string };
+export type ConnectionTestResult = 'good' | 'unknown-error' | 'bad-credentials' | { failMessage: string };
 
 export function testConnection(settings: Settings): Promise<ConnectionTestResult> {
-  if (!isValidHost(settings.connection.host)) {
-    return Promise.resolve('invalid-host' as 'invalid-host');
-  } else {
-    function failureMessage(failMessage?: string) {
-      if (failMessage) {
-        return { failMessage };
-      } else {
-        return 'unknown-error';
-      }
+  function failureMessage(failMessage?: string) {
+    if (failMessage) {
+      return { failMessage };
+    } else {
+      return 'unknown-error';
     }
-
-    const host = settings.connection.host;
-    return Auth.Login(host, {
-      account: settings.connection.username,
-      passwd: settings.connection.password,
-      session: SessionName.DownloadStation
-    })
-      .then(result => {
-        if (!result) {
-          return 'unknown-error';
-        } else if (!result.success) {
-          if (result.error.code === AUTH_BAD_CREDENTIALS_CODE) {
-            return 'bad-credentials';
-          } else {
-            return failureMessage(ERROR_CODES.common[result.error.code] || ERROR_CODES.auth[result.error.code]);
-          }
-        } else {
-          return 'good';
-        }
-      })
-      .catch((error?: any) => {
-        console.error(error || 'Unknown error!');
-        return 'unknown-error';
-      });
   }
+
+  const host = `${settings.connection.protocol}://${settings.connection.hostname}.${settings.connection.domain}:${settings.connection.port}`;
+  return Auth.Login(host, {
+    account: settings.connection.username,
+    passwd: settings.connection.password,
+    session: SessionName.DownloadStation
+  })
+    .then(result => {
+      if (!result) {
+        return 'unknown-error';
+      } else if (!result.success) {
+        if (result.error.code === AUTH_BAD_CREDENTIALS_CODE) {
+          return 'bad-credentials';
+        } else {
+          return failureMessage(ERROR_CODES.common[result.error.code] || ERROR_CODES.auth[result.error.code]);
+        }
+      } else {
+        return 'good';
+      }
+    })
+    .catch((error?: any) => {
+      console.error(error || 'Unknown error!');
+      return 'unknown-error';
+    });
+}
+
+export function assertNever(n: never): never {
+  throw new Error(`never assertion failed, got value ${n}`);
 }

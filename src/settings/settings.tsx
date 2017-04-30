@@ -2,6 +2,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import * as classNamesProxy from 'classnames';
 
+// https://github.com/rollup/rollup/issues/1267
 const classNames: ClassNamesFn = (classNamesProxy as any).default || classNamesProxy;
 
 import {
@@ -13,8 +14,11 @@ import {
   loadSettings,
   saveSettings,
   testConnection,
+  assertNever,
   DEFAULT_SETTINGS
 } from './utils';
+
+import { SYNOLOGY_HOST_DOMAINS } from '../api';
 
 interface SettingsFormProps {
   initialSettings: Settings;
@@ -25,6 +29,7 @@ interface SettingsFormState {
   settings: Settings;
   connectionTest?: 'in-progress' | ConnectionTestResult;
   savingStatus: 'unchanged' | 'pending-changes' | 'in-progress' | 'failed' | 'saved';
+  rawPollingInterval: string;
 }
 
 const ORDERED_VISIBLE_TASK_TYPE_NAMES: Record<keyof VisibleTaskSettings, string> = {
@@ -35,70 +40,130 @@ const ORDERED_VISIBLE_TASK_TYPE_NAMES: Record<keyof VisibleTaskSettings, string>
   other: 'Other'
 };
 
+const POLL_MIN_INTERVAL = 5;
+const POLL_DEFAULT_INTERVAL = 60;
+const POLL_MAX_INTERVAL = 3600;
+const POLL_STEP = 5;
+
+// For some reason, (p)react in the Firefox settings page is incapable of setting the classname on <input>
+// elements. So hax with this ref callback that does it by touching the DOM directly. I don't know who
+// is at fault or why, but this workaround works.
+function kludgeRefSetClassname(className: string) {
+  return (e?: HTMLElement) => {
+    if (e) {
+      e.className = className;
+    }
+  };
+}
+
 class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState> {
   state: SettingsFormState = {
     settings: this.props.initialSettings,
-    savingStatus: 'unchanged'
+    savingStatus: 'unchanged',
+    rawPollingInterval: this.props.initialSettings.notifications.pollingInterval.toString()
   };
 
   render() {
     console.log(this.state.settings);
 
+    const connectionDisabledProps = this.disabledPropAndClassName(this.state.connectionTest === 'in-progress');
+
     return (
       <div className='settings-form'>
         <header>
           <h3>Connection</h3>
-          <p className={classNames({ 'error-message': this.state.connectionTest === 'invalid-host' })}>
-            The hostname must be a URL of the form <pre>http(s)://{'<hostname>:<port>'}</pre>.
-          </p>
         </header>
 
         <ul className='settings-list'>
           <li>
-            <label className='labeled-input'>
-              Host
-              <input
-                type='text'
-                {...this.disabledPropAndClassName(this.state.connectionTest === 'in-progress')}
-                value={this.state.settings.connection.host}
-                onChange={e => {
-                  this.setConnectionSetting('host', e.currentTarget.value.trim());
-                }}
-              />
-            </label>
+            <div className='label-and-input connection-settings'>
+              <span className='label'>Host</span>
+              <div className='input'>
+                <select
+                  {...connectionDisabledProps}
+                  value={this.state.settings.connection.protocol}
+                  onChange={e => {
+                    this.setConnectionSetting('protocol', e.currentTarget.value as 'http' | 'https');
+                  }}
+                  ref={kludgeRefSetClassname('protocol-setting')}
+                >
+                  <option value='http'>http</option>
+                  <option value='https'>https</option>
+                </select>
+                ://
+                <input
+                  type='text'
+                  {...connectionDisabledProps}
+                  value={this.state.settings.connection.hostname}
+                  onChange={e => {
+                    this.setConnectionSetting('hostname', e.currentTarget.value.trim());
+                  }}
+                  ref={kludgeRefSetClassname('host-setting')}
+                />
+                .
+                <select
+                  {...connectionDisabledProps}
+                  value={this.state.settings.connection.domain}
+                  onChange={e => {
+                    this.setConnectionSetting('domain', e.currentTarget.value);
+                  }}
+                  ref={kludgeRefSetClassname('domain-setting')}
+                >
+                  {SYNOLOGY_HOST_DOMAINS.map(domain => (
+                    <option key={domain} value={domain}>{domain}</option>
+                  ))}
+                </select>
+                :
+                <input
+                  {...connectionDisabledProps}
+                  type='number'
+                  value={this.state.settings.connection.port === 0 ? '' : this.state.settings.connection.port}
+                  onChange={e => {
+                    const port = +(e.currentTarget.value.replace(/[^0-9]/g, '') || 0);
+                    this.setConnectionSetting('port', port);
+                  }}
+                  ref={kludgeRefSetClassname('port-setting')}
+                />
+              </div>
+            </div>
           </li>
 
           <li>
-            <label className='labeled-input'>
-              Username
+            <div className='label-and-input'>
+              <span className='label'>Username</span>
               <input
                 type='text'
-                {...this.disabledPropAndClassName(this.state.connectionTest === 'in-progress')}
+                {...connectionDisabledProps}
                 value={this.state.settings.connection.username}
                 onChange={e => {
                   this.setConnectionSetting('username', e.currentTarget.value);
                 }}
               />
-            </label>
+            </div>
+          </li>
 
-            <label className='labeled-input'>
-              Password
+          <li>
+            <div className='label-and-input'>
+              <span className='label'>Password</span>
               <input
                 type='password'
-                {...this.disabledPropAndClassName(this.state.connectionTest === 'in-progress')}
+                {...connectionDisabledProps}
                 value={this.state.settings.connection.password}
                 onChange={e => {
                   this.setConnectionSetting('password', e.currentTarget.value);
                 }}
               />
-            </label>
+            </div>
           </li>
 
           <li>
             <button
               onClick={this.testConnection}
               {...this.disabledPropAndClassName(
-                !this.state.settings.connection.host ||
+                !this.state.settings.connection.protocol ||
+                !this.state.settings.connection.hostname ||
+                !this.state.settings.connection.domain ||
+                !this.state.settings.connection.port ||
                 !this.state.settings.connection.username ||
                 !this.state.settings.connection.password ||
                 this.state.connectionTest === 'in-progress' ||
@@ -111,7 +176,7 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
           </li>
         </ul>
 
-        <div className='panel-section-separator'/>
+        <div className='horizontal-separator'/>
 
         <header>
           <h3>Downloads List</h3>
@@ -136,7 +201,7 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
           ))}
         </ul>
 
-        <div className='panel-section-separator'/>
+        <div className='horizontal-separator'/>
 
         <header>
           <h3>Notifications</h3>
@@ -152,48 +217,74 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
                 this.setNotificationSetting('enabled', !this.state.settings.notifications.enabled);
               }}
             />
-            <label>
+            <label htmlFor='notifications-checkbox'>
               Enable Notifications
             </label>
           </li>
 
           <li>
-            Polling Interval
+            Check every
             <input
               type='number'
               {...this.disabledPropAndClassName(!this.state.settings.notifications.enabled)}
-              min='5'
-              max='3600'
-              step='5'
-              value={this.state.settings.notifications.pollingInterval}
+              min={POLL_MIN_INTERVAL}
+              max={POLL_MAX_INTERVAL}
+              step={POLL_STEP}
+              value={this.state.rawPollingInterval}
               onChange={e => {
-                this.setNotificationSetting('pollingInterval', +e.currentTarget.value);
+                this.setState({ rawPollingInterval: e.currentTarget.value });
               }}
+              onBlur={() => {
+                let value = +this.state.rawPollingInterval;
+                if (isNaN(value)) {
+                  value = POLL_DEFAULT_INTERVAL;
+                } else if (value < POLL_MIN_INTERVAL) {
+                  value = POLL_MIN_INTERVAL;
+                } else if (value > POLL_MAX_INTERVAL) {
+                  value = POLL_MAX_INTERVAL;
+                }
+                this.setState({ rawPollingInterval: value.toString() });
+                this.setNotificationSetting('pollingInterval', value);
+              }}
+              ref={kludgeRefSetClassname('polling-interval')}
             />
+            seconds
           </li>
         </ul>
 
-        <div className='panel-section-separator'/>
+        <div className='horizontal-separator'/>
 
-        <div className='option-group'>
-          <button
-            onClick={this.saveSettings}
-            {...this.disabledPropAndClassName(this.state.savingStatus === 'in-progress' || this.state.savingStatus === 'unchanged' || this.state.savingStatus === 'saved')}
-          >
-            Save Settings
-          </button>
-          {this.state.savingStatus === 'failed' && (
-            <div className='error-message'>
-              Failed to save settings!
-            </div>
-          )}
-          {this.state.savingStatus === 'saved' && (
-            <div className='success-message'>
-              Saved settings!
-            </div>
-          )}
+        <div className='save-settings-footer'>
+          {this.renderSaveButton()}
         </div>
       </div>
+    );
+  }
+
+  private renderSaveButton() {
+    let text;
+    switch (this.state.savingStatus) {
+      case 'in-progress': text = 'Saving...'; break;
+      case 'unchanged': text = 'No Changes to Save'; break;
+      case 'saved': text = 'Changes Saved'; break;
+      case 'failed': text = 'Save Failed'; break;
+      case 'pending-changes': text = 'Save Changes'; break;
+      default: return assertNever(this.state.savingStatus);
+    }
+
+    const isDisabled = (
+      this.state.savingStatus === 'in-progress' ||
+      this.state.savingStatus === 'unchanged' ||
+      this.state.savingStatus === 'saved'
+    );
+
+    return (
+      <button
+        onClick={this.saveSettings}
+        {...this.disabledPropAndClassName(isDisabled)}
+      >
+        {text}
+      </button>
     );
   }
 
@@ -208,7 +299,6 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
       case 'good':
         return <span>good!</span>;
 
-      case 'invalid-host':
       case 'unknown-error':
       case 'bad-credentials':
         return <span>{this.state.connectionTest}</span>;
@@ -266,7 +356,6 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
     });
   }
 
-
   private testConnection = () => {
     this.setState({
       connectionTest: 'in-progress'
@@ -294,6 +383,13 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
 }
 
 const ELEMENT = document.body;
+
+/*ReactDOM.render(
+  <SettingsForm
+    initialSettings={settings}
+    saveSettings={saveSettings}
+  />, ELEMENT);
+);*/
 
 loadSettings()
   .then(settings => {

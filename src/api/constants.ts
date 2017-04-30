@@ -37,6 +37,18 @@ export const SessionName = {
 
 export type SessionName = keyof typeof SessionName;
 
-export const LEGAL_HOST_SUFFIXES = [
-  'synology.me'
+export const SYNOLOGY_HOST_DOMAINS = [
+  'synology.me',
+  'DiskStation.me',
+  'i234.me',
+  'myDS.me',
+  'DSCloud.biz',
+  'DSCloud.me',
+  'DSCloud.mobi',
+  'DSmyNAS.com',
+  'DSmyNAS.net',
+  'DSmyNAS.org',
+  'FamilyDS.com',
+  'FamilyDS.net',
+  'FamilyDS.org'
 ];
