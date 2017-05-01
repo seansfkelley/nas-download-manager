@@ -1,7 +1,8 @@
 import { DownloadStation } from '../api';
-import { SESSION_ID_KEY, Settings, loadSettings, DEFAULT_SETTINGS, getHostUrl } from '../common';
+import { DEFAULT_SETTINGS, getHostUrl, onStoredStateChange } from '../common';
 
 class NotificationPoller {
+  private tryPollCount: number = 0;
   private enabled: boolean = false;
   private hostname: string | null = null;
   private sid: string | null = null;
@@ -36,6 +37,7 @@ class NotificationPoller {
   }
 
   private tryPoll() {
+    const count = ++this.tryPollCount;
     if (this.enabled && this.hostname && this.sid) {
       DownloadStation.Task.List(this.hostname, this.sid, {
         offset: 0,
@@ -62,7 +64,11 @@ class NotificationPoller {
             }
 
             setTimeout(() => {
-              this.tryPoll();
+              // Each top-level tryPoll call is its own potentially-infinite chain of tryPoll calls.
+              // Abort this chain if another chain was created, i.e., the count changed.
+              if (count === this.tryPollCount) {
+                this.tryPoll();
+              }
             }, this.interval * 1000);
           }
         });
@@ -72,25 +78,7 @@ class NotificationPoller {
 
 const poller = new NotificationPoller;
 
-loadSettings()
-  .then(settings => {
-    poller.setHostname(getHostUrl(settings.connection));
-    poller.setInterval(settings.notifications.pollingInterval);
-
-    if (settings.notifications.enabled) {
-      poller.start();
-    }
-  });
-
-browser.storage.local.get([SESSION_ID_KEY])
-  .then((options: { sid: string }) => {
-    console.log(options);
-    if (options.sid) {
-      poller.setSid(options.sid);
-    }
-  });
-
-browser.storage.onChanged.addListener<Settings & { sid: string }>((changes, areaName) => {
+onStoredStateChange((changes, areaName) => {
   if (areaName === 'local') {
     if (changes.connection && changes.connection.newValue != null) {
       poller.setHostname(getHostUrl(changes.connection.newValue));

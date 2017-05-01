@@ -3,7 +3,9 @@ interface StorageChange<T> {
   newValue?: T;
 }
 
-type StorageChangeListener<T> = (changes: { [K in keyof T]?: StorageChange<T[K]>; }, areaName: 'sync' | 'local' | 'managed') => void;
+type StorageChangeEvent<T> = { [K in keyof T]?: StorageChange<T[K]>; };
+
+type StorageChangeListener<T> = (changes: StorageChangeEvent<T>, areaName: 'sync' | 'local' | 'managed') => void;
 
 type NotificationTemplateType = 'basic' | 'image' | 'list' | 'progress';
 

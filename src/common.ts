@@ -37,6 +37,10 @@ export interface Settings {
   notifications: NotificationSettings;
 }
 
+export interface StoredState extends Settings {
+  sid?: string;
+}
+
 export const DEFAULT_SETTINGS: Settings = {
   connection: {
     protocol: 'https',
@@ -85,4 +89,19 @@ export function loadSettings() {
         ...settings
       };
     });
+}
+
+export function onStoredStateChange(fn: StorageChangeListener<StoredState>) {
+  Promise.all([ loadSettings(), browser.storage.local.get<{ sid: string }>([ SESSION_ID_KEY ])])
+    .then(([ settings, sid ]) => ({ ...settings, ...sid }))
+    .then((storedState: StoredState) => {
+      const fakedChangeEvent: StorageChangeEvent<StoredState> = {};
+      Object.keys(storedState).map((key: keyof Settings) => {
+        fakedChangeEvent[key] = {
+          newValue: storedState[key] as any
+        };
+      });
+      fn(fakedChangeEvent, 'local');
+    })
+  browser.storage.onChanged.addListener(fn);
 }
