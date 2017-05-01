@@ -65,4 +65,4 @@ function bundleAndMaybeWatch(baseFilename) {
 }
 
 bundleAndMaybeWatch('settings/settings');
-bundleAndMaybeWatch('background');
+bundleAndMaybeWatch('background/background');

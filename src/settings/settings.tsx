@@ -12,12 +12,15 @@ import {
   ConnectionSettings,
   VisibleTaskSettings,
   NotificationSettings,
-  ConnectionTestResult,
   loadSettings,
+  DEFAULT_SETTINGS
+} from '../common';
+
+import {
+  ConnectionTestResult,
   saveSettings,
   testConnection,
   assertNever,
-  DEFAULT_SETTINGS
 } from './utils';
 
 import { SYNOLOGY_HOST_DOMAINS } from '../api';
@@ -42,10 +45,10 @@ const ORDERED_VISIBLE_TASK_TYPE_NAMES: Record<keyof VisibleTaskSettings, string>
   other: 'Other'
 };
 
-const POLL_MIN_INTERVAL = 5;
+const POLL_MIN_INTERVAL = 15;
 const POLL_DEFAULT_INTERVAL = 60;
 const POLL_MAX_INTERVAL = 3600;
-const POLL_STEP = 5;
+const POLL_STEP = 15;
 
 // For some reason, (p)react in the Firefox settings page is incapable of setting the classname on <input>
 // elements. So hax with this ref callback that does it by touching the DOM directly. I don't know who

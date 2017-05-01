@@ -8,10 +8,11 @@
   //   "js": [ "dist/bundle.js" ]
   // }],
   "background": {
-    "scripts": [ "dist/background.js" ]
+    "scripts": [ "dist/background/background.js" ]
   },
   "permissions": [
     "storage",
+    "notifications",
     "*://*.synology.me/*"
   ],
   "browser_action": {

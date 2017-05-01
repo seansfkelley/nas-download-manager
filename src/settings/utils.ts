@@ -1,93 +1,10 @@
-import { Auth, SessionName, ERROR_CODES, SYNOLOGY_HOST_DOMAINS } from '../api';
-
-declare const browser: {
-  storage: {
-    local: {
-      get: <T>(input: string | string[]) => Promise<T>;
-      set: <T>(input: T) => Promise<void>;
-    };
-  }
-};
-
-export type Protocol = 'http' | 'https';
-
-const _protocolNames: Record<Protocol, true> = {
-  'http': true,
-  'https': true
-};
-
-export const PROTOCOLS = Object.keys(_protocolNames) as Protocol[];
-
-export interface ConnectionSettings {
-  protocol: Protocol;
-  hostname: string;
-  domain: string;
-  port: number;
-  username: string;
-  password: string;
-}
-
-export interface VisibleTaskSettings {
-  downloading: boolean;
-  uploading: boolean;
-  completed: boolean;
-  errored: boolean;
-  other: boolean;
-}
-
-export interface NotificationSettings {
-  enabled: boolean;
-  pollingInterval: number;
-}
-
-export interface Settings {
-  connection: ConnectionSettings;
-  visibleTasks: VisibleTaskSettings;
-  notifications: NotificationSettings;
-}
-
-export const SESSION_ID_KEY = 'sid';
-
-export const DEFAULT_SETTINGS: Settings = {
-  connection: {
-    protocol: 'https',
-    hostname: '',
-    domain: SYNOLOGY_HOST_DOMAINS[0],
-    port: 5001,
-    username: '',
-    password: '',
-  },
-  visibleTasks: {
-    downloading: true,
-    uploading: true,
-    completed: false,
-    errored: true,
-    other: true
-  },
-  notifications: {
-    enabled: false,
-    pollingInterval: 60
-  }
-};
-
-// Somewhat awkward trick to make sure the compiler enforces that this runtime constant
-// includes all the compile-time type names.
-const _settingNames: Record<keyof Settings, true> = {
-  'connection': true,
-  'visibleTasks': true,
-  'notifications': true
-};
-
-export const SETTING_NAMES = Object.keys(_settingNames) as (keyof Settings)[];
-
-function getHostUrl(settings: Settings) {
-  return `${settings.connection.protocol}://${settings.connection.hostname}.${settings.connection.domain}:${settings.connection.port}`;
-}
+import { Auth, SessionName, ERROR_CODES } from '../api';
+import { SESSION_ID_KEY, Settings, getHostUrl } from '../common';
 
 export function saveSettings(settings: Settings) {
   console.log('persisting settings...');
 
-  return Auth.Login(getHostUrl(settings), {
+  return Auth.Login(getHostUrl(settings.connection), {
     account: settings.connection.username,
     passwd: settings.connection.password,
     session: SessionName.DownloadStation
@@ -107,18 +24,6 @@ export function saveSettings(settings: Settings) {
     });
 }
 
-export function loadSettings() {
-  console.log('loading persisted settings...');
-  return browser.storage.local.get<Partial<Settings>>(SETTING_NAMES)
-    .then<Settings>(settings => {
-      console.log('loaded persisted settings');
-      return {
-        ...DEFAULT_SETTINGS,
-        ...settings
-      };
-    });
-}
-
 export type ConnectionTestResult = 'good' | 'bad-request' | 'network-error' | 'unknown-error' | { failMessage: string };
 
 export function testConnection(settings: Settings): Promise<ConnectionTestResult> {
@@ -130,7 +35,7 @@ export function testConnection(settings: Settings): Promise<ConnectionTestResult
     }
   }
 
-  const host = getHostUrl(settings);
+  const host = getHostUrl(settings.connection);
   return Auth.Login(host, {
     account: settings.connection.username,
     passwd: settings.connection.password,
