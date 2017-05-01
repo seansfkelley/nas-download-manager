@@ -46,6 +46,8 @@ export interface Settings {
   notifications: NotificationSettings;
 }
 
+export const SESSION_ID_KEY = 'sid';
+
 export const DEFAULT_SETTINGS: Settings = {
   connection: {
     protocol: 'https',
@@ -78,13 +80,31 @@ const _settingNames: Record<keyof Settings, true> = {
 
 export const SETTING_NAMES = Object.keys(_settingNames) as (keyof Settings)[];
 
+function getHostUrl(settings: Settings) {
+  return `${settings.connection.protocol}://${settings.connection.hostname}.${settings.connection.domain}:${settings.connection.port}`;
+}
+
 export function saveSettings(settings: Settings) {
   console.log('persisting settings...');
 
-  return browser.storage.local.set(settings)
+  return Auth.Login(getHostUrl(settings), {
+    account: settings.connection.username,
+    passwd: settings.connection.password,
+    session: SessionName.DownloadStation
+  })
+    .then(result => {
+      if (result.success) {
+        return browser.storage.local.set({
+          ...settings,
+          [SESSION_ID_KEY]: result.data.sid
+        });
+      } else {
+        throw new Error(ERROR_CODES.common[result.error.code] || ERROR_CODES.auth[result.error.code]);
+      }
+    })
     .then(() => {
       console.log('done persisting settings');
-    })
+    });
 }
 
 export function loadSettings() {
@@ -99,7 +119,7 @@ export function loadSettings() {
     });
 }
 
-export type ConnectionTestResult = 'good' | 'unknown-error' | { failMessage: string };
+export type ConnectionTestResult = 'good' | 'bad-request' | 'network-error' | 'unknown-error' | { failMessage: string };
 
 export function testConnection(settings: Settings): Promise<ConnectionTestResult> {
   function failureMessage(failMessage?: string) {
@@ -110,7 +130,7 @@ export function testConnection(settings: Settings): Promise<ConnectionTestResult
     }
   }
 
-  const host = `${settings.connection.protocol}://${settings.connection.hostname}.${settings.connection.domain}:${settings.connection.port}`;
+  const host = getHostUrl(settings);
   return Auth.Login(host, {
     account: settings.connection.username,
     passwd: settings.connection.password,
@@ -126,8 +146,14 @@ export function testConnection(settings: Settings): Promise<ConnectionTestResult
       }
     })
     .catch((error?: any) => {
-      console.error(error || 'Unknown error!');
-      return 'unknown-error';
+      if (error && error.response && error.response.status === 400) {
+        return 'bad-request';
+      } else if (error && error.message === 'Network Error') {
+        return 'network-error';
+      } else {
+        console.log(error);
+        return 'unknown-error';
+      }
     });
 }
 

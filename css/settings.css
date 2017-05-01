@@ -18,6 +18,7 @@ p pre {
 button {
   padding: 7px;
   height: auto;
+  white-space: nowrap;
 }
 
 ul.settings-list {
@@ -75,6 +76,10 @@ ul.settings-list li {
   width: 80px;
 }
 
+.connection-test-result {
+  margin-left: 5px;
+}
+
 .polling-interval {
   width: 60px;
   margin: 0 5px;
@@ -87,3 +92,6 @@ ul.settings-list li {
   justify-content: flex-end;
 }
 
+.save-settings-footer .save-result {
+  margin-right: 5px;
+}

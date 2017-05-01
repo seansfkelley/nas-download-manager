@@ -258,22 +258,32 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
 
         <div className='horizontal-separator'/>
 
-        <div className='save-settings-footer'>
-          {this.renderSaveButton()}
-        </div>
+        {this.renderSaveButtonFooter()}
       </div>
     );
   }
 
-  private renderSaveButton() {
-    let text;
+  private renderSaveButtonFooter() {
+    let text: string | null;
+
     switch (this.state.savingStatus) {
-      case 'in-progress': text = 'Saving...'; break;
-      case 'unchanged': text = 'No Changes to Save'; break;
-      case 'saved': text = 'Changes Saved'; break;
-      case 'failed': text = 'Save Failed'; break;
-      case 'pending-changes': text = 'Save Changes'; break;
-      default: return assertNever(this.state.savingStatus);
+      case 'in-progress':
+        text = 'Saving...';
+        break;
+      case 'unchanged':
+        text = 'No changes to save.';
+        break;
+      case 'saved':
+        text = 'Changes saved.';
+        break;
+      case 'failed':
+        text = 'Save failed (check your connection settings).';
+        break;
+      case 'pending-changes':
+        text = null;
+        break;
+      default:
+        return assertNever(this.state.savingStatus);
     }
 
     const isDisabled = (
@@ -283,30 +293,58 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
     );
 
     return (
-      <button
-        onClick={this.saveSettings}
-        {...this.disabledPropAndClassName(isDisabled)}
-      >
-        {text}
-      </button>
+      <div className='save-settings-footer'>
+        <span className={classNames('save-result', { 'error-message': this.state.savingStatus === 'failed' })}>
+          {text}
+        </span>
+        <button
+          onClick={this.saveSettings}
+          {...this.disabledPropAndClassName(isDisabled)}
+        >
+          Save Settings
+        </button>
+      </div>
     );
   }
 
   private renderConnectionTestResult() {
     let content: React.ReactChild | null;
+    let isFailure = false;
+
     switch (this.state.connectionTest) {
+      case null:
       case undefined:
-        content = null; break;
+        content = null;
+        break;
       case 'in-progress':
-        content = 'Testing...'; break;
+        content = 'Testing connection...';
+        break;
       case 'good':
-        content = 'Connection successful!'; break;
+        content = 'Connection successful!';
+        break;
+      case 'bad-request':
+        content = 'Connection failed (likely incorrect protocol).';
+        isFailure = true;
+        break;
+      case 'network-error':
+        content = 'Connection failed (likely incorrect hostname/port).';
+        isFailure = true;
+        break;
       case 'unknown-error':
-        content = 'An unexpected error occured -- check your host settings and internet connection.'; break;
+        content = 'Connection failed (unknown reason; check your host settings and internet connection).';
+        isFailure = true;
+        break;
       default:
-        return this.state.connectionTest.failMessage;
+        content = `Connection failed (${this.state.connectionTest.failMessage}).`;
+        isFailure = true;
+        break;
     }
-    return content;
+
+    return (
+      <span className={classNames('connection-test-result', { 'error-message': isFailure })}>
+        {content}
+      </span>
+    );
   }
 
   private disabledPropAndClassName(disabled: boolean, otherClassNames?: string) {
@@ -383,13 +421,6 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
 }
 
 const ELEMENT = document.body;
-
-/*ReactDOM.render(
-  <SettingsForm
-    initialSettings={settings}
-    saveSettings={saveSettings}
-  />, ELEMENT);
-);*/
 
 loadSettings()
   .then(settings => {

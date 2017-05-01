@@ -4,7 +4,7 @@ export const ERROR_CODES = {
     101: 'Invalid parameter.',
     102: 'The requested API does not exist.',
     103: 'The requested method does not exist.',
-    104: 'The requested version does not support the functionality.',
+    104: 'The requested version does not support this functionality.',
     105: 'The logged in session does not have permission.',
     106: 'Session timeout.',
     107: 'Session interrupted by duplicate login.'
@@ -21,7 +21,7 @@ export const ERROR_CODES = {
     401: 'Max number of tasks reached.',
     402: 'Destination denied.',
     403: 'Destination does not exist.',
-    404: 'Invalid task id.',
+    404: 'Invalid task ID.',
     405: 'Invalid task action.',
     406: 'No default destination.',
     407: 'Set destination failed.',
