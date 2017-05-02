@@ -54,33 +54,38 @@ export class TaskPoller {
         .then(response => {
           if (this.settings.enabled) {
             if (response.success) {
-              browser.storage.local.set({
+              return browser.storage.local.set({
                 [TASKS_KEY]: response.data.tasks,
                 [LAST_POLLING_FAILURE_MESSAGE_KEY]: undefined
               });
             } else {
-              browser.storage.local.set({
+              return browser.storage.local.set({
                 [LAST_POLLING_FAILURE_MESSAGE_KEY]: ERROR_CODES.common[response.error.code] || ERROR_CODES.task[response.error.code] || 'Unknown error.'
               });
             }
+          } else {
+            return Promise.resolve();
           }
         })
         .catch(error => {
-          let failureMessage;
+          if (this.settings.enabled) {
+            let failureMessage;
+            // TODO: Unify this knowledge with utils.ts and settings.tsx.
+            if (error && error.response && error.response.status === 400) {
+              failureMessage = 'Connection failure (likely wrong protocol).';
+            } else if (error && error.message === 'Network Error') {
+              failureMessage = 'Connection failure (likely incorrect hostname/port).';
+            } else {
+              console.log(error);
+              failureMessage = 'Unknown error.';
+            }
 
-          // TODO: Unify this knowledge with utils.ts and settings.tsx.
-          if (error && error.response && error.response.status === 400) {
-            failureMessage = 'Connection failure (likely wrong protocol).';
-          } else if (error && error.message === 'Network Error') {
-            failureMessage = 'Connection failure (likely incorrect hostname/port).';
+            return browser.storage.local.set({
+              [LAST_POLLING_FAILURE_MESSAGE_KEY]: failureMessage
+            });
           } else {
-            console.log(error);
-            failureMessage = 'Unknown error.';
+            return Promise.resolve();
           }
-
-          browser.storage.local.set({
-            [LAST_POLLING_FAILURE_MESSAGE_KEY]: failureMessage
-          });
         })
         .then(() => {
           if (this.settings.enabled) {
