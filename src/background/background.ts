@@ -4,18 +4,16 @@ import { DEFAULT_SETTINGS, getHostUrl, onStoredStateChange } from '../common';
 class NotificationPoller {
   private tryPollCount: number = 0;
   private enabled: boolean = false;
-  private hostname: string | null = null;
-  private sid: string | null = null;
+  private hostname: string | undefined = undefined;
+  private sid: string | undefined = undefined;
   private interval: number = DEFAULT_SETTINGS.notifications.pollingInterval;
-  private finishedTaskIds: string[] | null = null;
+  private finishedTaskIds: string[] | undefined = undefined;
 
-  public start() {
-    this.enabled = true;
-    this.tryPoll();
-  }
-
-  public stop() {
-    this.enabled = false;
+  public setEnabled(enabled: boolean) {
+    if (enabled !== this.enabled) {
+      this.enabled = enabled;
+      this.tryPoll();
+    }
   }
 
   public setHostname(hostname: string) {
@@ -25,7 +23,7 @@ class NotificationPoller {
     }
   }
 
-  public setSid(sid: string) {
+  public setSid(sid: string | undefined) {
     if (sid !== this.sid) {
       this.sid = sid;
       this.tryPoll();
@@ -49,7 +47,7 @@ class NotificationPoller {
               const updatedFinishedTaskIds = response.data.tasks
                 .filter(t => t.status === 'finished' || t.status === 'seeding')
                 .map(t => t.id);
-              if (this.finishedTaskIds !== null) {
+              if (this.finishedTaskIds != null) {
                 const newlyFinishedTaskIds = updatedFinishedTaskIds.filter(id => this.finishedTaskIds!.indexOf(id) === -1);
                 newlyFinishedTaskIds.forEach(id => {
                   const task = response.data.tasks.filter(t => t.id === id)[0];
@@ -78,24 +76,9 @@ class NotificationPoller {
 
 const poller = new NotificationPoller;
 
-onStoredStateChange((changes, areaName) => {
-  if (areaName === 'local') {
-    if (changes.connection && changes.connection.newValue != null) {
-      poller.setHostname(getHostUrl(changes.connection.newValue));
-    }
-
-    if (changes.sid && changes.sid.newValue != null) {
-      poller.setSid(changes.sid.newValue);
-    }
-
-    if (changes.notifications && changes.notifications.newValue != null) {
-      poller.setInterval(changes.notifications.newValue.pollingInterval);
-
-      if (changes.notifications.newValue.enabled) {
-        poller.start();
-      } else {
-        poller.stop();
-      }
-    }
-  }
+onStoredStateChange(storedState => {
+  poller.setHostname(getHostUrl(storedState.connection));
+  poller.setSid(storedState.sid);
+  poller.setInterval(storedState.notifications.pollingInterval);
+  poller.setEnabled(storedState.notifications.enabled);
 });

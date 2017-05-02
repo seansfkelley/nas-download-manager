@@ -91,17 +91,22 @@ export function loadSettings() {
     });
 }
 
-export function onStoredStateChange(fn: StorageChangeListener<StoredState>) {
+export function onStoredStateChange(fn: (state: StoredState) => void) {
   Promise.all([ loadSettings(), browser.storage.local.get<{ sid: string }>([ SESSION_ID_KEY ])])
     .then(([ settings, sid ]) => ({ ...settings, ...sid }))
-    .then((storedState: StoredState) => {
-      const fakedChangeEvent: StorageChangeEvent<StoredState> = {};
-      Object.keys(storedState).map((key: keyof Settings) => {
-        fakedChangeEvent[key] = {
-          newValue: storedState[key] as any
-        };
+    .then((initialStoredState: StoredState) => {
+      fn(initialStoredState);
+      browser.storage.onChanged.addListener((changes: StorageChangeEvent<StoredState>, areaName) => {
+        if (areaName === 'local') {
+          const extractedChanges: Partial<StoredState> = {};
+          Object.keys(changes).map((key: keyof StoredState) => {
+            extractedChanges[key] = changes[key] != null ? changes[key]!.newValue : undefined;
+          });
+          fn({
+            ...initialStoredState,
+            ...extractedChanges
+          });
+        }
       });
-      fn(fakedChangeEvent, 'local');
     })
-  browser.storage.onChanged.addListener(fn);
 }
