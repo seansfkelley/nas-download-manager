@@ -40,6 +40,7 @@ export interface Settings {
 export interface CachedState {
   sid?: string;
   tasks: DownloadStationTask[];
+  lastPollingFailureMessage?: string;
 }
 
 // Somewhat awkward trick to make sure the compiler enforces that this runtime constant
@@ -54,10 +55,12 @@ const SETTING_NAMES = Object.keys(_settingNames) as (keyof Settings)[];
 
 export const SESSION_ID_KEY: keyof CachedState = 'sid';
 export const TASKS_KEY: keyof CachedState = 'tasks';
+export const LAST_POLLING_FAILURE_MESSAGE_KEY: keyof CachedState = 'lastPollingFailureMessage';
 
 const _cachedStateNames: Record<keyof CachedState, true> = {
   'sid': true,
-  'tasks': true
+  'tasks': true,
+  'lastPollingFailureMessage': true
 };
 
 const CACHED_STATE_NAMES = Object.keys(_cachedStateNames) as (keyof CachedState)[];

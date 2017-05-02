@@ -6,8 +6,6 @@ const poller = new TaskPoller;
 let finishedTaskIds: string[] | undefined;
 
 onStoredStateChange(storedState => {
-  console.log(storedState);
-
   poller.setHostname(getHostUrl(storedState.connection));
   poller.setSid(storedState.sid);
   poller.setInterval(storedState.notifications.pollingInterval);

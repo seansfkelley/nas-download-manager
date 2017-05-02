@@ -1,5 +1,5 @@
-import { DownloadStation } from './api';
-import { TASKS_KEY } from './common';
+import { DownloadStation, ERROR_CODES } from './api';
+import { TASKS_KEY, LAST_POLLING_FAILURE_MESSAGE_KEY } from './common';
 
 export class TaskPoller {
   private tryPollCount: number = 0;
@@ -44,10 +44,35 @@ export class TaskPoller {
           if (this.enabled) {
             if (response.success) {
               browser.storage.local.set({
-                [TASKS_KEY]: response.data.tasks
+                [TASKS_KEY]: response.data.tasks,
+                [LAST_POLLING_FAILURE_MESSAGE_KEY]: undefined
+              });
+            } else {
+              browser.storage.local.set({
+                [LAST_POLLING_FAILURE_MESSAGE_KEY]: ERROR_CODES.common[response.error.code] || ERROR_CODES.task[response.error.code] || 'Unknown error.'
               });
             }
+          }
+        })
+        .catch(error => {
+          let failureMessage;
 
+          // TODO: Unify this knowledge with utils.ts and settings.tsx.
+          if (error && error.response && error.response.status === 400) {
+            failureMessage = 'Connection failure (likely wrong protocol).';
+          } else if (error && error.message === 'Network Error') {
+            failureMessage = 'Connection failure (likely incorrect hostname/port).';
+          } else {
+            console.log(error);
+            failureMessage = 'Unknown error.';
+          }
+
+          browser.storage.local.set({
+            [LAST_POLLING_FAILURE_MESSAGE_KEY]: failureMessage
+          });
+        })
+        .then(() => {
+          if (this.enabled) {
             setTimeout(() => {
               // Each top-level tryPoll call is its own potentially-infinite chain of tryPoll calls.
               // Abort this chain if another chain was created, i.e., the count changed.
