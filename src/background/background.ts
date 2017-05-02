@@ -6,10 +6,12 @@ const poller = new TaskPoller;
 let finishedTaskIds: string[] | undefined;
 
 onStoredStateChange(storedState => {
-  poller.setHostname(getHostUrl(storedState.connection));
-  poller.setSid(storedState.sid);
-  poller.setInterval(storedState.notifications.pollingInterval);
-  poller.setEnabled(storedState.notifications.enabled);
+  poller.updateSettings({
+    hostname: getHostUrl(storedState.connection),
+    sid: storedState.sid,
+    interval: storedState.notifications.pollingInterval,
+    enabled: storedState.notifications.enabled
+  });
 });
 
 // TODO: This isn't quite right even with the second argument: on start, we want to fetch a list of

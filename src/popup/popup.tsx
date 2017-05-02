@@ -27,15 +27,16 @@ class DownloadList extends React.PureComponent<DownloadListProps, void> {
   }
 }
 
-
-
-const poller = new TaskPoller;
-poller.setInterval(10);
-poller.setEnabled(true);
+const poller = new TaskPoller({
+  interval: 10,
+  enabled: true
+});
 
 onStoredStateChange(storedState => {
-  poller.setHostname(getHostUrl(storedState.connection));
-  poller.setSid(storedState.sid);
+  poller.updateSettings({
+    hostname: getHostUrl(storedState.connection),
+    sid: storedState.sid
+  });
 
   ReactDOM.render(
     <DownloadList

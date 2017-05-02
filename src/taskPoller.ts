@@ -1,57 +1,58 @@
 import { DownloadStation, ERROR_CODES } from './api';
 import { TASKS_KEY, LAST_POLLING_FAILURE_MESSAGE_KEY } from './common';
+import { shallowEqual } from './shallowEqual';
+
+export interface PollerSettings {
+  enabled: boolean;
+  hostname: string;
+  sid: string | undefined;
+  interval: number;
+}
+
+const DEFAULT_SETTINGS: PollerSettings = {
+  enabled: false,
+  hostname: '',
+  sid: undefined,
+  interval: 60
+};
 
 export class TaskPoller {
   private tryPollCount: number = 0;
-  private enabled: boolean = false;
-  private hostname: string | undefined = undefined;
-  private sid: string | undefined = undefined;
-  private interval: number = 60;
+  private settings: PollerSettings = DEFAULT_SETTINGS;
 
-  public setEnabled(enabled: boolean) {
-    if (enabled !== this.enabled) {
-      this.enabled = enabled;
-      this.tryPoll();
-    }
+  constructor(settings?: Partial<PollerSettings>) {
+    this.updateSettings(settings || DEFAULT_SETTINGS);
   }
 
-  public setHostname(hostname: string) {
-    if (hostname !== this.hostname) {
-      this.hostname = hostname;
+  public updateSettings(settings: Partial<PollerSettings>) {
+    const newSettings = { ...this.settings, ...settings };
+    const oldSettings = this.settings;
+    this.settings = newSettings;
+
+    if (!shallowEqual({ ...newSettings, interval: undefined }, { ...oldSettings, interval: undefined })) {
       this.tryPoll();
     }
-  }
-
-  public setSid(sid: string | undefined) {
-    if (sid !== this.sid) {
-      this.sid = sid;
-      this.tryPoll();
-    }
-  }
-
-  public setInterval(interval: number) {
-    this.interval = interval;
   }
 
   // TODO: When is the correct time to call this? We want to call it when the hostname/sid change,
   // but we have to make sure that we aren't unconditionally dumping the cache whenever we open the
   // popup anew because we can't differentiate between "changing the hostname" and "setting the hostname
   // to a non-null value for the first time".
-  private resetTasks() {
-    browser.storage.local.set({
-      [TASKS_KEY]: []
-    });
-  }
+  // private resetTasks() {
+  //   browser.storage.local.set({
+  //     [TASKS_KEY]: []
+  //   });
+  // }
 
   private tryPoll() {
     const count = ++this.tryPollCount;
-    if (this.enabled && this.hostname && this.sid) {
-      DownloadStation.Task.List(this.hostname, this.sid, {
+    if (this.settings.enabled && this.settings.hostname && this.settings.sid) {
+      DownloadStation.Task.List(this.settings.hostname, this.settings.sid, {
         offset: 0,
         limit: -1,
       })
         .then(response => {
-          if (this.enabled) {
+          if (this.settings.enabled) {
             if (response.success) {
               browser.storage.local.set({
                 [TASKS_KEY]: response.data.tasks,
@@ -82,14 +83,14 @@ export class TaskPoller {
           });
         })
         .then(() => {
-          if (this.enabled) {
+          if (this.settings.enabled) {
             setTimeout(() => {
               // Each top-level tryPoll call is its own potentially-infinite chain of tryPoll calls.
               // Abort this chain if another chain was created, i.e., the count changed.
               if (count === this.tryPollCount) {
                 this.tryPoll();
               }
-            }, this.interval * 1000);
+            }, this.settings.interval * 1000);
           }
         });
     }
