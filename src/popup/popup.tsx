@@ -40,8 +40,8 @@ onStoredStateChange(storedState => {
 
   ReactDOM.render(
     <DownloadList
-      tasks={storedState.cachedTasks.tasks}
-      failureMessage={storedState.cachedTasks.failureMessage}
+      tasks={storedState.tasks}
+      failureMessage={storedState.tasksFetchFailureMessage}
     />
   , document.body);
 });
