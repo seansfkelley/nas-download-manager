@@ -98,6 +98,10 @@ class DownloadList extends React.PureComponent<DownloadListProps, DownloadListSt
   }
 }
 
+// TODO: Polling should be shared and pushed through storage so that it can be shared
+// by both the popup and the background task and because it'll be easier to implement
+// the popup zero state when it can fetch stuff from storage.
+
 onStoredStateChange(storedState => {
   ReactDOM.render(
     <DownloadList
