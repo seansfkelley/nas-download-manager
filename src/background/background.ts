@@ -12,6 +12,8 @@ onStoredStateChange(storedState => {
   poller.setEnabled(storedState.notifications.enabled);
 });
 
+// TODO: This isn't quite right even with the second argument: on start, we want to fetch a list of
+// the downloads as they currently are, then compare against that going forward.
 onStoredStateChange(storedState => {
   const updatedFinishedTaskIds = storedState.tasks
     .filter(t => t.status === 'finished' || t.status === 'seeding')

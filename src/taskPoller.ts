@@ -33,6 +33,16 @@ export class TaskPoller {
     this.interval = interval;
   }
 
+  // TODO: When is the correct time to call this? We want to call it when the hostname/sid change,
+  // but we have to make sure that we aren't unconditionally dumping the cache whenever we open the
+  // popup anew because we can't differentiate between "changing the hostname" and "setting the hostname
+  // to a non-null value for the first time".
+  private resetTasks() {
+    browser.storage.local.set({
+      [TASKS_KEY]: []
+    });
+  }
+
   private tryPoll() {
     const count = ++this.tryPollCount;
     if (this.enabled && this.hostname && this.sid) {
