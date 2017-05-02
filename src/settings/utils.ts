@@ -1,5 +1,5 @@
 import { Auth, SessionName, ERROR_CODES } from '../api';
-import { SESSION_ID_KEY, Settings, getHostUrl } from '../common';
+import { Settings, CachedAuthState, getHostUrl } from '../common';
 
 export function saveSettings(settings: Settings) {
   console.log('persisting settings...');
@@ -11,9 +11,12 @@ export function saveSettings(settings: Settings) {
   })
     .then(result => {
       if (result.success) {
+        const authState: CachedAuthState = {
+          sid: result.data.sid
+        };
         return browser.storage.local.set({
           ...settings,
-          [SESSION_ID_KEY]: result.data.sid
+          ...authState
         });
       } else {
         throw new Error(ERROR_CODES.common[result.error.code] || ERROR_CODES.auth[result.error.code]);

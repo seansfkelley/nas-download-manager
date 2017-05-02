@@ -39,14 +39,15 @@ export interface Settings {
 
 export interface CachedTasks {
   tasks: DownloadStationTask[];
-  failureMessage?: string;
-  updateTimestamp: number;
+  tasksFetchFailureMessage?: string;
+  tasksFetchUpdateTimestamp: number;
 }
 
-export interface CachedState {
+export interface CachedAuthState {
   sid?: string;
-  cachedTasks: CachedTasks;
 }
+
+export interface AllStoredState extends Settings, CachedTasks, CachedAuthState {}
 
 // Somewhat awkward trick to make sure the compiler enforces that this runtime constant
 // includes all the compile-time type names.
@@ -58,17 +59,15 @@ const _settingNames: Record<keyof Settings, true> = {
 
 const SETTING_NAMES = Object.keys(_settingNames) as (keyof Settings)[];
 
-export const SESSION_ID_KEY: keyof CachedState = 'sid';
-export const CACHED_TASKS_KEY: keyof CachedState = 'cachedTasks';
-
-const _cachedStateNames: Record<keyof CachedState, true> = {
-  'sid': true,
-  'cachedTasks': true
+const _allStoredStateNames: Record<keyof AllStoredState, true> = {
+  ..._settingNames,
+  'tasks': true,
+  'tasksFetchFailureMessage': true,
+  'tasksFetchUpdateTimestamp': true,
+  'sid': true
 };
 
-const CACHED_STATE_NAMES = Object.keys(_cachedStateNames) as (keyof CachedState)[];
-
-export interface StoredState extends Settings, CachedState {}
+const ALL_STORED_STATE_NAMES = Object.keys(_allStoredStateNames) as (keyof Settings)[];
 
 export const DEFAULT_SETTINGS: Settings = {
   connection: {
@@ -92,11 +91,10 @@ export const DEFAULT_SETTINGS: Settings = {
   }
 };
 
-export const DEFAULT_CACHED_STATE: CachedState = {
-  cachedTasks: {
-    tasks: [],
-    updateTimestamp: 0
-  }
+const DEFAULT_ALL_STORED_STATE: AllStoredState = {
+  ...DEFAULT_SETTINGS,
+  tasks: [],
+  tasksFetchUpdateTimestamp: 0
 };
 
 export function getHostUrl(settings: ConnectionSettings) {
@@ -115,15 +113,15 @@ export function loadSettings() {
     });
 }
 
-export function onStoredStateChange(fn: (state: StoredState) => void) {
-  Promise.all([ loadSettings(), browser.storage.local.get<CachedState>(CACHED_STATE_NAMES)])
-    .then(([ settings, cached ]) => ({ ...DEFAULT_SETTINGS, ...DEFAULT_CACHED_STATE, ...settings, ...cached }))
-    .then((initialStoredState: StoredState) => {
+export function onStoredStateChange(fn: (state: AllStoredState) => void) {
+  browser.storage.local.get<AllStoredState>(ALL_STORED_STATE_NAMES)
+    .then(state => ({ ...DEFAULT_ALL_STORED_STATE, ...state }))
+    .then((initialStoredState: AllStoredState) => {
       fn(initialStoredState);
-      browser.storage.onChanged.addListener((changes: StorageChangeEvent<StoredState>, areaName) => {
+      browser.storage.onChanged.addListener((changes: StorageChangeEvent<AllStoredState>, areaName) => {
         if (areaName === 'local') {
-          const extractedChanges: Partial<StoredState> = {};
-          Object.keys(changes).map((key: keyof StoredState) => {
+          const extractedChanges: Partial<AllStoredState> = {};
+          Object.keys(changes).map((key: keyof AllStoredState) => {
             extractedChanges[key] = changes[key] != null ? changes[key]!.newValue : undefined;
           });
           fn({

@@ -1,5 +1,5 @@
 import { DownloadStation, ERROR_CODES } from './api';
-import { CachedTasks, CACHED_TASKS_KEY } from './common';
+import { CachedTasks } from './common';
 import { shallowEqual } from './shallowEqual';
 
 export interface PollerSettings {
@@ -53,19 +53,17 @@ export class TaskPoller {
       })
         .then(response => {
           if (this.settings.enabled) {
-            const cachedTasks: CachedTasks = response.success
+            const cachedTasks: Partial<CachedTasks> = response.success
               ? {
                 tasks: response.data.tasks,
-                updateTimestamp: Date.now()
+                tasksFetchFailureMessage: undefined,
+                tasksFetchUpdateTimestamp: Date.now()
               }
               : {
-                tasks: [],
-                failureMessage: ERROR_CODES.common[response.error.code] || ERROR_CODES.task[response.error.code] || 'Unknown error.',
-                updateTimestamp: Date.now()
+                tasksFetchFailureMessage: ERROR_CODES.common[response.error.code] || ERROR_CODES.task[response.error.code] || 'Unknown error.',
+                tasksFetchUpdateTimestamp: Date.now()
               };
-            return browser.storage.local.set({
-              [CACHED_TASKS_KEY]: cachedTasks
-            });
+            return browser.storage.local.set(cachedTasks);
           } else {
             return Promise.resolve();
           }
@@ -83,15 +81,12 @@ export class TaskPoller {
               failureMessage = 'Unknown error.';
             }
 
-            const cachedTasks: CachedTasks = {
-              tasks: [],
-              failureMessage,
-              updateTimestamp: Date.now()
+            const cachedTasks: Partial<CachedTasks> = {
+              tasksFetchFailureMessage: failureMessage,
+              tasksFetchUpdateTimestamp: Date.now()
             };
 
-            return browser.storage.local.set({
-              [CACHED_TASKS_KEY]: cachedTasks
-            });
+            return browser.storage.local.set(cachedTasks);
           } else {
             return Promise.resolve();
           }

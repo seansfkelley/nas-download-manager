@@ -16,14 +16,15 @@ onStoredStateChange(storedState => {
 });
 
 onStoredStateChange(storedState => {
-  if (storedState.cachedTasks.updateTimestamp > START_TIME) {
-    const updatedFinishedTaskIds = storedState.cachedTasks.tasks
+  // TODO: Also ignore if there's a failure message set.
+  if (storedState.tasksFetchUpdateTimestamp > START_TIME) {
+    const updatedFinishedTaskIds = storedState.tasks
       .filter(t => t.status === 'finished' || t.status === 'seeding')
       .map(t => t.id);
     if (finishedTaskIds != null) {
       const newlyFinishedTaskIds = updatedFinishedTaskIds.filter(id => finishedTaskIds!.indexOf(id) === -1);
       newlyFinishedTaskIds.forEach(id => {
-        const task = storedState.cachedTasks.tasks.filter(t => t.id === id)[0];
+        const task = storedState.tasks.filter(t => t.id === id)[0];
         browser.notifications.create(undefined, {
           type: 'basic',
           title: `${task.title}`,
