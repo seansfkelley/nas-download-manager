@@ -2,6 +2,7 @@ import { TaskPoller } from '../taskPoller';
 import { getHostUrl, onStoredStateChange } from '../common';
 
 const poller = new TaskPoller;
+const START_TIME = Date.now();
 
 let finishedTaskIds: string[] | undefined;
 
@@ -14,22 +15,22 @@ onStoredStateChange(storedState => {
   });
 });
 
-// TODO: This isn't quite right even with the second argument: on start, we want to fetch a list of
-// the downloads as they currently are, then compare against that going forward.
 onStoredStateChange(storedState => {
-  const updatedFinishedTaskIds = storedState.tasks
-    .filter(t => t.status === 'finished' || t.status === 'seeding')
-    .map(t => t.id);
-  if (finishedTaskIds != null) {
-    const newlyFinishedTaskIds = updatedFinishedTaskIds.filter(id => finishedTaskIds!.indexOf(id) === -1);
-    newlyFinishedTaskIds.forEach(id => {
-      const task = storedState.tasks.filter(t => t.id === id)[0];
-      browser.notifications.create(undefined, {
-        type: 'basic',
-        title: `${task.title}`,
-        message: 'Download finished'
+  if (storedState.cachedTasks.updateTimestamp > START_TIME) {
+    const updatedFinishedTaskIds = storedState.cachedTasks.tasks
+      .filter(t => t.status === 'finished' || t.status === 'seeding')
+      .map(t => t.id);
+    if (finishedTaskIds != null) {
+      const newlyFinishedTaskIds = updatedFinishedTaskIds.filter(id => finishedTaskIds!.indexOf(id) === -1);
+      newlyFinishedTaskIds.forEach(id => {
+        const task = storedState.cachedTasks.tasks.filter(t => t.id === id)[0];
+        browser.notifications.create(undefined, {
+          type: 'basic',
+          title: `${task.title}`,
+          message: 'Download finished'
+        });
       });
-    });
+    }
+    finishedTaskIds = updatedFinishedTaskIds;
   }
-  finishedTaskIds = updatedFinishedTaskIds;
-}, false);
+});

@@ -40,8 +40,8 @@ onStoredStateChange(storedState => {
 
   ReactDOM.render(
     <DownloadList
-      tasks={storedState.tasks}
-      failureMessage={storedState.lastPollingFailureMessage}
+      tasks={storedState.cachedTasks.tasks}
+      failureMessage={storedState.cachedTasks.failureMessage}
     />
   , document.body);
 });

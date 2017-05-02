@@ -1,5 +1,5 @@
 import { DownloadStation, ERROR_CODES } from './api';
-import { TASKS_KEY, LAST_POLLING_FAILURE_MESSAGE_KEY } from './common';
+import { CachedTasks, CACHED_TASKS_KEY } from './common';
 import { shallowEqual } from './shallowEqual';
 
 export interface PollerSettings {
@@ -49,20 +49,23 @@ export class TaskPoller {
     if (this.settings.enabled && this.settings.hostname && this.settings.sid) {
       DownloadStation.Task.List(this.settings.hostname, this.settings.sid, {
         offset: 0,
-        limit: -1,
+        limit: -1
       })
         .then(response => {
           if (this.settings.enabled) {
-            if (response.success) {
-              return browser.storage.local.set({
-                [TASKS_KEY]: response.data.tasks,
-                [LAST_POLLING_FAILURE_MESSAGE_KEY]: undefined
-              });
-            } else {
-              return browser.storage.local.set({
-                [LAST_POLLING_FAILURE_MESSAGE_KEY]: ERROR_CODES.common[response.error.code] || ERROR_CODES.task[response.error.code] || 'Unknown error.'
-              });
-            }
+            const cachedTasks: CachedTasks = response.success
+              ? {
+                tasks: response.data.tasks,
+                updateTimestamp: Date.now()
+              }
+              : {
+                tasks: [],
+                failureMessage: ERROR_CODES.common[response.error.code] || ERROR_CODES.task[response.error.code] || 'Unknown error.',
+                updateTimestamp: Date.now()
+              };
+            return browser.storage.local.set({
+              [CACHED_TASKS_KEY]: cachedTasks
+            });
           } else {
             return Promise.resolve();
           }
@@ -80,8 +83,14 @@ export class TaskPoller {
               failureMessage = 'Unknown error.';
             }
 
+            const cachedTasks: CachedTasks = {
+              tasks: [],
+              failureMessage,
+              updateTimestamp: Date.now()
+            };
+
             return browser.storage.local.set({
-              [LAST_POLLING_FAILURE_MESSAGE_KEY]: failureMessage
+              [CACHED_TASKS_KEY]: cachedTasks
             });
           } else {
             return Promise.resolve();

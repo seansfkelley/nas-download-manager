@@ -37,10 +37,15 @@ export interface Settings {
   notifications: NotificationSettings;
 }
 
+export interface CachedTasks {
+  tasks: DownloadStationTask[];
+  failureMessage?: string;
+  updateTimestamp: number;
+}
+
 export interface CachedState {
   sid?: string;
-  tasks: DownloadStationTask[];
-  lastPollingFailureMessage?: string;
+  cachedTasks: CachedTasks;
 }
 
 // Somewhat awkward trick to make sure the compiler enforces that this runtime constant
@@ -54,13 +59,11 @@ const _settingNames: Record<keyof Settings, true> = {
 const SETTING_NAMES = Object.keys(_settingNames) as (keyof Settings)[];
 
 export const SESSION_ID_KEY: keyof CachedState = 'sid';
-export const TASKS_KEY: keyof CachedState = 'tasks';
-export const LAST_POLLING_FAILURE_MESSAGE_KEY: keyof CachedState = 'lastPollingFailureMessage';
+export const CACHED_TASKS_KEY: keyof CachedState = 'cachedTasks';
 
 const _cachedStateNames: Record<keyof CachedState, true> = {
   'sid': true,
-  'tasks': true,
-  'lastPollingFailureMessage': true
+  'cachedTasks': true
 };
 
 const CACHED_STATE_NAMES = Object.keys(_cachedStateNames) as (keyof CachedState)[];
@@ -90,7 +93,10 @@ export const DEFAULT_SETTINGS: Settings = {
 };
 
 export const DEFAULT_CACHED_STATE: CachedState = {
-  tasks: []
+  cachedTasks: {
+    tasks: [],
+    updateTimestamp: 0
+  }
 };
 
 export function getHostUrl(settings: ConnectionSettings) {
@@ -109,13 +115,11 @@ export function loadSettings() {
     });
 }
 
-export function onStoredStateChange(fn: (state: StoredState) => void, includeInitialValue: boolean = true) {
+export function onStoredStateChange(fn: (state: StoredState) => void) {
   Promise.all([ loadSettings(), browser.storage.local.get<CachedState>(CACHED_STATE_NAMES)])
     .then(([ settings, cached ]) => ({ ...DEFAULT_SETTINGS, ...DEFAULT_CACHED_STATE, ...settings, ...cached }))
     .then((initialStoredState: StoredState) => {
-      if (includeInitialValue) {
-        fn(initialStoredState);
-      }
+      fn(initialStoredState);
       browser.storage.onChanged.addListener((changes: StorageChangeEvent<StoredState>, areaName) => {
         if (areaName === 'local') {
           const extractedChanges: Partial<StoredState> = {};
