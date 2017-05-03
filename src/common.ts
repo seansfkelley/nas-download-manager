@@ -40,7 +40,7 @@ export interface Settings {
 export interface CachedTasks {
   tasks: DownloadStationTask[];
   tasksFetchFailureMessage?: string;
-  tasksFetchUpdateTimestamp: number;
+  tasksFetchUpdateTimestamp?: number;
 }
 
 export interface CachedAuthState {
@@ -93,8 +93,7 @@ export const DEFAULT_SETTINGS: Settings = {
 
 const DEFAULT_ALL_STORED_STATE: AllStoredState = {
   ...DEFAULT_SETTINGS,
-  tasks: [],
-  tasksFetchUpdateTimestamp: 0
+  tasks: []
 };
 
 export function getHostUrl(settings: ConnectionSettings) {

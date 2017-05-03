@@ -30,6 +30,9 @@ interface NotificationOptions {
 }
 
 declare const browser: {
+  runtime: {
+    openOptionsPage: () => Promise<void>;
+  };
   storage: {
     local: {
       get: <T>(input: string | string[]) => Promise<T>;
@@ -40,7 +43,7 @@ declare const browser: {
       removeListener: <T extends object>(listener: StorageChangeListener<T>) => void;
       hasListener: <T extends object>(listener: StorageChangeListener<T>) => boolean;
     };
-  },
+  };
   notifications: {
     create: (id: string | undefined, options?: NotificationOptions) => void;
   };

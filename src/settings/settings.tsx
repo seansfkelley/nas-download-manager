@@ -3,7 +3,7 @@ import * as ReactDOM from 'react-dom';
 import * as classNamesProxy from 'classnames';
 
 // https://github.com/rollup/rollup/issues/1267
-const classNames: ClassNamesFn = (classNamesProxy as any).default || classNamesProxy;
+const classNames: typeof classNamesProxy = (classNamesProxy as any).default || classNamesProxy;
 
 import {
   Settings,

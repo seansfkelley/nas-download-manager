@@ -1,0 +1,24 @@
+.popup {
+  width: 300px;
+}
+
+.download-tasks {
+
+}
+
+.download-tasks .task .header {
+  display: flex;
+}
+
+.download-tasks .task .progress-bar {
+  display: flex;
+  height: 5px;
+}
+
+.download-tasks .task .progress-bar .bar-fill {
+
+}
+
+.download-tasks .task .progress-bar .bar-fill {
+  flex: 1;
+}
