@@ -16,8 +16,7 @@ onStoredStateChange(storedState => {
 });
 
 onStoredStateChange(storedState => {
-  // TODO: Also ignore if there's a failure message set.
-  if (storedState.tasksFetchUpdateTimestamp > START_TIME && storedState.tasksFetchFailureMessage == null) {
+  if (storedState.tasksFetchUpdateTimestamp != null && storedState.tasksFetchUpdateTimestamp > START_TIME && storedState.tasksFetchFailureMessage == null) {
     const updatedFinishedTaskIds = storedState.tasks
       .filter(t => t.status === 'finished' || t.status === 'seeding')
       .map(t => t.id);

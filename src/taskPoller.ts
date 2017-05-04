@@ -47,7 +47,7 @@ export class TaskPoller {
             const cachedTasks: Partial<CachedTasks> = response.success
               ? {
                 tasks: response.data.tasks,
-                tasksFetchFailureMessage: undefined,
+                tasksFetchFailureMessage: null,
                 tasksFetchUpdateTimestamp: Date.now()
               }
               : {
@@ -66,7 +66,7 @@ export class TaskPoller {
             if (error && error.response && error.response.status === 400) {
               failureMessage = 'Connection failure (likely wrong protocol).';
             } else if (error && error.message === 'Network Error') {
-              failureMessage = 'Connection failure (likely incorrect hostname/port).';
+              failureMessage = 'Connection failure (likely incorrect hostname/port or no internet connection).';
             } else {
               console.log(error);
               failureMessage = 'Unknown error.';

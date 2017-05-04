@@ -58,12 +58,15 @@ class Popup extends React.PureComponent<PopupProps, void> {
       text = `Updated ${moment(this.props.lastUpdateTimestamp).fromNow()})`;
       tooltip = moment(this.props.lastUpdateTimestamp).format('lll');
     }
+
+    console.log(text, tooltip, classes);
+
     return (
       <header>
         <span className={classes} title={tooltip}>
           {text}
         </span>
-        <span onClick={browser.runtime.openOptionsPage}>
+        <span onClick={() => { browser.runtime.openOptionsPage(); }}>
           Options
         </span>
       </header>
@@ -146,8 +149,8 @@ onStoredStateChange(storedState => {
     <Popup
       tasks={storedState.tasks}
       taskFilter={storedState.visibleTasks}
-      failureMessage={storedState.tasksFetchFailureMessage}
-      lastUpdateTimestamp={storedState.tasksFetchUpdateTimestamp}
+      failureMessage={storedState.tasksFetchFailureMessage || undefined}
+      lastUpdateTimestamp={storedState.tasksFetchUpdateTimestamp || undefined}
     />
   , document.body);
 });

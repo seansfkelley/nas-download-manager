@@ -330,7 +330,7 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
         isFailure = true;
         break;
       case 'network-error':
-        content = 'Connection failed (likely incorrect hostname/port).';
+        content = 'Connection failed (likely incorrect hostname/port or no internet connection).';
         isFailure = true;
         break;
       case 'unknown-error':
