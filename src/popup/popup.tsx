@@ -55,20 +55,23 @@ class Popup extends React.PureComponent<PopupProps, void> {
       text = tooltip = this.props.failureMessage;
       classes = 'error-message';
     } else {
-      text = `Updated ${moment(this.props.lastUpdateTimestamp).fromNow()})`;
+      text = `Updated ${moment(this.props.lastUpdateTimestamp).fromNow()}`;
       tooltip = moment(this.props.lastUpdateTimestamp).format('lll');
     }
-
-    console.log(text, tooltip, classes);
 
     return (
       <header>
         <span className={classes} title={tooltip}>
           {text}
         </span>
-        <span onClick={() => { browser.runtime.openOptionsPage(); }}>
-          Options
-        </span>
+        <span
+          className='fa fa-lg fa-plus'
+          onClick={() => { console.log('plus'); }}
+        />
+        <span
+          className='fa fa-lg fa-cog'
+          onClick={() => { browser.runtime.openOptionsPage(); }}
+        />
       </header>
     );
   }
@@ -110,7 +113,7 @@ class Popup extends React.PureComponent<PopupProps, void> {
                   <span className='header'>
                     <span className='name'>{task.title}</span>
                     <span className='status'>{task.status}</span>
-                    <span className='remove-button'>x</span>
+                    <span className='fa fa-times remove-button'/>
                   </span>
                   <span className='progress-bar'>
                     <span
