@@ -61,17 +61,15 @@ class Popup extends React.PureComponent<PopupProps, void> {
 
     return (
       <header>
-        <span className={classes} title={tooltip}>
+        <span className={classNames('description', classes)} title={tooltip}>
           {text}
         </span>
-        <span
-          className='fa fa-lg fa-plus'
-          onClick={() => { console.log('plus'); }}
-        />
-        <span
-          className='fa fa-lg fa-cog'
-          onClick={() => { browser.runtime.openOptionsPage(); }}
-        />
+        <button onClick={() => { console.log('plus'); }}>
+          <span className='fa fa-lg fa-plus'/>
+        </button>
+        <button onClick={() => { browser.runtime.openOptionsPage(); }}>
+          <span className='fa fa-lg fa-cog'/>
+        </button>
       </header>
     );
   }
@@ -111,8 +109,10 @@ class Popup extends React.PureComponent<PopupProps, void> {
               return (
                 <li className='task' key={task.id}>
                   <span className='header'>
-                    <span className='name'>{task.title}</span>
-                    <span className='status'>{task.status}</span>
+                    <span className='name-and-status'>
+                      <span className='name'>{task.title}</span>
+                      <span className='status'>{task.status} {'\u2013'} {task.additional!.transfer!.speed_upload} u / {task.additional!.transfer!.speed_download} d</span>
+                    </span>
                     <span className='fa fa-times remove-button'/>
                   </span>
                   <span className='progress-bar'>
@@ -123,7 +123,7 @@ class Popup extends React.PureComponent<PopupProps, void> {
                         'errored': matchesFilter(task, 'errored'),
                         'unknown': matchesFilter(task, 'other')
                       })}
-                      style={{ width: downloadedFraction }}
+                      style={{ width: `${downloadedFraction * 100}%` }}
                     />
                     <span className='bar-background'/>
                   </span>
