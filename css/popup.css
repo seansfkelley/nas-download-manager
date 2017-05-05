@@ -24,7 +24,11 @@
 }
 
 .no-tasks {
-
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #444;
+  padding: 10px;
 }
 
 ul.download-tasks {

@@ -78,7 +78,7 @@ class Popup extends React.PureComponent<PopupProps, void> {
     if (this.props.lastUpdateTimestamp == null) {
       return (
         <div className='no-tasks'>
-          Loading...
+          ...
         </div>
       );
     } else if (this.props.tasks.length === 0) {
