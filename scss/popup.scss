@@ -45,6 +45,7 @@ html {
 ul.download-tasks {
   list-style: none;
   padding: 5px;
+  margin: 0;
 
   li.task {
     margin: 5px 0;
@@ -85,12 +86,26 @@ ul.download-tasks {
       height: 3px;
 
       .bar-fill {
-        background-color: $color-loading;
+        &.in-progress {
+          background-color: $color-loading;
+        }
+
+        &.completed {
+          background-color: $color-success;
+        }
+
+        &.errored {
+          background-color: $color-error;
+        }
+
+        &.unknown {
+          background-color: $color-indeterminate;
+        }
       }
 
       .bar-background {
         flex: 1;
-        background-color: $color-indeterminate;
+        background-color: rgba(0, 0, 0, 0.1);
       }
     }
   }
