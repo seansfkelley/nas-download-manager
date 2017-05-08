@@ -4,3 +4,4 @@ node_modules/
 lib/
 dist/
 src/api/secrets.ts
+.sass-cache

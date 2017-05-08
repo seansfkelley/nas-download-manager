@@ -30,7 +30,7 @@ function bundleAndMaybeWatch(baseFilename) {
   const config = {
     // TODO: Typescript in rollup rather than separately?
     entry: `lib/${baseFilename}.js`,
-    dest: `dist/${baseFilename}.js`,
+    dest: `dist/js/${baseFilename}.js`,
     format: 'es',
     plugins: [
       resolve({

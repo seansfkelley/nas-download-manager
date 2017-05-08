@@ -1,0 +1,105 @@
+@import "colors";
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background-color: $color-background;
+  color: $color-text;
+}
+
+.popup {
+  width: 300px;
+
+  header {
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    padding: 5px;
+
+    .description {
+      white-space: initial;
+      padding-right: 5px;
+      margin-right: auto;
+
+      .fa {
+        margin-right: 5px;
+      }
+    }
+
+    button + button {
+      border-left: none;
+    }
+  }
+}
+
+.no-tasks {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $color-text-faded;
+  padding: 10px;
+}
+
+ul.download-tasks {
+  list-style: none;
+  padding: 5px;
+
+  li.task {
+    margin: 5px 0;
+
+    .header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+
+      .name-and-status {
+        padding-right: 5px;
+        margin-right: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+
+        .name {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .status {
+          font-size: 0.8em;
+          text-transform: uppercase;
+          color: $color-text-faded-faded;
+          padding-right: 5px;
+        }
+      }
+
+      .remove-button {
+        padding: 5px;
+      }
+    }
+
+    .progress-bar {
+      display: flex;
+      height: 3px;
+
+      .bar-fill {
+        background-color: $color-loading;
+      }
+
+      .bar-background {
+        flex: 1;
+        background-color: $color-indeterminate;
+      }
+    }
+  }
+}
+
+.success-message {
+  color: $color-success;;
+}
+
+.error-message {
+  color: $color-error;
+}

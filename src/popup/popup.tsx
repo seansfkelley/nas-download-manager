@@ -47,21 +47,28 @@ class Popup extends React.PureComponent<PopupProps, void> {
     let text: string;
     let tooltip: string;
     let classes: string | undefined = undefined;
+    let icon: string;
 
     if (this.props.lastUpdateTimestamp == null) {
       text = 'Loading...';
       tooltip = 'Loading download tasks...';
+      icon = 'fa-refresh fa-spin';
     } else if (this.props.failureMessage != null) {
-      text = tooltip = this.props.failureMessage;
+      text = 'Error loading tasks...'
+      tooltip = this.props.failureMessage;
       classes = 'error-message';
+      icon = 'fa-exclamation-triangle';
     } else {
       text = `Updated ${moment(this.props.lastUpdateTimestamp).fromNow()}`;
       tooltip = moment(this.props.lastUpdateTimestamp).format('lll');
+      classes = 'success-message';
+      icon = 'fa-check';
     }
 
     return (
       <header>
         <span className={classNames('description', classes)} title={tooltip}>
+          <span className={classNames('fa fa-lg', icon)}/>
           {text}
         </span>
         <button onClick={() => { console.log('plus'); }}>

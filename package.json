@@ -5,12 +5,14 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "exit 0",
+    "watch:styles": "scss --watch scss:dist/css",
+    "build:styles": "scss --update scss:dist/css",
     "build:transpile": "tsc",
     "watch:transpile": "tsc -w",
     "build:bundle": "node build.js",
     "watch:bundle": "node build.js -w",
-    "build": "npm-run-all build:transpile build:bundle",
-    "watch": "npm-run-all watch:transpile watch:bundle"
+    "build": "npm-run-all build:transpile build:bundle build:styles",
+    "watch": "npm-run-all watch:transpile watch:bundle watch:styles"
   },
   "repository": {
     "type": "git",
@@ -30,6 +32,7 @@
     "rollup-plugin-node-globals": "^1.1.0",
     "rollup-plugin-node-resolve": "^3.0.0",
     "rollup-watch": "^3.2.2",
+    "scss": "^0.2.4",
     "typescript": "^2.2.2"
   },
   "dependencies": {
