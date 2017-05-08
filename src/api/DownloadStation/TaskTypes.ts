@@ -62,45 +62,53 @@ export interface DownloadStationTaskTransfer {
   speed_upload: number;
 }
 
-export type DownloadStationTaskNormalStatus =
-  'downloading' |
-  'error' |
-  'extracting' |
-  'filehosting_waiting' |
-  'finished' |
-  'finishing' |
-  'hash_checking' |
-  'paused' |
-  'seeding' |
-  'waiting';
+export const __taskNormalStatuses = {
+  'downloading': true,
+  'error': true,
+  'extracting': true,
+  'filehosting_waiting': true,
+  'finished': true,
+  'finishing': true,
+  'hash_checking': true,
+  'paused': true,
+  'seeding': true,
+  'waiting': true
+};
 
-export type DownloadStationTaskErrorStatus =
-  'broken_link' |
-  'destination_denied' |
-  'destination_not_exist' |
-  'disk_full' |
-  'encrypted_name_too_long' |
-  'exceed_max_destination_size' |
-  'exceed_max_file_system_size' |
-  'exceed_max_temp_size' |
-  'extract_failed_disk_full' |
-  'extract_failed_invalid_archive' |
-  'extract_failed_quota_reached ' |
-  'extract_failed_wrong_password' |
-  'extract_failed' |
-  'file_not_exist' |
-  'ftp_encryption_not_supported_type' |
-  'missing_python' |
-  'name_too_long' |
-  'not_supported_type' |
-  'private_video' |
-  'quota_reached' |
-  'required_premium_account' |
-  'encryption' |
-  'timeout' |
-  'torrent_duplicate' |
-  'try_it_later' |
-  'unknown';
+export type DownloadStationTaskNormalStatus = keyof typeof __taskNormalStatuses;
+export const ALL_TASK_NORMAL_STATUSES = Object.keys(__taskNormalStatuses) as DownloadStationTaskNormalStatus[];
+
+export const __taskErrorStatuses = {
+  'broken_link': true,
+  'destination_denied': true,
+  'destination_not_exist': true,
+  'disk_full': true,
+  'encrypted_name_too_long': true,
+  'exceed_max_destination_size': true,
+  'exceed_max_file_system_size': true,
+  'exceed_max_temp_size': true,
+  'extract_failed_disk_full': true,
+  'extract_failed_invalid_archive': true,
+  'extract_failed_quota_reached ': true,
+  'extract_failed_wrong_password': true,
+  'extract_failed': true,
+  'file_not_exist': true,
+  'ftp_encryption_not_supported_type': true,
+  'missing_python': true,
+  'name_too_long': true,
+  'not_supported_type': true,
+  'private_video': true,
+  'quota_reached': true,
+  'required_premium_account': true,
+  'encryption': true,
+  'timeout': true,
+  'torrent_duplicate': true,
+  'try_it_later': true,
+  'unknown': true
+};
+
+export type DownloadStationTaskErrorStatus = keyof typeof __taskErrorStatuses;
+export const ALL_TASK_ERROR_STATUSES = Object.keys(__taskErrorStatuses) as DownloadStationTaskErrorStatus[];
 
 export interface DownloadStationTask {
   id: string;

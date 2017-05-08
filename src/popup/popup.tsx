@@ -7,7 +7,7 @@ import * as classNamesProxy from 'classnames';
 const moment: typeof momentProxy = (momentProxy as any).default || momentProxy;
 const classNames: typeof classNamesProxy = (classNamesProxy as any).default || classNamesProxy;
 
-import { DownloadStationTask, DownloadStationTaskNormalStatus, DownloadStationTaskErrorStatus } from '../api';
+import { DownloadStationTask, DownloadStationTaskNormalStatus, DownloadStationTaskErrorStatus, ALL_TASK_ERROR_STATUSES, ALL_TASK_NORMAL_STATUSES } from '../api';
 import { VisibleTaskSettings, onStoredStateChange, getHostUrl } from '../common';
 import { TaskPoller } from '../taskPoller';
 
@@ -18,19 +18,35 @@ interface PopupProps {
   lastUpdateTimestamp?: number;
 }
 
-const TASK_FILTER_TO_TYPES: { [K in keyof VisibleTaskSettings]: (DownloadStationTaskNormalStatus | DownloadStationTaskErrorStatus)[] | true } = {
+const EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES: { [K in keyof VisibleTaskSettings]?: DownloadStationTaskNormalStatus[] } = {
   downloading: [ 'downloading', 'extracting', 'finishing', 'hash_checking', 'waiting' ],
   uploading: [ 'seeding' ],
-  completed: [ 'finished' ],
-  // This is somewhat weird but there are far more error types than "other", so we enumerate these instead.
-  other: [ 'paused', 'filehosting_waiting' ],
-  errored: true
+  completed: [ 'finished' ]
 };
 
+const EXPLICITLY_SPECIFIED_TYPES = (Object.keys(EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES) as (keyof VisibleTaskSettings)[])
+    .reduce((acc, key) => acc.concat(EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES[key]!), [] as DownloadStationTaskNormalStatus[]);
+
+const ERRORED_TYPES = (ALL_TASK_ERROR_STATUSES as (DownloadStationTaskNormalStatus | DownloadStationTaskErrorStatus)[])
+  .concat(ALL_TASK_NORMAL_STATUSES.filter(status => EXPLICITLY_SPECIFIED_TYPES.indexOf(status) === -1));
+
+const OTHER_STATUSES = (ALL_TASK_ERROR_STATUSES as (DownloadStationTaskNormalStatus | DownloadStationTaskErrorStatus)[])
+  .concat(ALL_TASK_NORMAL_STATUSES)
+  .filter(status => EXPLICITLY_SPECIFIED_TYPES.indexOf(status as any) === -1 && ERRORED_TYPES.indexOf(status) === -1);
+
+const TASK_FILTER_TO_TYPES: { [K in keyof VisibleTaskSettings]: (DownloadStationTaskNormalStatus | DownloadStationTaskErrorStatus)[] } = {
+  downloading: [],
+  uploading: [],
+  completed: [],
+  ...EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES,
+  errored: ERRORED_TYPES,
+  other: OTHER_STATUSES
+};
+
+console.log(TASK_FILTER_TO_TYPES);
+
 function matchesFilter(task: DownloadStationTask, filterName: keyof VisibleTaskSettings) {
-  const filter = TASK_FILTER_TO_TYPES[filterName];
-  // TODO: This will mark all tasks as errored.
-  return filter === true ? true : filter.indexOf(task.status) !== -1;
+  return TASK_FILTER_TO_TYPES[filterName].indexOf(task.status) !== -1;
 }
 
 class Popup extends React.PureComponent<PopupProps, void> {
