@@ -108,13 +108,13 @@ class Popup extends React.PureComponent<PopupProps, void> {
   private renderBody() {
     if (this.props.lastUpdateTimestamp == null) {
       return (
-        <div className='no-tasks'>
+        <div className='no-tasks popup-body'>
           ...
         </div>
       );
     } else if (this.props.tasks.length === 0) {
       return (
-        <div className='no-tasks'>
+        <div className='no-tasks popup-body'>
           No download tasks.
         </div>
       );
@@ -128,13 +128,13 @@ class Popup extends React.PureComponent<PopupProps, void> {
       );
       if (filteredTasks.length === 0) {
         return (
-          <div className='no-tasks'>
+          <div className='no-tasks popup-body'>
             Download tasks exist, but none match your filters.
           </div>
         );
       } else {
         return (
-          <ul className='download-tasks'>
+          <ul className='download-tasks popup-body'>
             {this.props.tasks.sort(sortByName).map(task => {
               const downloadedFraction = Math.round(task.additional!.transfer!.size_downloaded / task.size * 100) / 100;
               return (

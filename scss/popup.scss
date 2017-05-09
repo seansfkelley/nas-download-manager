@@ -7,10 +7,21 @@
 html {
   background-color: $color-background;
   color: $color-text;
+  width: 300px;
+  height: 100%;
+  min-height: 200px;
+  max-height: 800px;
+}
+
+body, .popup {
+  width: 100%;
+  height: 100%;
 }
 
 .popup {
-  width: 300px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 
   header {
     white-space: nowrap;
@@ -20,7 +31,6 @@ html {
 
     .description {
       white-space: initial;
-      padding-right: 5px;
       margin-right: auto;
 
       .fa {
@@ -28,13 +38,18 @@ html {
       }
     }
 
-    button + button {
-      border-left: none;
+    button {
+      margin-left: 2px;
     }
+  }
+
+  .popup-body {
+    flex: 1;
+    overflow-y: auto;
   }
 }
 
-.no-tasks {
+.popup .no-tasks {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -42,7 +57,7 @@ html {
   padding: 10px;
 }
 
-ul.download-tasks {
+.popup ul.download-tasks {
   list-style: none;
   padding: 5px;
   margin: 0;
