@@ -2,6 +2,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import * as momentProxy from 'moment';
 import * as classNamesProxy from 'classnames';
+import debounce from 'lodash-es/debounce';
 
 // https://github.com/rollup/rollup/issues/1267
 const moment: typeof momentProxy = (momentProxy as any).default || momentProxy;
@@ -10,13 +11,6 @@ const classNames: typeof classNamesProxy = (classNamesProxy as any).default || c
 import { DownloadStationTask, DownloadStationTaskNormalStatus, DownloadStationTaskErrorStatus, ALL_TASK_ERROR_STATUSES, ALL_TASK_NORMAL_STATUSES } from '../api';
 import { VisibleTaskSettings, onStoredStateChange, getHostUrl } from '../common';
 import { TaskPoller } from '../taskPoller';
-
-interface PopupProps {
-  tasks: DownloadStationTask[];
-  taskFilter: VisibleTaskSettings;
-  failureMessage?: string;
-  lastUpdateTimestamp?: number;
-}
 
 const EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES: { [K in keyof VisibleTaskSettings]?: DownloadStationTaskNormalStatus[] } = {
   downloading: [ 'downloading', 'extracting', 'finishing', 'hash_checking', 'waiting' ],
@@ -57,7 +51,24 @@ function sortByName(task1: DownloadStationTask, task2: DownloadStationTask) {
   }
 }
 
-class Popup extends React.PureComponent<PopupProps, void> {
+interface PopupProps {
+  tasks: DownloadStationTask[];
+  taskFilter: VisibleTaskSettings;
+  failureMessage?: string;
+  lastUpdateTimestamp?: number;
+}
+
+interface State {
+  shouldShowDropShadow: boolean;
+}
+
+class Popup extends React.PureComponent<PopupProps, State> {
+  private bodyRef?: HTMLElement;
+
+  state: State = {
+    shouldShowDropShadow: false
+  };
+
   render() {
     return (
       <div className='popup'>
@@ -90,7 +101,7 @@ class Popup extends React.PureComponent<PopupProps, void> {
     }
 
     return (
-      <header>
+      <header className={classNames({ 'with-shadow': this.state.shouldShowDropShadow })}>
         <div className={classNames('description', classes)} title={tooltip}>
           <div className={classNames('fa fa-lg', icon)}/>
           {text}
@@ -134,7 +145,11 @@ class Popup extends React.PureComponent<PopupProps, void> {
         );
       } else {
         return (
-          <ul className='download-tasks popup-body'>
+          <ul
+            className='download-tasks popup-body'
+            onScroll={this.onBodyScroll}
+            ref={e => { this.bodyRef = e; }}
+          >
             {this.props.tasks.sort(sortByName).map(task => {
               const downloadedFraction = Math.round(task.additional!.transfer!.size_downloaded / task.size * 100) / 100;
               return (
@@ -166,6 +181,14 @@ class Popup extends React.PureComponent<PopupProps, void> {
       }
     }
   }
+
+  private onBodyScroll = debounce(() => {
+    if (this.bodyRef) {
+      this.setState({ shouldShowDropShadow: this.bodyRef.scrollTop !== 0 })
+    } else {
+      this.setState({ shouldShowDropShadow: false });
+    }
+  }, 100);
 }
 
 const poller = new TaskPoller({
