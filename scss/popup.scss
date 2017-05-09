@@ -58,9 +58,7 @@ ul.download-tasks {
       .name-and-status {
         padding-right: 5px;
         margin-right: auto;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
+        overflow: hidden;
 
         .name {
           white-space: nowrap;

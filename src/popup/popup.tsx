@@ -43,10 +43,18 @@ const TASK_FILTER_TO_TYPES: { [K in keyof VisibleTaskSettings]: (DownloadStation
   other: OTHER_STATUSES
 };
 
-console.log(TASK_FILTER_TO_TYPES);
-
 function matchesFilter(task: DownloadStationTask, filterName: keyof VisibleTaskSettings) {
   return TASK_FILTER_TO_TYPES[filterName].indexOf(task.status) !== -1;
+}
+
+function sortByName(task1: DownloadStationTask, task2: DownloadStationTask) {
+  if (task1.title < task2.title) {
+    return -1;
+  } else if (task1.title > task2.title) {
+    return 1;
+  } else {
+    return 0;
+  }
 }
 
 class Popup extends React.PureComponent<PopupProps, void> {
@@ -83,15 +91,15 @@ class Popup extends React.PureComponent<PopupProps, void> {
 
     return (
       <header>
-        <span className={classNames('description', classes)} title={tooltip}>
-          <span className={classNames('fa fa-lg', icon)}/>
+        <div className={classNames('description', classes)} title={tooltip}>
+          <div className={classNames('fa fa-lg', icon)}/>
           {text}
-        </span>
+        </div>
         <button onClick={() => { console.log('plus'); }}>
-          <span className='fa fa-lg fa-plus'/>
+          <div className='fa fa-lg fa-plus'/>
         </button>
         <button onClick={() => { browser.runtime.openOptionsPage(); }}>
-          <span className='fa fa-lg fa-cog'/>
+          <div className='fa fa-lg fa-cog'/>
         </button>
       </header>
     );
@@ -127,19 +135,19 @@ class Popup extends React.PureComponent<PopupProps, void> {
       } else {
         return (
           <ul className='download-tasks'>
-            {this.props.tasks.map(task => {
+            {this.props.tasks.sort(sortByName).map(task => {
               const downloadedFraction = Math.round(task.additional!.transfer!.size_downloaded / task.size * 100) / 100;
               return (
                 <li className='task' key={task.id}>
-                  <span className='header'>
-                    <span className='name-and-status'>
-                      <span className='name'>{task.title}</span>
-                      <span className='status'>{task.status} {'\u2013'} {task.additional!.transfer!.speed_upload} u / {task.additional!.transfer!.speed_download} d</span>
-                    </span>
-                    <span className='fa fa-times remove-button'/>
-                  </span>
-                  <span className='progress-bar'>
-                    <span
+                  <div className='header'>
+                    <div className='name-and-status'>
+                      <div className='name'>{task.title}</div>
+                      <div className='status'>{task.status} {'\u2013'} {task.additional!.transfer!.speed_upload} u / {task.additional!.transfer!.speed_download} d</div>
+                    </div>
+                    <div className='fa fa-times remove-button'/>
+                  </div>
+                  <div className='progress-bar'>
+                    <div
                       className={classNames('bar-fill', {
                         'in-progress': matchesFilter(task, 'downloading' ),
                         'completed': matchesFilter(task, 'uploading') || matchesFilter(task, 'completed'),
@@ -148,8 +156,8 @@ class Popup extends React.PureComponent<PopupProps, void> {
                       })}
                       style={{ width: `${downloadedFraction * 100}%` }}
                     />
-                    <span className='bar-background'/>
-                  </span>
+                    <div className='bar-background'/>
+                  </div>
                 </li>
               );
             })}
