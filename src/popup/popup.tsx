@@ -8,38 +8,10 @@ import debounce from 'lodash-es/debounce';
 const moment: typeof momentProxy = (momentProxy as any).default || momentProxy;
 const classNames: typeof classNamesProxy = (classNamesProxy as any).default || classNamesProxy;
 
-import { DownloadStationTask, DownloadStationTaskNormalStatus, DownloadStationTaskErrorStatus, ALL_TASK_ERROR_STATUSES, ALL_TASK_NORMAL_STATUSES } from '../api';
+import { DownloadStationTask } from '../api';
 import { VisibleTaskSettings, onStoredStateChange, getHostUrl } from '../common';
 import { TaskPoller } from '../taskPoller';
-
-const EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES: { [K in keyof VisibleTaskSettings]?: DownloadStationTaskNormalStatus[] } = {
-  downloading: [ 'downloading', 'extracting', 'finishing', 'hash_checking', 'waiting' ],
-  uploading: [ 'seeding' ],
-  completed: [ 'finished' ]
-};
-
-const EXPLICITLY_SPECIFIED_TYPES = (Object.keys(EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES) as (keyof VisibleTaskSettings)[])
-    .reduce((acc, key) => acc.concat(EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES[key]!), [] as DownloadStationTaskNormalStatus[]);
-
-const ERRORED_TYPES = (ALL_TASK_ERROR_STATUSES as (DownloadStationTaskNormalStatus | DownloadStationTaskErrorStatus)[])
-  .concat(ALL_TASK_NORMAL_STATUSES.filter(status => EXPLICITLY_SPECIFIED_TYPES.indexOf(status) === -1));
-
-const OTHER_STATUSES = (ALL_TASK_ERROR_STATUSES as (DownloadStationTaskNormalStatus | DownloadStationTaskErrorStatus)[])
-  .concat(ALL_TASK_NORMAL_STATUSES)
-  .filter(status => EXPLICITLY_SPECIFIED_TYPES.indexOf(status as any) === -1 && ERRORED_TYPES.indexOf(status) === -1);
-
-const TASK_FILTER_TO_TYPES: { [K in keyof VisibleTaskSettings]: (DownloadStationTaskNormalStatus | DownloadStationTaskErrorStatus)[] } = {
-  downloading: [],
-  uploading: [],
-  completed: [],
-  ...EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES,
-  errored: ERRORED_TYPES,
-  other: OTHER_STATUSES
-};
-
-function matchesFilter(task: DownloadStationTask, filterName: keyof VisibleTaskSettings) {
-  return TASK_FILTER_TO_TYPES[filterName].indexOf(task.status) !== -1;
-}
+import { matchesFilter } from './filtering';
 
 function sortByName(task1: DownloadStationTask, task2: DownloadStationTask) {
   if (task1.title < task2.title) {
