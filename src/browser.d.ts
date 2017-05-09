@@ -65,6 +65,23 @@ interface TabCreateOptions {
   url?: string;
 }
 
+type ContextMenusItemType = 'normal' | 'checkbox' | 'radio' | 'separator';
+
+type ContextsMenuContextType = 'all' | 'audio' | 'browser_action' | 'editable' | 'frame' | 'image' | 'link' | 'page' | 'page_action' | 'password' | 'selection' | 'tab' | 'video';
+
+interface ContextMenusCreateOptions {
+  type?: ContextMenusItemType;
+  id?: string;
+  title?: string;
+  checked?: boolean;
+  contexts?: ContextsMenuContextType[];
+  onclick?: () => void;
+  parentId?: number | string;
+  documentUrlPatterns?: string[];
+  targetUrlPatterns?: string[];
+  enabled?: boolean;
+}
+
 declare const browser: {
   runtime: {
     openOptionsPage: () => Promise<void>;
@@ -85,5 +102,8 @@ declare const browser: {
   };
   tabs: {
     create: (options?: TabCreateOptions) => Promise<Tab>;
+  };
+  contextMenus: {
+    create: (options?: ContextMenusCreateOptions, callback?: () => void) => number | string;
   };
 };

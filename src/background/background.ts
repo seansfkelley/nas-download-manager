@@ -34,3 +34,9 @@ onStoredStateChange(storedState => {
     finishedTaskIds = updatedFinishedTaskIds;
   }
 });
+
+browser.contextMenus.create({
+  title: 'Download with DownloadStation',
+  contexts: [ 'link' ],
+  onclick: console.log.bind(console)
+});

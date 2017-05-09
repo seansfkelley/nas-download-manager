@@ -271,7 +271,7 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
 
     switch (this.state.savingStatus) {
       case 'in-progress':
-        text = 'Saving...';
+        text = 'Checking connection...';
         break;
       case 'unchanged':
         text = 'No changes to save.';

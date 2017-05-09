@@ -3,14 +3,11 @@
   "name": "synology",
   "version": "0.1.0",
   "description": "",
-  // "content_scripts": [{
-  //   "matches": [ "<all_urls>" ],
-  //   "js": [ "dist/bundle.js" ]
-  // }],
   "background": {
-    "scripts": [ "dist/background/background.js" ]
+    "scripts": [ "dist/js/background/background.js" ]
   },
   "permissions": [
+    "contextMenus",
     "runtime",
     "storage",
     "notifications",
@@ -41,5 +38,11 @@
   },
   "options_ui": {
     "page": "html/settings.html"
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "64": "icons/icon-64.png",
+    "256": "icons/icon-256.png"
   }
 }
