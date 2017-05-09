@@ -24,6 +24,7 @@ function sortByName(task1: DownloadStationTask, task2: DownloadStationTask) {
 }
 
 interface PopupProps {
+  hostUrl: string;
   tasks: DownloadStationTask[];
   taskFilter: VisibleTaskSettings;
   failureMessage?: string;
@@ -78,10 +79,22 @@ class Popup extends React.PureComponent<PopupProps, State> {
           <div className={classNames('fa fa-lg', icon)}/>
           {text}
         </div>
-        <button onClick={() => { console.log('plus'); }}>
+        <button
+          onClick={() => { console.log('plus'); }}
+          title='Add download...'
+        >
           <div className='fa fa-lg fa-plus'/>
         </button>
-        <button onClick={() => { browser.runtime.openOptionsPage(); }}>
+        <button
+          onClick={() => { browser.tabs.create({ url: this.props.hostUrl, active: true }) }}
+          title='Open Synology UI...'
+        >
+          <div className='fa fa-lg fa-share-square-o'/>
+        </button>
+        <button
+          onClick={() => { browser.runtime.openOptionsPage(); }}
+          title='Open settings...'
+        >
           <div className='fa fa-lg fa-cog'/>
         </button>
       </header>
@@ -169,13 +182,15 @@ const poller = new TaskPoller({
 });
 
 onStoredStateChange(storedState => {
+  const hostUrl = getHostUrl(storedState.connection);
   poller.updateSettings({
-    hostname: getHostUrl(storedState.connection),
+    hostname: hostUrl,
     sid: storedState.sid
   });
 
   ReactDOM.render(
     <Popup
+      hostUrl={hostUrl}
       tasks={storedState.tasks}
       taskFilter={storedState.visibleTasks}
       failureMessage={storedState.tasksFetchFailureMessage || undefined}

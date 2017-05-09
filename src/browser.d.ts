@@ -29,6 +29,42 @@ interface NotificationOptions {
   progress?: number;
 }
 
+interface Tab {
+  active: boolean;
+  audible?: boolean;
+  cookieStoreId?: string;
+  favIconUrl?: string;
+  height?: number;
+  highlighted: boolean;
+  id?: number;
+  incognito: boolean;
+  index: number;
+  mutedInfo?: {
+    extensionId?: string;
+    muted: boolean;
+    reason?: 'capture' | 'extension' | 'user';
+  };
+  openerTabId?: number;
+  pinned: boolean;
+  selected: boolean;
+  sessionId?: string;
+  status?: 'loading' | 'complete';
+  title?: string;
+  url?: string;
+  width?: number;
+  windowId: number;
+}
+
+interface TabCreateOptions {
+  active?: boolean;
+  cookieStoreId?: string;
+  index?: number;
+  openerTabId?: number;
+  pinned?: boolean;
+  selected?: boolean;
+  url?: string;
+}
+
 declare const browser: {
   runtime: {
     openOptionsPage: () => Promise<void>;
@@ -46,5 +82,8 @@ declare const browser: {
   };
   notifications: {
     create: (id: string | undefined, options?: NotificationOptions) => void;
+  };
+  tabs: {
+    create: (options?: TabCreateOptions) => Promise<Tab>;
   };
 };
