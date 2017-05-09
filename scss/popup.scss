@@ -4,17 +4,22 @@
   box-sizing: border-box;
 }
 
+$width: 300px;
+
 html {
   background-color: $color-background;
   color: $color-text;
-  width: 300px;
+  width: $width;
   height: 100%;
   min-height: 200px;
   max-height: 800px;
 }
 
 body, .popup {
-  width: 100%;
+  // Using 100% here should work, but it doesn't. The browser popup must do something weird
+  // such that it changes width depending on the contents, even when it's 100% of the <html>
+  // width (which is explicitly specified). :/
+  width: $width;
   height: 100%;
 }
 
@@ -28,6 +33,9 @@ body, .popup {
     display: flex;
     align-items: center;
     padding: 5px;
+    transition: box-shadow 100ms;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    box-shadow: 0 1px 2px 2px rgba(0, 0, 0, 0);
 
     .description {
       white-space: initial;
@@ -40,6 +48,10 @@ body, .popup {
 
     button {
       margin-left: 2px;
+    }
+
+    &.with-shadow {
+      box-shadow: 0 1px 2px 2px rgba(0, 0, 0, 0.2);
     }
   }
 
@@ -59,7 +71,7 @@ body, .popup {
 
 .popup ul.download-tasks {
   list-style: none;
-  padding: 5px;
+  padding: 0 5px;
   margin: 0;
 
   li.task {
