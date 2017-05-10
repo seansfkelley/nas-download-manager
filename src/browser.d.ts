@@ -69,13 +69,28 @@ type ContextMenusItemType = 'normal' | 'checkbox' | 'radio' | 'separator';
 
 type ContextsMenuContextType = 'all' | 'audio' | 'browser_action' | 'editable' | 'frame' | 'image' | 'link' | 'page' | 'page_action' | 'password' | 'selection' | 'tab' | 'video';
 
+interface ContextMenusOnClickData {
+  checked?: boolean;
+  editable: boolean;
+  frameUrl?: string;
+  linkUrl?: string;
+  mediaType?: 'image' | 'video' | 'audio';
+  menuItemId: number | string;
+  modifiers: ('Command' | 'Ctrl' | 'MacCtrl' | 'Shift')[];
+  pageUrl?: string;
+  parentMenuItemId?: number | string;
+  selectionText?: string;
+  srcUrl?: string;
+  wasChecked?: boolean;
+}
+
 interface ContextMenusCreateOptions {
   type?: ContextMenusItemType;
   id?: string;
   title?: string;
   checked?: boolean;
   contexts?: ContextsMenuContextType[];
-  onclick?: () => void;
+  onclick?: (data: ContextMenusOnClickData) => void;
   parentId?: number | string;
   documentUrlPatterns?: string[];
   targetUrlPatterns?: string[];
@@ -98,12 +113,13 @@ declare const browser: {
     };
   };
   notifications: {
-    create: (id: string | undefined, options?: NotificationOptions) => void;
+    create: (id: string | undefined, options?: NotificationOptions) => Promise<string>;
   };
   tabs: {
     create: (options?: TabCreateOptions) => Promise<Tab>;
   };
   contextMenus: {
     create: (options?: ContextMenusCreateOptions, callback?: () => void) => number | string;
+    update: (id: number | string, options?: ContextMenusCreateOptions) => Promise<void>;
   };
 };

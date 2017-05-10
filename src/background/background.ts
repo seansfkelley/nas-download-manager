@@ -1,5 +1,14 @@
+import { DownloadStation, ERROR_CODES } from '../api';
 import { TaskPoller } from '../taskPoller';
 import { getHostUrl, onStoredStateChange } from '../common';
+
+function notify(title: string, message?: string) {
+  return browser.notifications.create(undefined, {
+    type: 'basic',
+    title,
+    message: message || ''
+  });
+}
 
 const poller = new TaskPoller;
 const START_TIME = Date.now();
@@ -24,19 +33,46 @@ onStoredStateChange(storedState => {
       const newlyFinishedTaskIds = updatedFinishedTaskIds.filter(id => finishedTaskIds!.indexOf(id) === -1);
       newlyFinishedTaskIds.forEach(id => {
         const task = storedState.tasks.filter(t => t.id === id)[0];
-        browser.notifications.create(undefined, {
-          type: 'basic',
-          title: `${task.title}`,
-          message: 'Download finished'
-        });
+        notify(`${task.title}`, 'Download finished');
       });
     }
     finishedTaskIds = updatedFinishedTaskIds;
   }
 });
 
-browser.contextMenus.create({
+const CONTEXT_MENU_ID = browser.contextMenus.create({
   title: 'Download with DownloadStation',
-  contexts: [ 'link' ],
-  onclick: console.log.bind(console)
+  contexts: [ 'link' ]
+});
+
+const DOWNLOADABLE_URI_PROTOCOLS = [
+  'magnet',
+  'ftp',
+  'ftps'
+];
+
+onStoredStateChange(storedState => {
+  browser.contextMenus.update(CONTEXT_MENU_ID, {
+    enabled: !!storedState.sid,
+    onclick: (data) => {
+      const link = data.linkUrl;
+      if (link && DOWNLOADABLE_URI_PROTOCOLS.some(protocol => link.slice(0, protocol.length + 1) === `${protocol}:`)) {
+        DownloadStation.Task.Create(getHostUrl(storedState.connection), storedState.sid!, {
+          uri: [ link ]
+        })
+          .then(result => {
+            if (result.success) {
+              notify('Download added');
+            } else {
+              notify(
+                'Failed to add download',
+                ERROR_CODES.common[result.error.code] || ERROR_CODES.task[result.error.code] || 'Unknown error'
+              );
+            }
+          });
+      } else {
+        notify('Failed to add download', `Link must be one of ${DOWNLOADABLE_URI_PROTOCOLS.join(', ')}`);
+      }
+    }
+  });
 });
