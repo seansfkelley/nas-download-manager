@@ -12,6 +12,7 @@ import { DownloadStationTask } from '../api';
 import { VisibleTaskSettings, onStoredStateChange, getHostUrl } from '../common';
 import { TaskPoller } from '../taskPoller';
 import { matchesFilter } from './filtering';
+import { formatMetric1024 } from '../format';
 
 function sortByName(task1: DownloadStationTask, task2: DownloadStationTask) {
   if (task1.title < task2.title) {
@@ -142,9 +143,22 @@ class Popup extends React.PureComponent<PopupProps, State> {
                   <div className='header'>
                     <div className='name-and-status'>
                       <div className='name'>{task.title}</div>
-                      <div className='status'>{task.status} {'\u2013'} {task.additional!.transfer!.speed_upload} u / {task.additional!.transfer!.speed_download} d</div>
+                      <div className='status'>
+                        {task.status}
+                        {' '}
+                        {'\u2013'}
+                        {' '}
+                        {formatMetric1024(task.additional!.transfer!.speed_upload)} u
+                        {' '}
+                        /
+                        {' '}
+                        {formatMetric1024(task.additional!.transfer!.speed_download)} d
+                      </div>
                     </div>
-                    <div className='fa fa-times remove-button'/>
+                    <div
+                      className='fa fa-times remove-button'
+                      onClick={() => { console.log('remove!'); }}
+                    />
                   </div>
                   <div className='progress-bar'>
                     <div
@@ -183,6 +197,7 @@ const poller = new TaskPoller({
 
 onStoredStateChange(storedState => {
   const hostUrl = getHostUrl(storedState.connection);
+
   poller.updateSettings({
     hostname: hostUrl,
     sid: storedState.sid
