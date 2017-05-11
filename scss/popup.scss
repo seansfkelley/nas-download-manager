@@ -102,7 +102,7 @@ body, .popup {
       }
 
       .remove-button {
-        padding: 5px;
+        color: $color-error;
       }
     }
 
@@ -131,6 +131,12 @@ body, .popup {
       .bar-background {
         flex: 1;
         background-color: rgba(0, 0, 0, 0.1);
+      }
+    }
+
+    &:not(:hover) {
+      .header .remove-button {
+        display: none;
       }
     }
   }

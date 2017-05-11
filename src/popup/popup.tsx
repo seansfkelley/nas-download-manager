@@ -8,7 +8,7 @@ import debounce from 'lodash-es/debounce';
 const moment: typeof momentProxy = (momentProxy as any).default || momentProxy;
 const classNames: typeof classNamesProxy = (classNamesProxy as any).default || classNamesProxy;
 
-import { DownloadStationTask } from '../api';
+import { SynologyResponse, DownloadStation, DownloadStationTask, errorMessageFromCode } from '../api';
 import { VisibleTaskSettings, onStoredStateChange, getHostUrl } from '../common';
 import { TaskPoller } from '../taskPoller';
 import { matchesFilter } from './filtering';
@@ -25,11 +25,13 @@ function sortByName(task1: DownloadStationTask, task2: DownloadStationTask) {
 }
 
 interface PopupProps {
-  hostUrl: string;
   tasks: DownloadStationTask[];
   taskFilter: VisibleTaskSettings;
   failureMessage?: string;
   lastUpdateTimestamp?: number;
+  openSynologyUi: () => void;
+  pauseResumeTask?: (taskId: string, what: 'pause' | 'resume') => Promise<boolean>;
+  deleteTask?: (taskId: string) => Promise<boolean>;
 }
 
 interface State {
@@ -87,7 +89,7 @@ class Popup extends React.PureComponent<PopupProps, State> {
           <div className='fa fa-lg fa-plus'/>
         </button>
         <button
-          onClick={() => { browser.tabs.create({ url: this.props.hostUrl, active: true }) }}
+          onClick={this.props.openSynologyUi}
           title='Open Synology UI...'
         >
           <div className='fa fa-lg fa-share-square-o'/>
@@ -155,10 +157,14 @@ class Popup extends React.PureComponent<PopupProps, State> {
                         {formatMetric1024(task.additional!.transfer!.speed_download)} d
                       </div>
                     </div>
-                    <div
-                      className='fa fa-times remove-button'
+                    <button
                       onClick={() => { console.log('remove!'); }}
-                    />
+                      title='Remove download'
+                      disabled={true}
+                      className={classNames('remove-button', { 'disabled': true })}
+                    >
+                      <div className='fa fa-times'/>
+                    </button>
                   </div>
                   <div className='progress-bar'>
                     <div
@@ -203,13 +209,49 @@ onStoredStateChange(storedState => {
     sid: storedState.sid
   });
 
+  function booleanifyResponse(response: SynologyResponse<any>) {
+    if (response.success) {
+      return true;
+    } else {
+      console.error(`failed to delete task, reason: ${errorMessageFromCode(response.error.code, 'task')}`);
+      return false;
+    }
+  }
+
+  const openSynologyUi = () => {
+    browser.tabs.create({ url: hostUrl, active: true });
+  };
+
+  const pauseResumeTask = storedState.sid
+    ? (taskId: string, what: 'pause' | 'resume') => {
+        return (what === 'pause'
+          ? DownloadStation.Task.Pause
+          : DownloadStation.Task.Resume
+        )(hostUrl, storedState.sid!, {
+          id: [ taskId ]
+        }).then(booleanifyResponse);
+
+      }
+    : undefined;
+
+  const deleteTask = storedState.sid
+    ? (taskId: string) => {
+        return DownloadStation.Task.Delete(hostUrl, storedState.sid!, {
+          id: [ taskId ],
+          force_complete: false
+        }).then(booleanifyResponse);
+      }
+    : undefined;
+
   ReactDOM.render(
     <Popup
-      hostUrl={hostUrl}
       tasks={storedState.tasks}
       taskFilter={storedState.visibleTasks}
       failureMessage={storedState.tasksFetchFailureMessage || undefined}
       lastUpdateTimestamp={storedState.tasksFetchUpdateTimestamp || undefined}
+      openSynologyUi={openSynologyUi}
+      pauseResumeTask={pauseResumeTask}
+      deleteTask={deleteTask}
     />
   , document.body);
 });

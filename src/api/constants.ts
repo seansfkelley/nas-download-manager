@@ -29,6 +29,10 @@ export const ERROR_CODES = {
   } as Record<string, string>
 };
 
+export function errorMessageFromCode(code: number, secondaryType: keyof typeof ERROR_CODES) {
+  return ERROR_CODES.common[code] || ERROR_CODES[secondaryType][code] || 'Unknown error';
+}
+
 export const SessionName = {
   DownloadStation: 'DownloadStation' as 'DownloadStation'
 };
