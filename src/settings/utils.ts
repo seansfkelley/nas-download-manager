@@ -1,5 +1,5 @@
 import { Auth, SessionName, ERROR_CODES } from '../api';
-import { Settings, CachedAuthState, getHostUrl } from '../common';
+import { Settings, getHostUrl } from '../common';
 
 export function saveSettings(settings: Settings) {
   console.log('persisting settings...');
@@ -15,14 +15,15 @@ export function saveSettings(settings: Settings) {
     })
       .then(result => {
         if (result.success) {
-          const authState: CachedAuthState = {
-            sid: result.data.sid
-          };
-          return browser.storage.local.set({
-            ...settings,
-            ...authState
+          return Auth.Logout(hostUrl, result.data.sid, {
+            session: SessionName.DownloadStation
           });
         } else {
+          return Promise.resolve(result);
+        }
+      })
+      .then(result => {
+        if (!result.success) {
           throw new Error(ERROR_CODES.common[result.error.code] || ERROR_CODES.auth[result.error.code]);
         }
       })
@@ -47,6 +48,8 @@ export function testConnection(settings: Settings): Promise<ConnectionTestResult
   if (!host) {
     return Promise.resolve('missing-config' as 'missing-config');
   } else {
+    // TODO: Log back out once we've tested.
+    // TODO: Implement the save-settings button with this method.
     return Auth.Login(host, {
       account: settings.connection.username,
       passwd: settings.connection.password,

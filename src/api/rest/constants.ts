@@ -30,7 +30,7 @@ export const ERROR_CODES = {
 };
 
 export function errorMessageFromCode(code: number, secondaryType: keyof typeof ERROR_CODES) {
-  return ERROR_CODES.common[code] || ERROR_CODES[secondaryType][code] || 'Unknown error';
+  return ERROR_CODES.common[code] || ERROR_CODES[secondaryType][code] || 'Unknown error.';
 }
 
 export const SessionName = {

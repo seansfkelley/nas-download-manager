@@ -22,24 +22,30 @@ import * as _ds_statisticTypes from './rest/DownloadStation/StatisticTypes';
 
 const SESSION_TIMEOUT_ERROR_CODE = 106;
 
-export interface ApiSettings {
+export interface StatefulApiSettings {
   baseUrl?: string;
   account?: string;
   passwd?: string;
-  session: SessionName;
+  session?: SessionName;
 }
 
-export interface ConnectionFailureMessage {
+export interface ConnectionFailure {
   failureMessage: string;
+}
+
+export function isConnectionFailure(result: any): result is ConnectionFailure {
+  return (result as ConnectionFailure).failureMessage != null;
 }
 
 export class StatefulApi {
   private sidPromise: Promise<SynologyResponse<AuthLoginResponse>> | undefined;
+  private settingsVersion: number = 0;
 
-  constructor(private settings: ApiSettings) {}
+  constructor(private settings: StatefulApiSettings) {}
 
-  public updateSettings(settings: ApiSettings) {
+  public updateSettings(settings: StatefulApiSettings) {
     if (!isEqual(this.settings, settings)) {
+      this.settingsVersion++;
       this.settings = settings;
       this.sidPromise = undefined;
     }
@@ -69,11 +75,14 @@ export class StatefulApi {
     }
   };
 
-  private proxy<T, U>(fn: (baseUrl: string, sid: string, options: T) => Promise<U>): (options: T) => Promise<U | ConnectionFailureMessage> {
-    const wrappedFunction = (options: T): Promise<U | ConnectionFailureMessage> => {
+  private proxy<T, U>(fn: (baseUrl: string, sid: string, options: T) => Promise<U>) {
+    const wrappedFunction = (options: T): Promise<U | ConnectionFailure> => {
       if (!this.sidPromise) {
         if (some(this.settings, s => !!s)) {
-          return Promise.resolve({ failureMessage: 'Missing connection settings.' });
+          const failure: ConnectionFailure = {
+            failureMessage: 'Host, username or password is not set. Please check your settings.'
+          };
+          return Promise.resolve(failure);
         }
 
         this.sidPromise = Auth.Login(this.settings.baseUrl!, {
@@ -83,19 +92,33 @@ export class StatefulApi {
         });
       }
 
+      const versionAtInit = this.settingsVersion;
+
       return this.sidPromise
         .then(response => {
-          if (response.success) {
-            return fn(this.settings.baseUrl!, response.data.sid, options) as Promise<U | ConnectionFailureMessage>;
-          } else {
-            if (response.error.code === SESSION_TIMEOUT_ERROR_CODE) {
-              this.sidPromise = undefined;
-              return wrappedFunction(options);
+          if (this.settingsVersion === versionAtInit) {
+            if (response.success) {
+              return fn(this.settings.baseUrl!, response.data.sid, options)
+                .then(response => {
+                  if (this.settingsVersion === versionAtInit) {
+                    return response;
+                  } else {
+                    return wrappedFunction(options);
+                  }
+                })
             } else {
-              return Promise.resolve({
-                failureMessage: errorMessageFromCode(response.error.code, 'auth')
-              });
+              if (response.error.code === SESSION_TIMEOUT_ERROR_CODE) {
+                this.sidPromise = undefined;
+                return wrappedFunction(options);
+              } else {
+                const failure: ConnectionFailure = {
+                  failureMessage: errorMessageFromCode(response.error.code, 'auth')
+                };
+                return Promise.resolve(failure);
+              }
             }
+          } else {
+            return wrappedFunction(options);
           }
         });
     };

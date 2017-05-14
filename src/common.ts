@@ -43,11 +43,7 @@ export interface CachedTasks {
   tasksFetchUpdateTimestamp: number | null;
 }
 
-export interface CachedAuthState {
-  sid?: string;
-}
-
-export interface AllStoredState extends Settings, CachedTasks, CachedAuthState {}
+export interface AllStoredState extends Settings, CachedTasks {}
 
 // Somewhat awkward trick to make sure the compiler enforces that this runtime constant
 // includes all the compile-time type names.
@@ -63,8 +59,7 @@ const _allStoredStateNames: Record<keyof AllStoredState, true> = {
   ..._settingNames,
   'tasks': true,
   'tasksFetchFailureMessage': true,
-  'tasksFetchUpdateTimestamp': true,
-  'sid': true
+  'tasksFetchUpdateTimestamp': true
 };
 
 const ALL_STORED_STATE_NAMES = Object.keys(_allStoredStateNames) as (keyof Settings)[];

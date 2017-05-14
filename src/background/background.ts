@@ -1,6 +1,7 @@
-import { DownloadStation, ERROR_CODES } from '../api';
-import { TaskPoller } from '../taskPoller';
-import { getHostUrl, onStoredStateChange } from '../common';
+import { isEqual } from 'lodash-es';
+import { StatefulApi, SessionName, isConnectionFailure, errorMessageFromCode } from '../api';
+import { getHostUrl, onStoredStateChange, NotificationSettings, DEFAULT_SETTINGS } from '../common';
+import { pollTasks as internalPollTasks } from './pollTasks';
 
 function notify(title: string, message?: string) {
   return browser.notifications.create(undefined, {
@@ -10,18 +11,35 @@ function notify(title: string, message?: string) {
   });
 }
 
-const poller = new TaskPoller;
+const api = new StatefulApi({});
+const pollTasks = () => internalPollTasks(api);
 const START_TIME = Date.now();
+
+// For the other scripts to fetch and use.
+// TODO: Dump this into its own file to localize names and typings awkwardness.
+(window as any).diskStationApi = api;
+(window as any).pollTasks = pollTasks;
 
 let finishedTaskIds: string[] | undefined;
 
+let notificationSettings: NotificationSettings = DEFAULT_SETTINGS.notifications;
+let notificationInterval: number | undefined;
+
 onStoredStateChange(storedState => {
-  poller.updateSettings({
-    hostname: getHostUrl(storedState.connection),
-    sid: storedState.sid,
-    interval: storedState.notifications.pollingInterval,
-    enabled: storedState.notifications.enabled
+  api.updateSettings({
+    baseUrl: getHostUrl(storedState.connection),
+    account: storedState.connection.username,
+    passwd: storedState.connection.password,
+    session: SessionName.DownloadStation
   });
+
+  if (!isEqual(storedState.notifications, notificationSettings)) {
+    notificationSettings = storedState.notifications;
+    clearInterval(notificationInterval!);
+    if (notificationSettings.enabled) {
+      setInterval(() => { pollTasks(); }, notificationSettings.pollingInterval);
+    }
+  }
 });
 
 onStoredStateChange(storedState => {
@@ -55,29 +73,25 @@ const DOWNLOADABLE_URI_PROTOCOLS = [
   'ftps'
 ];
 
-onStoredStateChange(storedState => {
-  const hostUrl = getHostUrl(storedState.connection)
-  browser.contextMenus.update(CONTEXT_MENU_ID, {
-    enabled: !!hostUrl && !!storedState.sid,
-    onclick: (data) => {
-      const link = data.linkUrl;
-      if (link && DOWNLOADABLE_URI_PROTOCOLS.some(protocol => link.slice(0, protocol.length + 1) === `${protocol}:`)) {
-        DownloadStation.Task.Create(hostUrl!, storedState.sid!, {
-          uri: [ link ]
-        })
-          .then(result => {
-            if (result.success) {
-              notify('Download added');
-            } else {
-              notify(
-                'Failed to add download',
-                ERROR_CODES.common[result.error.code] || ERROR_CODES.task[result.error.code] || 'Unknown error'
-              );
-            }
-          });
-      } else {
-        notify('Failed to add download', `Link must be one of ${DOWNLOADABLE_URI_PROTOCOLS.join(', ')}`);
-      }
+browser.contextMenus.update(CONTEXT_MENU_ID, {
+  enabled: true,
+  onclick: (data) => {
+    const link = data.linkUrl;
+    if (link && DOWNLOADABLE_URI_PROTOCOLS.some(protocol => link.slice(0, protocol.length + 1) === `${protocol}:`)) {
+      api.DownloadStation.Task.Create({
+        uri: [ link ]
+      })
+        .then(result => {
+          if (isConnectionFailure(result)) {
+            notify('Failed to connection to DiskStation', 'Please check your settings.');
+          } else if (result.success) {
+            notify('Download added');
+          } else {
+            notify('Failed to add download', errorMessageFromCode(result.error.code, 'task'));
+          }
+        });
+    } else {
+      notify('Failed to add download', `Link must be one of ${DOWNLOADABLE_URI_PROTOCOLS.join(', ')}`);
     }
-  });
+  }
 });
