@@ -1,15 +1,5 @@
 import { SynologyResponse, get } from './shared';
-import { SessionName } from './constants';
-
-export interface AuthLoginRequest {
-  account: string;
-  passwd: string;
-  session: SessionName;
-}
-
-export interface AuthLoginResponse {
-  sid: string;
-}
+import { AuthLoginRequest, AuthLoginResponse, AuthLogoutRequest } from './AuthTypes';
 
 const CGI_NAME = 'auth';
 const API_NAME = 'SYNO.API.Auth';
@@ -26,10 +16,6 @@ function Login(baseUrl: string, options: AuthLoginRequest): Promise<SynologyResp
   });
 }
 
-export interface AuthLogoutRequest {
-  session: SessionName;
-}
-
 function Logout(baseUrl: string, sid: string, options: AuthLogoutRequest): Promise<SynologyResponse<{}>> {
   return get(baseUrl, CGI_NAME, {
     api: API_NAME,
@@ -40,4 +26,9 @@ function Logout(baseUrl: string, sid: string, options: AuthLogoutRequest): Promi
   });
 }
 
-export const Auth = { Login, Logout };
+export * from './AuthTypes';
+
+export const Auth = {
+  Login,
+  Logout
+};
