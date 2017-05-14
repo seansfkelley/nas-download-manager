@@ -33,10 +33,14 @@ onStoredStateChange(storedState => {
       const newlyFinishedTaskIds = updatedFinishedTaskIds.filter(id => finishedTaskIds!.indexOf(id) === -1);
       newlyFinishedTaskIds.forEach(id => {
         const task = storedState.tasks.filter(t => t.id === id)[0];
-        notify(`${task.title}`, 'Download finished');
+        if (storedState.notifications.enabled) {
+          notify(`${task.title}`, 'Download finished');
+        }
       });
     }
-    finishedTaskIds = updatedFinishedTaskIds;
+    finishedTaskIds = (finishedTaskIds || []).concat(updatedFinishedTaskIds.filter(taskId => {
+      return !finishedTaskIds || finishedTaskIds.indexOf(taskId) === -1;
+    }));
   }
 });
 

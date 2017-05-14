@@ -11,11 +11,10 @@ const EXPLICITLY_SPECIFIED_TYPES = (Object.keys(EXPLICIT_TASK_FILTER_TO_NORMAL_T
     .reduce((acc, key) => acc.concat(EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES[key]!), [] as DownloadStationTaskNormalStatus[]);
 
 const ERRORED_TYPES = (ALL_TASK_ERROR_STATUSES as (DownloadStationTaskNormalStatus | DownloadStationTaskErrorStatus)[])
-  .concat(ALL_TASK_NORMAL_STATUSES.filter(status => EXPLICITLY_SPECIFIED_TYPES.indexOf(status) === -1));
+  .concat([ 'error' ]);
 
-const OTHER_STATUSES = (ALL_TASK_ERROR_STATUSES as (DownloadStationTaskNormalStatus | DownloadStationTaskErrorStatus)[])
-  .concat(ALL_TASK_NORMAL_STATUSES)
-  .filter(status => EXPLICITLY_SPECIFIED_TYPES.indexOf(status as any) === -1 && ERRORED_TYPES.indexOf(status) === -1);
+const OTHER_STATUSES = ALL_TASK_NORMAL_STATUSES
+  .filter(status => EXPLICITLY_SPECIFIED_TYPES.indexOf(status) === -1 && ERRORED_TYPES.indexOf(status) === -1);
 
 const TASK_FILTER_TO_TYPES: { [K in keyof VisibleTaskSettings]: (DownloadStationTaskNormalStatus | DownloadStationTaskErrorStatus)[] } = {
   downloading: [],

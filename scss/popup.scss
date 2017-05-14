@@ -110,6 +110,12 @@ body, .popup {
       .remove-button {
         color: $color-error;
       }
+
+      .remove-button, .pause-resume-button {
+        &:not(:last-child) {
+          margin-right: 3px;
+        }
+      }
     }
 
     .progress-bar {
@@ -140,9 +146,10 @@ body, .popup {
       }
     }
 
-    &:not(:hover) {
-      .header .remove-button {
+    &:not(:hover) .header {
+      .remove-button, .pause-resume-button {
         display: none;
+
       }
     }
   }

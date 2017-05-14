@@ -208,6 +208,15 @@ onStoredStateChange(storedState => {
     }
   }
 
+  function reloadOnSuccess(response: CallbackResponse) {
+    if (response === 'success') {
+      return poller.requestPoll()
+        .then(() => response);
+    } else {
+      return response;
+    }
+  }
+
   const openSynologyUi = hostUrl
     ? () => { browser.tabs.create({ url: hostUrl, active: true }); }
     : undefined;
@@ -219,7 +228,9 @@ onStoredStateChange(storedState => {
           : DownloadStation.Task.Resume
         )(hostUrl, storedState.sid!, {
           id: [ taskId ]
-        }).then(convertResponse);
+        })
+          .then(convertResponse)
+          .then(reloadOnSuccess);
 
       }
     : undefined;
@@ -229,7 +240,9 @@ onStoredStateChange(storedState => {
         return DownloadStation.Task.Delete(hostUrl, storedState.sid!, {
           id: [ taskId ],
           force_complete: false
-        }).then(convertResponse);
+        })
+          .then(convertResponse)
+          .then(reloadOnSuccess);
       }
     : undefined;
 

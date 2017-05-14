@@ -225,7 +225,7 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
               }}
             />
             <label htmlFor='notifications-checkbox'>
-              Enable Notifications
+              Notify when downloads complete
             </label>
           </li>
 

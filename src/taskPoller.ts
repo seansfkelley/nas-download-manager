@@ -34,6 +34,10 @@ export class TaskPoller {
     }
   }
 
+  public requestPoll() {
+    return this.tryPoll();
+  }
+
   private tryPoll() {
     const count = ++this.tryPollCount;
     if (this.settings.enabled) {
@@ -103,6 +107,10 @@ export class TaskPoller {
             }, this.settings.interval * 1000);
           }
         });
+
+        return pollPromise;
+    } else {
+      return Promise.resolve();
     }
   }
 }
