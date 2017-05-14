@@ -86,7 +86,7 @@ class Popup extends React.PureComponent<PopupProps, State> {
       icon = 'fa-exclamation-triangle';
     } else {
       text = `Updated ${moment(this.props.lastUpdateTimestamp).fromNow()}`;
-      tooltip = moment(this.props.lastUpdateTimestamp).format('lll');
+      tooltip = moment(this.props.lastUpdateTimestamp).format('ll LTS');
       classes = 'success-message';
       icon = 'fa-check';
     }
