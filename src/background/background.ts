@@ -52,12 +52,13 @@ const DOWNLOADABLE_URI_PROTOCOLS = [
 ];
 
 onStoredStateChange(storedState => {
+  const hostUrl = getHostUrl(storedState.connection)
   browser.contextMenus.update(CONTEXT_MENU_ID, {
-    enabled: !!storedState.sid,
+    enabled: !!hostUrl && !!storedState.sid,
     onclick: (data) => {
       const link = data.linkUrl;
       if (link && DOWNLOADABLE_URI_PROTOCOLS.some(protocol => link.slice(0, protocol.length + 1) === `${protocol}:`)) {
-        DownloadStation.Task.Create(getHostUrl(storedState.connection), storedState.sid!, {
+        DownloadStation.Task.Create(hostUrl!, storedState.sid!, {
           uri: [ link ]
         })
           .then(result => {

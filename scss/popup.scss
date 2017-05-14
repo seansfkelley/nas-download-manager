@@ -40,6 +40,7 @@ body, .popup {
     .description {
       white-space: initial;
       margin-right: auto;
+      margin-left: 3px;
 
       .fa {
         margin-right: 5px;
@@ -67,6 +68,11 @@ body, .popup {
   justify-content: center;
   color: $color-text-faded;
   padding: 10px;
+
+  span {
+    max-width: 60%;
+    text-align: center;
+  }
 }
 
 .popup ul.download-tasks {
@@ -144,6 +150,10 @@ body, .popup {
 
 .success-message {
   color: $color-success;;
+}
+
+.warning-message {
+  color: $color-warning;
 }
 
 .error-message {

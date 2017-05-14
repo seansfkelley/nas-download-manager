@@ -99,7 +99,11 @@ const DEFAULT_ALL_STORED_STATE: AllStoredState = {
 };
 
 export function getHostUrl(settings: ConnectionSettings) {
-  return `${settings.protocol}://${settings.hostname}.${settings.domain}:${settings.port}`;
+  if (settings.protocol && settings.hostname && settings.domain && settings.port) {
+    return `${settings.protocol}://${settings.hostname}.${settings.domain}:${settings.port}`;
+  } else {
+    return undefined;
+  }
 }
 
 export function loadSettings() {

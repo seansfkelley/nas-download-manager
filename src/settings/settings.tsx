@@ -337,6 +337,10 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
         content = 'Connection failed (unknown reason; check your host settings and internet connection).';
         isFailure = true;
         break;
+      case 'missing-config':
+        content = 'The configured host name is incomplete.';
+        isFailure = true;
+        break;
       default:
         content = `Connection failed (${this.state.connectionTest.failMessage}).`;
         isFailure = true;

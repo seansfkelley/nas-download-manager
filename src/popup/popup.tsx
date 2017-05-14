@@ -11,8 +11,9 @@ const classNames: typeof classNamesProxy = (classNamesProxy as any).default || c
 import { SynologyResponse, DownloadStation, DownloadStationTask, errorMessageFromCode } from '../api';
 import { VisibleTaskSettings, onStoredStateChange, getHostUrl } from '../common';
 import { TaskPoller } from '../taskPoller';
+import { CallbackResponse } from './popupTypes';
 import { matchesFilter } from './filtering';
-import { formatMetric1024 } from '../format';
+import { Task } from './Task';
 
 function sortByName(task1: DownloadStationTask, task2: DownloadStationTask) {
   if (task1.title < task2.title) {
@@ -24,14 +25,23 @@ function sortByName(task1: DownloadStationTask, task2: DownloadStationTask) {
   }
 }
 
+function disabledPropAndClassName(disabled: boolean, className?: string) {
+  return {
+    disabled,
+    className: classNames({ 'disabled': disabled }, className)
+  };
+}
+
 interface PopupProps {
   tasks: DownloadStationTask[];
   taskFilter: VisibleTaskSettings;
   failureMessage?: string;
   lastUpdateTimestamp?: number;
-  openSynologyUi: () => void;
-  pauseResumeTask?: (taskId: string, what: 'pause' | 'resume') => Promise<boolean>;
-  deleteTask?: (taskId: string) => Promise<boolean>;
+  hasCreds: boolean;
+  openSynologyUi?: () => void;
+  createTask?: () => Promise<CallbackResponse>;
+  pauseResumeTask?: (taskId: string, what: 'pause' | 'resume') => Promise<CallbackResponse>;
+  deleteTask?: (taskId: string) => Promise<CallbackResponse>;
 }
 
 interface State {
@@ -60,12 +70,17 @@ class Popup extends React.PureComponent<PopupProps, State> {
     let classes: string | undefined = undefined;
     let icon: string;
 
-    if (this.props.lastUpdateTimestamp == null) {
+    if (!this.props.hasCreds) {
+      text = 'Not logged in!';
+      tooltip = 'Please check the settings page'
+      classes = 'warning-message'
+      icon = 'fa-exclamation-triangle'
+    } else if (this.props.lastUpdateTimestamp == null) {
       text = 'Loading...';
       tooltip = 'Loading download tasks...';
       icon = 'fa-refresh fa-spin';
     } else if (this.props.failureMessage != null) {
-      text = 'Error loading tasks...'
+      text = 'Error loading tasks'
       tooltip = this.props.failureMessage;
       classes = 'error-message';
       icon = 'fa-exclamation-triangle';
@@ -85,18 +100,21 @@ class Popup extends React.PureComponent<PopupProps, State> {
         <button
           onClick={() => { console.log('plus'); }}
           title='Add download...'
+          {...disabledPropAndClassName(this.props.openSynologyUi == null)}
         >
           <div className='fa fa-lg fa-plus'/>
         </button>
         <button
           onClick={this.props.openSynologyUi}
           title='Open Synology UI...'
+          {...disabledPropAndClassName(this.props.openSynologyUi == null)}
         >
           <div className='fa fa-lg fa-share-square-o'/>
         </button>
         <button
           onClick={() => { browser.runtime.openOptionsPage(); }}
           title='Open settings...'
+          className={classNames({ 'click-me': !this.props.hasCreds })}
         >
           <div className='fa fa-lg fa-cog'/>
         </button>
@@ -105,16 +123,24 @@ class Popup extends React.PureComponent<PopupProps, State> {
   }
 
   private renderBody() {
-    if (this.props.lastUpdateTimestamp == null) {
+    if (!this.props.hasCreds) {
       return (
         <div className='no-tasks popup-body'>
-          ...
+          <span>
+            You aren't logged in; please check the settings page.
+          </span>
+        </div>
+      );
+    } else if (this.props.lastUpdateTimestamp == null) {
+      return (
+        <div className='no-tasks popup-body'>
+          <span>...</span>
         </div>
       );
     } else if (this.props.tasks.length === 0) {
       return (
         <div className='no-tasks popup-body'>
-          No download tasks.
+          <span>No download tasks.</span>
         </div>
       );
     } else {
@@ -128,7 +154,7 @@ class Popup extends React.PureComponent<PopupProps, State> {
       if (filteredTasks.length === 0) {
         return (
           <div className='no-tasks popup-body'>
-            Download tasks exist, but none match your filters.
+            <span>Download tasks exist, but none match your filters.</span>
           </div>
         );
       } else {
@@ -138,49 +164,13 @@ class Popup extends React.PureComponent<PopupProps, State> {
             onScroll={this.onBodyScroll}
             ref={e => { this.bodyRef = e; }}
           >
-            {this.props.tasks.sort(sortByName).map(task => {
-              const downloadedFraction = Math.round(task.additional!.transfer!.size_downloaded / task.size * 100) / 100;
-              return (
-                <li className='task' key={task.id}>
-                  <div className='header'>
-                    <div className='name-and-status'>
-                      <div className='name'>{task.title}</div>
-                      <div className='status'>
-                        {task.status}
-                        {' '}
-                        {'\u2013'}
-                        {' '}
-                        {formatMetric1024(task.additional!.transfer!.speed_upload)} u
-                        {' '}
-                        /
-                        {' '}
-                        {formatMetric1024(task.additional!.transfer!.speed_download)} d
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => { console.log('remove!'); }}
-                      title='Remove download'
-                      disabled={true}
-                      className={classNames('remove-button', { 'disabled': true })}
-                    >
-                      <div className='fa fa-times'/>
-                    </button>
-                  </div>
-                  <div className='progress-bar'>
-                    <div
-                      className={classNames('bar-fill', {
-                        'in-progress': matchesFilter(task, 'downloading' ),
-                        'completed': matchesFilter(task, 'uploading') || matchesFilter(task, 'completed'),
-                        'errored': matchesFilter(task, 'errored'),
-                        'unknown': matchesFilter(task, 'other')
-                      })}
-                      style={{ width: `${downloadedFraction * 100}%` }}
-                    />
-                    <div className='bar-background'/>
-                  </div>
-                </li>
-              );
-            })}
+            {this.props.tasks.sort(sortByName).map(task => (
+              <Task
+                task={task}
+                onDelete={this.props.deleteTask}
+                onPauseResume={this.props.pauseResumeTask}
+              />
+            ))}
           </ul>
         );
       }
@@ -209,37 +199,37 @@ onStoredStateChange(storedState => {
     sid: storedState.sid
   });
 
-  function booleanifyResponse(response: SynologyResponse<any>) {
+  function convertResponse(response: SynologyResponse<any>) {
     if (response.success) {
-      return true;
+      return 'success';
     } else {
       console.error(`failed to delete task, reason: ${errorMessageFromCode(response.error.code, 'task')}`);
-      return false;
+      return { failMessage: errorMessageFromCode(response.error.code, 'task') };
     }
   }
 
-  const openSynologyUi = () => {
-    browser.tabs.create({ url: hostUrl, active: true });
-  };
+  const openSynologyUi = hostUrl
+    ? () => { browser.tabs.create({ url: hostUrl, active: true }); }
+    : undefined;
 
-  const pauseResumeTask = storedState.sid
+  const pauseResumeTask = hostUrl && storedState.sid
     ? (taskId: string, what: 'pause' | 'resume') => {
         return (what === 'pause'
           ? DownloadStation.Task.Pause
           : DownloadStation.Task.Resume
         )(hostUrl, storedState.sid!, {
           id: [ taskId ]
-        }).then(booleanifyResponse);
+        }).then(convertResponse);
 
       }
     : undefined;
 
-  const deleteTask = storedState.sid
+  const deleteTask = hostUrl && storedState.sid
     ? (taskId: string) => {
         return DownloadStation.Task.Delete(hostUrl, storedState.sid!, {
           id: [ taskId ],
           force_complete: false
-        }).then(booleanifyResponse);
+        }).then(convertResponse);
       }
     : undefined;
 
@@ -249,7 +239,9 @@ onStoredStateChange(storedState => {
       taskFilter={storedState.visibleTasks}
       failureMessage={storedState.tasksFetchFailureMessage || undefined}
       lastUpdateTimestamp={storedState.tasksFetchUpdateTimestamp || undefined}
+      hasCreds={!!storedState.sid}
       openSynologyUi={openSynologyUi}
+      createTask={undefined}
       pauseResumeTask={pauseResumeTask}
       deleteTask={deleteTask}
     />
