@@ -1,7 +1,7 @@
 import { isEqual } from 'lodash-es';
 import { StatefulApi, SessionName, isConnectionFailure, errorMessageFromCode } from '../api';
-import { getHostUrl, onStoredStateChange, NotificationSettings, DEFAULT_SETTINGS } from '../common';
-import { pollTasks as internalPollTasks } from './pollTasks';
+import { getHostUrl, onStoredStateChange, NotificationSettings, DEFAULT_SETTINGS, setSharedObjects } from '../common';
+import { pollTasks } from '../pollTasks';
 
 function notify(title: string, message?: string) {
   return browser.notifications.create(undefined, {
@@ -12,13 +12,9 @@ function notify(title: string, message?: string) {
 }
 
 const api = new StatefulApi({});
-const pollTasks = () => internalPollTasks(api);
 const START_TIME = Date.now();
 
-// For the other scripts to fetch and use.
-// TODO: Dump this into its own file to localize names and typings awkwardness.
-(window as any).diskStationApi = api;
-(window as any).pollTasks = pollTasks;
+setSharedObjects({ api });
 
 let finishedTaskIds: string[] | undefined;
 
@@ -37,7 +33,7 @@ onStoredStateChange(storedState => {
     notificationSettings = storedState.notifications;
     clearInterval(notificationInterval!);
     if (notificationSettings.enabled) {
-      setInterval(() => { pollTasks(); }, notificationSettings.pollingInterval);
+      setInterval(() => { pollTasks(api); }, notificationSettings.pollingInterval);
     }
   }
 });

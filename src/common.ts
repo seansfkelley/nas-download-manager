@@ -1,4 +1,4 @@
-import { SYNOLOGY_HOST_DOMAINS, DownloadStationTask } from './api';
+import { SYNOLOGY_HOST_DOMAINS, DownloadStationTask, StatefulApi } from './api';
 
 export type Protocol = 'http' | 'https';
 
@@ -131,4 +131,22 @@ export function onStoredStateChange(fn: (state: AllStoredState) => void) {
         }
       });
     })
+}
+
+export interface SharedObjects {
+  api: StatefulApi;
+}
+
+export function setSharedObjects(objects: SharedObjects) {
+  return browser.runtime.getBackgroundPage()
+    .then(window => {
+      (window as any).__sharedObjects = objects;
+    });
+}
+
+export function getSharedObjects() {
+  return browser.runtime.getBackgroundPage()
+    .then(window => {
+      return (window as any).__sharedObjects as (SharedObjects | undefined);
+    });
 }

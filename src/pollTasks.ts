@@ -1,5 +1,5 @@
-import { StatefulApi, isConnectionFailure, errorMessageFromCode } from '../api';
-import { CachedTasks } from '../common';
+import { StatefulApi, isConnectionFailure, errorMessageFromCode } from './api';
+import { CachedTasks } from './common';
 
 export function pollTasks(api: StatefulApi) {
   return api.DownloadStation.Task.List({

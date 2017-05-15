@@ -8,9 +8,9 @@ import debounce from 'lodash-es/debounce';
 const moment: typeof momentProxy = (momentProxy as any).default || momentProxy;
 const classNames: typeof classNamesProxy = (classNamesProxy as any).default || classNamesProxy;
 
-import { SynologyResponse, DownloadStation, DownloadStationTask, errorMessageFromCode } from '../api';
-import { VisibleTaskSettings, onStoredStateChange, getHostUrl } from '../common';
-import { TaskPoller } from '../taskPoller';
+import { SynologyResponse, DownloadStationTask, errorMessageFromCode } from '../api';
+import { VisibleTaskSettings, onStoredStateChange, getSharedObjects, getHostUrl } from '../common';
+import { pollTasks } from '../pollTasks';
 import { CallbackResponse } from './popupTypes';
 import { matchesFilter } from './filtering';
 import { Task } from './Task';
@@ -37,7 +37,6 @@ interface PopupProps {
   taskFilter: VisibleTaskSettings;
   failureMessage?: string;
   lastUpdateTimestamp?: number;
-  hasCreds: boolean;
   openSynologyUi?: () => void;
   createTask?: () => Promise<CallbackResponse>;
   pauseResumeTask?: (taskId: string, what: 'pause' | 'resume') => Promise<CallbackResponse>;
@@ -70,12 +69,7 @@ class Popup extends React.PureComponent<PopupProps, State> {
     let classes: string | undefined = undefined;
     let icon: string;
 
-    if (!this.props.hasCreds) {
-      text = 'Not logged in!';
-      tooltip = 'Please check the settings page'
-      classes = 'warning-message'
-      icon = 'fa-exclamation-triangle'
-    } else if (this.props.lastUpdateTimestamp == null) {
+    if (this.props.lastUpdateTimestamp == null) {
       text = 'Loading...';
       tooltip = 'Loading download tasks...';
       icon = 'fa-refresh fa-spin';
@@ -114,7 +108,6 @@ class Popup extends React.PureComponent<PopupProps, State> {
         <button
           onClick={() => { browser.runtime.openOptionsPage(); }}
           title='Open settings...'
-          className={classNames({ 'click-me': !this.props.hasCreds })}
         >
           <div className='fa fa-lg fa-cog'/>
         </button>
@@ -123,15 +116,7 @@ class Popup extends React.PureComponent<PopupProps, State> {
   }
 
   private renderBody() {
-    if (!this.props.hasCreds) {
-      return (
-        <div className='no-tasks popup-body'>
-          <span>
-            You aren't logged in; please check the settings page.
-          </span>
-        </div>
-      );
-    } else if (this.props.lastUpdateTimestamp == null) {
+    if (this.props.lastUpdateTimestamp == null) {
       return (
         <div className='no-tasks popup-body'>
           <span>...</span>
@@ -186,77 +171,70 @@ class Popup extends React.PureComponent<PopupProps, State> {
   }, 100);
 }
 
-const poller = new TaskPoller({
-  interval: 10,
-  enabled: true
-});
+getSharedObjects()
+  .then(objects => {
+    const { api } = objects!;
 
-onStoredStateChange(storedState => {
-  const hostUrl = getHostUrl(storedState.connection);
-
-  poller.updateSettings({
-    hostname: hostUrl,
-    sid: storedState.sid
-  });
-
-  function convertResponse(response: SynologyResponse<any>) {
-    if (response.success) {
-      return 'success';
-    } else {
-      console.error(`failed to delete task, reason: ${errorMessageFromCode(response.error.code, 'task')}`);
-      return { failMessage: errorMessageFromCode(response.error.code, 'task') };
-    }
-  }
-
-  function reloadOnSuccess(response: CallbackResponse) {
-    if (response === 'success') {
-      return poller.requestPoll()
-        .then(() => response);
-    } else {
-      return response;
-    }
-  }
-
-  const openSynologyUi = hostUrl
-    ? () => { browser.tabs.create({ url: hostUrl, active: true }); }
-    : undefined;
-
-  const pauseResumeTask = hostUrl && storedState.sid
-    ? (taskId: string, what: 'pause' | 'resume') => {
-        return (what === 'pause'
-          ? DownloadStation.Task.Pause
-          : DownloadStation.Task.Resume
-        )(hostUrl, storedState.sid!, {
-          id: [ taskId ]
-        })
-          .then(convertResponse)
-          .then(reloadOnSuccess);
-
+    onStoredStateChange(storedState => {
+      function convertResponse(response: SynologyResponse<any>): CallbackResponse {
+        if (response.success) {
+          return 'success';
+        } else {
+          console.error(`API call failed, reason: ${errorMessageFromCode(response.error.code, 'task')}`);
+          return { failMessage: errorMessageFromCode(response.error.code, 'task') };
+        }
       }
-    : undefined;
 
-  const deleteTask = hostUrl && storedState.sid
-    ? (taskId: string) => {
-        return DownloadStation.Task.Delete(hostUrl, storedState.sid!, {
-          id: [ taskId ],
-          force_complete: false
-        })
-          .then(convertResponse)
-          .then(reloadOnSuccess);
+      function reloadOnSuccess(response: CallbackResponse) {
+        if (response === 'success') {
+          return pollTasks(api)
+            .then(() => response);
+        } else {
+          return response;
+        }
       }
-    : undefined;
 
-  ReactDOM.render(
-    <Popup
-      tasks={storedState.tasks}
-      taskFilter={storedState.visibleTasks}
-      failureMessage={storedState.tasksFetchFailureMessage || undefined}
-      lastUpdateTimestamp={storedState.tasksFetchUpdateTimestamp || undefined}
-      hasCreds={!!storedState.sid}
-      openSynologyUi={openSynologyUi}
-      createTask={undefined}
-      pauseResumeTask={pauseResumeTask}
-      deleteTask={deleteTask}
-    />
-  , document.body);
+      const hostUrl = getHostUrl(storedState.connection);
+
+      const openSynologyUi = hostUrl
+        ? () => { browser.tabs.create({ url: hostUrl, active: true }); }
+        : undefined;
+
+      const pauseResumeTask = hostUrl
+        ? (taskId: string, what: 'pause' | 'resume') => {
+            return (what === 'pause'
+              ? api.DownloadStation.Task.Pause
+              : api.DownloadStation.Task.Resume
+            )({
+              id: [ taskId ]
+            })
+              .then(convertResponse)
+              .then(reloadOnSuccess);
+          }
+        : undefined;
+
+      const deleteTask = hostUrl
+        ? (taskId: string) => {
+            return api.DownloadStation.Task.Delete({
+              id: [ taskId ],
+              force_complete: false
+            })
+              .then(convertResponse)
+              .then(reloadOnSuccess);
+          }
+        : undefined;
+
+      ReactDOM.render(
+        <Popup
+          tasks={storedState.tasks}
+          taskFilter={storedState.visibleTasks}
+          failureMessage={storedState.tasksFetchFailureMessage || undefined}
+          lastUpdateTimestamp={storedState.tasksFetchUpdateTimestamp || undefined}
+          openSynologyUi={openSynologyUi}
+          createTask={undefined}
+          pauseResumeTask={pauseResumeTask}
+          deleteTask={deleteTask}
+        />
+      , document.body);
+    });
 });

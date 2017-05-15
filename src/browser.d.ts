@@ -100,6 +100,7 @@ interface ContextMenusCreateOptions {
 declare const browser: {
   runtime: {
     openOptionsPage: () => Promise<void>;
+    getBackgroundPage: () => Promise<Window>;
   };
   storage: {
     local: {
