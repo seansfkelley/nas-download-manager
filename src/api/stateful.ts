@@ -1,4 +1,4 @@
-import { isEqual, some } from 'lodash-es';
+import { isEqual, some, keys } from 'lodash-es';
 import {
   Auth,
   AuthLoginResponse,
@@ -28,6 +28,15 @@ export interface StatefulApiSettings {
   passwd?: string;
   session?: SessionName;
 }
+
+const _settingNames: Record<keyof StatefulApiSettings, true> = {
+  'baseUrl': true,
+  'account': true,
+  'passwd': true,
+  'session': true
+}
+
+const SETTING_NAME_KEYS = keys(_settingNames) as (keyof StatefulApiSettings)[];
 
 export interface ConnectionFailure {
   failureMessage: string;
@@ -78,7 +87,7 @@ export class StatefulApi {
   private proxy<T, U>(fn: (baseUrl: string, sid: string, options: T) => Promise<U>) {
     const wrappedFunction = (options: T): Promise<U | ConnectionFailure> => {
       if (!this.sidPromise) {
-        if (some(this.settings, s => !!s)) {
+        if (some(SETTING_NAME_KEYS, k => !this.settings[k])) {
           const failure: ConnectionFailure = {
             failureMessage: 'Host, username or password is not set. Please check your settings.'
           };
