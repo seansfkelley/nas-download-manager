@@ -33,6 +33,7 @@ function disabledPropAndClassName(disabled: boolean, className?: string) {
 }
 
 interface PopupProps {
+  pollTasks: () => void;
   tasks: DownloadStationTask[];
   taskFilter: VisibleTaskSettings;
   failureMessage?: string;
@@ -49,6 +50,7 @@ interface State {
 
 class Popup extends React.PureComponent<PopupProps, State> {
   private bodyRef?: HTMLElement;
+  private pollingInterval?: number;
 
   state: State = {
     shouldShowDropShadow: false
@@ -169,6 +171,14 @@ class Popup extends React.PureComponent<PopupProps, State> {
       this.setState({ shouldShowDropShadow: false });
     }
   }, 100);
+
+  componentDidMount() {
+    this.pollingInterval = setInterval(this.props.pollTasks, 10000);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.pollingInterval!);
+  }
 }
 
 getSharedObjects()
@@ -226,6 +236,7 @@ getSharedObjects()
 
       ReactDOM.render(
         <Popup
+          pollTasks={() => { pollTasks(api); }}
           tasks={storedState.tasks}
           taskFilter={storedState.visibleTasks}
           failureMessage={storedState.tasksFetchFailureMessage || undefined}
