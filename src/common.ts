@@ -1,3 +1,4 @@
+import { uniqueId } from 'lodash-es';
 import { SYNOLOGY_HOST_DOMAINS, DownloadStationTask, StatefulApi } from './api';
 
 export type Protocol = 'http' | 'https';
@@ -133,13 +134,14 @@ export function onStoredStateChange(fn: (state: AllStoredState) => void) {
     })
 }
 
-export function notify(title: string, message?: string) {
-  return browser.notifications.create(undefined, {
+export function notify(title: string, message?: string, id: string = uniqueId('notification-')) {
+  browser.notifications.create(id, {
     type: 'basic',
     title,
     message: message || '',
     iconUrl: browser.extension.getURL('icons/icon-64.png')
   });
+  return id;
 }
 
 export interface SharedObjects {

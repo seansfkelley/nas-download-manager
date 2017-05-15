@@ -67,13 +67,15 @@ function startsWithAnyProtocol(url: string, protocols: string[]) {
 }
 
 export function addDownloadTask(api: StatefulApi, url: string) {
+  const notificationId = notify('Adding download...', url);
+
   function notifyTaskAddResult(result: ConnectionFailure | SynologyResponse<{}>) {
     if (isConnectionFailure(result)) {
-      notify('Failed to connection to DiskStation', 'Please check your settings.');
+      notify('Failed to connection to DiskStation', 'Please check your settings.', notificationId);
     } else if (result.success) {
-      notify('Download added', url);
+      notify('Download added', url, notificationId);
     } else {
-      notify('Failed to add download', errorMessageFromCode(result.error.code, 'task'));
+      notify('Failed to add download', errorMessageFromCode(result.error.code, 'task'), notificationId);
     }
   }
 
