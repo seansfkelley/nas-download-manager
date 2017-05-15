@@ -9,7 +9,7 @@ const moment: typeof momentProxy = (momentProxy as any).default || momentProxy;
 const classNames: typeof classNamesProxy = (classNamesProxy as any).default || classNamesProxy;
 
 import { SynologyResponse, DownloadStationTask, errorMessageFromCode } from '../api';
-import { VisibleTaskSettings, onStoredStateChange, getSharedObjects, getHostUrl } from '../common';
+import { VisibleTaskSettings, onStoredStateChange, getSharedObjects, getHostUrl, addDownloadTask } from '../common';
 import { pollTasks } from '../pollTasks';
 import { CallbackResponse } from './popupTypes';
 import { matchesFilter } from './filtering';
@@ -39,28 +39,34 @@ interface PopupProps {
   failureMessage?: string;
   lastUpdateTimestamp?: number;
   openSynologyUi?: () => void;
-  createTask?: () => Promise<CallbackResponse>;
+  createTask?: (url: string) => Promise<void>;
   pauseResumeTask?: (taskId: string, what: 'pause' | 'resume') => Promise<CallbackResponse>;
   deleteTask?: (taskId: string) => Promise<CallbackResponse>;
 }
 
 interface State {
   shouldShowDropShadow: boolean;
+  isAddingDownload: boolean;
 }
 
 class Popup extends React.PureComponent<PopupProps, State> {
   private bodyRef?: HTMLElement;
+  private addDownloadUrlRef?: HTMLTextAreaElement;
   private pollingInterval?: number;
 
   state: State = {
-    shouldShowDropShadow: false
+    shouldShowDropShadow: false,
+    isAddingDownload: false
   };
 
   render() {
     return (
       <div className='popup'>
         {this.renderHeader()}
-        {this.renderBody()}
+        <div className={classNames('popup-body', { 'with-foreground': this.state.isAddingDownload })}>
+          {this.renderBody()}
+          {this.maybeRenderAddDownloadOverlay()}
+        </div>
       </div>
     );
   }
@@ -94,9 +100,9 @@ class Popup extends React.PureComponent<PopupProps, State> {
           {text}
         </div>
         <button
-          onClick={() => { console.log('plus'); }}
+          onClick={() => { this.setState({ isAddingDownload: !this.state.isAddingDownload }); }}
           title='Add download...'
-          {...disabledPropAndClassName(this.props.openSynologyUi == null)}
+          {...disabledPropAndClassName(this.props.createTask == null)}
         >
           <div className='fa fa-lg fa-plus'/>
         </button>
@@ -120,13 +126,13 @@ class Popup extends React.PureComponent<PopupProps, State> {
   private renderBody() {
     if (this.props.lastUpdateTimestamp == null) {
       return (
-        <div className='no-tasks popup-body'>
+        <div className='no-tasks'>
           <span>...</span>
         </div>
       );
     } else if (this.props.tasks.length === 0) {
       return (
-        <div className='no-tasks popup-body'>
+        <div className='no-tasks'>
           <span>No download tasks.</span>
         </div>
       );
@@ -140,14 +146,14 @@ class Popup extends React.PureComponent<PopupProps, State> {
       );
       if (filteredTasks.length === 0) {
         return (
-          <div className='no-tasks popup-body'>
+          <div className='no-tasks'>
             <span>Download tasks exist, but none match your filters.</span>
           </div>
         );
       } else {
         return (
           <ul
-            className='download-tasks popup-body'
+            className='download-tasks'
             onScroll={this.onBodyScroll}
             ref={e => { this.bodyRef = e; }}
           >
@@ -161,6 +167,40 @@ class Popup extends React.PureComponent<PopupProps, State> {
           </ul>
         );
       }
+    }
+  }
+
+  private maybeRenderAddDownloadOverlay() {
+    if (this.state.isAddingDownload) {
+      return (
+        <div className='add-download-overlay'>
+          <div className='backdrop'/>
+          <div className='overlay-content'>
+            <textarea
+              ref={e => { this.addDownloadUrlRef = e; }}
+            />
+            <div className='buttons'>
+              <button
+                onClick={() => { this.setState({ isAddingDownload: false }); }}
+                title='Cancel adding a new task'
+              >
+                <span className='fa fa-lg fa-times'/> Cancel
+              </button>
+              <button
+                onClick={() => {
+                  this.props.createTask!(this.addDownloadUrlRef!.value);
+                  this.setState({ isAddingDownload: false });
+                }}
+                title='Add the above URL as a new download task'
+              >
+                <span className='fa fa-lg fa-plus'/> Add
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    } else {
+      return null;
     }
   }
 
@@ -210,6 +250,13 @@ getSharedObjects()
         ? () => { browser.tabs.create({ url: hostUrl, active: true }); }
         : undefined;
 
+      const createTask = hostUrl
+        ? (url: string) => {
+          return addDownloadTask(api, url)
+            .then(() => { pollTasks(api); });
+        }
+        : undefined;
+
       const pauseResumeTask = hostUrl
         ? (taskId: string, what: 'pause' | 'resume') => {
             return (what === 'pause'
@@ -242,7 +289,7 @@ getSharedObjects()
           failureMessage={storedState.tasksFetchFailureMessage || undefined}
           lastUpdateTimestamp={storedState.tasksFetchUpdateTimestamp || undefined}
           openSynologyUi={openSynologyUi}
-          createTask={undefined}
+          createTask={createTask}
           pauseResumeTask={pauseResumeTask}
           deleteTask={deleteTask}
         />

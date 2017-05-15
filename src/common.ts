@@ -1,4 +1,4 @@
-import { SYNOLOGY_HOST_DOMAINS, DownloadStationTask, StatefulApi } from './api';
+import { SYNOLOGY_HOST_DOMAINS, DownloadStationTask, StatefulApi, isConnectionFailure, errorMessageFromCode } from './api';
 
 export type Protocol = 'http' | 'https';
 
@@ -131,6 +131,40 @@ export function onStoredStateChange(fn: (state: AllStoredState) => void) {
         }
       });
     })
+}
+
+export function notify(title: string, message?: string) {
+  return browser.notifications.create(undefined, {
+    type: 'basic',
+    title,
+    message: message || ''
+  });
+}
+
+const DOWNLOADABLE_URI_PROTOCOLS = [
+  'magnet',
+  'ftp',
+  'ftps'
+];
+
+export function addDownloadTask(api: StatefulApi, url: string) {
+  if (url && DOWNLOADABLE_URI_PROTOCOLS.some(protocol => url.slice(0, protocol.length + 1) === `${protocol}:`)) {
+    return api.DownloadStation.Task.Create({
+      uri: [ url ]
+    })
+      .then(result => {
+        if (isConnectionFailure(result)) {
+          notify('Failed to connection to DiskStation', 'Please check your settings.');
+        } else if (result.success) {
+          notify('Download added', url);
+        } else {
+          notify('Failed to add download', errorMessageFromCode(result.error.code, 'task'));
+        }
+      });
+  } else {
+    notify('Failed to add download', `Link must be one of ${DOWNLOADABLE_URI_PROTOCOLS.join(', ')}`);
+    return Promise.resolve();
+  }
 }
 
 export interface SharedObjects {

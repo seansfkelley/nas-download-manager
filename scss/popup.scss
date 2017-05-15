@@ -59,6 +59,11 @@ body, .popup {
   .popup-body {
     flex: 1;
     overflow-y: auto;
+    position: relative;
+
+    &.with-foreground > :not(.add-download-overlay) {
+      filter: blur(1px);
+    }
   }
 }
 
@@ -150,6 +155,44 @@ body, .popup {
       .remove-button, .pause-resume-button {
         display: none;
 
+      }
+    }
+  }
+}
+
+.popup-body .add-download-overlay {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  .backdrop {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.2);
+    filter: blur 0.5px;
+  }
+
+  .overlay-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 10px;
+
+    textarea {
+      width: 100%;
+      height: 6em;
+      border-radius: 3px;
+      border: 1px solid #aaa;
+    }
+
+    .buttons {
+      text-align: right;
+
+      button {
+        margin: 5px;
       }
     }
   }
