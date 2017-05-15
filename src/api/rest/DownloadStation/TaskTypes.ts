@@ -1,3 +1,5 @@
+import { SynologyFile } from '../shared';
+
 export type DownloadStationTaskAdditionalType = 'detail' | 'transfer' | 'file' | 'tracker' | 'peer';
 
 export interface DownloadStationTaskListRequest {
@@ -146,7 +148,7 @@ export interface DownloadStationTaskGetInfoResponse {
 
 export interface DownloadStationTaskCreateRequest {
   uri?: string[];
-  file?: Blob;
+  file?: SynologyFile;
   username?: string;
   password?: string;
   unzip_password?: string;
