@@ -25,6 +25,8 @@ export function saveSettings(settings: Settings) {
       .then(result => {
         if (!result.success) {
           throw new Error(ERROR_CODES.common[result.error.code] || ERROR_CODES.auth[result.error.code]);
+        } else {
+          return browser.storage.local.set(settings);
         }
       })
       .then(() => {
