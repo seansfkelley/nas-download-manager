@@ -33,7 +33,7 @@ onStoredStateChange(storedState => {
     notificationSettings = storedState.notifications;
     clearInterval(notificationInterval!);
     if (notificationSettings.enabled) {
-      setInterval(() => { pollTasks(api); }, notificationSettings.pollingInterval);
+      setInterval(() => { pollTasks(api); }, notificationSettings.pollingInterval * 1000);
     }
   }
 });
