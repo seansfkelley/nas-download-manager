@@ -1,4 +1,4 @@
-import { SynologyResponse, get } from '../shared';
+import { SynologyResponse, get, post } from '../shared';
 import {
   DownloadStationTaskActionResponse,
   DownloadStationTaskCreateRequest,
@@ -36,13 +36,7 @@ function GetInfo(baseUrl: string, sid: string, options: DownloadStationTaskGetIn
 }
 
 function Create(baseUrl: string, sid: string, options: DownloadStationTaskCreateRequest): Promise<SynologyResponse<{}>> {
-  if (options.file) {
-    // This requires some nontrivial noodlery with POST and bodies and stuff that I don't yet care about,
-    // so leave it for later.
-    throw new Error(`Unimplemented behavior: cannot send file data to Task.Create!`);
-  }
-
-  return get(baseUrl, CGI_NAME, {
+  return post(baseUrl, CGI_NAME, {
     api: API_NAME,
     version: 1,
     method: 'create',

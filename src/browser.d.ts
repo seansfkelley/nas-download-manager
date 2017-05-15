@@ -98,6 +98,9 @@ interface ContextMenusCreateOptions {
 }
 
 declare const browser: {
+  extension: {
+    getURL: (relativeUrl: string) => string;
+  };
   runtime: {
     openOptionsPage: () => Promise<void>;
     getBackgroundPage: () => Promise<Window>;

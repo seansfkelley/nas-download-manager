@@ -9,8 +9,8 @@ const moment: typeof momentProxy = (momentProxy as any).default || momentProxy;
 const classNames: typeof classNamesProxy = (classNamesProxy as any).default || classNamesProxy;
 
 import { SynologyResponse, DownloadStationTask, errorMessageFromCode } from '../api';
-import { VisibleTaskSettings, onStoredStateChange, getSharedObjects, getHostUrl, addDownloadTask } from '../common';
-import { pollTasks } from '../pollTasks';
+import { VisibleTaskSettings, onStoredStateChange, getSharedObjects, getHostUrl } from '../common';
+import { addDownloadTask, pollTasks } from '../apiActions';
 import { CallbackResponse } from './popupTypes';
 import { matchesFilter } from './filtering';
 import { Task } from './Task';

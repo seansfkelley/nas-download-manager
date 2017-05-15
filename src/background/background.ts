@@ -1,7 +1,7 @@
 import { isEqual } from 'lodash-es';
 import { StatefulApi, SessionName } from '../api';
-import { getHostUrl, onStoredStateChange, NotificationSettings, DEFAULT_SETTINGS, setSharedObjects, notify, addDownloadTask } from '../common';
-import { pollTasks } from '../pollTasks';
+import { getHostUrl, onStoredStateChange, NotificationSettings, DEFAULT_SETTINGS, setSharedObjects, notify } from '../common';
+import { addDownloadTask, pollTasks } from '../apiActions';
 
 const api = new StatefulApi({});
 const START_TIME = Date.now();
