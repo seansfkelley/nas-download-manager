@@ -2,8 +2,9 @@
 
 ## TODO
 
+- [ ] fix issue where you can't actually download .torrent files
 - [ ] allow specifying IPs as the hostname
-- [ ] register as a URL handler automatically?
+- [ ] register as a URL handler (would have to add a document-level handler to catch registered outbound links)
 - [ ] audit error-handling (promise-catching, mostly)
 - [ ] determine how to merge `browser.d.ts` and `DefinitelyTyped/chrome` (which has a different shape, specifically, around Promises v. callbacks)
 - [ ] should background task notify if there is no username/password set?
