@@ -82,11 +82,13 @@ body, .popup {
 
 .popup ul.download-tasks {
   list-style: none;
-  padding: 0 5px;
+  padding: 8px;
   margin: 0;
 
   li.task {
-    margin: 5px 0;
+    &:not(:last-child) {
+      margin-bottom: 12px;
+    }
 
     .header {
       display: flex;
@@ -102,12 +104,12 @@ body, .popup {
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+          font-weight: 500;
         }
 
         .status {
           font-size: 0.8em;
-          text-transform: uppercase;
-          color: $color-text-faded-faded;
+          color: $color-text-faded;
           padding-right: 5px;
         }
       }

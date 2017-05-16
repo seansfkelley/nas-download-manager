@@ -37,15 +37,7 @@ export class Task extends React.PureComponent<Props, State> {
             <div className='name-and-status'>
               <div className='name'>{this.props.task.title}</div>
               <div className='status'>
-                {this.props.task.status}
-                {' '}
-                {'\u2013'}
-                {' '}
-                {formatMetric1024(this.props.task.additional!.transfer!.speed_upload)} u
-                {' '}
-                /
-                {' '}
-                {formatMetric1024(this.props.task.additional!.transfer!.speed_download)} d
+                {this.renderStatus()}
               </div>
             </div>
             {this.renderPauseResumeButton()}
@@ -64,6 +56,44 @@ export class Task extends React.PureComponent<Props, State> {
             <div className='bar-background'/>
           </div>
         </li>
+      );
+    }
+  }
+
+  private renderStatus() {
+    if (matchesFilter(this.props.task, 'downloading')) {
+      return (
+        `${this.props.task.status.toUpperCase()} \u2013 ` +
+        `${formatMetric1024(this.props.task.additional!.transfer!.size_downloaded)}B of ` +
+        `${formatMetric1024(this.props.task.size)}B downloaded ` +
+        `(${formatMetric1024(this.props.task.additional!.transfer!.speed_download)}B/s)`
+      );
+    } else if (matchesFilter(this.props.task, 'uploading')) {
+      return (
+        `${this.props.task.status.toUpperCase()} \u2013 ` +
+        `${formatMetric1024(this.props.task.additional!.transfer!.size_uploaded)}B uploaded ` +
+        `(${formatMetric1024(this.props.task.additional!.transfer!.speed_upload)}B/s)`
+      );
+    } else if (matchesFilter(this.props.task, 'completed')) {
+      return (
+        `${this.props.task.status.toUpperCase()} \u2013 ` +
+        `${formatMetric1024(this.props.task.size)} downloaded `
+      );
+    } else if (matchesFilter(this.props.task, 'errored')) {
+      return (
+        <span className='error-message'>
+          <span className='fa fa-exclamation-triangle'/>
+          {this.props.task.status.toUpperCase()} {this.props.task.status_extra ? `${this.props.task.status_extra}` : ''}
+        </span>
+      );
+    } else {
+      return (
+        `${this.props.task.status.toUpperCase()} \u2013 ` +
+        `${formatMetric1024(this.props.task.additional!.transfer!.size_downloaded)}B of ` +
+        `${formatMetric1024(this.props.task.size)}B downloaded, ` +
+        `${formatMetric1024(this.props.task.additional!.transfer!.size_uploaded)}B uploaded ` +
+        `(${formatMetric1024(this.props.task.additional!.transfer!.speed_download)}B/s d ` +
+        `${formatMetric1024(this.props.task.additional!.transfer!.speed_upload)}B/s u)`
       );
     }
   }

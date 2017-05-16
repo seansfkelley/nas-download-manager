@@ -2,7 +2,7 @@ import { DownloadStationTask, DownloadStationTaskNormalStatus, DownloadStationTa
 import { VisibleTaskSettings } from '../common';
 
 const EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES: { [K in keyof VisibleTaskSettings]?: DownloadStationTaskNormalStatus[] } = {
-  downloading: [ 'downloading', 'extracting', 'finishing', 'hash_checking', 'waiting' ],
+  downloading: [ 'downloading', 'extracting', 'finishing', 'hash_checking' ],
   uploading: [ 'seeding' ],
   completed: [ 'finished' ]
 };
