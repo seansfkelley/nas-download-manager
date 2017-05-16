@@ -16,5 +16,6 @@ function Query(baseUrl: string, query: 'ALL' | string[] = 'ALL'): Promise<Synolo
 export * from './InfoTypes';
 
 export const Info = {
+  API_NAME: API_NAME as typeof API_NAME,
   Query
 };

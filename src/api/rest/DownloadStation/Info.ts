@@ -34,6 +34,7 @@ function SetServerConfig(baseUrl: string, sid: string, config: Partial<DownloadS
 }
 
 export const Info = {
+  API_NAME: API_NAME as typeof API_NAME,
   GetInfo,
   GetConfig,
   SetServerConfig

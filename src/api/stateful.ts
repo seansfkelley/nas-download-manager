@@ -121,7 +121,7 @@ export class StatefulApi {
                 return wrappedFunction(options);
               } else {
                 const failure: ConnectionFailure = {
-                  failureMessage: errorMessageFromCode(response.error.code, 'auth')
+                  failureMessage: errorMessageFromCode(response.error.code, Auth.API_NAME)
                 };
                 return Promise.resolve(failure);
               }

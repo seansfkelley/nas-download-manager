@@ -1,4 +1,4 @@
-import { Auth, SessionName, ERROR_CODES } from '../api';
+import { Auth, SessionName, errorMessageFromCode } from '../api';
 import { Settings, getHostUrl } from '../common';
 
 export function saveSettings(settings: Settings) {
@@ -24,7 +24,7 @@ export function saveSettings(settings: Settings) {
       })
       .then(result => {
         if (!result.success) {
-          throw new Error(ERROR_CODES.common[result.error.code] || ERROR_CODES.auth[result.error.code]);
+          throw new Error(errorMessageFromCode(result.error.code, Auth.API_NAME));
         } else {
           return browser.storage.local.set(settings);
         }
@@ -61,7 +61,7 @@ export function testConnection(settings: Settings): Promise<ConnectionTestResult
         if (!result) {
           return 'unknown-error';
         } else if (!result.success) {
-          return failureMessage(ERROR_CODES.common[result.error.code] || ERROR_CODES.auth[result.error.code]);
+          return failureMessage(errorMessageFromCode(result.error.code, Auth.API_NAME, null));
         } else {
           return 'good';
         }

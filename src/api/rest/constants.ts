@@ -9,14 +9,14 @@ export const ERROR_CODES = {
     106: 'Session timeout.',
     107: 'Session interrupted by duplicate login.'
   } as Record<string, string>,
-  'auth': {
+  'SYNO.API.Auth': {
     400: 'No such username or incorrect password.',
     401: 'Account disabled.',
     402: 'Permission denied.',
     403: 'Two-step verification needed.',
     404: 'Two-step verification failed.'
   } as Record<string, string>,
-  'task': {
+  'SYNO.DownloadStation.Task': {
     400: 'File upload failed.',
     401: 'Max number of tasks reached.',
     402: 'Destination denied.',
@@ -29,8 +29,11 @@ export const ERROR_CODES = {
   } as Record<string, string>
 };
 
-export function errorMessageFromCode(code: number, secondaryType: keyof typeof ERROR_CODES) {
-  return ERROR_CODES.common[code] || ERROR_CODES[secondaryType][code] || 'Unknown error.';
+export function errorMessageFromCode(code: number, secondaryType: keyof typeof ERROR_CODES): string;
+export function errorMessageFromCode(code: number, secondaryType: keyof typeof ERROR_CODES, defaultMessage: string | null): string | undefined;
+
+export function errorMessageFromCode(code: number, secondaryType: keyof typeof ERROR_CODES, defaultMessage: string | null = 'Unknown error.') {
+  return ERROR_CODES.common[code] || ERROR_CODES[secondaryType][code] || defaultMessage || undefined;
 }
 
 export const SessionName = {

@@ -29,6 +29,7 @@ function Logout(baseUrl: string, sid: string, options: AuthLogoutRequest): Promi
 export * from './AuthTypes';
 
 export const Auth = {
+  API_NAME: API_NAME as typeof API_NAME,
   Login,
   Logout
 };

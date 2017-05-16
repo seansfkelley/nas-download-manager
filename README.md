@@ -10,5 +10,4 @@
 - [ ] should background task notify if there is no username/password set?
 - [ ] fix notification interval setting to not require onblur
 - [ ] when deleting tasks, the UI removes two from the list (!)
-- [ ] group error message by API group name rather than an arbitrary string
 - [ ] icons for disabled/in-progress/success/failure of notifications/browser icon

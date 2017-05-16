@@ -24,6 +24,7 @@ function SetConfig(baseUrl: string, sid: string, config: Partial<DownloadStation
 }
 
 export const Schedule = {
+  API_NAME: API_NAME as typeof API_NAME,
   GetConfig,
   SetConfig
 };

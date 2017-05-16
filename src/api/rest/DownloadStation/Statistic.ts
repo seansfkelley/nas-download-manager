@@ -14,5 +14,6 @@ function GetInfo(baseUrl: string, sid: string): Promise<SynologyResponse<Downloa
 }
 
 export const Statistic = {
+  API_NAME: API_NAME as typeof API_NAME,
   GetInfo
 };

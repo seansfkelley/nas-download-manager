@@ -91,6 +91,7 @@ function Edit(baseUrl: string, sid: string, options: { id: string[]; destination
 }
 
 export const Task = {
+  API_NAME: API_NAME as typeof API_NAME,
   List,
   GetInfo,
   Create,

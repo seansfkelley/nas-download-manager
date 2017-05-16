@@ -1,5 +1,5 @@
 import Axios from 'axios';
-import { StatefulApi, ConnectionFailure, isConnectionFailure, errorMessageFromCode, SynologyResponse } from './api';
+import { StatefulApi, ConnectionFailure, isConnectionFailure, errorMessageFromCode, DownloadStation, SynologyResponse } from './api';
 import { CachedTasks, notify } from './common';
 
 export function pollTasks(api: StatefulApi) {
@@ -19,7 +19,7 @@ export function pollTasks(api: StatefulApi) {
         cachedTasks.tasks = response.data.tasks;
         cachedTasks.tasksFetchFailureMessage = null;
       } else {
-        cachedTasks.tasksFetchFailureMessage = errorMessageFromCode(response.error.code, 'task');
+        cachedTasks.tasksFetchFailureMessage = errorMessageFromCode(response.error.code, DownloadStation.Task.API_NAME);
       }
 
       return browser.storage.local.set(cachedTasks);
@@ -75,7 +75,7 @@ export function addDownloadTask(api: StatefulApi, url: string) {
     } else if (result.success) {
       notify('Download added', url, notificationId);
     } else {
-      notify('Failed to add download', errorMessageFromCode(result.error.code, 'task'), notificationId);
+      notify('Failed to add download', errorMessageFromCode(result.error.code, DownloadStation.Task.API_NAME), notificationId);
     }
   }
 
