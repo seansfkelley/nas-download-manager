@@ -99,7 +99,7 @@ export function addDownloadTask(api: StatefulApi, url: string) {
           const contentLength = response.headers['content-length'];
           // TODO: Should strip query parameters from this URL before checking the extension.
           if (((contentType === 'application/x-bittorrent') || url.endsWith('.torrent')) && !isNaN(contentLength) && contentLength < ARBITRARY_FILE_FETCH_SIZE_CUTOFF) {
-            return Axios.get(url, { responseType: 'arraybuffer' })
+            return Axios.get(url, { responseType: 'arraybuffer', timeout: 10000 })
               .then(response => {
                 const blob = new Blob([ response.data ], { type: 'application/x-bittorrent' });
                 return api.DownloadStation.Task.Create({ file: { content: blob, filename: 'download.torrent' } });
