@@ -90,8 +90,8 @@ ul.settings-list li {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-}
 
-.save-settings-footer .save-result {
-  margin-right: 5px;
+  .save-result {
+    margin-right: 10px;
+  }
 }

@@ -99,13 +99,11 @@ body, .popup {
 
 .popup ul.download-tasks {
   list-style: none;
-  padding: 8px;
   margin: 0;
+  padding: 0;
 
   li.task {
-    &:not(:last-child) {
-      margin-bottom: 12px;
-    }
+    padding: 8px;
 
     .header {
       display: flex;
