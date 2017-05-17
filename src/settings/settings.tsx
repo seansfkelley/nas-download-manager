@@ -14,7 +14,7 @@ import {
   NotificationSettings,
   loadSettings,
   DEFAULT_SETTINGS
-} from '../common';
+} from '../state';
 
 import {
   ConnectionTestResult,

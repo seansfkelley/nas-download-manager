@@ -1,6 +1,7 @@
 import { isEqual } from 'lodash-es';
 import { StatefulApi, SessionName } from '../api';
-import { getHostUrl, onStoredStateChange, NotificationSettings, DEFAULT_SETTINGS, setSharedObjects, notify } from '../common';
+import { getHostUrl, onStoredStateChange, NotificationSettings, DEFAULT_SETTINGS } from '../state';
+import { setSharedObjects, notify } from '../browserApi';
 import { addDownloadTask, pollTasks } from '../apiActions';
 
 const api = new StatefulApi({});

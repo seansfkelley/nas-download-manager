@@ -1,5 +1,5 @@
 import { Auth, SessionName, errorMessageFromCode } from '../api';
-import { Settings, getHostUrl } from '../common';
+import { Settings, getHostUrl } from '../state';
 
 export function saveSettings(settings: Settings) {
   console.log('persisting settings...');

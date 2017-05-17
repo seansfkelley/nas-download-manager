@@ -1,6 +1,7 @@
 import Axios from 'axios';
 import { StatefulApi, ConnectionFailure, isConnectionFailure, errorMessageFromCode, DownloadStation, SynologyResponse } from './api';
-import { CachedTasks, notify } from './common';
+import { CachedTasks } from './state';
+import { notify } from './browserApi';
 
 export function pollTasks(api: StatefulApi) {
   const cachedTasks: Partial<CachedTasks> = {
