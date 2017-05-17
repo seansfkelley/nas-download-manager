@@ -1,3 +1,4 @@
+import { uniqueId } from 'lodash-es';
 import Axios from 'axios';
 import { StatefulApi, ConnectionFailure, isConnectionFailure, errorMessageFromCode, DownloadStation, SynologyResponse } from './api';
 import { CachedTasks } from './state';
@@ -19,7 +20,8 @@ export function pollTasks(api: StatefulApi) {
     tasksLastInitiatedFetchTimestamp: Date.now()
   };
 
-  console.log('polling for tasks...');
+  const pollId = uniqueId('poll-');
+  console.log(`(${pollId}) polling for tasks...`);
 
   return Promise.all([
     browser.storage.local.set(cachedTasks),
@@ -30,6 +32,8 @@ export function pollTasks(api: StatefulApi) {
     })
   ])
     .then(([ _, response ]) => {
+      console.log(`(${pollId}) poll completed with response`, response);
+
       const cachedTasks: Partial<CachedTasks> = {
         tasksLastCompletedFetchTimestamp: Date.now()
       };
@@ -48,25 +52,6 @@ export function pollTasks(api: StatefulApi) {
           failureMessage: errorMessageFromCode(response.error.code, DownloadStation.Task.API_NAME)
         };
       }
-
-      return browser.storage.local.set(cachedTasks);
-    })
-    .catch(error => {
-      let failureMessage;
-      // TODO: Unify this knowledge with utils.ts and settings.tsx.
-      if (error && error.response && error.response.status === 400) {
-        failureMessage = 'Connection failure (likely wrong protocol).';
-      } else if (error && error.message === 'Network Error') {
-        failureMessage = 'Connection failure (likely incorrect hostname/port or no internet connection).';
-      } else {
-        console.log(error);
-        failureMessage = 'Unknown error.';
-      }
-
-      const cachedTasks: Partial<CachedTasks> = {
-        taskFetchFailureReason: { failureMessage },
-        tasksLastCompletedFetchTimestamp: Date.now()
-      };
 
       return browser.storage.local.set(cachedTasks);
     });

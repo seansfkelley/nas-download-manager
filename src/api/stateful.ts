@@ -137,6 +137,21 @@ export class StatefulApi {
           } else {
             return wrappedFunction(options);
           }
+        })
+        .catch(error => {
+          let failureMessage;
+          // TODO: Unify this knowledge with utils.ts and settings.tsx.
+          if (error && error.response && error.response.status === 400) {
+            failureMessage = 'Connection failure (likely wrong protocol).';
+          } else if (error && error.message === 'Network Error') {
+            failureMessage = 'Connection failure (likely incorrect hostname/port or no internet connection).';
+          } else {
+            console.log(error);
+            failureMessage = 'Unknown error.';
+          }
+
+          const failure: ConnectionFailure = { type: 'other', failureMessage };
+          return Promise.resolve(failure);
         });
     };
 
