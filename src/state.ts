@@ -116,22 +116,22 @@ export function loadSettings() {
     });
 }
 
-export function onStoredStateChange(fn: (state: AllStoredState) => void) {
-  browser.storage.local.get<AllStoredState>(ALL_STORED_STATE_NAMES)
-    .then(state => ({ ...DEFAULT_ALL_STORED_STATE, ...state }))
-    .then((initialStoredState: AllStoredState) => {
-      fn(initialStoredState);
-      browser.storage.onChanged.addListener((changes: StorageChangeEvent<AllStoredState>, areaName) => {
-        if (areaName === 'local') {
-          const extractedChanges: Partial<AllStoredState> = {};
-          Object.keys(changes).map((key: keyof AllStoredState) => {
-            extractedChanges[key] = changes[key] != null ? changes[key]!.newValue : undefined;
-          });
-          fn({
-            ...initialStoredState,
-            ...extractedChanges
-          });
-        }
-      });
-    })
+let stateListeners: ((state: AllStoredState) => void)[] = [];
+
+export function onStoredStateChange(listener: (state: AllStoredState) => void) {
+  stateListeners.push(listener);
 }
+
+function fetchStateAndNotifyListeners() {
+  return browser.storage.local.get<AllStoredState>(ALL_STORED_STATE_NAMES)
+    .then(state => {
+      const defaultedState = { ...DEFAULT_ALL_STORED_STATE, ...state };
+      stateListeners.forEach(l => l(defaultedState));
+    });
+}
+
+browser.storage.onChanged.addListener((_changes: StorageChangeEvent<AllStoredState>, areaName) => {
+  if (areaName === 'local') {
+    fetchStateAndNotifyListeners();
+  }
+});

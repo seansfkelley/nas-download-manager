@@ -75,14 +75,14 @@ class Popup extends React.PureComponent<PopupProps, State> {
     let classes: string | undefined = undefined;
     let icon: string;
 
-    if (this.props.tasksLastCompletedFetchTimestamp == null) {
-      text = 'Loading...';
-      tooltip = 'Loading download tasks...';
-      icon = 'fa-refresh fa-spin';
-    } else if (this.props.taskFetchFailureReason === 'missing-config') {
+    if (this.props.taskFetchFailureReason === 'missing-config') {
       text = 'Settings unconfigured';
       tooltip = 'The hostname, username or password are not configured.';
       icon = 'fa-gear';
+    } else if (this.props.tasksLastCompletedFetchTimestamp == null) {
+      text = 'Loading...';
+      tooltip = 'Loading download tasks...';
+      icon = 'fa-refresh fa-spin';
     } else if (this.props.taskFetchFailureReason != null) {
       text = 'Error loading tasks'
       tooltip = this.props.taskFetchFailureReason.failureMessage;
@@ -223,6 +223,7 @@ getSharedObjects()
     setInterval(() => { pollTasks(api); }, 10000);
 
     onStoredStateChange(storedState => {
+
       function convertResponse(response: SynologyResponse<any>): CallbackResponse {
         if (response.success) {
           return 'success';
