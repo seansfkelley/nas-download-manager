@@ -1,3 +1,4 @@
+import { sortBy } from 'lodash-es';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import * as momentProxy from 'moment';
@@ -15,16 +16,6 @@ import { CallbackResponse } from './popupTypes';
 import { matchesFilter } from './filtering';
 import { Task } from './Task';
 
-function sortByName(task1: DownloadStationTask, task2: DownloadStationTask) {
-  if (task1.title < task2.title) {
-    return -1;
-  } else if (task1.title > task2.title) {
-    return 1;
-  } else {
-    return 0;
-  }
-}
-
 function disabledPropAndClassName(disabled: boolean, className?: string) {
   return {
     disabled,
@@ -33,11 +24,11 @@ function disabledPropAndClassName(disabled: boolean, className?: string) {
 }
 
 interface PopupProps {
-  pollTasks: () => void;
   tasks: DownloadStationTask[];
+  tasksFetchFailureMessage: string | null;
+  tasksLastInitiatedFetchTimestamp: number | null;
+  tasksLastCompletedFetchTimestamp: number | null;
   taskFilter: VisibleTaskSettings;
-  failureMessage?: string;
-  lastUpdateTimestamp?: number;
   openSynologyUi?: () => void;
   createTask?: (url: string) => Promise<void>;
   pauseResumeTask?: (taskId: string, what: 'pause' | 'resume') => Promise<CallbackResponse>;
@@ -52,7 +43,6 @@ interface State {
 class Popup extends React.PureComponent<PopupProps, State> {
   private bodyRef?: HTMLElement;
   private addDownloadUrlRef?: HTMLTextAreaElement;
-  private pollingInterval?: number;
 
   state: State = {
     shouldShowDropShadow: false,
@@ -77,20 +67,29 @@ class Popup extends React.PureComponent<PopupProps, State> {
     let classes: string | undefined = undefined;
     let icon: string;
 
-    if (this.props.lastUpdateTimestamp == null) {
+    if (this.props.tasksLastCompletedFetchTimestamp == null) {
       text = 'Loading...';
       tooltip = 'Loading download tasks...';
       icon = 'fa-refresh fa-spin';
-    } else if (this.props.failureMessage != null) {
+    } else if (this.props.tasksFetchFailureMessage != null) {
       text = 'Error loading tasks'
-      tooltip = this.props.failureMessage;
+      tooltip = this.props.tasksFetchFailureMessage;
       classes = 'error-message';
       icon = 'fa-exclamation-triangle';
     } else {
-      text = `Updated ${moment(this.props.lastUpdateTimestamp).fromNow()}`;
-      tooltip = moment(this.props.lastUpdateTimestamp).format('ll LTS');
+      text = `Updated ${moment(this.props.tasksLastCompletedFetchTimestamp).fromNow()}`;
+      tooltip = moment(this.props.tasksLastCompletedFetchTimestamp).format('ll LTS');
       classes = 'success-message';
       icon = 'fa-check';
+    }
+
+    if (
+      this.props.tasksLastInitiatedFetchTimestamp != null &&
+      this.props.tasksLastCompletedFetchTimestamp != null &&
+      this.props.tasksLastInitiatedFetchTimestamp > this.props.tasksLastCompletedFetchTimestamp
+    ) {
+      icon = 'fa-refresh fa-spin';
+      tooltip += ' (updating now)'
     }
 
     return (
@@ -124,7 +123,7 @@ class Popup extends React.PureComponent<PopupProps, State> {
   }
 
   private renderBody() {
-    if (this.props.lastUpdateTimestamp == null) {
+    if (this.props.tasksLastCompletedFetchTimestamp == null) {
       return (
         <div className='no-tasks'>
           <span>...</span>
@@ -157,7 +156,7 @@ class Popup extends React.PureComponent<PopupProps, State> {
             onScroll={this.onBodyScroll}
             ref={e => { this.bodyRef = e; }}
           >
-            {this.props.tasks.sort(sortByName).map(task => (
+            {sortBy(this.props.tasks, t => t.title).map(task => (
               <Task
                 task={task}
                 onDelete={this.props.deleteTask}
@@ -211,19 +210,14 @@ class Popup extends React.PureComponent<PopupProps, State> {
       this.setState({ shouldShowDropShadow: false });
     }
   }, 100);
-
-  componentDidMount() {
-    this.pollingInterval = setInterval(this.props.pollTasks, 10000);
-  }
-
-  componentWillUnmount() {
-    clearInterval(this.pollingInterval!);
-  }
 }
 
 getSharedObjects()
   .then(objects => {
     const { api } = objects!;
+
+    pollTasks(api);
+    setInterval(() => { pollTasks(api); }, 10000);
 
     onStoredStateChange(storedState => {
       function convertResponse(response: SynologyResponse<any>): CallbackResponse {
@@ -284,11 +278,11 @@ getSharedObjects()
 
       ReactDOM.render(
         <Popup
-          pollTasks={() => { pollTasks(api); }}
           tasks={storedState.tasks}
+          tasksFetchFailureMessage={storedState.tasksFetchFailureMessage}
+          tasksLastInitiatedFetchTimestamp={storedState.tasksLastInitiatedFetchTimestamp}
+          tasksLastCompletedFetchTimestamp={storedState.tasksLastCompletedFetchTimestamp}
           taskFilter={storedState.visibleTasks}
-          failureMessage={storedState.tasksFetchFailureMessage || undefined}
-          lastUpdateTimestamp={storedState.tasksFetchUpdateTimestamp || undefined}
           openSynologyUi={openSynologyUi}
           createTask={createTask}
           pauseResumeTask={pauseResumeTask}

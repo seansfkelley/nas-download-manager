@@ -41,7 +41,8 @@ export interface Settings {
 export interface CachedTasks {
   tasks: DownloadStationTask[];
   tasksFetchFailureMessage: string | null;
-  tasksFetchUpdateTimestamp: number | null;
+  tasksLastInitiatedFetchTimestamp: number | null;
+  tasksLastCompletedFetchTimestamp: number | null;
 }
 
 export interface AllStoredState extends Settings, CachedTasks {}
@@ -60,7 +61,8 @@ const _allStoredStateNames: Record<keyof AllStoredState, true> = {
   ..._settingNames,
   'tasks': true,
   'tasksFetchFailureMessage': true,
-  'tasksFetchUpdateTimestamp': true
+  'tasksLastInitiatedFetchTimestamp': true,
+  'tasksLastCompletedFetchTimestamp': true
 };
 
 const ALL_STORED_STATE_NAMES = Object.keys(_allStoredStateNames) as (keyof Settings)[];
@@ -91,7 +93,8 @@ const DEFAULT_ALL_STORED_STATE: AllStoredState = {
   ...DEFAULT_SETTINGS,
   tasks: [],
   tasksFetchFailureMessage: null,
-  tasksFetchUpdateTimestamp: null
+  tasksLastInitiatedFetchTimestamp: null,
+  tasksLastCompletedFetchTimestamp: null
 };
 
 export function getHostUrl(settings: ConnectionSettings) {

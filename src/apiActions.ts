@@ -3,14 +3,21 @@ import { StatefulApi, ConnectionFailure, isConnectionFailure, errorMessageFromCo
 import { CachedTasks, notify } from './common';
 
 export function pollTasks(api: StatefulApi) {
-  return api.DownloadStation.Task.List({
-    offset: 0,
-    limit: -1,
-    additional: [ 'transfer' ]
-  })
-    .then(response => {
-      let cachedTasks: Partial<CachedTasks> = {
-        tasksFetchUpdateTimestamp: Date.now()
+  const cachedTasks: Partial<CachedTasks> = {
+    tasksLastInitiatedFetchTimestamp: Date.now()
+  };
+
+  return Promise.all([
+    browser.storage.local.set(cachedTasks),
+    api.DownloadStation.Task.List({
+      offset: 0,
+      limit: -1,
+      additional: [ 'transfer' ]
+    })
+  ])
+    .then(([ _, response ]) => {
+      const cachedTasks: Partial<CachedTasks> = {
+        tasksLastCompletedFetchTimestamp: Date.now()
       };
 
       if (isConnectionFailure(response)) {
@@ -38,7 +45,7 @@ export function pollTasks(api: StatefulApi) {
 
       const cachedTasks: Partial<CachedTasks> = {
         tasksFetchFailureMessage: failureMessage,
-        tasksFetchUpdateTimestamp: Date.now()
+        tasksLastCompletedFetchTimestamp: Date.now()
       };
 
       return browser.storage.local.set(cachedTasks);

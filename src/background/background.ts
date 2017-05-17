@@ -31,7 +31,7 @@ onStoredStateChange(storedState => {
 });
 
 onStoredStateChange(storedState => {
-  if (storedState.tasksFetchUpdateTimestamp != null && storedState.tasksFetchUpdateTimestamp > START_TIME && storedState.tasksFetchFailureMessage == null) {
+  if (storedState.tasksLastCompletedFetchTimestamp != null && storedState.tasksLastCompletedFetchTimestamp > START_TIME && storedState.tasksFetchFailureMessage == null) {
     const updatedFinishedTaskIds = storedState.tasks
       .filter(t => t.status === 'finished' || t.status === 'seeding')
       .map(t => t.id);

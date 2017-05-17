@@ -11,3 +11,5 @@
 - [ ] fix notification interval setting to not require onblur
 - [ ] when deleting tasks, the UI removes two from the list (!)
 - [ ] icons for disabled/in-progress/success/failure of notifications/browser icon
+- [ ] more-helpful zero state for popup when connection settings are missing
+- [ ] fix vertical alignment of placeholder text in task list
