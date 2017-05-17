@@ -120,18 +120,19 @@ let stateListeners: ((state: AllStoredState) => void)[] = [];
 
 export function onStoredStateChange(listener: (state: AllStoredState) => void) {
   stateListeners.push(listener);
+  fetchStateAndNotify([ listener ]);
 }
 
-function fetchStateAndNotifyListeners() {
+function fetchStateAndNotify(listeners: ((state: AllStoredState) => void)[]) {
   return browser.storage.local.get<AllStoredState>(ALL_STORED_STATE_NAMES)
     .then(state => {
       const defaultedState = { ...DEFAULT_ALL_STORED_STATE, ...state };
-      stateListeners.forEach(l => l(defaultedState));
+      listeners.forEach(l => l(defaultedState));
     });
 }
 
 browser.storage.onChanged.addListener((_changes: StorageChangeEvent<AllStoredState>, areaName) => {
   if (areaName === 'local') {
-    fetchStateAndNotifyListeners();
+    fetchStateAndNotify(stateListeners);
   }
 });
