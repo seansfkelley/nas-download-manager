@@ -11,7 +11,7 @@ html {
   color: $color-text;
   width: $width;
   height: 100%;
-  min-height: 200px;
+  min-height: 100px;
   max-height: 800px;
 }
 
@@ -43,12 +43,21 @@ body, .popup {
       margin-left: 3px;
 
       .fa {
-        margin-right: 5px;
+        margin-left: 4px;
+        margin-right: 8px;
       }
     }
 
     button {
       margin-left: 2px;
+
+      &.called-out {
+        animation-name: shadow-glow;
+        animation-duration: 2s;
+        animation-iteration-count: infinite;
+        animation-timing-function: ease-in-out;
+        animation-direction: alternate;
+      }
     }
 
     &.with-shadow {
@@ -68,13 +77,21 @@ body, .popup {
 }
 
 .popup .no-tasks {
+  margin: 20px 0 30px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
   color: $color-text-faded;
   padding: 10px;
 
-  span {
+  .fa {
+    margin-bottom: 8px;
+  }
+
+  .explanation {
+    font-weight: 500;
+    font-size: 14px;
     max-width: 60%;
     text-align: center;
   }
@@ -210,4 +227,14 @@ body, .popup {
 
 .error-message {
   color: $color-error;
+}
+
+@keyframes shadow-glow {
+  0% {
+    box-shadow: 0 0 2px 2px fade-out($color-loading, 1);
+  }
+
+  100% {
+    box-shadow: 0 0 2px 2px fade-out($color-loading, 0.3);
+  }
 }

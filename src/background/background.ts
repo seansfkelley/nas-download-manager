@@ -2,7 +2,7 @@ import { isEqual } from 'lodash-es';
 import { StatefulApi, SessionName } from '../api';
 import { getHostUrl, onStoredStateChange, NotificationSettings, DEFAULT_SETTINGS } from '../state';
 import { setSharedObjects, notify } from '../browserApi';
-import { addDownloadTask, pollTasks } from '../apiActions';
+import { addDownloadTask, pollTasks, clearCachedTasks } from '../apiActions';
 
 const api = new StatefulApi({});
 const START_TIME = Date.now();
@@ -15,12 +15,17 @@ let notificationSettings: NotificationSettings = DEFAULT_SETTINGS.notifications;
 let notificationInterval: number | undefined;
 
 onStoredStateChange(storedState => {
-  api.updateSettings({
+  const didUpdateSettings = api.updateSettings({
     baseUrl: getHostUrl(storedState.connection),
     account: storedState.connection.username,
     passwd: storedState.connection.password,
     session: SessionName.DownloadStation
   });
+
+  if (didUpdateSettings) {
+    clearCachedTasks()
+      .then(() => { pollTasks(api); });
+  }
 
   if (!isEqual(storedState.notifications, notificationSettings)) {
     notificationSettings = storedState.notifications;
@@ -32,7 +37,7 @@ onStoredStateChange(storedState => {
 });
 
 onStoredStateChange(storedState => {
-  if (storedState.tasksLastCompletedFetchTimestamp != null && storedState.tasksLastCompletedFetchTimestamp > START_TIME && storedState.tasksFetchFailureMessage == null) {
+  if (storedState.tasksLastCompletedFetchTimestamp != null && storedState.tasksLastCompletedFetchTimestamp > START_TIME && storedState.taskFetchFailureReason == null) {
     const updatedFinishedTaskIds = storedState.tasks
       .filter(t => t.status === 'finished' || t.status === 'seeding')
       .map(t => t.id);
@@ -51,13 +56,10 @@ onStoredStateChange(storedState => {
   }
 });
 
-const CONTEXT_MENU_ID = browser.contextMenus.create({
-  title: 'Download with DownloadStation',
-  contexts: [ 'link' ]
-});
-
-browser.contextMenus.update(CONTEXT_MENU_ID, {
+browser.contextMenus.create({
   enabled: true,
+  title: 'Download with DownloadStation',
+  contexts: [ 'link' ],
   onclick: (data) => {
     addDownloadTask(api, data.linkUrl!);
   }

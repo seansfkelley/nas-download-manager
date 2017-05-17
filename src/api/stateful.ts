@@ -38,12 +38,16 @@ const _settingNames: Record<keyof StatefulApiSettings, true> = {
 
 const SETTING_NAME_KEYS = keys(_settingNames) as (keyof StatefulApiSettings)[];
 
-export interface ConnectionFailure {
+export type ConnectionFailure = {
+  type: 'missing-config';
+} | {
+  type: 'other';
   failureMessage: string;
 }
 
 export function isConnectionFailure(result: any): result is ConnectionFailure {
-  return (result as ConnectionFailure).failureMessage != null;
+  const failure = result as ConnectionFailure;
+  return failure.type != null && (failure.type === 'missing-config' || (failure.type === 'other' && (failure.failureMessage != null)));
 }
 
 export class StatefulApi {
@@ -57,6 +61,9 @@ export class StatefulApi {
       this.settingsVersion++;
       this.settings = settings;
       this.sidPromise = undefined;
+      return true;
+    } else {
+      return false;
     }
   }
 
@@ -89,7 +96,7 @@ export class StatefulApi {
       if (!this.sidPromise) {
         if (some(SETTING_NAME_KEYS, k => !this.settings[k])) {
           const failure: ConnectionFailure = {
-            failureMessage: 'Host, username or password is not set. Please check your settings.'
+            type: 'missing-config'
           };
           return Promise.resolve(failure);
         }
@@ -121,6 +128,7 @@ export class StatefulApi {
                 return wrappedFunction(options);
               } else {
                 const failure: ConnectionFailure = {
+                  type: 'other',
                   failureMessage: errorMessageFromCode(response.error.code, Auth.API_NAME)
                 };
                 return Promise.resolve(failure);

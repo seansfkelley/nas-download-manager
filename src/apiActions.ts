@@ -3,10 +3,23 @@ import { StatefulApi, ConnectionFailure, isConnectionFailure, errorMessageFromCo
 import { CachedTasks } from './state';
 import { notify } from './browserApi';
 
+export function clearCachedTasks() {
+  const emptyState: CachedTasks = {
+    tasks: [],
+    taskFetchFailureReason: null,
+    tasksLastCompletedFetchTimestamp: null,
+    tasksLastInitiatedFetchTimestamp: null
+  };
+
+  return browser.storage.local.set(emptyState);
+}
+
 export function pollTasks(api: StatefulApi) {
   const cachedTasks: Partial<CachedTasks> = {
     tasksLastInitiatedFetchTimestamp: Date.now()
   };
+
+  console.log('polling for tasks...');
 
   return Promise.all([
     browser.storage.local.set(cachedTasks),
@@ -22,12 +35,18 @@ export function pollTasks(api: StatefulApi) {
       };
 
       if (isConnectionFailure(response)) {
-        cachedTasks.tasksFetchFailureMessage = response.failureMessage;
+        if (response.type === 'missing-config') {
+          cachedTasks.taskFetchFailureReason = 'missing-config';
+        } else {
+          cachedTasks.taskFetchFailureReason = { failureMessage: response.failureMessage };
+        }
       } else if (response.success) {
         cachedTasks.tasks = response.data.tasks;
-        cachedTasks.tasksFetchFailureMessage = null;
+        cachedTasks.taskFetchFailureReason = null;
       } else {
-        cachedTasks.tasksFetchFailureMessage = errorMessageFromCode(response.error.code, DownloadStation.Task.API_NAME);
+        cachedTasks.taskFetchFailureReason = {
+          failureMessage: errorMessageFromCode(response.error.code, DownloadStation.Task.API_NAME)
+        };
       }
 
       return browser.storage.local.set(cachedTasks);
@@ -45,7 +64,7 @@ export function pollTasks(api: StatefulApi) {
       }
 
       const cachedTasks: Partial<CachedTasks> = {
-        tasksFetchFailureMessage: failureMessage,
+        taskFetchFailureReason: { failureMessage },
         tasksLastCompletedFetchTimestamp: Date.now()
       };
 

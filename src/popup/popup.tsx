@@ -24,9 +24,16 @@ function disabledPropAndClassName(disabled: boolean, className?: string) {
   };
 }
 
+const NoTasks = (props: { icon: string; text?: string; }) => (
+  <div className='no-tasks'>
+    <span className={classNames('fa fa-2x', props.icon )}/>
+    {props.text && <span className='explanation'>{props.text}</span>}
+  </div>
+);
+
 interface PopupProps {
   tasks: DownloadStationTask[];
-  tasksFetchFailureMessage: string | null;
+  taskFetchFailureReason: 'missing-config' | { failureMessage: string } | null;
   tasksLastInitiatedFetchTimestamp: number | null;
   tasksLastCompletedFetchTimestamp: number | null;
   taskFilter: VisibleTaskSettings;
@@ -72,9 +79,13 @@ class Popup extends React.PureComponent<PopupProps, State> {
       text = 'Loading...';
       tooltip = 'Loading download tasks...';
       icon = 'fa-refresh fa-spin';
-    } else if (this.props.tasksFetchFailureMessage != null) {
+    } else if (this.props.taskFetchFailureReason === 'missing-config') {
+      text = 'Settings unconfigured';
+      tooltip = 'The hostname, username or password are not configured.';
+      icon = 'fa-gear';
+    } else if (this.props.taskFetchFailureReason != null) {
       text = 'Error loading tasks'
-      tooltip = this.props.tasksFetchFailureMessage;
+      tooltip = this.props.taskFetchFailureReason.failureMessage;
       classes = 'error-message';
       icon = 'fa-exclamation-triangle';
     } else {
@@ -116,6 +127,7 @@ class Popup extends React.PureComponent<PopupProps, State> {
         <button
           onClick={() => { browser.runtime.openOptionsPage(); }}
           title='Open settings...'
+          className={classNames({ 'called-out': this.props.taskFetchFailureReason === 'missing-config' })}
         >
           <div className='fa fa-lg fa-cog'/>
         </button>
@@ -124,18 +136,12 @@ class Popup extends React.PureComponent<PopupProps, State> {
   }
 
   private renderBody() {
-    if (this.props.tasksLastCompletedFetchTimestamp == null) {
-      return (
-        <div className='no-tasks'>
-          <span>...</span>
-        </div>
-      );
+    if (this.props.taskFetchFailureReason === 'missing-config') {
+      return <NoTasks icon='fa-gear' text='Configure your hostname, username and password in settings.'/>;
+    } else if (this.props.tasksLastCompletedFetchTimestamp == null) {
+      return <NoTasks icon='fa-refresh fa-spin'/>;
     } else if (this.props.tasks.length === 0) {
-      return (
-        <div className='no-tasks'>
-          <span>No download tasks.</span>
-        </div>
-      );
+      return <NoTasks icon='fa-circle-o' text='No download tasks.'/>;
     } else {
       const filteredTasks = this.props.tasks.filter(t =>
         (this.props.taskFilter.downloading && matchesFilter(t, 'downloading')) ||
@@ -145,11 +151,7 @@ class Popup extends React.PureComponent<PopupProps, State> {
         (this.props.taskFilter.other && matchesFilter(t, 'other'))
       );
       if (filteredTasks.length === 0) {
-        return (
-          <div className='no-tasks'>
-            <span>Download tasks exist, but none match your filters.</span>
-          </div>
-        );
+        return <NoTasks icon='fa-filter' text='Download tasks exist, but none match your filters.'/>;
       } else {
         return (
           <ul
@@ -280,7 +282,7 @@ getSharedObjects()
       ReactDOM.render(
         <Popup
           tasks={storedState.tasks}
-          tasksFetchFailureMessage={storedState.tasksFetchFailureMessage}
+          taskFetchFailureReason={storedState.taskFetchFailureReason}
           tasksLastInitiatedFetchTimestamp={storedState.tasksLastInitiatedFetchTimestamp}
           tasksLastCompletedFetchTimestamp={storedState.tasksLastCompletedFetchTimestamp}
           taskFilter={storedState.visibleTasks}

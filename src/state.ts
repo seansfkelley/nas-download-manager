@@ -39,7 +39,7 @@ export interface Settings {
 
 export interface CachedTasks {
   tasks: DownloadStationTask[];
-  tasksFetchFailureMessage: string | null;
+  taskFetchFailureReason: 'missing-config' | { failureMessage: string } | null;
   tasksLastInitiatedFetchTimestamp: number | null;
   tasksLastCompletedFetchTimestamp: number | null;
 }
@@ -59,7 +59,7 @@ const SETTING_NAMES = Object.keys(_settingNames) as (keyof Settings)[];
 const _allStoredStateNames: Record<keyof AllStoredState, true> = {
   ..._settingNames,
   'tasks': true,
-  'tasksFetchFailureMessage': true,
+  'taskFetchFailureReason': true,
   'tasksLastInitiatedFetchTimestamp': true,
   'tasksLastCompletedFetchTimestamp': true
 };
@@ -91,7 +91,7 @@ export const DEFAULT_SETTINGS: Settings = {
 const DEFAULT_ALL_STORED_STATE: AllStoredState = {
   ...DEFAULT_SETTINGS,
   tasks: [],
-  tasksFetchFailureMessage: null,
+  taskFetchFailureReason: null,
   tasksLastInitiatedFetchTimestamp: null,
   tasksLastCompletedFetchTimestamp: null
 };
