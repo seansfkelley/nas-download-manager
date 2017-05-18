@@ -12,4 +12,3 @@
 - [ ] icons for disabled/in-progress/success/failure of notifications/browser icon
 - [ ] factor out synology api
 - [ ] support more than just link elements (video, audio, etc.)
-- [ ] open DownloadStation page for the open-ui button (/index.cgi?launchApp=SYNO.SDS.DownloadStation.Application I think?)

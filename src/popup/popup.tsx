@@ -37,7 +37,7 @@ interface PopupProps {
   tasksLastInitiatedFetchTimestamp: number | null;
   tasksLastCompletedFetchTimestamp: number | null;
   taskFilter: VisibleTaskSettings;
-  openSynologyUi?: () => void;
+  openDownloadStationUi?: () => void;
   createTask?: (url: string) => Promise<void>;
   pauseResumeTask?: (taskId: string, what: 'pause' | 'resume') => Promise<CallbackResponse>;
   deleteTask?: (taskId: string) => Promise<CallbackResponse>;
@@ -118,9 +118,9 @@ class Popup extends React.PureComponent<PopupProps, State> {
           <div className='fa fa-lg fa-plus'/>
         </button>
         <button
-          onClick={this.props.openSynologyUi}
-          title='Open Synology UI...'
-          {...disabledPropAndClassName(this.props.openSynologyUi == null)}
+          onClick={this.props.openDownloadStationUi}
+          title='Open DownloadStation UI...'
+          {...disabledPropAndClassName(this.props.openDownloadStationUi == null)}
         >
           <div className='fa fa-lg fa-share-square-o'/>
         </button>
@@ -245,8 +245,13 @@ getSharedObjects()
 
       const hostUrl = getHostUrl(storedState.connection);
 
-      const openSynologyUi = hostUrl
-        ? () => { browser.tabs.create({ url: hostUrl, active: true }); }
+      const openDownloadStationUi = hostUrl
+        ? () => {
+          browser.tabs.create({
+            url: hostUrl + '/index.cgi?launchApp=SYNO.SDS.DownloadStation.Application',
+            active: true
+          });
+        }
         : undefined;
 
       const createTask = hostUrl
@@ -287,7 +292,7 @@ getSharedObjects()
           tasksLastInitiatedFetchTimestamp={storedState.tasksLastInitiatedFetchTimestamp}
           tasksLastCompletedFetchTimestamp={storedState.tasksLastCompletedFetchTimestamp}
           taskFilter={storedState.visibleTasks}
-          openSynologyUi={openSynologyUi}
+          openDownloadStationUi={openDownloadStationUi}
           createTask={createTask}
           pauseResumeTask={pauseResumeTask}
           deleteTask={deleteTask}
