@@ -22,21 +22,21 @@ import * as _ds_statisticTypes from './rest/DownloadStation/StatisticTypes';
 
 const SESSION_TIMEOUT_ERROR_CODE = 106;
 
-export interface StatefulApiSettings {
+export interface ApiClientSettings {
   baseUrl?: string;
   account?: string;
   passwd?: string;
   session?: SessionName;
 }
 
-const _settingNames: Record<keyof StatefulApiSettings, true> = {
+const _settingNames: Record<keyof ApiClientSettings, true> = {
   'baseUrl': true,
   'account': true,
   'passwd': true,
   'session': true
 }
 
-const SETTING_NAME_KEYS = keys(_settingNames) as (keyof StatefulApiSettings)[];
+const SETTING_NAME_KEYS = keys(_settingNames) as (keyof ApiClientSettings)[];
 
 export type ConnectionFailure = {
   type: 'missing-config';
@@ -50,13 +50,13 @@ export function isConnectionFailure(result: any): result is ConnectionFailure {
   return failure.type != null && (failure.type === 'missing-config' || (failure.type === 'other' && (failure.failureMessage != null)));
 }
 
-export class StatefulApi {
+export class ApiClient {
   private sidPromise: Promise<SynologyResponse<AuthLoginResponse>> | undefined;
   private settingsVersion: number = 0;
 
-  constructor(private settings: StatefulApiSettings) {}
+  constructor(private settings: ApiClientSettings) {}
 
-  public updateSettings(settings: StatefulApiSettings) {
+  public updateSettings(settings: ApiClientSettings) {
     if (!isEqual(this.settings, settings)) {
       this.settingsVersion++;
       this.settings = settings;

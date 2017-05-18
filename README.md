@@ -11,6 +11,5 @@
 - [ ] when deleting tasks, the UI removes two from the list (!)
 - [ ] icons for disabled/in-progress/success/failure of notifications/browser icon
 - [ ] factor out synology api
-- [ ] rename stateful -> client
 - [ ] support more than just link elements (video, audio, etc.)
 - [ ] open DownloadStation page for the open-ui button (/index.cgi?launchApp=SYNO.SDS.DownloadStation.Application I think?)

@@ -1,10 +1,10 @@
 import { isEqual } from 'lodash-es';
-import { StatefulApi, SessionName } from '../api';
+import { ApiClient, SessionName } from '../api';
 import { getHostUrl, onStoredStateChange, NotificationSettings, DEFAULT_SETTINGS } from '../state';
 import { setSharedObjects, notify } from '../browserApi';
 import { addDownloadTask, pollTasks, clearCachedTasks } from '../apiActions';
 
-const api = new StatefulApi({});
+const api = new ApiClient({});
 const START_TIME = Date.now();
 
 setSharedObjects({ api });

@@ -1,2 +1,2 @@
 export * from './rest';
-export * from './stateful';
+export * from './client';

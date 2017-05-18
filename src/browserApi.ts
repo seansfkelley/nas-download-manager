@@ -1,5 +1,5 @@
 import { uniqueId } from 'lodash-es';
-import { StatefulApi } from './api';
+import { ApiClient } from './api';
 
 export function notify(title: string, message?: string, id: string = uniqueId('notification-')) {
   browser.notifications.create(id, {
@@ -12,7 +12,7 @@ export function notify(title: string, message?: string, id: string = uniqueId('n
 }
 
 export interface SharedObjects {
-  api: StatefulApi;
+  api: ApiClient;
 }
 
 export function setSharedObjects(objects: SharedObjects) {

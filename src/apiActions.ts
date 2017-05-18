@@ -1,6 +1,6 @@
 import { uniqueId } from 'lodash-es';
 import Axios from 'axios';
-import { StatefulApi, ConnectionFailure, isConnectionFailure, errorMessageFromCode, DownloadStation, SynologyResponse } from './api';
+import { ApiClient, ConnectionFailure, isConnectionFailure, errorMessageFromCode, DownloadStation, SynologyResponse } from './api';
 import { CachedTasks } from './state';
 import { notify } from './browserApi';
 
@@ -15,7 +15,7 @@ export function clearCachedTasks() {
   return browser.storage.local.set(emptyState);
 }
 
-export function pollTasks(api: StatefulApi) {
+export function pollTasks(api: ApiClient) {
   const cachedTasks: Partial<CachedTasks> = {
     tasksLastInitiatedFetchTimestamp: Date.now()
   };
@@ -99,7 +99,7 @@ function guessFileName(urlWithoutQuery: string, headers: Record<string, string>)
   return maybeFilename.endsWith('.torrent') ? maybeFilename : maybeFilename + '.torrent';
 }
 
-export function addDownloadTask(api: StatefulApi, url: string) {
+export function addDownloadTask(api: ApiClient, url: string) {
   const notificationId = notify('Adding download...', url);
 
   function notifyTaskAddResult(filename?: string) {
