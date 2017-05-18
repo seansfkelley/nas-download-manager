@@ -72,23 +72,46 @@ const DOWNLOADABLE_PROTOCOLS = [
   'magnet'
 ];
 
+const TORRENT_CONTENT_TYPE = 'application/x-bittorrent';
+
 const ARBITRARY_FILE_FETCH_SIZE_CUTOFF = 1024 * 1024 * 5;
 
 function startsWithAnyProtocol(url: string, protocols: string[]) {
   return protocols.some(protocol => url.startsWith(`${protocol}://`));
 }
 
+const FILENAME_PROPERTY_REGEX = /filename=("([^"]+)"|([^"][^ ]+))/;
+
+function guessFileName(urlWithoutQuery: string, headers: Record<string, string>) {
+  let maybeFilename: string | undefined;
+  const contentDisposition = headers['content-disposition'];
+  if (contentDisposition && contentDisposition.indexOf('filename=') !== -1) {
+    const regexMatch = FILENAME_PROPERTY_REGEX.exec(contentDisposition);
+    maybeFilename = (regexMatch && (regexMatch[2] || regexMatch[3])) || undefined;
+  } else {
+    maybeFilename = urlWithoutQuery.slice(urlWithoutQuery.lastIndexOf('/') + 1);
+  }
+
+  if (maybeFilename == null || maybeFilename.length === 0) {
+    maybeFilename = 'download';
+  }
+
+  return maybeFilename.endsWith('.torrent') ? maybeFilename : maybeFilename + '.torrent';
+}
+
 export function addDownloadTask(api: StatefulApi, url: string) {
   const notificationId = notify('Adding download...', url);
 
-  function notifyTaskAddResult(result: ConnectionFailure | SynologyResponse<{}>) {
-    if (isConnectionFailure(result)) {
-      notify('Failed to connection to DiskStation', 'Please check your settings.', notificationId);
-    } else if (result.success) {
-      notify('Download added', url, notificationId);
-    } else {
-      notify('Failed to add download', errorMessageFromCode(result.error.code, DownloadStation.Task.API_NAME), notificationId);
-    }
+  function notifyTaskAddResult(filename?: string) {
+    return (result: ConnectionFailure | SynologyResponse<{}>) => {
+      if (isConnectionFailure(result)) {
+        notify('Failed to connection to DiskStation', 'Please check your settings.', notificationId);
+      } else if (result.success) {
+        notify('Download added', filename || url, notificationId);
+      } else {
+        notify('Failed to add download', errorMessageFromCode(result.error.code, DownloadStation.Task.API_NAME), notificationId);
+      }
+    };
   }
 
   if (url) {
@@ -97,25 +120,29 @@ export function addDownloadTask(api: StatefulApi, url: string) {
         .then(response => {
           const contentType = response.headers['content-type'].toLowerCase();
           const contentLength = response.headers['content-length'];
-          // TODO: Should strip query parameters from this URL before checking the extension.
-          if (((contentType === 'application/x-bittorrent') || url.endsWith('.torrent')) && !isNaN(contentLength) && contentLength < ARBITRARY_FILE_FETCH_SIZE_CUTOFF) {
+          const urlWithoutQuery = url.indexOf('?') !== -1 ? url.slice(0, url.indexOf('?')) : url;
+          if (((contentType === TORRENT_CONTENT_TYPE) || urlWithoutQuery.endsWith('.torrent')) && !isNaN(contentLength) && contentLength < ARBITRARY_FILE_FETCH_SIZE_CUTOFF) {
             return Axios.get(url, { responseType: 'arraybuffer', timeout: 10000 })
               .then(response => {
-                const blob = new Blob([ response.data ], { type: 'application/x-bittorrent' });
-                return api.DownloadStation.Task.Create({ file: { content: blob, filename: 'download.torrent' } });
+                const content = new Blob([ response.data ], { type: TORRENT_CONTENT_TYPE });
+                const filename = guessFileName(urlWithoutQuery, response.headers);
+                return api.DownloadStation.Task.Create({
+                    file: { content, filename }
+                  })
+                  .then(notifyTaskAddResult(filename));
               });
           } else {
             return api.DownloadStation.Task.Create({
               uri: [ url ]
-            });
+            })
+              .then(notifyTaskAddResult());
           }
-        })
-        .then(notifyTaskAddResult);
+        });
     } else if (startsWithAnyProtocol(url, DOWNLOADABLE_PROTOCOLS)) {
       return api.DownloadStation.Task.Create({
         uri: [ url ]
       })
-        .then(notifyTaskAddResult);
+        .then(notifyTaskAddResult());
     } else {
       notify('Failed to add download', `URL must start with one of ${DOWNLOADABLE_PROTOCOLS.join(', ')}`);
       return Promise.resolve();

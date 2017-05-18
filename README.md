@@ -2,7 +2,6 @@
 
 ## TODO
 
-- [ ] fix issue where you can't actually download .torrent files
 - [ ] allow specifying IPs as the hostname
 - [ ] register as a URL handler (would have to add a document-level handler to catch registered outbound links)
 - [ ] audit error-handling (promise-catching, mostly)
@@ -14,3 +13,4 @@
 - [ ] factor out synology api
 - [ ] rename stateful -> client
 - [ ] support more than just link elements (video, audio, etc.)
+- [ ] open DownloadStation page for the open-ui button (/index.cgi?launchApp=SYNO.SDS.DownloadStation.Application I think?)

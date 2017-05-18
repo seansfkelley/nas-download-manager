@@ -90,10 +90,7 @@ export class Task extends React.PureComponent<Props, State> {
       return (
         `${this.props.task.status.toUpperCase()} \u2013 ` +
         `${formatMetric1024(this.props.task.additional!.transfer!.size_downloaded)}B of ` +
-        `${formatMetric1024(this.props.task.size)}B downloaded, ` +
-        `${formatMetric1024(this.props.task.additional!.transfer!.size_uploaded)}B uploaded ` +
-        `(${formatMetric1024(this.props.task.additional!.transfer!.speed_download)}B/s d ` +
-        `${formatMetric1024(this.props.task.additional!.transfer!.speed_upload)}B/s u)`
+        `${formatMetric1024(this.props.task.size)}B downloaded`
       );
     }
   }

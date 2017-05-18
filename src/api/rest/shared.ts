@@ -49,23 +49,24 @@ export function get<I extends SynologyApiRequest, O>(baseUrl: string, cgi: strin
   });
 }
 
-// Note the split between URL/body parameters: see Synology docs on "Limitations".
 export function post<I extends SynologyApiRequest, O>(baseUrl: string, cgi: string, request: I): Promise<SynologyResponse<O>> {
   const url = `${baseUrl}/webapi/${cgi}.cgi`;
   const id = nextRequestId();
 
-  const formData = new FormData;
+  const formData = new FormData();
 
   Object.keys(request).forEach((k: keyof typeof request) => {
     const v = request[k];
-    if (!isFile(v)) {
+    if (v !== undefined && !isFile(v)) {
       formData.append(k, v);
     }
   });
 
+  formData.append('_sid', request.sid);
+
   Object.keys(request).forEach((k: keyof typeof request) => {
     const v = request[k];
-    if (isFile(v)) {
+    if (v !== undefined && isFile(v)) {
       formData.append(k, v.content, v.filename);
     }
   });
