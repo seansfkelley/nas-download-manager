@@ -5,7 +5,6 @@ const resolve = require('rollup-plugin-node-resolve');
 const commonjs = require('rollup-plugin-commonjs');
 const builtins = require('rollup-plugin-node-builtins');
 const globals = require('rollup-plugin-node-globals');
-const alias = require('rollup-plugin-alias');
 
 function watchEventHandler(event, filename) {
   switch (event.code) {
@@ -39,15 +38,12 @@ function bundleAndMaybeWatch(baseFilename) {
       }),
       commonjs({
         namedExports: {
-          'preact-compat': [ 'Component', 'PureComponent', 'render', 'createElement' ]
+          'react': [ 'Component', 'PureComponent', 'createElement' ],
+          'react-dom': [ 'render' ]
         }
       }),
       globals(),
-      builtins(),
-      alias({
-        'react': path.resolve(__dirname, 'node_modules/preact-compat/dist/preact-compat'),
-        'react-dom': path.resolve(__dirname, 'node_modules/preact-compat/dist/preact-compat')
-      })
+      builtins()
     ]
   };
 

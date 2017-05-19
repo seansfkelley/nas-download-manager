@@ -538,12 +538,6 @@ idb-wrapper@^1.5.0:
   version "1.7.1"
   resolved "https://registry.yarnpkg.com/idb-wrapper/-/idb-wrapper-1.7.1.tgz#6a32670122e173a84ecc5cfa9668fa2ceb221b04"
 
-immutability-helper@^2.1.2:
-  version "2.1.2"
-  resolved "https://registry.yarnpkg.com/immutability-helper/-/immutability-helper-2.1.2.tgz#734506440d7209b74664dcadaa8ba14e73f2185b"
-  dependencies:
-    invariant "^2.2.0"
-
 indexof@~0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/indexof/-/indexof-0.0.1.tgz#82dc336d232b9062179d05ab3293a66059fd435d"
@@ -551,12 +545,6 @@ indexof@~0.0.1:
 inherits@^2.0.1, inherits@^2.0.3, inherits@~2.0.1:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/inherits/-/inherits-2.0.3.tgz#633c2c83e3da42a502f52466022480f4208261de"
-
-invariant@^2.2.0:
-  version "2.2.2"
-  resolved "https://registry.yarnpkg.com/invariant/-/invariant-2.2.2.tgz#9e1f56ac0acdb6bf303306f338be3b204ae60360"
-  dependencies:
-    loose-envify "^1.0.0"
 
 is-arrayish@^0.2.1:
   version "0.2.1"
@@ -776,7 +764,7 @@ lodash-es@^4.17.4:
   version "4.17.4"
   resolved "https://registry.yarnpkg.com/lodash-es/-/lodash-es-4.17.4.tgz#dcc1d7552e150a0640073ba9cb31d70f032950e7"
 
-loose-envify@^1.0.0:
+loose-envify@^1.0.0, loose-envify@^1.1.0:
   version "1.3.1"
   resolved "https://registry.yarnpkg.com/loose-envify/-/loose-envify-1.3.1.tgz#d1a8ad33fa9ce0e713d65fdd0ac8b748d478c848"
   dependencies:
@@ -982,37 +970,9 @@ pify@^2.0.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/pify/-/pify-2.3.0.tgz#ed141a6ac043a849ea588498e7dca8b15330e90c"
 
-preact-compat@^3.15.0:
-  version "3.15.0"
-  resolved "https://registry.yarnpkg.com/preact-compat/-/preact-compat-3.15.0.tgz#b7818a3d0b20a8c9ca7c65ade0a60b01376902c1"
-  dependencies:
-    immutability-helper "^2.1.2"
-    preact-render-to-string "^3.6.0"
-    preact-transition-group "^1.1.0"
-    prop-types "^15.5.8"
-    standalone-react-addons-pure-render-mixin "^0.1.1"
-
-preact-render-to-string@^3.6.0:
-  version "3.6.1"
-  resolved "https://registry.yarnpkg.com/preact-render-to-string/-/preact-render-to-string-3.6.1.tgz#3be5dfc4e917fbe619398374deaa5b8f717ddf7c"
-  dependencies:
-    pretty-format "^3.5.1"
-
-preact-transition-group@^1.1.0:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/preact-transition-group/-/preact-transition-group-1.1.1.tgz#f0a49327ea515ece34ea2be864c4a7d29e5d6e10"
-
-preact@^8.1.0:
-  version "8.1.0"
-  resolved "https://registry.yarnpkg.com/preact/-/preact-8.1.0.tgz#f035b808eebb74e46d56246b02ca0f190b6d6574"
-
 preserve@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/preserve/-/preserve-0.2.0.tgz#815ed1f6ebc65926f865b310c0713bcb3315ce4b"
-
-pretty-format@^3.5.1:
-  version "3.8.0"
-  resolved "https://registry.yarnpkg.com/pretty-format/-/pretty-format-3.8.0.tgz#bfbed56d5e9a776645f4b1ff7aa1a3ac4fa3c385"
 
 process-es6@^0.11.2, process-es6@^0.11.3:
   version "0.11.6"
@@ -1028,7 +988,7 @@ promise@^7.1.1:
   dependencies:
     asap "~2.0.3"
 
-prop-types@^15.5.8:
+prop-types@^15.5.7, prop-types@~15.5.7:
   version "15.5.8"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.5.8.tgz#6b7b2e141083be38c8595aa51fc55775c7199394"
   dependencies:
@@ -1075,6 +1035,24 @@ randomatic@^1.1.3:
 randombytes@^2.0.0, randombytes@^2.0.1:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/randombytes/-/randombytes-2.0.3.tgz#674c99760901c3c4112771a31e521dc349cc09ec"
+
+react-dom@^15.5.4:
+  version "15.5.4"
+  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-15.5.4.tgz#ba0c28786fd52ed7e4f2135fe0288d462aef93da"
+  dependencies:
+    fbjs "^0.8.9"
+    loose-envify "^1.1.0"
+    object-assign "^4.1.0"
+    prop-types "~15.5.7"
+
+react@^15.5.4:
+  version "15.5.4"
+  resolved "https://registry.yarnpkg.com/react/-/react-15.5.4.tgz#fa83eb01506ab237cdc1c8c3b1cea8de012bf047"
+  dependencies:
+    fbjs "^0.8.9"
+    loose-envify "^1.1.0"
+    object-assign "^4.1.0"
+    prop-types "^15.5.7"
 
 read-pkg@^2.0.0:
   version "2.0.0"
@@ -1141,12 +1119,6 @@ resolve@^1.1.6, resolve@^1.1.7:
 ripemd160@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/ripemd160/-/ripemd160-1.0.1.tgz#93a4bbd4942bc574b69a8fa57c71de10ecca7d6e"
-
-rollup-plugin-alias@^1.3.1:
-  version "1.3.1"
-  resolved "https://registry.yarnpkg.com/rollup-plugin-alias/-/rollup-plugin-alias-1.3.1.tgz#a9152fec4b6a6510dae93989517ca7853c32a6fa"
-  dependencies:
-    slash "^1.0.0"
 
 rollup-plugin-commonjs@^8.0.2:
   version "8.0.2"
@@ -1256,10 +1228,6 @@ shell-quote@^1.6.1:
     array-reduce "~0.0.0"
     jsonify "~0.0.0"
 
-slash@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/slash/-/slash-1.0.0.tgz#c41f2f6c39fc16d1cd17ad4b5d896114ae470d55"
-
 source-map-support@^0.4.0:
   version "0.4.14"
   resolved "https://registry.yarnpkg.com/source-map-support/-/source-map-support-0.4.14.tgz#9d4463772598b86271b4f523f6c1f4e02a7d6aef"
@@ -1289,10 +1257,6 @@ split@0.3:
   resolved "https://registry.yarnpkg.com/split/-/split-0.3.3.tgz#cd0eea5e63a211dfff7eb0f091c4133e2d0dd28f"
   dependencies:
     through "2"
-
-standalone-react-addons-pure-render-mixin@^0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/standalone-react-addons-pure-render-mixin/-/standalone-react-addons-pure-render-mixin-0.1.1.tgz#3c7409f4c79c40de9ac72c616cf679a994f37551"
 
 stream-combiner@~0.0.4:
   version "0.0.4"
