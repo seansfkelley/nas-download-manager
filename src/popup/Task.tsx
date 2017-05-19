@@ -36,7 +36,9 @@ export class Task extends React.PureComponent<Props, State> {
         <li className='task' key={this.props.task.id}>
           <div className='header'>
             <div className='name-and-status'>
-              <div className='name'>{this.props.task.title}</div>
+              <div className='name' title={this.props.task.title}>
+                {this.props.task.title}
+              </div>
               <div className='status'>
                 {this.renderStatus()}
               </div>
