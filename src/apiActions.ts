@@ -28,7 +28,8 @@ export function pollTasks(api: ApiClient) {
     api.DownloadStation.Task.List({
       offset: 0,
       limit: -1,
-      additional: [ 'transfer' ]
+      additional: [ 'transfer' ],
+      timeout: 20000
     })
   ])
     .then(([ _, response ]) => {

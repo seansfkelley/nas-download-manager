@@ -40,6 +40,8 @@ const _settingNames: Record<keyof ApiClientSettings, true> = {
 
 const SETTING_NAME_KEYS = keys(_settingNames) as (keyof ApiClientSettings)[];
 
+const TIMEOUT_MESSAGE_REGEX = /timeout of \d+ms exceeded/;
+
 export type ConnectionFailure = {
   type: 'missing-config';
 } | {
@@ -148,7 +150,8 @@ export class ApiClient {
             failureMessage = 'Connection failure (likely wrong protocol).';
           } else if (error && error.message === 'Network Error') {
             failureMessage = 'Connection failure (likely incorrect hostname/port or no internet connection).';
-          } else if (error && error.message === 'timeout of 10000ms exceeded') {
+          } else if (error && TIMEOUT_MESSAGE_REGEX.test(error.message)) {
+            // This is a best-effort which I expect to start silently falling back onto 'unknown error' at some point in the future.
             failureMessage = 'Connection failure (timeout; check your hostname/port settings and internet connection).';
           } else {
             console.log(error);

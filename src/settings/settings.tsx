@@ -23,8 +23,6 @@ import {
   assertNever,
 } from './settingsUtils';
 
-import { SYNOLOGY_HOST_DOMAINS } from '../api';
-
 interface SettingsFormProps {
   initialSettings: Settings;
   saveSettings: (settings: Settings) => Promise<boolean>;
@@ -69,10 +67,7 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
   };
 
   render() {
-    console.log(this.state.settings);
-
     const connectionDisabledProps = this.disabledPropAndClassName(this.state.connectionTest === 'in-progress');
-
     return (
       <div className='settings-form'>
         <header>
@@ -101,25 +96,13 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
                 <input
                   type='text'
                   {...connectionDisabledProps}
+                  placeholder='hostname or IP address'
                   value={this.state.settings.connection.hostname}
                   onChange={e => {
                     this.setConnectionSetting('hostname', e.currentTarget.value.trim());
                   }}
                   ref={kludgeRefSetClassname('host-setting')}
                 />
-                <span>.</span>
-                <select
-                  {...connectionDisabledProps}
-                  value={this.state.settings.connection.domain}
-                  onChange={e => {
-                    this.setConnectionSetting('domain', e.currentTarget.value);
-                  }}
-                  ref={kludgeRefSetClassname('domain-setting')}
-                >
-                  {SYNOLOGY_HOST_DOMAINS.map(domain => (
-                    <option key={domain} value={domain}>{domain}</option>
-                  ))}
-                </select>
                 <span>:</span>
                 <input
                   {...connectionDisabledProps}
@@ -169,7 +152,6 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
               {...this.disabledPropAndClassName(
                 !this.state.settings.connection.protocol ||
                 !this.state.settings.connection.hostname ||
-                !this.state.settings.connection.domain ||
                 !this.state.settings.connection.port ||
                 !this.state.settings.connection.username ||
                 !this.state.settings.connection.password ||

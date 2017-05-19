@@ -1,4 +1,4 @@
-import { SYNOLOGY_HOST_DOMAINS, DownloadStationTask } from './api';
+import { DownloadStationTask } from './api';
 
 export type Protocol = 'http' | 'https';
 
@@ -12,7 +12,6 @@ export const PROTOCOLS = Object.keys(_protocolNames) as Protocol[];
 export interface ConnectionSettings {
   protocol: Protocol;
   hostname: string;
-  domain: string;
   port: number;
   username: string;
   password: string;
@@ -70,7 +69,6 @@ export const DEFAULT_SETTINGS: Settings = {
   connection: {
     protocol: 'https',
     hostname: '',
-    domain: SYNOLOGY_HOST_DOMAINS[0],
     port: 5001,
     username: '',
     password: '',
@@ -97,8 +95,8 @@ const DEFAULT_ALL_STORED_STATE: AllStoredState = {
 };
 
 export function getHostUrl(settings: ConnectionSettings) {
-  if (settings.protocol && settings.hostname && settings.domain && settings.port) {
-    return `${settings.protocol}://${settings.hostname}.${settings.domain}:${settings.port}`;
+  if (settings.protocol && settings.hostname && settings.port) {
+    return `${settings.protocol}://${settings.hostname}:${settings.port}`;
   } else {
     return undefined;
   }
