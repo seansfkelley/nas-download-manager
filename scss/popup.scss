@@ -143,10 +143,17 @@ body, .popup {
     }
 
     .progress-bar {
-      display: flex;
       height: 5px;
+      border-radius: 2px;
+      position: relative;
 
       .bar-fill {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        border-radius: inherit;
+
         &.in-progress {
           background-color: $color-loading;
         }
@@ -165,7 +172,11 @@ body, .popup {
       }
 
       .bar-background {
-        flex: 1;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
         background-color: rgba(0, 0, 0, 0.1);
       }
     }
