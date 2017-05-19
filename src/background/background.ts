@@ -59,8 +59,21 @@ onStoredStateChange(storedState => {
 browser.contextMenus.create({
   enabled: true,
   title: 'Download with DownloadStation',
-  contexts: [ 'link' ],
+  contexts: [ 'link', 'audio', 'video', 'selection' ],
   onclick: (data) => {
-    addDownloadTask(api, data.linkUrl!);
+    if (data.linkUrl) {
+      addDownloadTask(api, data.linkUrl);
+    } else if (data.srcUrl) {
+      addDownloadTask(api, data.srcUrl);
+    } else if (data.selectionText) {
+      // The cheapest of checks. Actual invalid URLs will be caught later.
+      if (data.selectionText.indexOf('://') !== -1) {
+        addDownloadTask(api, data.selectionText);
+      } else {
+        notify('Failed to add download', 'Selected text is not a valid URL');
+      }
+    } else {
+      notify('Failed to add download', 'URL is empty or missing!');
+    }
   }
 });
