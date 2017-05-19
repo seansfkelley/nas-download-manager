@@ -27,7 +27,7 @@ import { SYNOLOGY_HOST_DOMAINS } from '../api';
 
 interface SettingsFormProps {
   initialSettings: Settings;
-  saveSettings: (settings: Settings) => Promise<void>;
+  saveSettings: (settings: Settings) => Promise<boolean>;
 }
 
 interface SettingsFormState {
@@ -405,11 +405,8 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
     });
 
     this.props.saveSettings(this.state.settings)
-      .then(() => this.setState({
-        savingStatus: 'saved'
-      }))
-      .catch(() => this.setState({
-        savingStatus: 'failed'
+      .then(success => this.setState({
+        savingStatus: success ? 'saved' : 'failed'
       }));
   };
 }

@@ -1,38 +1,25 @@
 import { Auth, SessionName, errorMessageFromCode } from '../api';
 import { Settings, getHostUrl } from '../state';
 
-export function saveSettings(settings: Settings) {
+export function saveSettings(settings: Settings): Promise<boolean> {
   console.log('persisting settings...');
 
-  const hostUrl = getHostUrl(settings.connection);
-  if (!hostUrl) {
-    throw new Error('Host name is not properly configured!');
-  } else {
-    return Auth.Login(hostUrl, {
-      account: settings.connection.username,
-      passwd: settings.connection.password,
-      session: SessionName.DownloadStation
-    })
-      .then(result => {
-        if (result.success) {
-          return Auth.Logout(hostUrl, result.data.sid, {
-            session: SessionName.DownloadStation
+  return testConnection(settings)
+    .then(result => {
+      if (result !== 'good') {
+        return false;
+      } else {
+        return browser.storage.local.set(settings)
+          .then(() => {
+            console.log('done persisting settings');
+            return true;
           });
-        } else {
-          return Promise.resolve(result);
-        }
-      })
-      .then(result => {
-        if (!result.success) {
-          throw new Error(errorMessageFromCode(result.error.code, Auth.API_NAME));
-        } else {
-          return browser.storage.local.set(settings);
-        }
-      })
-      .then(() => {
-        console.log('done persisting settings');
-      });
-  }
+      }
+    })
+    .catch(error => {
+      console.log('unexpected failure while persisting settings', error);
+      return false;
+    });
 }
 
 export type ConnectionTestResult = 'good' | 'bad-request' | 'network-error' | 'unknown-error' | 'missing-config' | { failMessage: string };
@@ -46,13 +33,11 @@ export function testConnection(settings: Settings): Promise<ConnectionTestResult
     }
   }
 
-  const host = getHostUrl(settings.connection);
-  if (!host) {
+  const hostUrl = getHostUrl(settings.connection);
+  if (!hostUrl) {
     return Promise.resolve('missing-config' as 'missing-config');
   } else {
-    // TODO: Log back out once we've tested.
-    // TODO: Implement the save-settings button with this method.
-    return Auth.Login(host, {
+    return Auth.Login(hostUrl, {
       account: settings.connection.username,
       passwd: settings.connection.password,
       session: SessionName.DownloadStation
@@ -63,6 +48,17 @@ export function testConnection(settings: Settings): Promise<ConnectionTestResult
         } else if (!result.success) {
           return failureMessage(errorMessageFromCode(result.error.code, Auth.API_NAME, null));
         } else {
+          Auth.Logout(hostUrl, result.data.sid, {
+            session: SessionName.DownloadStation
+          })
+            .then(response => {
+              if (!response.success) {
+                console.error(`ignoring unexpected unsuccessful response while logging out after a successful login test, code ${response.error.code}`);
+              }
+            })
+            .catch(error => {
+              console.error('ignoring error encountered while logging out after a successful login test', error);
+            });
           return 'good';
         }
       })
@@ -72,7 +68,7 @@ export function testConnection(settings: Settings): Promise<ConnectionTestResult
         } else if (error && error.message === 'Network Error') {
           return 'network-error';
         } else {
-          console.log(error);
+          console.log('unexpected error while performing login check', error);
           return 'unknown-error';
         }
       });
