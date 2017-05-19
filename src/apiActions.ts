@@ -114,6 +114,11 @@ export function addDownloadTask(api: ApiClient, url: string) {
     };
   }
 
+  function notifyUnexpectedError(error: any) {
+    console.log('unexpected error while trying to add a download task', error);
+    notify('Failed to add download', 'Unexpected error; please check your settings and try again', notificationId);
+  }
+
   if (url) {
     if (startsWithAnyProtocol(url, AUTO_DOWNLOAD_TORRENT_FILE_PROTOCOLS)) {
       return Axios.head(url, { timeout: 10000 })
@@ -137,18 +142,20 @@ export function addDownloadTask(api: ApiClient, url: string) {
             })
               .then(notifyTaskAddResult());
           }
-        });
+        })
+        .catch(notifyUnexpectedError);
     } else if (startsWithAnyProtocol(url, DOWNLOADABLE_PROTOCOLS)) {
       return api.DownloadStation.Task.Create({
         uri: [ url ]
       })
-        .then(notifyTaskAddResult());
+        .then(notifyTaskAddResult())
+        .catch(notifyUnexpectedError);
     } else {
-      notify('Failed to add download', `URL must start with one of ${DOWNLOADABLE_PROTOCOLS.join(', ')}`);
+      notify('Failed to add download', `URL must start with one of ${DOWNLOADABLE_PROTOCOLS.join(', ')}`, notificationId);
       return Promise.resolve();
     }
   } else {
-    notify('Failed to add download', 'No URL to download given');
+    notify('Failed to add download', 'No URL to download given', notificationId);
     return Promise.resolve();
   }
 }
