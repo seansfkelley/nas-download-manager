@@ -22,7 +22,7 @@ export function saveSettings(settings: Settings): Promise<boolean> {
     });
 }
 
-export type ConnectionTestResult = 'good' | 'bad-request' | 'network-error' | 'unknown-error' | 'missing-config' | { failMessage: string };
+export type ConnectionTestResult = 'good' | 'bad-request' | 'timeout' | 'network-error' | 'unknown-error' | 'missing-config' | { failMessage: string };
 
 export function testConnection(settings: Settings): Promise<ConnectionTestResult> {
   function failureMessage(failMessage?: string) {
@@ -40,7 +40,8 @@ export function testConnection(settings: Settings): Promise<ConnectionTestResult
     return Auth.Login(hostUrl, {
       account: settings.connection.username,
       passwd: settings.connection.password,
-      session: SessionName.DownloadStation
+      session: SessionName.DownloadStation,
+      timeout: 10000
     })
       .then(result => {
         if (!result) {
@@ -67,6 +68,8 @@ export function testConnection(settings: Settings): Promise<ConnectionTestResult
           return 'bad-request';
         } else if (error && error.message === 'Network Error') {
           return 'network-error';
+        } else if (error && error.message === 'timeout of 10000ms exceeded') {
+          return 'timeout';
         } else {
           console.log('unexpected error while performing login check', error);
           return 'unknown-error';

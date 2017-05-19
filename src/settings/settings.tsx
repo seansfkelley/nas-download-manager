@@ -332,8 +332,10 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
         return renderResult('Connection failed (likely incorrect protocol).', 'fa-times', 'intent-error');
       case 'network-error':
         return renderResult('Connection failed (likely incorrect hostname/port or no internet connection).', 'fa-times', 'intent-error');
+      case 'timeout':
+        return renderResult('Connection failure (timeout; check your hostname/port settings and internet connection).', 'fa-timees', 'intent-error');
       case 'unknown-error':
-        return renderResult('Connection failed (unknown reason; check your host settings and internet connection).', 'fa-times', 'intent-error');
+        return renderResult('Connection failed (unknown reason; check your hostname/port settings and internet connection).', 'fa-times', 'intent-error');
       case 'missing-config':
         return renderResult('The configured host name is incomplete.', 'fa-times', 'intent-error');
       default:

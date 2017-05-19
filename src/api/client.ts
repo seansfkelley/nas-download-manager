@@ -106,7 +106,8 @@ export class ApiClient {
         this.sidPromise = Auth.Login(this.settings.baseUrl!, {
           account: this.settings.account!,
           passwd: this.settings.passwd!,
-          session: this.settings.session!
+          session: this.settings.session!,
+          timeout: 10000
         });
       }
 
@@ -147,6 +148,8 @@ export class ApiClient {
             failureMessage = 'Connection failure (likely wrong protocol).';
           } else if (error && error.message === 'Network Error') {
             failureMessage = 'Connection failure (likely incorrect hostname/port or no internet connection).';
+          } else if (error && error.message === 'timeout of 10000ms exceeded') {
+            failureMessage = 'Connection failure (timeout; check your hostname/port settings and internet connection).';
           } else {
             console.log(error);
             failureMessage = 'Unknown error.';
