@@ -160,7 +160,7 @@ class Popup extends React.PureComponent<PopupProps, State> {
             onScroll={this.onBodyScroll}
             ref={e => { this.bodyRef = e; }}
           >
-            {sortBy(this.props.tasks, t => t.title).map(task => (
+            {sortBy(this.props.tasks, t => t.title.toLocaleLowerCase()).map(task => (
               <Task
                 task={task}
                 onDelete={this.props.deleteTask}
