@@ -1,11 +1,13 @@
 import { SynologyResponse, get } from '../shared';
+import { BaseRequest } from '../shared';
 import { DownloadStationInfoConfig, DownloadStationInfoGetInfoResponse } from './InfoTypes';
 
 const CGI_NAME = `DownloadStation/info`;
 const API_NAME = 'SYNO.DownloadStation.Info';
 
-function GetInfo(baseUrl: string, sid: string): Promise<SynologyResponse<DownloadStationInfoGetInfoResponse>> {
+function GetInfo(baseUrl: string, sid: string, options: BaseRequest = {}): Promise<SynologyResponse<DownloadStationInfoGetInfoResponse>> {
   return get(baseUrl, CGI_NAME, {
+    ...(options || {}),
     api: API_NAME,
     version: 1,
     method: 'getinfo',
@@ -13,8 +15,9 @@ function GetInfo(baseUrl: string, sid: string): Promise<SynologyResponse<Downloa
   });
 }
 
-function GetConfig(baseUrl: string, sid: string): Promise<SynologyResponse<DownloadStationInfoConfig>> {
+function GetConfig(baseUrl: string, sid: string, options: BaseRequest = {}): Promise<SynologyResponse<DownloadStationInfoConfig>> {
   return get(baseUrl, CGI_NAME, {
+    ...(options || {}),
     api: API_NAME,
     version: 1,
     method: 'getconfig',
@@ -23,13 +26,13 @@ function GetConfig(baseUrl: string, sid: string): Promise<SynologyResponse<Downl
 }
 
 // Note that, if you aren't a user allowed to do this, it will return successfully without performing any changes.
-function SetServerConfig(baseUrl: string, sid: string, config: Partial<DownloadStationInfoConfig>): Promise<SynologyResponse<{}>> {
+function SetServerConfig(baseUrl: string, sid: string, options: Partial<DownloadStationInfoConfig & BaseRequest>): Promise<SynologyResponse<{}>> {
   return get(baseUrl, CGI_NAME, {
+    ...options,
     api: API_NAME,
     version: 1,
     method: 'setserverconfig',
-    sid,
-    ...config
+    sid
   });
 }
 

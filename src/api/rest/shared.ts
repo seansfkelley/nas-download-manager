@@ -23,12 +23,19 @@ export type SynologyResponse<S> = {
   };
 };
 
+export interface BaseRequest {
+  timeout?: number;
+}
+
 export interface SynologyApiRequest {
   api: string;
   version: number;
   method: string;
   sid?: string;
+  timeout?: number;
 }
+
+const DEFAULT_TIMEOUT = 60000;
 
 function nextRequestId() {
   return uniqueId('request-');
@@ -37,13 +44,14 @@ function nextRequestId() {
 export function get<I extends SynologyApiRequest, O>(baseUrl: string, cgi: string, request: I): Promise<SynologyResponse<O>> {
   const url = `${baseUrl}/webapi/${cgi}.cgi?${stringify({
     ...(request as object),
-    _sid: request.sid
+    _sid: request.sid,
+    timeout: undefined
   })}`;
 
   const id = nextRequestId();
 
   console.log('GET', `(${id})`, url);
-  return Axios.get(url).then(response => {
+  return Axios.get(url, { timeout: request.timeout || DEFAULT_TIMEOUT }).then(response => {
     console.log('(response)', `(${id})`, response.data);
     return response.data;
   });
@@ -57,7 +65,7 @@ export function post<I extends SynologyApiRequest, O>(baseUrl: string, cgi: stri
 
   Object.keys(request).forEach((k: keyof typeof request) => {
     const v = request[k];
-    if (v !== undefined && !isFile(v)) {
+    if (k !== 'timeout' && v !== undefined && !isFile(v)) {
       formData.append(k, v);
     }
   });
@@ -66,13 +74,18 @@ export function post<I extends SynologyApiRequest, O>(baseUrl: string, cgi: stri
 
   Object.keys(request).forEach((k: keyof typeof request) => {
     const v = request[k];
-    if (v !== undefined && isFile(v)) {
+    if (k !== 'timeout' && v !== undefined && isFile(v)) {
       formData.append(k, v.content, v.filename);
     }
   });
 
-  console.log('POST', `(${id})`, url, request);
-  return Axios.post(url, formData).then(response => {
+  const formattedFormData: Record<string, any> = {};
+  for (let e of (formData as any).entries()) {
+    formattedFormData[e[0]] = e[1];
+  }
+
+  console.log('POST', `(${id})`, url, formattedFormData);
+  return Axios.post(url, formData, { timeout: request.timeout || DEFAULT_TIMEOUT }).then(response => {
     console.log('(response)', `(${id})`, response.data);
     return response.data;
   });

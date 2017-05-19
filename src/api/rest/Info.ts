@@ -1,15 +1,16 @@
 import { SynologyResponse, get } from './shared';
-import { QueryResponse } from './InfoTypes';
+import { InfoQueryRequest, InfoQueryResponse } from './InfoTypes';
 
 const CGI_NAME = 'query';
 const API_NAME = 'SYNO.API.Info';
 
-function Query(baseUrl: string, query: 'ALL' | string[] = 'ALL'): Promise<SynologyResponse<QueryResponse>> {
+function Query(baseUrl: string, options: InfoQueryRequest): Promise<SynologyResponse<InfoQueryResponse>> {
   return get(baseUrl, CGI_NAME, {
+    ...options,
     api: API_NAME,
     version: 1,
     method: 'query',
-    query: query === 'ALL' ? query : query.join(',')
+    query: options.query === 'ALL' ? options.query : options.query.join(',')
   });
 }
 

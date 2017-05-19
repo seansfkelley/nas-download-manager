@@ -1,8 +1,8 @@
-import { SynologyFile } from '../shared';
+import { SynologyFile, BaseRequest } from '../shared';
 
 export type DownloadStationTaskAdditionalType = 'detail' | 'transfer' | 'file' | 'tracker' | 'peer';
 
-export interface DownloadStationTaskListRequest {
+export interface DownloadStationTaskListRequest extends BaseRequest {
   offset?: number;
   limit?: number;
   additional?: DownloadStationTaskAdditionalType[];
@@ -137,7 +137,7 @@ export interface DownloadStationTask {
   };
 }
 
-export interface DownloadStationTaskGetInfoRequest {
+export interface DownloadStationTaskGetInfoRequest extends BaseRequest {
   id: string[];
   additional?: DownloadStationTaskAdditionalType[];
 }
@@ -146,7 +146,7 @@ export interface DownloadStationTaskGetInfoResponse {
   tasks: DownloadStationTask[];
 }
 
-export interface DownloadStationTaskCreateRequest {
+export interface DownloadStationTaskCreateRequest extends BaseRequest {
   uri?: string[];
   file?: SynologyFile;
   username?: string;
@@ -155,7 +155,7 @@ export interface DownloadStationTaskCreateRequest {
   destination?: string;
 }
 
-export interface DownloadStationTaskDeleteRequest {
+export interface DownloadStationTaskDeleteRequest extends BaseRequest {
   id: string[];
   force_complete: boolean;
 }
@@ -164,3 +164,12 @@ export type DownloadStationTaskActionResponse = {
   id: string;
   error: number; // 0 = success. Cool API bro.
 }[];
+
+export interface DownloadStationTaskPauseResumeRequest extends BaseRequest {
+  id: string[];
+}
+
+export interface DownloadStationTaskEditRequest extends BaseRequest {
+  id: string[];
+  destination?: string;
+}

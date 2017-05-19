@@ -8,12 +8,14 @@ import {
   errorMessageFromCode
 } from './rest';
 
+import { BaseRequest } from './rest/shared';
 import * as _ds_infoTypes from './rest/DownloadStation/InfoTypes';
 import * as _ds_taskTypes from './rest/DownloadStation/TaskTypes';
 import * as _ds_scheduleTypes from './rest/DownloadStation/ScheduleTypes';
 import * as _ds_statisticTypes from './rest/DownloadStation/StatisticTypes';
 
 {
+  let _unused: BaseRequest = null as any; _unused;
   _ds_infoTypes;
   _ds_taskTypes;
   _ds_scheduleTypes;
