@@ -115,17 +115,19 @@ body, .popup {
         margin-right: auto;
         overflow: hidden;
 
-        .name {
+        .name, .status {
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+        }
+
+        .name {
           font-weight: 500;
         }
 
         .status {
           font-size: 0.8em;
           color: $color-text-faded;
-          padding-right: 5px;
         }
       }
 

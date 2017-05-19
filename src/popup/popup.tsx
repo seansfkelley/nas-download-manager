@@ -39,7 +39,8 @@ interface PopupProps {
   taskFilter: VisibleTaskSettings;
   openDownloadStationUi?: () => void;
   createTask?: (url: string) => Promise<void>;
-  pauseResumeTask?: (taskId: string, what: 'pause' | 'resume') => Promise<CallbackResponse>;
+  pauseTask?: (taskId: string) => Promise<CallbackResponse>;
+  resumeTask?: (taskId: string) => Promise<CallbackResponse>;
   deleteTask?: (taskId: string) => Promise<CallbackResponse>;
 }
 
@@ -163,7 +164,8 @@ class Popup extends React.PureComponent<PopupProps, State> {
               <Task
                 task={task}
                 onDelete={this.props.deleteTask}
-                onPauseResume={this.props.pauseResumeTask}
+                onPause={this.props.pauseTask}
+                onResume={this.props.resumeTask}
               />
             ))}
           </ul>
@@ -262,14 +264,17 @@ getSharedObjects()
         }
         : undefined;
 
-      const pauseResumeTask = hostUrl
-        ? (taskId: string, what: 'pause' | 'resume') => {
-            return (what === 'pause'
-              ? api.DownloadStation.Task.Pause
-              : api.DownloadStation.Task.Resume
-            )({
-              id: [ taskId ]
-            })
+      const pauseTask = hostUrl
+        ? (taskId: string) => {
+            return api.DownloadStation.Task.Pause({ id: [ taskId ] })
+              .then(convertResponse)
+              .then(reloadOnSuccess);
+          }
+        : undefined;
+
+      const resumeTask = hostUrl
+        ? (taskId: string) => {
+            return api.DownloadStation.Task.Resume({ id: [ taskId ] })
               .then(convertResponse)
               .then(reloadOnSuccess);
           }
@@ -295,7 +300,8 @@ getSharedObjects()
           taskFilter={storedState.visibleTasks}
           openDownloadStationUi={openDownloadStationUi}
           createTask={createTask}
-          pauseResumeTask={pauseResumeTask}
+          pauseTask={pauseTask}
+          resumeTask={resumeTask}
           deleteTask={deleteTask}
         />
       , document.body);

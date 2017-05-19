@@ -12,11 +12,12 @@ import { matchesFilter } from './filtering';
 export interface Props {
   task: DownloadStationTask;
   onDelete?: (taskId: string) => Promise<CallbackResponse>;
-  onPauseResume?: (taskId: string, what: 'pause' | 'resume') => Promise<CallbackResponse>;
+  onPause?: (taskId: string) => Promise<CallbackResponse>;
+  onResume?: (taskId: string) => Promise<CallbackResponse>;
 }
 
 export interface State {
-  pauseResumeState: 'none' | 'in-progress' | CallbackResponse;
+  pauseResumeState: 'none' | 'in-progress' | { failMessage: string };
   deleteState: 'none' | 'in-progress' | CallbackResponse;
 }
 
@@ -96,31 +97,43 @@ export class Task extends React.PureComponent<Props, State> {
   }
 
   private renderPauseResumeButton() {
-    let title: string = '';
-    let disabled: boolean = this.state.deleteState === 'in-progress';
-    if (this.props.onPauseResume == null || this.state.pauseResumeState === 'in-progress') {
-      title = this.props.task.status === 'paused' ? 'Resume download' : 'Pause download';
-      disabled = true;
+    const renderButton = (title: string | undefined, state: 'resumable' | 'pausable' | 'in-progress' | 'failed') => {
+      const isDisabled =
+        this.props.onPause == null ||
+        this.props.onResume == null ||
+        this.state.deleteState === 'in-progress' ||
+        this.state.pauseResumeState === 'in-progress' ||
+        (this.state.pauseResumeState !== 'success' && this.state.pauseResumeState !== 'none');
+      return (
+        <button
+          onClick={this.makePauseResume(state === 'resumable' ? 'resume' : 'pause')}
+          title={title}
+          disabled={isDisabled}
+          className={classNames('pause-resume-button', { 'disabled': isDisabled })}
+        >
+          <div className={classNames('fa', {
+            'fa-pause': state === 'pausable',
+            'fa-play': state === 'resumable',
+            'fa-refresh fa-spin': state === 'in-progress',
+            'fa-exclamation': state === 'failed'
+          })}/>
+        </button>
+      );
+    };
+
+    if (this.state.pauseResumeState === 'in-progress') {
+      return renderButton(undefined, 'in-progress');
     } else if (this.state.pauseResumeState === 'none') {
-      title = this.props.task.status === 'paused' ? 'Resume download' : 'Pause download';
-    } else if (this.state.pauseResumeState !== 'success') {
-      title = this.state.pauseResumeState.failMessage;
-      disabled = true;
+      if (this.props.task.status === 'paused') {
+        return renderButton('Resume', 'resumable');
+      } else if (this.props.task.status === 'finished') {
+        return renderButton('Start seeding', 'resumable');
+      } else {
+        return renderButton('Pause', 'pausable');
+      }
+    } else {
+      return renderButton(this.state.pauseResumeState.failMessage, 'failed');
     }
-    return (
-      <button
-        onClick={this.pauseResumeTask}
-        title={title}
-        disabled={disabled}
-        className={classNames('pause-resume-button', { 'disabled': disabled })}
-      >
-        <div className={classNames('fa', {
-          'fa-pause': this.state.pauseResumeState !== 'in-progress' && this.props.task.status !== 'paused',
-          'fa-play': this.state.pauseResumeState !== 'in-progress' && this.props.task.status === 'paused',
-          'fa-refresh fa-spin': this.state.pauseResumeState === 'in-progress'
-        })}/>
-      </button>
-    );
   }
 
   private renderRemoveButton() {
@@ -150,19 +163,21 @@ export class Task extends React.PureComponent<Props, State> {
     );
   }
 
-  private pauseResumeTask = () => {
-    this.setState({
-      pauseResumeState: 'in-progress'
-    });
-
-    this.props.onPauseResume!(this.props.task.id, this.props.task.status === 'paused' ? 'resume' : 'pause')
-      .then(response => {
-        this.setState({
-          // This is a little gross, but here we just unset the state and fall back onto whatever this.props.task states.
-          pauseResumeState: response === 'success' ? 'none' : response
-        });
+  private makePauseResume(what: 'pause' | 'resume') {
+    return () => {
+      this.setState({
+        pauseResumeState: 'in-progress'
       });
-  };
+
+      (what === 'pause' ? this.props.onPause! : this.props.onResume!)(this.props.task.id)
+        .then(response => {
+          this.setState({
+            // This is a little gross, but here we just unset the state and fall back onto whatever this.props.task states.
+            pauseResumeState: response === 'success' ? 'none' : response
+          });
+        });
+    };
+  }
 
   private deleteTask = () => {
     this.setState({
@@ -177,3 +192,4 @@ export class Task extends React.PureComponent<Props, State> {
       })
   };
 }
+4
