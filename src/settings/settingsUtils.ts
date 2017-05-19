@@ -1,5 +1,6 @@
-import { Auth, SessionName, errorMessageFromCode } from '../api';
+import { Auth, SessionName } from '../api';
 import { Settings, getHostUrl } from '../state';
+import { errorMessageFromCode } from '../apiErrors';
 
 export function saveSettings(settings: Settings): Promise<boolean> {
   console.log('persisting settings...');
@@ -24,6 +25,7 @@ export function saveSettings(settings: Settings): Promise<boolean> {
 
 export type ConnectionTestResult = 'good' | 'bad-request' | 'timeout' | 'network-error' | 'unknown-error' | 'missing-config' | { failMessage: string };
 
+// TODO: Rewrite this to use api client, which already interprets types of errors for us.
 export function testConnection(settings: Settings): Promise<ConnectionTestResult> {
   function failureMessage(failMessage?: string) {
     if (failMessage) {
@@ -76,8 +78,4 @@ export function testConnection(settings: Settings): Promise<ConnectionTestResult
         }
       });
   }
-}
-
-export function assertNever(n: never): never {
-  throw new Error(`never assertion failed, got value ${n}`);
 }

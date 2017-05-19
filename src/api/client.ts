@@ -4,8 +4,7 @@ import {
   AuthLoginResponse,
   DownloadStation,
   SynologyResponse,
-  SessionName,
-  errorMessageFromCode
+  SessionName
 } from './rest';
 
 import { BaseRequest } from './rest/shared';
@@ -45,13 +44,12 @@ const TIMEOUT_MESSAGE_REGEX = /timeout of \d+ms exceeded/;
 export type ConnectionFailure = {
   type: 'missing-config';
 } | {
-  type: 'other';
-  failureMessage: string;
+  type: 'probable-wrong-protocol' | 'probable-wrong-url-or-no-connection' | 'timeout' | 'unknown';
+  error: any;
 }
 
-export function isConnectionFailure(result: any): result is ConnectionFailure {
-  const failure = result as ConnectionFailure;
-  return failure.type != null && (failure.type === 'missing-config' || (failure.type === 'other' && (failure.failureMessage != null)));
+export function isConnectionFailure(result: SynologyResponse<{}> | ConnectionFailure): result is ConnectionFailure {
+  return (result as ConnectionFailure).type != null && (result as SynologyResponse<{}>).success == null;
 }
 
 export class ApiClient {
@@ -95,8 +93,8 @@ export class ApiClient {
     }
   };
 
-  private proxy<T, U>(fn: (baseUrl: string, sid: string, options: T) => Promise<U>) {
-    const wrappedFunction = (options: T): Promise<U | ConnectionFailure> => {
+  private proxy<T, U>(fn: (baseUrl: string, sid: string, options: T) => Promise<SynologyResponse<U>>) {
+    const wrappedFunction = (options: T): Promise<SynologyResponse<U> | ConnectionFailure> => {
       if (!this.sidPromise) {
         if (some(SETTING_NAME_KEYS, k => !this.settings[k])) {
           const failure: ConnectionFailure = {
@@ -132,33 +130,25 @@ export class ApiClient {
                 this.sidPromise = undefined;
                 return wrappedFunction(options);
               } else {
-                const failure: ConnectionFailure = {
-                  type: 'other',
-                  failureMessage: errorMessageFromCode(response.error.code, Auth.API_NAME)
-                };
-                return Promise.resolve(failure);
+                return response;
               }
             }
           } else {
             return wrappedFunction(options);
           }
         })
-        .catch(error => {
-          let failureMessage;
-          // TODO: Unify this knowledge with utils.ts and settings.tsx.
+        .catch((error: any) => {
+          let failure: ConnectionFailure;
           if (error && error.response && error.response.status === 400) {
-            failureMessage = 'Connection failure (likely wrong protocol).';
+            failure = { type: 'probable-wrong-protocol', error };
           } else if (error && error.message === 'Network Error') {
-            failureMessage = 'Connection failure (likely incorrect hostname/port or no internet connection).';
+            failure = { type: 'probable-wrong-url-or-no-connection', error };
           } else if (error && TIMEOUT_MESSAGE_REGEX.test(error.message)) {
             // This is a best-effort which I expect to start silently falling back onto 'unknown error' at some point in the future.
-            failureMessage = 'Connection failure (timeout; check your hostname/port settings and internet connection).';
+            failure = { type: 'timeout', error };
           } else {
-            console.log(error);
-            failureMessage = 'Unknown error.';
+            failure = { type: 'unknown', error };
           }
-
-          const failure: ConnectionFailure = { type: 'other', failureMessage };
           return Promise.resolve(failure);
         });
     };

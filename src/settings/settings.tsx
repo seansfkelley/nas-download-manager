@@ -19,9 +19,10 @@ import {
 import {
   ConnectionTestResult,
   saveSettings,
-  testConnection,
-  assertNever,
+  testConnection
 } from './settingsUtils';
+
+import { assertNever } from '../lang';
 
 interface SettingsFormProps {
   initialSettings: Settings;

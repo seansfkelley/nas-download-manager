@@ -1,6 +1,7 @@
 import { uniqueId } from 'lodash-es';
 import Axios from 'axios';
-import { ApiClient, ConnectionFailure, isConnectionFailure, errorMessageFromCode, DownloadStation, SynologyResponse } from './api';
+import { ApiClient, ConnectionFailure, isConnectionFailure, DownloadStation, SynologyResponse } from './api';
+import { errorMessageFromCode, errorMessageFromConnectionFailure } from './apiErrors';
 import { CachedTasks } from './state';
 import { notify } from './browserApi';
 
@@ -43,7 +44,9 @@ export function pollTasks(api: ApiClient) {
         if (response.type === 'missing-config') {
           cachedTasks.taskFetchFailureReason = 'missing-config';
         } else {
-          cachedTasks.taskFetchFailureReason = { failureMessage: response.failureMessage };
+          cachedTasks.taskFetchFailureReason = {
+            failureMessage: errorMessageFromConnectionFailure(response)
+          };
         }
       } else if (response.success) {
         cachedTasks.tasks = response.data.tasks;
