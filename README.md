@@ -8,6 +8,5 @@
 - [ ] should settings page try to eagerly check that the hostname is valid?
 - [ ] check that <audio> and <video> downloads work as expected
 - [ ] fix notification interval setting to not require onblur
-- [ ] when deleting tasks, the UI removes two from the list (!)
 - [ ] icons for disabled/in-progress/success/failure of notifications/browser icon
 - [ ] factor out synology api

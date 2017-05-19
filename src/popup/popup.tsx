@@ -162,6 +162,7 @@ class Popup extends React.PureComponent<PopupProps, State> {
           >
             {sortBy(this.props.tasks, t => t.title.toLocaleLowerCase()).map(task => (
               <Task
+                key={task.id}
                 task={task}
                 onDelete={this.props.deleteTask}
                 onPause={this.props.pauseTask}
