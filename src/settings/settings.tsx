@@ -21,7 +21,7 @@ import {
   saveSettings,
   testConnection,
   assertNever,
-} from './utils';
+} from './settingsUtils';
 
 import { SYNOLOGY_HOST_DOMAINS } from '../api';
 
@@ -97,7 +97,7 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
                     <option key={protocol} value={protocol}>{protocol}</option>
                   ))}
                 </select>
-                ://
+                <span>://</span>
                 <input
                   type='text'
                   {...connectionDisabledProps}
@@ -107,7 +107,7 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
                   }}
                   ref={kludgeRefSetClassname('host-setting')}
                 />
-                .
+                <span>.</span>
                 <select
                   {...connectionDisabledProps}
                   value={this.state.settings.connection.domain}
@@ -120,7 +120,7 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
                     <option key={domain} value={domain}>{domain}</option>
                   ))}
                 </select>
-                :
+                <span>:</span>
                 <input
                   {...connectionDisabledProps}
                   type='number'
@@ -230,7 +230,7 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
           </li>
 
           <li>
-            Check every
+            Check for completed downloads every
             <input
               type='number'
               {...this.disabledPropAndClassName(!this.state.settings.notifications.enabled)}
@@ -297,7 +297,7 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
 
     return (
       <div className='save-settings-footer'>
-        <span className={classNames('save-result', { 'error-message': this.state.savingStatus === 'failed' })}>
+        <span className={classNames('save-result', { 'intent-error': this.state.savingStatus === 'failed' })}>
           {text}
         </span>
         <button
@@ -311,47 +311,34 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
   }
 
   private renderConnectionTestResult() {
-    let content: React.ReactChild | null;
-    let isFailure = false;
+    function renderResult(text?: string, icon?: string, className?: string) {
+      return (
+        <span className={classNames('connection-test-result', className )}>
+          {icon && <span className={classNames('fa', icon)}/>}
+          {text}
+        </span>
+      );
+    }
 
     switch (this.state.connectionTest) {
       case null:
       case undefined:
-        content = null;
-        break;
+        return renderResult();
       case 'in-progress':
-        content = 'Testing connection...';
-        break;
+        return renderResult('Testing connection...', 'fa-refresh fa-spin');
       case 'good':
-        content = 'Connection successful!';
-        break;
+        return renderResult('Connection successful!', 'fa-check', 'intent-success');
       case 'bad-request':
-        content = 'Connection failed (likely incorrect protocol).';
-        isFailure = true;
-        break;
+        return renderResult('Connection failed (likely incorrect protocol).', 'fa-times', 'intent-error');
       case 'network-error':
-        content = 'Connection failed (likely incorrect hostname/port or no internet connection).';
-        isFailure = true;
-        break;
+        return renderResult('Connection failed (likely incorrect hostname/port or no internet connection).', 'fa-times', 'intent-error');
       case 'unknown-error':
-        content = 'Connection failed (unknown reason; check your host settings and internet connection).';
-        isFailure = true;
-        break;
+        return renderResult('Connection failed (unknown reason; check your host settings and internet connection).', 'fa-times', 'intent-error');
       case 'missing-config':
-        content = 'The configured host name is incomplete.';
-        isFailure = true;
-        break;
+        return renderResult('The configured host name is incomplete.', 'fa-times', 'intent-error');
       default:
-        content = `Connection failed (${this.state.connectionTest.failMessage}).`;
-        isFailure = true;
-        break;
+        return renderResult(`Connection failed (${this.state.connectionTest.failMessage}).`, 'fa-times', 'intent-error');
     }
-
-    return (
-      <span className={classNames('connection-test-result', { 'error-message': isFailure })}>
-        {content}
-      </span>
-    );
   }
 
   private disabledPropAndClassName(disabled: boolean, otherClassNames?: string) {

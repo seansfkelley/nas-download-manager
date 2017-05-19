@@ -215,18 +215,6 @@ body, .popup {
   }
 }
 
-.success-message {
-  color: $color-success;;
-}
-
-.warning-message {
-  color: $color-warning;
-}
-
-.error-message {
-  color: $color-error;
-}
-
 @keyframes shadow-glow {
   0% {
     box-shadow: 0 0 2px 2px fade-out($color-loading, 1);

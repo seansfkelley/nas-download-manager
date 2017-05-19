@@ -86,12 +86,12 @@ class Popup extends React.PureComponent<PopupProps, State> {
     } else if (this.props.taskFetchFailureReason != null) {
       text = 'Error loading tasks'
       tooltip = this.props.taskFetchFailureReason.failureMessage;
-      classes = 'error-message';
+      classes = 'intent-error';
       icon = 'fa-exclamation-triangle';
     } else {
       text = `Updated ${moment(this.props.tasksLastCompletedFetchTimestamp).fromNow()}`;
       tooltip = moment(this.props.tasksLastCompletedFetchTimestamp).format('ll LTS');
-      classes = 'success-message';
+      classes = 'intent-success';
       icon = 'fa-check';
     }
 
@@ -180,6 +180,7 @@ class Popup extends React.PureComponent<PopupProps, State> {
           <div className='overlay-content'>
             <textarea
               ref={e => { this.addDownloadUrlRef = e; }}
+              placeholder='Enter URL here...'
             />
             <div className='buttons'>
               <button

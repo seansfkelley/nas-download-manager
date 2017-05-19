@@ -81,7 +81,7 @@ export class Task extends React.PureComponent<Props, State> {
       );
     } else if (matchesFilter(this.props.task, 'errored')) {
       return (
-        <span className='error-message'>
+        <span className='intent-error'>
           <span className='fa fa-exclamation-triangle'/>
           {this.props.task.status.toUpperCase()} {this.props.task.status_extra ? `${this.props.task.status_extra}` : ''}
         </span>
@@ -99,10 +99,10 @@ export class Task extends React.PureComponent<Props, State> {
     let title: string = '';
     let disabled: boolean = this.state.deleteState === 'in-progress';
     if (this.props.onPauseResume == null || this.state.pauseResumeState === 'in-progress') {
-      title = this.props.task.status === 'paused' ? 'Resume' : 'Pause';
+      title = this.props.task.status === 'paused' ? 'Resume download' : 'Pause download';
       disabled = true;
     } else if (this.state.pauseResumeState === 'none') {
-      title = this.props.task.status === 'paused' ? 'Resume' : 'Pause';
+      title = this.props.task.status === 'paused' ? 'Resume download' : 'Pause download';
     } else if (this.state.pauseResumeState !== 'success') {
       title = this.state.pauseResumeState.failMessage;
       disabled = true;

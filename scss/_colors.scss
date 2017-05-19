@@ -7,3 +7,15 @@ $color-background: #fbfbfb;
 
 $color-text: #111;
 $color-text-faded: #444;
+
+.intent-error {
+  color: $color-error;
+}
+
+.intent-warning {
+  color: $color-warning;
+}
+
+.intent-success {
+  color: $color-success;
+}
