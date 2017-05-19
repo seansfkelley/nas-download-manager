@@ -78,7 +78,7 @@ const TORRENT_CONTENT_TYPE = 'application/x-bittorrent';
 const ARBITRARY_FILE_FETCH_SIZE_CUTOFF = 1024 * 1024 * 5;
 
 function startsWithAnyProtocol(url: string, protocols: string[]) {
-  return protocols.some(protocol => url.startsWith(`${protocol}://`));
+  return protocols.some(protocol => url.startsWith(`${protocol}:`));
 }
 
 const FILENAME_PROPERTY_REGEX = /filename=("([^"]+)"|([^"][^ ]+))/;
