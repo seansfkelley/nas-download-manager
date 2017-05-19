@@ -395,7 +395,7 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
   };
 }
 
-const ELEMENT = document.body;
+const ELEMENT = document.getElementById('body')!;
 
 loadSettings()
   .then(settings => {

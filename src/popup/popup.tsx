@@ -219,6 +219,8 @@ class Popup extends React.PureComponent<PopupProps, State> {
   }, 100);
 }
 
+const ELEMENT = document.getElementById('body')!;
+
 getSharedObjects()
   .then(objects => {
     const { api } = objects!;
@@ -305,6 +307,6 @@ getSharedObjects()
           resumeTask={resumeTask}
           deleteTask={deleteTask}
         />
-      , document.body);
+      , ELEMENT);
     });
 });
