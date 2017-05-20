@@ -8,10 +8,8 @@
   },
   "permissions": [
     "contextMenus",
-    "runtime",
     "storage",
     "notifications",
-    "browserAction",
     "http://*/*",
     "https://*/*"
   ],
