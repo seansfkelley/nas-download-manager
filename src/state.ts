@@ -1,4 +1,4 @@
-import { DownloadStationTask } from './api';
+import { DownloadStationTask } from 'synology-typescript-api';
 
 export type Protocol = 'http' | 'https';
 

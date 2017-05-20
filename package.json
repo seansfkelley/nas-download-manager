@@ -42,6 +42,7 @@
     "moment": "^2.18.1",
     "query-string": "^4.3.4",
     "react": "^15.5.4",
-    "react-dom": "^15.5.4"
+    "react-dom": "^15.5.4",
+    "synology-typescript-api": "^0.1.1"
   }
 }

@@ -1,4 +1,4 @@
-import { SessionName, ApiClient, ConnectionFailure, isConnectionFailure } from '../api';
+import { SessionName, ApiClient, ConnectionFailure, isConnectionFailure } from 'synology-typescript-api';
 import { Settings, getHostUrl } from '../state';
 
 export function saveSettings(settings: Settings): Promise<boolean> {

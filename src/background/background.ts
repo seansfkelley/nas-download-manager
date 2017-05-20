@@ -1,5 +1,5 @@
 import { isEqual } from 'lodash-es';
-import { ApiClient, SessionName } from '../api';
+import { ApiClient, SessionName } from 'synology-typescript-api';
 import { getHostUrl, onStoredStateChange, NotificationSettings, DEFAULT_SETTINGS } from '../state';
 import { setSharedObjects, notify } from '../browserApi';
 import { addDownloadTask, pollTasks, clearCachedTasks } from '../apiActions';

@@ -1,5 +1,5 @@
 import { uniqueId } from 'lodash-es';
-import { ApiClient } from './api';
+import { ApiClient } from 'synology-typescript-api';
 
 export function notify(title: string, message?: string, id: string = uniqueId('notification-')) {
   browser.notifications.create(id, {

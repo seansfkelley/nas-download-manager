@@ -1304,6 +1304,14 @@ supports-color@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/supports-color/-/supports-color-2.0.0.tgz#535d045ce6b6363fa40117084629995e9df324c7"
 
+synology-typescript-api@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/synology-typescript-api/-/synology-typescript-api-0.1.1.tgz#ed9db5b82fedc9e72af28cff164edc7769c47d90"
+  dependencies:
+    axios "^0.16.1"
+    lodash-es "^4.17.4"
+    query-string "^4.3.4"
+
 through@2, through@~2.3, through@~2.3.1:
   version "2.3.8"
   resolved "https://registry.yarnpkg.com/through/-/through-2.3.8.tgz#0dd4c9ffaabc357960b1b724115d7e0e86a2e1f5"

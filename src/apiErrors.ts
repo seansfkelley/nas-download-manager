@@ -1,5 +1,4 @@
-import { Auth, DownloadStation } from './api/rest';
-import { ConnectionFailure } from './api/client';
+import { Auth, DownloadStation, ConnectionFailure } from 'synology-typescript-api';
 import { assertNever } from './lang';
 
 export const ERROR_CODES = {

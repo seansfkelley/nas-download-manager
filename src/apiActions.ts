@@ -1,6 +1,6 @@
 import { uniqueId } from 'lodash-es';
 import Axios from 'axios';
-import { ApiClient, ConnectionFailure, isConnectionFailure, DownloadStation, SynologyResponse } from './api';
+import { ApiClient, ConnectionFailure, isConnectionFailure, DownloadStation, SynologyResponse } from 'synology-typescript-api';
 import { errorMessageFromCode, errorMessageFromConnectionFailure } from './apiErrors';
 import { CachedTasks } from './state';
 import { notify } from './browserApi';
