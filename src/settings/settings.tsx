@@ -5,6 +5,8 @@ import * as classNamesProxy from 'classnames';
 // https://github.com/rollup/rollup/issues/1267
 const classNames: typeof classNamesProxy = (classNamesProxy as any).default || classNamesProxy;
 
+import { Auth } from '../api';
+
 import {
   Settings,
   Protocol,
@@ -17,10 +19,13 @@ import {
 } from '../state';
 
 import {
+  isErrorCodeResult,
   ConnectionTestResult,
   saveSettings,
   testConnection
 } from './settingsUtils';
+
+import { errorMessageFromCode, errorMessageFromConnectionFailure } from '../apiErrors';
 
 import { assertNever } from '../lang';
 
@@ -294,7 +299,7 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
   }
 
   private renderConnectionTestResult() {
-    function renderResult(text?: string, icon?: string, className?: string) {
+    function renderResult(text?: string, icon?: string, className?: string)  {
       return (
         <span className={classNames('connection-test-result', className )}>
           {icon && <span className={classNames('fa', icon)}/>}
@@ -303,26 +308,18 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
       );
     }
 
-    switch (this.state.connectionTest) {
-      case null:
-      case undefined:
-        return renderResult();
-      case 'in-progress':
-        return renderResult('Testing connection...', 'fa-refresh fa-spin');
-      case 'good':
-        return renderResult('Connection successful!', 'fa-check', 'intent-success');
-      case 'bad-request':
-        return renderResult('Connection failed (likely incorrect protocol).', 'fa-times', 'intent-error');
-      case 'network-error':
-        return renderResult('Connection failed (likely incorrect hostname/port or no internet connection).', 'fa-times', 'intent-error');
-      case 'timeout':
-        return renderResult('Connection failure (timeout; check your hostname/port settings and internet connection).', 'fa-timees', 'intent-error');
-      case 'unknown-error':
-        return renderResult('Connection failed (unknown reason; check your hostname/port settings and internet connection).', 'fa-times', 'intent-error');
-      case 'missing-config':
-        return renderResult('The configured host name is incomplete.', 'fa-times', 'intent-error');
-      default:
-        return renderResult(`Connection failed (${this.state.connectionTest.failMessage}).`, 'fa-times', 'intent-error');
+    const { connectionTest } = this.state;
+
+    if (!connectionTest) {
+      return renderResult();
+    } else if (connectionTest === 'in-progress') {
+      return renderResult('Testing connection...', 'fa-refresh fa-spin');
+    } else if (connectionTest === 'good') {
+      return renderResult('Connection successful!', 'fa-check', 'intent-success');
+    } else if (isErrorCodeResult(connectionTest)) {
+      return renderResult(errorMessageFromCode(connectionTest.code, Auth.API_NAME), 'fa-times', 'intent-error');
+    } else {
+      return renderResult(errorMessageFromConnectionFailure(connectionTest), 'fa-times', 'intent-error');
     }
   }
 

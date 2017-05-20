@@ -1,6 +1,5 @@
-import { Auth, SessionName } from '../api';
+import { SessionName, ApiClient, ConnectionFailure, isConnectionFailure } from '../api';
 import { Settings, getHostUrl } from '../state';
-import { errorMessageFromCode } from '../apiErrors';
 
 export function saveSettings(settings: Settings): Promise<boolean> {
   console.log('persisting settings...');
@@ -23,59 +22,37 @@ export function saveSettings(settings: Settings): Promise<boolean> {
     });
 }
 
-export type ConnectionTestResult = 'good' | 'bad-request' | 'timeout' | 'network-error' | 'unknown-error' | 'missing-config' | { failMessage: string };
+export type ConnectionTestResult = ConnectionFailure | { code: number } | 'good';
 
-// TODO: Rewrite this to use api client, which already interprets types of errors for us.
+export function isErrorCodeResult(result: ConnectionTestResult): result is { code: number } {
+  return (result as { code: number }).code != null;
+}
+
 export function testConnection(settings: Settings): Promise<ConnectionTestResult> {
-  function failureMessage(failMessage?: string) {
-    if (failMessage) {
-      return { failMessage };
-    } else {
-      return 'unknown-error';
-    }
-  }
+  const api = new ApiClient({
+    baseUrl: getHostUrl(settings.connection),
+    account: settings.connection.username,
+    passwd: settings.connection.password,
+    session: SessionName.DownloadStation
+  });
 
-  const hostUrl = getHostUrl(settings.connection);
-  if (!hostUrl) {
-    return Promise.resolve('missing-config' as 'missing-config');
-  } else {
-    return Auth.Login(hostUrl, {
-      account: settings.connection.username,
-      passwd: settings.connection.password,
-      session: SessionName.DownloadStation,
-      timeout: 10000
-    })
-      .then(result => {
-        if (!result) {
-          return 'unknown-error';
-        } else if (!result.success) {
-          return failureMessage(errorMessageFromCode(result.error.code, Auth.API_NAME, null));
-        } else {
-          Auth.Logout(hostUrl, result.data.sid, {
-            session: SessionName.DownloadStation
-          })
-            .then(response => {
-              if (!response.success) {
-                console.error(`ignoring unexpected unsuccessful response while logging out after a successful login test, code ${response.error.code}`);
-              }
-            })
-            .catch(error => {
-              console.error('ignoring error encountered while logging out after a successful login test', error);
-            });
-          return 'good';
-        }
-      })
-      .catch((error?: any) => {
-        if (error && error.response && error.response.status === 400) {
-          return 'bad-request';
-        } else if (error && error.message === 'Network Error') {
-          return 'network-error';
-        } else if (error && error.message === 'timeout of 10000ms exceeded') {
-          return 'timeout';
-        } else {
-          console.log('unexpected error while performing login check', error);
-          return 'unknown-error';
-        }
-      });
-  }
+  return api.Auth.Login({ timeout: 10000 })
+    .then(response => {
+      if (isConnectionFailure(response)) {
+        return response;
+      } else if (!response.success) {
+        return { code: response.error.code };
+      } else {
+        api.Auth.Logout({ timeout: 10000 })
+          .then(response => {
+            if (response === 'not-logged-in') {
+              // Typescript demands we handle this case, which is correct, but also, it's pretty wat
+              console.error(`wtf: not logged in immediately after successfully logging in`);
+            } else if (isConnectionFailure(response) || !response.success) {
+              console.error('ignoring unexpected failure while logging out after successful connection test', response);
+            }
+          });
+        return 'good';
+      }
+    });
 }

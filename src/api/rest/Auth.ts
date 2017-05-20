@@ -14,13 +14,12 @@ function Login(baseUrl: string, options: AuthLoginRequest): Promise<SynologyResp
   });
 }
 
-function Logout(baseUrl: string, sid: string, options: AuthLogoutRequest): Promise<SynologyResponse<{}>> {
+function Logout(baseUrl: string, options: AuthLogoutRequest): Promise<SynologyResponse<{}>> {
   return get(baseUrl, CGI_NAME, {
     ...options,
     api: API_NAME,
     version: 1,
     method: 'logout',
-    sid
   });
 }
 

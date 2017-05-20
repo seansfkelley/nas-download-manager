@@ -12,5 +12,6 @@ export interface AuthLoginResponse {
 }
 
 export interface AuthLogoutRequest extends BaseRequest {
+  sid: string;
   session: SessionName;
 }

@@ -9,4 +9,3 @@
 - [ ] fix notification interval setting to not require onblur
 - [ ] icons for disabled/in-progress/success/failure of notifications/browser icon
 - [ ] factor out synology api
-- [ ] rewrite connection-test code to use ApiClient
