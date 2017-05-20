@@ -16,3 +16,14 @@ Synology Download Station allows you to add and manage your download tasks on yo
 ### Supported Browsers
 
 Currently, only Firefox 53+ is supported. Adding support for Chrome is tracked by [#3](https://github.com/seansfkelley/synology/issues/3).
+
+### Building the Extension
+
+Install [Yarn](https://github.com/yarnpkg/yarn) if you don't already have it.
+
+```
+yarn
+npm run build
+```
+
+This will output a zip file in the repo root that includes all the necessary files for distributing the addon.
