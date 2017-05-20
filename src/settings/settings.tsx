@@ -51,7 +51,6 @@ const ORDERED_VISIBLE_TASK_TYPE_NAMES: Record<keyof VisibleTaskSettings, string>
 
 const POLL_MIN_INTERVAL = 15;
 const POLL_DEFAULT_INTERVAL = 60;
-const POLL_MAX_INTERVAL = 3600;
 const POLL_STEP = 15;
 
 // For some reason, (p)react in the Firefox settings page is incapable of setting the classname on <input>
@@ -65,11 +64,15 @@ function kludgeRefSetClassname(className: string) {
   };
 }
 
+function isValidPollingInterval(stringValue: string) {
+  return !isNaN(+stringValue) && +stringValue >= POLL_MIN_INTERVAL
+}
+
 class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState> {
   state: SettingsFormState = {
     settings: this.props.initialSettings,
     savingStatus: 'unchanged',
-    rawPollingInterval: this.props.initialSettings.notifications.pollingInterval.toString()
+    rawPollingInterval: this.props.initialSettings.notifications.pollingInterval.toString() || POLL_DEFAULT_INTERVAL.toString()
   };
 
   render() {
@@ -223,27 +226,21 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
               type='number'
               {...this.disabledPropAndClassName(!this.state.settings.notifications.enabled)}
               min={POLL_MIN_INTERVAL}
-              max={POLL_MAX_INTERVAL}
               step={POLL_STEP}
               value={this.state.rawPollingInterval}
-              onChange={e => {
-                this.setState({ rawPollingInterval: e.currentTarget.value });
-              }}
-              onBlur={() => {
-                let value = +this.state.rawPollingInterval;
-                if (isNaN(value)) {
-                  value = POLL_DEFAULT_INTERVAL;
-                } else if (value < POLL_MIN_INTERVAL) {
-                  value = POLL_MIN_INTERVAL;
-                } else if (value > POLL_MAX_INTERVAL) {
-                  value = POLL_MAX_INTERVAL;
-                }
-                this.setState({ rawPollingInterval: value.toString() });
-                this.setNotificationSetting('pollingInterval', value);
-              }}
               ref={kludgeRefSetClassname('polling-interval')}
+              onChange={e => {
+                const rawPollingInterval = e.currentTarget.value;
+                this.setState({ rawPollingInterval });
+                if (isValidPollingInterval(rawPollingInterval)) {
+                  this.setNotificationSetting('pollingInterval', +rawPollingInterval);
+                }
+              }}
             />
             seconds
+            {isValidPollingInterval(this.state.rawPollingInterval)
+              ? undefined
+              : <span className='intent-error wrong-polling-interval'>(at least 15)</span>}
           </li>
         </ul>
 
