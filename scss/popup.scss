@@ -15,6 +15,10 @@ html {
   max-height: 800px;
 }
 
+button:not(.disabled):not(:disabled) {
+  cursor: pointer;
+}
+
 body, .popup {
   // Using 100% here should work, but it doesn't. The browser popup must do something weird
   // such that it changes width depending on the contents, even when it's 100% of the <html>
@@ -97,94 +101,109 @@ body, .popup {
   }
 }
 
-.popup ul.download-tasks {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+.popup .download-tasks {
+  .hidden-count {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 5px;
+    margin-bottom: 10px;
 
-  li.task {
-    padding: 8px;
+    &:hover {
+      text-decoration: underline;
+      cursor: pointer;
+    }
+  }
 
-    .header {
-      display: flex;
-      align-items: center;
-      margin-bottom: 5px;
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
 
-      .name-and-status {
-        padding-right: 5px;
-        margin-right: auto;
-        overflow: hidden;
+    li.task {
+      padding: 8px;
 
-        .name, .status {
-          white-space: nowrap;
+      .header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px;
+
+        .name-and-status {
+          padding-right: 5px;
+          margin-right: auto;
           overflow: hidden;
-          text-overflow: ellipsis;
+
+          .name, .status {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+
+          .name {
+            font-weight: 500;
+          }
+
+          .status {
+            font-size: 0.8em;
+            color: $color-text-faded;
+          }
         }
 
-        .name {
-          font-weight: 500;
+        .remove-button {
+          color: $color-error;
         }
 
-        .status {
-          font-size: 0.8em;
-          color: $color-text-faded;
-        }
-      }
-
-      .remove-button {
-        color: $color-error;
-      }
-
-      .remove-button, .pause-resume-button {
-        &:not(:last-child) {
-          margin-right: 3px;
-        }
-      }
-    }
-
-    .progress-bar {
-      height: 5px;
-      border-radius: 2px;
-      position: relative;
-
-      .bar-fill {
-        position: absolute;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        border-radius: inherit;
-
-        &.in-progress {
-          background-color: $color-loading;
-        }
-
-        &.completed {
-          background-color: $color-success;
-        }
-
-        &.errored {
-          background-color: $color-error;
-        }
-
-        &.unknown {
-          background-color: $color-indeterminate;
+        .remove-button, .pause-resume-button {
+          &:not(:last-child) {
+            margin-right: 3px;
+          }
         }
       }
 
-      .bar-background {
-        position: absolute;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        right: 0;
-        background-color: rgba(0, 0, 0, 0.1);
+      .progress-bar {
+        height: 5px;
+        border-radius: 2px;
+        position: relative;
+
+        .bar-fill {
+          position: absolute;
+          top: 0;
+          left: 0;
+          bottom: 0;
+          border-radius: inherit;
+
+          &.in-progress {
+            background-color: $color-loading;
+          }
+
+          &.completed {
+            background-color: $color-success;
+          }
+
+          &.errored {
+            background-color: $color-error;
+          }
+
+          &.unknown {
+            background-color: $color-indeterminate;
+          }
+        }
+
+        .bar-background {
+          position: absolute;
+          top: 0;
+          left: 0;
+          bottom: 0;
+          right: 0;
+          background-color: rgba(0, 0, 0, 0.1);
+        }
       }
-    }
 
-    &:not(:hover) .header {
-      .remove-button, .pause-resume-button {
-        display: none;
-
+      &:not(:hover) .header {
+        .remove-button, .pause-resume-button {
+          display: none;
+        }
       }
     }
   }

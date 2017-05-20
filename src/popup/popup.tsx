@@ -155,22 +155,28 @@ class Popup extends React.PureComponent<PopupProps, State> {
       if (filteredTasks.length === 0) {
         return <NoTasks icon='fa-filter' text='Download tasks exist, but none match your filters.'/>;
       } else {
+        const hiddenTaskCount = this.props.tasks.length - filteredTasks.length;
         return (
-          <ul
-            className='download-tasks'
-            onScroll={this.onBodyScroll}
-            ref={e => { this.bodyRef = e; }}
-          >
-            {sortBy(this.props.tasks, t => t.title.toLocaleLowerCase()).map(task => (
-              <Task
-                key={task.id}
-                task={task}
-                onDelete={this.props.deleteTask}
-                onPause={this.props.pauseTask}
-                onResume={this.props.resumeTask}
-              />
-            ))}
-          </ul>
+          <div className='download-tasks'>
+            <ul
+              onScroll={this.onBodyScroll}
+              ref={e => { this.bodyRef = e; }}
+            >
+              {sortBy(filteredTasks, t => t.title.toLocaleLowerCase()).map(task => (
+                <Task
+                  key={task.id}
+                  task={task}
+                  onDelete={this.props.deleteTask}
+                  onPause={this.props.pauseTask}
+                  onResume={this.props.resumeTask}
+                />
+              ))}
+            </ul>
+            {hiddenTaskCount > 0 && (
+              <div className='hidden-count' onClick={() => { browser.runtime.openOptionsPage(); }}>
+                ...and {hiddenTaskCount} more hidden task(s).
+              </div>)}
+          </div>
         );
       }
     }
