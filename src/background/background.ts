@@ -22,6 +22,10 @@ onStoredStateChange(storedState => {
     session: SessionName.DownloadStation
   });
 
+  browser.browserAction.setBadgeText({
+    text: storedState.tasks.length === 0 ? '' : storedState.tasks.length.toString()
+  });
+
   if (didUpdateSettings) {
     clearCachedTasks()
       .then(() => { pollTasks(api); });

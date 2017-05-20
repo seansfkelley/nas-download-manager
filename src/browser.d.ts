@@ -101,6 +101,9 @@ declare const browser: {
   extension: {
     getURL: (relativeUrl: string) => string;
   };
+  browserAction: {
+    setBadgeText: (options: { text: string; tabId?: number; }) => void;
+  };
   runtime: {
     openOptionsPage: () => Promise<void>;
     getBackgroundPage: () => Promise<Window>;
