@@ -10,8 +10,8 @@
     "watch:transpile": "tsc -w",
     "build:bundle": "node build.js",
     "watch:bundle": "node build.js -w",
-    "build": "npm-run-all build:transpile build:bundle build:styles",
-    "watch": "npm-run-all watch:transpile watch:bundle watch:styles"
+    "build": "npm run build:transpile && npm run build:bundle && npm run build:styles && npm run zip",
+    "zip": "zip -r addon.zip . -i 'dist/*' -i 'html/*' -i 'icons/*' -i 'vendor/*' -i 'manifest.json' -x '**/*.map'"
   },
   "repository": {
     "type": "git",
@@ -24,7 +24,6 @@
     "@types/query-string": "^4.3.1",
     "@types/react": "^15.0.23",
     "@types/react-dom": "^15.5.0",
-    "npm-run-all": "^4.0.2",
     "rollup": "^0.41.6",
     "rollup-plugin-commonjs": "^8.0.2",
     "rollup-plugin-node-builtins": "^2.1.0",
