@@ -1,8 +1,7 @@
 {
-  "name": "synology",
+  "name": "synology-download-manager",
   "version": "0.1.0",
-  "description": "",
-  "main": "lib/index.js",
+  "description": "An open source browser extension for adding/managing download tasks to your Synology DiskStation.",
   "scripts": {
     "test": "exit 0",
     "watch:styles": "scss --watch scss:dist/css",
@@ -16,11 +15,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/seansfkelley/synology.git"
+    "url": "git+https://github.com/seansfkelley/synology-download-manager.git"
   },
   "license": "MIT",
   "devDependencies": {
     "@types/classnames": "^0.0.32",
+    "@types/lodash-es": "^4.14.5",
     "@types/query-string": "^4.3.1",
     "@types/react": "^15.0.23",
     "@types/react-dom": "^15.5.0",
@@ -35,7 +35,6 @@
     "typescript": "^2.2.2"
   },
   "dependencies": {
-    "@types/lodash-es": "^4.14.5",
     "axios": "^0.16.1",
     "classnames": "^2.2.5",
     "lodash-es": "^4.17.4",
