@@ -113,8 +113,8 @@ export class ApiClient {
 
   // Note that this method is a BEST EFFORT.
   // (1) Because the client auto-re-logs in when you make new queries, this method will attempt to
-  //     only log out the current session; if you make another call right after asking to logout,
-  //     that second call will open a new session.
+  //     only log out the current session. The next non-logout call is guaranteed to attempt to log
+  //     back in.
   // (2) The result of this call, either success or failure, has no bearing on future API calls. It
   //     is provided to the caller only for convenience, and may not reflect the true state of the
   //     client or session at the time the promise is resolved.
