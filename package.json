@@ -11,7 +11,7 @@
     "build:bundle": "node build.js",
     "watch:bundle": "node build.js -w",
     "build": "rm -r lib dist && npm run build:transpile && npm run build:bundle && npm run build:styles",
-    "zip": "zip -r addon.zip 'dist/*' 'html/*' 'icons/*' 'vendor/*' 'manifest.json' -x '**/*.map' -x '**/.DS_Store'"
+    "zip": "rm -f addon.zip && zip -r addon.zip . -i 'dist/*' -i 'html/*' -i 'icons/*' -i 'vendor/*' -i 'manifest.json' -x '**/*.map' -x '**/.DS_Store'"
   },
   "repository": {
     "type": "git",
