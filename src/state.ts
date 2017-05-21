@@ -76,7 +76,7 @@ export const DEFAULT_SETTINGS: Settings = {
   visibleTasks: {
     downloading: true,
     uploading: true,
-    completed: false,
+    completed: true,
     errored: true,
     other: true
   },
