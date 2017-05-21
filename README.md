@@ -24,6 +24,7 @@ Install [Yarn](https://github.com/yarnpkg/yarn) if you don't already have it.
 ```
 yarn
 npm run build
+npm run zip
 ```
 
 This will output a zip file in the repo root that includes all the necessary files for distributing the addon.

@@ -10,7 +10,7 @@
     "watch:transpile": "tsc -w",
     "build:bundle": "node build.js",
     "watch:bundle": "node build.js -w",
-    "build": "rm -r lib dist && npm run build:transpile && npm run build:bundle && npm run build:styles && npm run zip",
+    "build": "rm -r lib dist && npm run build:transpile && npm run build:bundle && npm run build:styles",
     "zip": "zip -r addon.zip 'dist/*' 'html/*' 'icons/*' 'vendor/*' 'manifest.json' -x '**/*.map' -x '**/.DS_Store'"
   },
   "repository": {
