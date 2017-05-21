@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "description": "",
   "background": {
-    "scripts": [ "dist/js/background/background.js" ]
+    "scripts": [ "dist/js/background.js" ]
   },
   "permissions": [
     "contextMenus",

@@ -25,11 +25,11 @@ function watchEventHandler(event, filename) {
   }
 }
 
-function bundleAndMaybeWatch(baseFilename) {
+function bundleAndMaybeWatch(baseDirectory) {
   const config = {
     // TODO: Typescript in rollup rather than separately?
-    entry: `lib/${baseFilename}.js`,
-    dest: `dist/js/${baseFilename}.js`,
+    entry: `lib/${baseDirectory}/index.js`,
+    dest: `dist/js/${baseDirectory}.js`,
     format: 'es',
     plugins: [
       resolve({
@@ -60,6 +60,6 @@ function bundleAndMaybeWatch(baseFilename) {
   }
 }
 
-bundleAndMaybeWatch('settings/settings');
-bundleAndMaybeWatch('background/background');
-bundleAndMaybeWatch('popup/popup');
+bundleAndMaybeWatch('settings');
+bundleAndMaybeWatch('background');
+bundleAndMaybeWatch('popup');
