@@ -4,7 +4,7 @@
 
 ## About
 
-Synology Download Station allows you to add and manage your download tasks on your Synology DiskStation right from your browser. Synology Download Station is implemented with a focus on stability and clarity in the UI.
+Synology Download Manager allows you to add and manage your download tasks on your Synology DiskStation right from your browser. Synology Download Manager is implemented with a focus on stability and clarity in the UI.
 
 ### Features
 
