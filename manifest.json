@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Synology Download Manager",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "",
   "background": {
     "scripts": [ "dist/js/background.js" ]
