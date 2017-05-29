@@ -1,4 +1,4 @@
-import { Auth, DownloadStation, ConnectionFailure } from 'synology-typescript-api';
+import { ConnectionFailure } from 'synology-typescript-api';
 import { assertNever } from './lang';
 
 export const ERROR_CODES = {
@@ -12,14 +12,14 @@ export const ERROR_CODES = {
     106: 'Session timeout.',
     107: 'Session interrupted by duplicate login.'
   } as Record<string, string>,
-  [Auth.API_NAME]: {
+  'Auth': {
     400: 'No such username or incorrect password.',
     401: 'Account disabled.',
     402: 'Permission denied.',
     403: 'Two-step verification needed.',
     404: 'Two-step verification failed.'
   } as Record<string, string>,
-  [DownloadStation.Task.API_NAME]: {
+  'DownloadStation.Task': {
     400: 'File upload failed.',
     401: 'Max number of tasks reached.',
     402: 'Destination denied.',
@@ -29,6 +29,31 @@ export const ERROR_CODES = {
     406: 'No default destination.',
     407: 'Set destination failed.',
     408: 'File does not exist.'
+  } as Record<string, string>,
+  'FileStation': {
+    400: 'Invalid parameter of file operation',
+    401: 'Unknown error of file operation',
+    402: 'System is too busy',
+    403: 'Invalid user does this file operation',
+    404: 'Invalid group does this file operation',
+    405: 'Invalid user and group does this file operation',
+    406: 'Can’t get user/group information from the account server',
+    407: 'Operation not permitted',
+    408: 'No such file or directory',
+    409: 'Non-supported file system ',
+    410: 'Failed to connect internet-based file system (ex: CIFS)',
+    411: 'Read-only file system',
+    412: 'Filename too long in the non-encrypted file system',
+    413: 'Filename too long in the encrypted file system',
+    414: 'File already exists',
+    415: 'Disk quota exceeded',
+    416: 'No space left on device',
+    417: 'Input/output error',
+    418: 'Illegal name or path',
+    419: 'Illegal file name',
+    420: 'Illegal file name on FAT file system',
+    421: 'Device or resource busy',
+    599: 'No such task of the file operation'
   } as Record<string, string>
 };
 

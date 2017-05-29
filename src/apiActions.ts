@@ -1,6 +1,6 @@
 import { uniqueId } from 'lodash-es';
 import Axios from 'axios';
-import { ApiClient, ConnectionFailure, isConnectionFailure, DownloadStation, SynologyResponse } from 'synology-typescript-api';
+import { ApiClient, ConnectionFailure, isConnectionFailure, SynologyResponse } from 'synology-typescript-api';
 import { errorMessageFromCode, errorMessageFromConnectionFailure } from './apiErrors';
 import { CachedTasks } from './state';
 import { notify } from './browserApi';
@@ -53,7 +53,7 @@ export function pollTasks(api: ApiClient) {
         cachedTasks.taskFetchFailureReason = null;
       } else {
         cachedTasks.taskFetchFailureReason = {
-          failureMessage: errorMessageFromCode(response.error.code, DownloadStation.Task.API_NAME)
+          failureMessage: errorMessageFromCode(response.error.code, 'DownloadStation.Task')
         };
       }
 
@@ -116,7 +116,7 @@ export function addDownloadTask(api: ApiClient, url: string) {
       } else if (result.success) {
         notify('Download added', filename || url, notificationId);
       } else {
-        notify('Failed to add download', errorMessageFromCode(result.error.code, DownloadStation.Task.API_NAME), notificationId);
+        notify('Failed to add download', errorMessageFromCode(result.error.code, 'DownloadStation.Task'), notificationId);
       }
     };
   }

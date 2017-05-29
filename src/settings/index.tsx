@@ -5,8 +5,6 @@ import * as classNamesProxy from 'classnames';
 // https://github.com/rollup/rollup/issues/1267
 const classNames: typeof classNamesProxy = (classNamesProxy as any).default || classNamesProxy;
 
-import { Auth } from 'synology-typescript-api';
-
 import {
   Settings,
   Protocol,
@@ -314,7 +312,7 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
     } else if (connectionTest === 'good') {
       return renderResult('Connection successful!', 'fa-check', 'intent-success');
     } else if (isErrorCodeResult(connectionTest)) {
-      return renderResult(errorMessageFromCode(connectionTest.code, Auth.API_NAME), 'fa-times', 'intent-error');
+      return renderResult(errorMessageFromCode(connectionTest.code, 'Auth'), 'fa-times', 'intent-error');
     } else {
       return renderResult(errorMessageFromConnectionFailure(connectionTest), 'fa-times', 'intent-error');
     }

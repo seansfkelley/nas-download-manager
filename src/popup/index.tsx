@@ -9,7 +9,7 @@ import debounce from 'lodash-es/debounce';
 const moment: typeof momentProxy = (momentProxy as any).default || momentProxy;
 const classNames: typeof classNamesProxy = (classNamesProxy as any).default || classNamesProxy;
 
-import { SynologyResponse, DownloadStation, DownloadStationTask } from 'synology-typescript-api';
+import { SynologyResponse, DownloadStationTask } from 'synology-typescript-api';
 import { VisibleTaskSettings, onStoredStateChange, getHostUrl } from '../state';
 import { getSharedObjects } from '../browserApi';
 import { addDownloadTask, pollTasks } from '../apiActions';
@@ -241,7 +241,7 @@ getSharedObjects()
         if (response.success) {
           return 'success';
         } else {
-          const reason = errorMessageFromCode(response.error.code, DownloadStation.Task.API_NAME);
+          const reason = errorMessageFromCode(response.error.code, 'DownloadStation.Task');
           console.error(`API call failed, reason: ${reason}`);
           return { failMessage: reason };
         }
