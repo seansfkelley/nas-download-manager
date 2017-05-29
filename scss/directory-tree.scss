@@ -1,0 +1,47 @@
+@import 'colors';
+
+.directory-tree {
+  .directory-header {
+    $icon-size: 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: $icon-size;
+    border-radius: 1px;
+
+    .name {
+      flex: 1;
+    }
+
+    .directory-icon-wrapper {
+      width: $icon-size;
+      height: $icon-size;
+      transition: background-color 100ms;
+      border-radius: 1px;
+      line-height: $icon-size;
+      text-align: center;
+
+      .fa.placeholder {
+        visibility: hidden;
+      }
+
+      .fa.expand-collapse {
+        transition: transform 100ms;
+
+        &.is-expanded {
+          transform: rotate(90deg);
+        }
+      }
+
+      &:hover {
+        cursor: pointer;
+        background-color: rgba(0, 0, 0, 0.1);
+      }
+    }
+
+    &.is-selected {
+      background-color: $color-selected;
+    }
+  }
+}

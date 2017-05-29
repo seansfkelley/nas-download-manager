@@ -4,12 +4,13 @@ import * as ReactDOM from 'react-dom';
 import * as momentProxy from 'moment';
 import * as classNamesProxy from 'classnames';
 import debounce from 'lodash-es/debounce';
+import { SynologyResponse, DownloadStationTask, ApiClient } from 'synology-typescript-api';
 
 // https://github.com/rollup/rollup/issues/1267
 const moment: typeof momentProxy = (momentProxy as any).default || momentProxy;
 const classNames: typeof classNamesProxy = (classNamesProxy as any).default || classNamesProxy;
 
-import { SynologyResponse, DownloadStationTask } from 'synology-typescript-api';
+import { PathSelector } from '../common/PathSelector';
 import { VisibleTaskSettings, onStoredStateChange, getHostUrl } from '../state';
 import { getSharedObjects } from '../browserApi';
 import { addDownloadTask, pollTasks } from '../apiActions';
@@ -33,6 +34,7 @@ const NoTasks = (props: { icon: string; text?: string; }) => (
 );
 
 interface PopupProps {
+  api: ApiClient;
   tasks: DownloadStationTask[];
   taskFetchFailureReason: 'missing-config' | { failureMessage: string } | null;
   tasksLastInitiatedFetchTimestamp: number | null;
@@ -192,6 +194,7 @@ class Popup extends React.PureComponent<PopupProps, State> {
               ref={e => { this.addDownloadUrlRef = e; }}
               placeholder='Enter URL here...'
             />
+            <PathSelector client={this.props.api}/>
             <div className='buttons'>
               <button
                 onClick={() => { this.setState({ isAddingDownload: false }); }}
@@ -260,18 +263,18 @@ getSharedObjects()
 
       const openDownloadStationUi = hostUrl
         ? () => {
-          browser.tabs.create({
-            url: hostUrl + '/index.cgi?launchApp=SYNO.SDS.DownloadStation.Application',
-            active: true
-          });
-        }
+            browser.tabs.create({
+              url: hostUrl + '/index.cgi?launchApp=SYNO.SDS.DownloadStation.Application',
+              active: true
+            });
+          }
         : undefined;
 
       const createTask = hostUrl
         ? (url: string) => {
-          return addDownloadTask(api, url)
-            .then(() => { pollTasks(api); });
-        }
+            return addDownloadTask(api, url)
+              .then(() => { pollTasks(api); });
+          }
         : undefined;
 
       const pauseTask = hostUrl
@@ -303,6 +306,7 @@ getSharedObjects()
 
       ReactDOM.render(
         <Popup
+          api={api}
           tasks={storedState.tasks}
           taskFetchFailureReason={storedState.taskFetchFailureReason}
           tasksLastInitiatedFetchTimestamp={storedState.tasksLastInitiatedFetchTimestamp}
