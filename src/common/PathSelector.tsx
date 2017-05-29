@@ -15,7 +15,7 @@ const ROOT_PATH = '/';
 export interface Props {
   client: ApiClient;
   selectedPath: string | undefined;
-  onSelectPath: (path: string) => void;
+  onSelectPath: (path: string | undefined) => void;
 }
 
 export interface State {

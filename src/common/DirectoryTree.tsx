@@ -51,7 +51,7 @@ export interface Props {
   file: DirectoryTreeFile;
   selectedPath?: string;
   requestLoad: (path: string) => void;
-  onSelect: (path: string) => void;
+  onSelect: (path: string | undefined) => void;
 }
 
 export interface State {
@@ -113,6 +113,10 @@ export class DirectoryTree extends React.PureComponent<Props, State> {
     this.setState({ isExpanded });
     if (isExpanded && isUnloadedChild(this.props.file.children)) {
       this.props.requestLoad(this.props.file.path);
+    }
+
+    if (!isExpanded && this.props.selectedPath && this.props.selectedPath.startsWith(this.props.file.path)) {
+      this.props.onSelect(undefined);
     }
   };
 

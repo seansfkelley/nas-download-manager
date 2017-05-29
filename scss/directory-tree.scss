@@ -4,6 +4,10 @@
   $icon-size: 20px;
   $icon-text-margin: 3px;
 
+  &:not(:last-child) {
+    margin-top: 1px;
+  }
+
   .directory-header {
     display: flex;
     align-items: center;
@@ -20,7 +24,7 @@
 
       &:hover {
         color: white;
-        background-color: lighten($color-selected, 0.5);
+        background-color: $color-selected;
         cursor: pointer;
       }
     }

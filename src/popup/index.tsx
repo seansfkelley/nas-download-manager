@@ -10,7 +10,7 @@ import { SynologyResponse, DownloadStationTask, ApiClient } from 'synology-types
 const moment: typeof momentProxy = (momentProxy as any).default || momentProxy;
 const classNames: typeof classNamesProxy = (classNamesProxy as any).default || classNamesProxy;
 
-import { PathSelector } from '../common/PathSelector';
+import { AdvancedAddDownloadForm } from '../common/AdvancedAddDownloadForm';
 import { VisibleTaskSettings, onStoredStateChange, getHostUrl } from '../state';
 import { getSharedObjects } from '../browserApi';
 import { addDownloadTask, pollTasks } from '../apiActions';
@@ -41,7 +41,7 @@ interface PopupProps {
   tasksLastCompletedFetchTimestamp: number | null;
   taskFilter: VisibleTaskSettings;
   openDownloadStationUi?: () => void;
-  createTask?: (url: string) => Promise<void>;
+  createTask?: (url: string, path?: string) => Promise<void>;
   pauseTask?: (taskId: string) => Promise<CallbackResponse>;
   resumeTask?: (taskId: string) => Promise<CallbackResponse>;
   deleteTask?: (taskId: string) => Promise<CallbackResponse>;
@@ -54,7 +54,6 @@ interface State {
 
 class Popup extends React.PureComponent<PopupProps, State> {
   private bodyRef?: HTMLElement;
-  private addDownloadUrlRef?: HTMLTextAreaElement;
 
   state: State = {
     shouldShowDropShadow: false,
@@ -190,28 +189,14 @@ class Popup extends React.PureComponent<PopupProps, State> {
         <div className='add-download-overlay'>
           <div className='backdrop'/>
           <div className='overlay-content'>
-            <textarea
-              ref={e => { this.addDownloadUrlRef = e; }}
-              placeholder='Enter URL here...'
+            <AdvancedAddDownloadForm
+              client={this.props.api}
+              onCancel={() => { this.setState({ isAddingDownload: false }); }}
+              onAddDownload={(url, path) => {
+                this.props.createTask!(url, path);
+                this.setState({ isAddingDownload: false });
+              }}
             />
-            <PathSelector client={this.props.api}/>
-            <div className='buttons'>
-              <button
-                onClick={() => { this.setState({ isAddingDownload: false }); }}
-                title='Cancel adding a new task'
-              >
-                <span className='fa fa-lg fa-times'/> Cancel
-              </button>
-              <button
-                onClick={() => {
-                  this.props.createTask!(this.addDownloadUrlRef!.value);
-                  this.setState({ isAddingDownload: false });
-                }}
-                title='Add the above URL as a new download task'
-              >
-                <span className='fa fa-lg fa-plus'/> Add
-              </button>
-            </div>
           </div>
         </div>
       );
@@ -271,8 +256,8 @@ getSharedObjects()
         : undefined;
 
       const createTask = hostUrl
-        ? (url: string) => {
-            return addDownloadTask(api, url)
+        ? (url: string, path?: string) => {
+            return addDownloadTask(api, url, path)
               .then(() => { pollTasks(api); });
           }
         : undefined;

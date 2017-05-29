@@ -106,8 +106,9 @@ function guessFileName(urlWithoutQuery: string, headers: Record<string, string>)
   return maybeFilename.endsWith('.torrent') ? maybeFilename : maybeFilename + '.torrent';
 }
 
-export function addDownloadTask(api: ApiClient, url: string) {
+export function addDownloadTask(api: ApiClient, url: string, path?: string) {
   const notificationId = notify('Adding download...', url);
+  const destination = path && path.startsWith('/') ? path.slice(1) : undefined;
 
   function notifyTaskAddResult(filename?: string) {
     return (result: ConnectionFailure | SynologyResponse<{}>) => {
@@ -139,13 +140,15 @@ export function addDownloadTask(api: ApiClient, url: string) {
                 const content = new Blob([ response.data ], { type: TORRENT_CONTENT_TYPE });
                 const filename = guessFileName(urlWithoutQuery, response.headers);
                 return api.DownloadStation.Task.Create({
-                    file: { content, filename }
+                    file: { content, filename },
+                    destination
                   })
                   .then(notifyTaskAddResult(filename));
               });
           } else {
             return api.DownloadStation.Task.Create({
-              uri: [ url ]
+              uri: [ url ],
+              destination
             })
               .then(notifyTaskAddResult());
           }
@@ -153,7 +156,8 @@ export function addDownloadTask(api: ApiClient, url: string) {
         .catch(notifyUnexpectedError);
     } else if (startsWithAnyProtocol(url, DOWNLOADABLE_PROTOCOLS)) {
       return api.DownloadStation.Task.Create({
-        uri: [ url ]
+        uri: [ url ],
+        destination
       })
         .then(notifyTaskAddResult())
         .catch(notifyUnexpectedError);
