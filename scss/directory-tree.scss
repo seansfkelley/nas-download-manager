@@ -1,29 +1,45 @@
 @import 'colors';
 
 .directory-tree {
-  .directory-header {
-    $icon-size: 20px;
+  $icon-size: 20px;
+  $icon-text-margin: 3px;
 
+  .directory-header {
     display: flex;
     align-items: center;
     justify-content: center;
     height: $icon-size;
-    border-radius: 1px;
 
     .name {
       flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      border-radius: 2px;
+      padding: 2px $icon-text-margin;
+
+      &:hover {
+        color: white;
+        background-color: lighten($color-selected, 0.5);
+        cursor: pointer;
+      }
     }
 
     .directory-icon-wrapper {
       width: $icon-size;
       height: $icon-size;
       transition: background-color 100ms;
-      border-radius: 1px;
+      border-radius: 2px;
       line-height: $icon-size;
       text-align: center;
 
-      .fa.placeholder {
+      &.placeholder .fa {
         visibility: hidden;
+      }
+
+      .fa {
+        font-size: 0.8em;
+
       }
 
       .fa.expand-collapse {
@@ -34,14 +50,32 @@
         }
       }
 
-      &:hover {
+      &:not(.placeholder):not(.disabled):hover {
         cursor: pointer;
         background-color: rgba(0, 0, 0, 0.1);
       }
+
+      &.disabled {
+        color: $color-text-faded;
+      }
     }
 
-    &.is-selected {
+    &.is-selected .name {
+      color: white;
       background-color: $color-selected;
+    }
+  }
+
+  > .children {
+    padding: 2px 0 2px $icon-size + $icon-text-margin;
+
+    &.loaded {
+      margin: 0;
+    }
+
+    &.loading {
+      font-style: italic;
+      color: $color-text-faded;
     }
   }
 }

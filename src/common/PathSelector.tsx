@@ -14,6 +14,8 @@ const ROOT_PATH = '/';
 
 export interface Props {
   client: ApiClient;
+  selectedPath: string | undefined;
+  onSelectPath: (path: string) => void;
 }
 
 export interface State {
@@ -55,7 +57,8 @@ export class PathSelector extends React.PureComponent<Props, State> {
               key={directory.path}
               file={directory}
               requestLoad={this.loadNestedDirectory}
-              onSelect={console.log.bind(console)}
+              selectedPath={this.props.selectedPath}
+              onSelect={this.props.onSelectPath}
             />
           ))}
         </div>
