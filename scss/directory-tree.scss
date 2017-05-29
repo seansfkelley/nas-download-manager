@@ -79,7 +79,7 @@
 
     &.loading {
       font-style: italic;
-      color: $color-text-faded;
+      color: lighten($color-text-faded, 30%);
     }
   }
 }

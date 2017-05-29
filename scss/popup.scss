@@ -75,8 +75,12 @@ body, #body, .popup {
     overflow-y: auto;
     position: relative;
 
-    &.with-foreground > :not(.add-download-overlay) {
-      filter: blur(1px);
+    &.with-foreground {
+      min-height: 400px;
+
+      > :not(.add-download-overlay) {
+        filter: blur(1px);
+      }
     }
   }
 }
@@ -229,7 +233,16 @@ body, #body, .popup {
     top: 0;
     left: 0;
     right: 0;
+    bottom: 0;
     padding: 10px;
+  }
+
+  .advanced-add-download-form {
+    height: 100%;
+
+    .download-path {
+      flex: 1;
+    }
   }
 }
 

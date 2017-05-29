@@ -2,34 +2,56 @@
 @import 'path-selector';
 
 .advanced-add-download-form {
-  textarea {
-    width: 100%;
-    height: 6em;
-    border-radius: 3px;
+  display: flex;
+  flex-direction: column;
+
+  .card {
+    border-radius: 2px;
     border: 1px solid #aaa;
+    background-color: white;
   }
 
-  .download-path-display {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  .url-input {
+    width: 100%;
+    height: 30px;
+    margin-bottom: 5px;
+    flex-shrink: 0;
+  }
 
-    .path {
-      margin-left: 3px;
+  .download-path {
+    padding: 5px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
 
-      &.faded {
-        color: $color-text-faded;
+    .path-display {
+      flex-shrink: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 3px;
+
+      .path {
+        margin-left: 3px;
+
+        &.faded {
+          color: lighten($color-text-faded, 30%);
+        }
       }
     }
-  }
 
-  .path-selector {
-    max-height: 500px;
-    overflow-y: auto;
+    .path-selector {
+      max-height: 400px;
+      overflow-y: auto;
+      flex: 1;
+    }
   }
 
   .buttons {
     text-align: right;
+    padding: 4px;
+    flex-shrink: 0;
 
     button {
       margin: 5px;

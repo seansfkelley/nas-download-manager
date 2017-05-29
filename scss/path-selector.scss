@@ -1,5 +1,19 @@
+@import 'colors';
 @import 'directory-tree';
 
 .path-selector {
+  .no-content {
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
+    .fa {
+      margin-right: 3px;
+    }
+
+    &:not(.intent-error) {
+      color: lighten($color-text-faded, 30%);
+    }
+  }
 }

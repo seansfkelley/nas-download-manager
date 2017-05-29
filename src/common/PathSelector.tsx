@@ -44,11 +44,18 @@ export class PathSelector extends React.PureComponent<Props, State> {
 
   private renderContent() {
     if (isUnloadedChild(this.state.directoryTree.children)) {
-      return 'Loading...';
+      return (
+        <div className='no-content'>Loading directories...</div>
+      );
     } else if (isErrorChild(this.state.directoryTree.children)) {
-      return this.state.directoryTree.children.failureMessage;
+      return (
+        <div className='no-content intent-error'>
+          <span className='fa fa-exclamation-triangle'/>
+          {this.state.directoryTree.children.failureMessage}
+        </div>
+      );
     } else if (this.state.directoryTree.children.length === 0) {
-      return 'No folders to show!';
+      return <div className='no-content'>No directories.</div>;
     } else {
       return (
         <div>
