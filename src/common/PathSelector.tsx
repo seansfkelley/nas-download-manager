@@ -1,23 +1,36 @@
 import * as React from 'react';
-import { ApiClient, isConnectionFailure } from 'synology-typescript-api';
+import { ApiClient, SynologyResponse, ConnectionFailure, isConnectionFailure } from 'synology-typescript-api';
 import { errorMessageFromConnectionFailure, errorMessageFromCode } from '../apiErrors';
-import { DirectoryTree, DirectoryTreeFileChildren, isErrorChild } from './DirectoryTree';
+import {
+  DirectoryTree,
+  DirectoryTreeFile,
+  isUnloadedChild,
+  isLoadedChild,
+  isErrorChild,
+  recursivelyUpdateDirectoryTree
+} from './DirectoryTree';
+
+const ROOT_PATH = '/';
 
 export interface Props {
   client: ApiClient;
 }
 
 export interface State {
-  directoryTree: DirectoryTreeFileChildren;
+  directoryTree: DirectoryTreeFile;
 }
 
 export class PathSelector extends React.PureComponent<Props, State> {
   state: State = {
-    directoryTree: 'unloaded'
+    directoryTree: {
+      name: '/',
+      path: ROOT_PATH,
+      children: 'unloaded'
+    }
   };
 
   private unsubscribeCallback: (() => void) | undefined;
-  private requestVersion: number = 0;
+  private requestVersionByPath: Record<string, number> = {};
 
   render() {
     return (
@@ -28,20 +41,20 @@ export class PathSelector extends React.PureComponent<Props, State> {
   }
 
   private renderContent() {
-    if (this.state.directoryTree == 'unloaded') {
+    if (isUnloadedChild(this.state.directoryTree.children)) {
       return 'Loading...';
-    } else if (isErrorChild(this.state.directoryTree)) {
-      return this.state.directoryTree.failureMessage;
-    } else if (this.state.directoryTree.length === 0) {
+    } else if (isErrorChild(this.state.directoryTree.children)) {
+      return this.state.directoryTree.children.failureMessage;
+    } else if (this.state.directoryTree.children.length === 0) {
       return 'No folders to show!';
     } else {
       return (
         <div>
-          {this.state.directoryTree.map(directory => (
+          {this.state.directoryTree.children.map(directory => (
             <DirectoryTree
               key={directory.path}
               file={directory}
-              requestLoad={console.log.bind(console)}
+              requestLoad={this.loadNestedDirectory}
               onSelect={console.log.bind(console)}
             />
           ))}
@@ -79,34 +92,58 @@ export class PathSelector extends React.PureComponent<Props, State> {
     }
   }
 
-  private loadTopLevelDirectories = () => {
-    this.setState({ directoryTree: 'unloaded' });
-    const stashedRequestVersion = ++this.requestVersion;
-    this.props.client.FileStation.List.list_share()
-      .then(response => {
-        if (stashedRequestVersion === this.requestVersion) {
-          if (isConnectionFailure(response)) {
-            this.setState({
-              directoryTree: {
-                failureMessage: errorMessageFromConnectionFailure(response)
-              }
-            });
-          } else if (!response.success) {
-            this.setState({
-              directoryTree: {
-                failureMessage: errorMessageFromCode(response.error.code, 'FileStation')
-              }
-            });
-          } else {
-            this.setState({
-              directoryTree: response.data.shares.map(d => ({
-                name: d.name,
-                path: d.path,
-                children: 'unloaded' as 'unloaded'
-              }))
-            });
+  private loadNestedDirectory = (path: string) => {
+    if (!isLoadedChild(this.state.directoryTree.children)) {
+      console.error(`programmer error: cannot load nested directories when top-level directories are not in a valid state`);
+    } else {
+      const stashedRequestVersion = this.requestVersionByPath[path] = (this.requestVersionByPath[path] || 0) + 1;
+      this.props.client.FileStation.List.list({ folder_path: path, sort_by: 'name', filetype: 'dir' })
+        .then(response => {
+          if (stashedRequestVersion === this.requestVersionByPath[path]) {
+            this.updateTreeWithResponse(path, response, data => data.files.map(f => ({
+              path: f.path,
+              name: f.name,
+              children: 'unloaded' as 'unloaded'
+            })));
           }
+        });
+    }
+  };
+
+  private loadTopLevelDirectories = () => {
+    this.setState({
+      directoryTree: recursivelyUpdateDirectoryTree(this.state.directoryTree, ROOT_PATH, 'unloaded')
+    });
+    const stashedRequestVersion = this.requestVersionByPath[ROOT_PATH] = (this.requestVersionByPath[ROOT_PATH] || 0) + 1;
+    this.props.client.FileStation.List.list_share({ sort_by: 'name' })
+      .then(response => {
+        if (stashedRequestVersion === this.requestVersionByPath[ROOT_PATH]) {
+          this.updateTreeWithResponse(ROOT_PATH, response, data => data.shares.map(d => ({
+            name: d.name,
+            path: d.path,
+            children: 'unloaded' as 'unloaded'
+          })));
         }
       });
   };
+
+  private updateTreeWithResponse<T>(path: string, response: SynologyResponse<T> | ConnectionFailure, parseChildren: (data: T) => DirectoryTreeFile[]) {
+    if (isConnectionFailure(response)) {
+      this.setState({
+        directoryTree: recursivelyUpdateDirectoryTree(this.state.directoryTree, path, {
+          failureMessage: errorMessageFromConnectionFailure(response)
+        })
+      });
+    } else if (!response.success) {
+      this.setState({
+        directoryTree: recursivelyUpdateDirectoryTree(this.state.directoryTree, path, {
+          failureMessage: errorMessageFromCode(response.error.code, 'FileStation')
+        })
+      });
+    } else {
+      this.setState({
+        directoryTree: recursivelyUpdateDirectoryTree(this.state.directoryTree, path, parseChildren(response.data))
+      });
+    }
+  }
 }
