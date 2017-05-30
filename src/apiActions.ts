@@ -1,4 +1,4 @@
-import { uniqueId } from 'lodash-es';
+import { uniqueId, find } from 'lodash-es';
 import Axios from 'axios';
 import { ApiClient, ConnectionFailure, isConnectionFailure, SynologyResponse } from 'synology-typescript-api';
 import { errorMessageFromCode, errorMessageFromConnectionFailure } from './apiErrors';
@@ -80,7 +80,15 @@ const DOWNLOADABLE_PROTOCOLS = [
   'qqdl'
 ];
 
-const TORRENT_CONTENT_TYPE = 'application/x-bittorrent';
+interface MetadataFileType {
+  mediaType: string;
+  extension: string;
+}
+
+const METADATA_FILE_TYPES: MetadataFileType[] = [
+  { mediaType: 'application/x-bittorrent', extension: '.torrent' },
+  { mediaType: 'application/x-nzb', extension: '.nzb' },
+];
 
 const ARBITRARY_FILE_FETCH_SIZE_CUTOFF = 1024 * 1024 * 5;
 
@@ -90,7 +98,7 @@ function startsWithAnyProtocol(url: string, protocols: string[]) {
 
 const FILENAME_PROPERTY_REGEX = /filename=("([^"]+)"|([^"][^ ]+))/;
 
-function guessFileName(urlWithoutQuery: string, headers: Record<string, string>) {
+function guessFileName(urlWithoutQuery: string, headers: Record<string, string>, metadataFileType: MetadataFileType) {
   let maybeFilename: string | undefined;
   const contentDisposition = headers['content-disposition'];
   if (contentDisposition && contentDisposition.indexOf('filename=') !== -1) {
@@ -104,7 +112,7 @@ function guessFileName(urlWithoutQuery: string, headers: Record<string, string>)
     maybeFilename = 'download';
   }
 
-  return maybeFilename.endsWith('.torrent') ? maybeFilename : maybeFilename + '.torrent';
+  return maybeFilename.endsWith(metadataFileType.extension) ? maybeFilename : maybeFilename + metadataFileType.extension ;
 }
 
 export function addDownloadTask(api: ApiClient, url: string, path?: string) {
@@ -135,15 +143,18 @@ export function addDownloadTask(api: ApiClient, url: string, path?: string) {
           const contentType = response.headers['content-type'].toLowerCase();
           const contentLength = response.headers['content-length'];
           const urlWithoutQuery = url.indexOf('?') !== -1 ? url.slice(0, url.indexOf('?')) : url;
-          if (((contentType === TORRENT_CONTENT_TYPE) || urlWithoutQuery.endsWith('.torrent')) && !isNaN(contentLength) && contentLength < ARBITRARY_FILE_FETCH_SIZE_CUTOFF) {
+          const metadataFileType = find(METADATA_FILE_TYPES, fileType =>
+            contentType === fileType.mediaType || urlWithoutQuery.endsWith(fileType.extension)
+          );
+          if (metadataFileType && !isNaN(+contentLength) && +contentLength < ARBITRARY_FILE_FETCH_SIZE_CUTOFF) {
             return Axios.get(url, { responseType: 'arraybuffer', timeout: 10000 })
               .then(response => {
-                const content = new Blob([ response.data ], { type: TORRENT_CONTENT_TYPE });
-                const filename = guessFileName(urlWithoutQuery, response.headers);
+                const content = new Blob([ response.data ], { type: metadataFileType.mediaType });
+                const filename = guessFileName(urlWithoutQuery, response.headers, metadataFileType);
                 return api.DownloadStation.Task.Create({
-                    file: { content, filename },
-                    destination
-                  })
+                  file: { content, filename },
+                  destination
+                })
                   .then(notifyTaskAddResult(filename));
               });
           } else {

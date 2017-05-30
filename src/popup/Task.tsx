@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { startCase } from 'lodash-es';
+import { startCase, upperCase } from 'lodash-es';
 import { DownloadStationTask } from 'synology-typescript-api';
 import * as classNamesProxy from 'classnames';
 
@@ -67,32 +67,32 @@ export class Task extends React.PureComponent<Props, State> {
   private renderStatus() {
     if (matchesFilter(this.props.task, 'downloading')) {
       return (
-        `${this.props.task.status.toUpperCase()} \u2013 ` +
+        `${upperCase(this.props.task.status)} \u2013 ` +
         `${formatMetric1024(this.props.task.additional!.transfer!.size_downloaded)}B of ` +
         `${formatMetric1024(this.props.task.size)}B downloaded ` +
         `(${formatMetric1024(this.props.task.additional!.transfer!.speed_download)}B/s)`
       );
     } else if (matchesFilter(this.props.task, 'uploading')) {
       return (
-        `${this.props.task.status.toUpperCase()} \u2013 ` +
+        `${upperCase(this.props.task.status)} \u2013 ` +
         `${formatMetric1024(this.props.task.additional!.transfer!.size_uploaded)}B uploaded ` +
         `(${formatMetric1024(this.props.task.additional!.transfer!.speed_upload)}B/s)`
       );
     } else if (matchesFilter(this.props.task, 'completed')) {
       return (
-        `${this.props.task.status.toUpperCase()} \u2013 ` +
+        `${upperCase(this.props.task.status)} \u2013 ` +
         `${formatMetric1024(this.props.task.size)} downloaded `
       );
     } else if (matchesFilter(this.props.task, 'errored')) {
       return (
         <span className='intent-error'>
           <span className='fa fa-exclamation-triangle error-icon'/>
-          {this.props.task.status.toUpperCase()} {this.props.task.status_extra ? `\u2013 ${startCase(this.props.task.status_extra.error_detail)}` : ''}
+          {upperCase(this.props.task.status)} {this.props.task.status_extra ? `\u2013 ${startCase(this.props.task.status_extra.error_detail)}` : ''}
         </span>
       );
     } else {
       return (
-        `${this.props.task.status.toUpperCase()} \u2013 ` +
+        `${upperCase(this.props.task.status)} \u2013 ` +
         `${formatMetric1024(this.props.task.additional!.transfer!.size_downloaded)}B of ` +
         `${formatMetric1024(this.props.task.size)}B downloaded`
       );
