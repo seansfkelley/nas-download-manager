@@ -74,7 +74,10 @@ const DOWNLOADABLE_PROTOCOLS = [
   'https',
   'ftp',
   'ftps',
-  'magnet'
+  'magnet',
+  'thunder',
+  'flashget',
+  'qqdl'
 ];
 
 const TORRENT_CONTENT_TYPE = 'application/x-bittorrent';
