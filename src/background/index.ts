@@ -38,10 +38,10 @@ onStoredStateChange(storedState => {
   if (storedState.taskFetchFailureReason) {
     browser.browserAction.setIcon({
       path: {
-        "16": "icons/icon-16-disabled.png",
-        "32": "icons/icon-32-disabled.png",
-        "64": "icons/icon-64-disabled.png",
-        "256": "icons/icon-256-disabled.png"
+        '16': 'icons/icon-16-disabled.png',
+        '32': 'icons/icon-32-disabled.png',
+        '64': 'icons/icon-64-disabled.png',
+        '256': 'icons/icon-256-disabled.png'
       }
     });
 
@@ -53,10 +53,10 @@ onStoredStateChange(storedState => {
   } else {
     browser.browserAction.setIcon({
       path: {
-        "16": "icons/icon-16.png",
-        "32": "icons/icon-32.png",
-        "64": "icons/icon-64.png",
-        "256": "icons/icon-256.png"
+        '16': 'icons/icon-16.png',
+        '32': 'icons/icon-32.png',
+        '64': 'icons/icon-64.png',
+        '256': 'icons/icon-256.png'
       }
     });
 
