@@ -22,10 +22,6 @@ onStoredStateChange(storedState => {
     session: SessionName.DownloadStation
   });
 
-  browser.browserAction.setBadgeText({
-    text: storedState.tasks.length === 0 ? '' : storedState.tasks.length.toString()
-  });
-
   if (didUpdateSettings) {
     clearCachedTasks()
       .then(() => { pollTasks(api); });
@@ -38,9 +34,39 @@ onStoredStateChange(storedState => {
       notificationInterval = setInterval(() => { pollTasks(api); }, notificationSettings.pollingInterval * 1000);
     }
   }
-});
 
-onStoredStateChange(storedState => {
+  if (storedState.taskFetchFailureReason) {
+    browser.browserAction.setIcon({
+      path: {
+        "16": "icons/icon-16-disabled.png",
+        "32": "icons/icon-32-disabled.png",
+        "64": "icons/icon-64-disabled.png",
+        "256": "icons/icon-256-disabled.png"
+      }
+    });
+
+    browser.browserAction.setBadgeText({
+      text: ''
+    });
+
+    browser.browserAction.setBadgeBackgroundColor({ color: [ 217, 0, 0, 255 ] });
+  } else {
+    browser.browserAction.setIcon({
+      path: {
+        "16": "icons/icon-16.png",
+        "32": "icons/icon-32.png",
+        "64": "icons/icon-64.png",
+        "256": "icons/icon-256.png"
+      }
+    });
+
+    browser.browserAction.setBadgeText({
+      text: storedState.tasks.length === 0 ? '' : storedState.tasks.length.toString()
+    });
+
+    browser.browserAction.setBadgeBackgroundColor({ color: [ 0, 217, 0, 255 ] });
+  }
+
   if (storedState.tasksLastCompletedFetchTimestamp != null && storedState.tasksLastCompletedFetchTimestamp > START_TIME && storedState.taskFetchFailureReason == null) {
     const updatedFinishedTaskIds = storedState.tasks
       .filter(t => t.status === 'finished' || t.status === 'seeding')

@@ -97,12 +97,16 @@ interface ContextMenusCreateOptions {
   enabled?: boolean;
 }
 
+type ColorArray = [ number, number, number, number ];
+
 declare const browser: {
   extension: {
     getURL: (relativeUrl: string) => string;
   };
   browserAction: {
     setBadgeText: (options: { text: string; tabId?: number; }) => void;
+    setBadgeBackgroundColor: (options: { color: string | ColorArray; tabId?: number }) => void;
+    setIcon: (options: { imageData?: ImageData | Record<string, ImageData>; path?: string | Record<string, string>; tabId?: number; }) => Promise<void>;
   };
   runtime: {
     openOptionsPage: () => Promise<void>;
