@@ -66,9 +66,7 @@ export function pollTasks(api: ApiClient) {
 
 const AUTO_DOWNLOAD_TORRENT_FILE_PROTOCOLS = [
   'http',
-  'https',
-  'ftp',
-  'ftps'
+  'https'
 ];
 
 const DOWNLOADABLE_PROTOCOLS = [
