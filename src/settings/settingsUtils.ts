@@ -36,7 +36,7 @@ export function testConnection(settings: Settings): Promise<ConnectionTestResult
     session: SessionName.DownloadStation
   });
 
-  return api.Auth.Login({ timeout: 10000 })
+  return api.Auth.Login({ timeout: 30000 })
     .then(response => {
       if (isConnectionFailure(response)) {
         return response;
