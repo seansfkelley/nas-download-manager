@@ -152,6 +152,10 @@ body, #body, .popup {
           .status {
             font-size: 0.8em;
             color: $color-text-faded;
+
+            .error-icon {
+              margin-right: 3px;
+            }
           }
         }
 

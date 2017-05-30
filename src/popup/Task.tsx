@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { startCase } from 'lodash-es';
 import { DownloadStationTask } from 'synology-typescript-api';
 import * as classNamesProxy from 'classnames';
 
@@ -85,8 +86,8 @@ export class Task extends React.PureComponent<Props, State> {
     } else if (matchesFilter(this.props.task, 'errored')) {
       return (
         <span className='intent-error'>
-          <span className='fa fa-exclamation-triangle'/>
-          {this.props.task.status.toUpperCase()} {this.props.task.status_extra ? `${this.props.task.status_extra}` : ''}
+          <span className='fa fa-exclamation-triangle error-icon'/>
+          {this.props.task.status.toUpperCase()} {this.props.task.status_extra ? `\u2013 ${startCase(this.props.task.status_extra.error_detail)}` : ''}
         </span>
       );
     } else {
