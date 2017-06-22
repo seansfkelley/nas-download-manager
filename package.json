@@ -10,8 +10,8 @@
     "watch:transpile": "tsc -w",
     "build:bundle": "node build.js",
     "watch:bundle": "node build.js -w",
-    "build": "rm -r lib dist && npm run build:transpile && npm run build:bundle && npm run build:styles",
-    "zip": "rm -f addon.zip && zip -r addon.zip . -i 'dist/*' -i 'html/*' -i 'icons/*' -i 'vendor/*' -i 'manifest.json' -x '**/*.map' -x '**/.DS_Store'"
+    "build": "(rm -r lib dist || true) && npm run build:transpile && npm run build:bundle && npm run build:styles",
+    "zip": "(rm addon.zip || true) && zip -r addon.zip . -i 'dist/*' -i 'html/*' -i 'icons/*' -i 'vendor/*' -i 'manifest.json' -x '**/*.map' -x '**/.DS_Store'"
   },
   "repository": {
     "type": "git",
