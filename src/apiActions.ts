@@ -5,6 +5,8 @@ import { errorMessageFromCode, errorMessageFromConnectionFailure } from './apiEr
 import { CachedTasks } from './state';
 import { notify } from './browserApi';
 
+const NO_PERMISSIONS_ERROR_CODE = 105;
+
 export function clearCachedTasks() {
   const emptyState: CachedTasks = {
     tasks: [],
@@ -17,7 +19,11 @@ export function clearCachedTasks() {
 }
 
 export function pollTasks(api: ApiClient) {
-  const cachedTasks: Partial<CachedTasks> = {
+  return pollTasksHelper(api, false);
+}
+
+function pollTasksHelper(api: ApiClient, failOnSessionPermissionError: boolean): Promise<void> {
+  const cachedTasksInit: Partial<CachedTasks> = {
     tasksLastInitiatedFetchTimestamp: Date.now()
   };
 
@@ -25,7 +31,7 @@ export function pollTasks(api: ApiClient) {
   console.log(`(${pollId}) polling for tasks...`);
 
   return Promise.all([
-    browser.storage.local.set(cachedTasks),
+    browser.storage.local.set(cachedTasksInit),
     api.DownloadStation.Task.List({
       offset: 0,
       limit: -1,
@@ -36,28 +42,42 @@ export function pollTasks(api: ApiClient) {
     .then(([ _, response ]) => {
       console.log(`(${pollId}) poll completed with response`, response);
 
-      const cachedTasks: Partial<CachedTasks> = {
-        tasksLastCompletedFetchTimestamp: Date.now()
-      };
+      function setCachedTasksResponse(cachedTasks: Partial<CachedTasks>) {
+        return browser.storage.local.set({
+          tasksLastCompletedFetchTimestamp: Date.now(),
+          ...cachedTasks
+        });
+      }
 
       if (isConnectionFailure(response)) {
         if (response.type === 'missing-config') {
-          cachedTasks.taskFetchFailureReason = 'missing-config';
+          return setCachedTasksResponse({
+            taskFetchFailureReason: 'missing-config'
+          });
         } else {
-          cachedTasks.taskFetchFailureReason = {
-            failureMessage: errorMessageFromConnectionFailure(response)
-          };
+          return setCachedTasksResponse({
+            taskFetchFailureReason: {
+              failureMessage: errorMessageFromConnectionFailure(response)
+            }
+          });
         }
       } else if (response.success) {
-        cachedTasks.tasks = response.data.tasks;
-        cachedTasks.taskFetchFailureReason = null;
+        return setCachedTasksResponse({
+          tasks: response.data.tasks,
+          taskFetchFailureReason: null
+        })
+      } else if (!failOnSessionPermissionError && response.error.code === NO_PERMISSIONS_ERROR_CODE) {
+        // This state seems to happen when you don't touch the browser for a couple days: I guess the session token
+        // is invalidated in some fashion but the server doesn't respond with that error code, but instead this one.
+        api.Auth.Logout();
+        return pollTasksHelper(api, true);
       } else {
-        cachedTasks.taskFetchFailureReason = {
-          failureMessage: errorMessageFromCode(response.error.code, 'DownloadStation.Task')
-        };
+        return setCachedTasksResponse({
+          taskFetchFailureReason: {
+            failureMessage: errorMessageFromCode(response.error.code, 'DownloadStation.Task')
+          }
+        });
       }
-
-      return browser.storage.local.set(cachedTasks);
     })
     .catch(error => {
       console.error('unexpected error while trying to poll for new tasks; will not attempt to set anything in browser state', error);
