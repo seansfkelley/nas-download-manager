@@ -26,6 +26,7 @@ button {
   padding: 7px;
   height: auto;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 ul.settings-list {
