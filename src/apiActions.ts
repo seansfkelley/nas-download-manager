@@ -141,6 +141,7 @@ export function addDownloadTask(api: ApiClient, url: string, path?: string) {
 
   function notifyTaskAddResult(filename?: string) {
     return (result: ConnectionFailure | SynologyResponse<{}>) => {
+      console.log('task add result', result);
       if (isConnectionFailure(result)) {
         notify('Failed to connection to DiskStation', 'Please check your settings.', notificationId);
       } else if (result.success) {
