@@ -18,6 +18,9 @@ import { CallbackResponse } from './popupTypes';
 import { matchesFilter } from './filtering';
 import { Task } from './Task';
 import { errorMessageFromCode } from '../apiErrors';
+import { shimExtensionApi } from '../apiShim';
+
+shimExtensionApi();
 
 function disabledPropAndClassName(disabled: boolean, className?: string) {
   return {

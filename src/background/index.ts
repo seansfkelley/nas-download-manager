@@ -3,6 +3,9 @@ import { ApiClient, SessionName } from 'synology-typescript-api';
 import { getHostUrl, onStoredStateChange, NotificationSettings, DEFAULT_SETTINGS } from '../state';
 import { setSharedObjects, notify } from '../browserApi';
 import { addDownloadTask, pollTasks, clearCachedTasks } from '../apiActions';
+import { shimExtensionApi } from '../apiShim';
+
+shimExtensionApi();
 
 const api = new ApiClient({});
 const START_TIME = Date.now();

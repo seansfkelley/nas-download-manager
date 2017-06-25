@@ -15,17 +15,17 @@ import {
   loadSettings,
   DEFAULT_SETTINGS
 } from '../state';
-
 import {
   isErrorCodeResult,
   ConnectionTestResult,
   saveSettings,
   testConnection
 } from './settingsUtils';
-
 import { errorMessageFromCode, errorMessageFromConnectionFailure } from '../apiErrors';
-
 import { assertNever } from '../lang';
+import { shimExtensionApi } from '../apiShim';
+
+shimExtensionApi();
 
 interface SettingsFormProps {
   initialSettings: Settings;
