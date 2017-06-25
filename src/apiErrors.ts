@@ -31,6 +31,7 @@ export const ERROR_CODES = {
     408: 'File does not exist.'
   } as Record<string, string>,
   'FileStation': {
+    160: 'The logged in session does not have permission.', // This one I discovered on my own and isn't documented!
     400: 'Invalid parameter of file operation',
     401: 'Unknown error of file operation',
     402: 'System is too busy',
