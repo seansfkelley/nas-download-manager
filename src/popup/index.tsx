@@ -13,7 +13,7 @@ const classNames: typeof classNamesProxy = (classNamesProxy as any).default || c
 import { AdvancedAddDownloadForm } from '../common/AdvancedAddDownloadForm';
 import { VisibleTaskSettings, onStoredStateChange, getHostUrl } from '../state';
 import { getSharedObjects } from '../browserApi';
-import { addDownloadTask, pollTasks } from '../apiActions';
+import { addDownloadTaskAndPoll, pollTasks } from '../apiActions';
 import { CallbackResponse } from './popupTypes';
 import { matchesFilter } from './filtering';
 import { Task } from './Task';
@@ -260,8 +260,7 @@ getSharedObjects()
 
       const createTask = hostUrl
         ? (url: string, path?: string) => {
-            return addDownloadTask(api, url, path)
-              .then(() => { pollTasks(api); });
+            return addDownloadTaskAndPoll(api, url, path);
           }
         : undefined;
 

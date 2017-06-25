@@ -135,7 +135,7 @@ function guessFileName(urlWithoutQuery: string, headers: Record<string, string>,
   return maybeFilename.endsWith(metadataFileType.extension) ? maybeFilename : maybeFilename + metadataFileType.extension ;
 }
 
-export function addDownloadTask(api: ApiClient, url: string, path?: string) {
+export function addDownloadTaskAndPoll(api: ApiClient, url: string, path?: string) {
   const notificationId = notify('Adding download...', url);
   const destination = path && path.startsWith('/') ? path.slice(1) : undefined;
 
@@ -157,6 +157,10 @@ export function addDownloadTask(api: ApiClient, url: string, path?: string) {
     notify('Failed to add download', 'Unexpected error; please check your settings and try again', notificationId);
   }
 
+  function pollOnResponse() {
+    return pollTasks(api);
+  }
+
   if (url) {
     if (startsWithAnyProtocol(url, AUTO_DOWNLOAD_TORRENT_FILE_PROTOCOLS)) {
       return Axios.head(url, { timeout: 10000 })
@@ -176,14 +180,16 @@ export function addDownloadTask(api: ApiClient, url: string, path?: string) {
                   file: { content, filename },
                   destination
                 })
-                  .then(notifyTaskAddResult(filename));
+                  .then(notifyTaskAddResult(filename))
+                  .then(pollOnResponse);
               });
           } else {
             return api.DownloadStation.Task.Create({
               uri: [ url ],
               destination
             })
-              .then(notifyTaskAddResult());
+              .then(notifyTaskAddResult())
+              .then(pollOnResponse);
           }
         })
         .catch(notifyUnexpectedError);
@@ -193,6 +199,7 @@ export function addDownloadTask(api: ApiClient, url: string, path?: string) {
         destination
       })
         .then(notifyTaskAddResult())
+        .then(pollOnResponse)
         .catch(notifyUnexpectedError);
     } else {
       notify('Failed to add download', `URL must start with one of ${DOWNLOADABLE_PROTOCOLS.join(', ')}`, notificationId);

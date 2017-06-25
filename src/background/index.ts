@@ -2,7 +2,7 @@ import { isEqual } from 'lodash-es';
 import { ApiClient, SessionName } from 'synology-typescript-api';
 import { getHostUrl, onStoredStateChange, NotificationSettings, DEFAULT_SETTINGS } from '../state';
 import { setSharedObjects, notify } from '../browserApi';
-import { addDownloadTask, pollTasks, clearCachedTasks } from '../apiActions';
+import { addDownloadTaskAndPoll, pollTasks, clearCachedTasks } from '../apiActions';
 import { shimExtensionApi } from '../apiShim';
 
 shimExtensionApi();
@@ -95,13 +95,13 @@ browser.contextMenus.create({
   contexts: [ 'link', 'audio', 'video', 'selection' ],
   onclick: (data) => {
     if (data.linkUrl) {
-      addDownloadTask(api, data.linkUrl);
+      addDownloadTaskAndPoll(api, data.linkUrl)
     } else if (data.srcUrl) {
-      addDownloadTask(api, data.srcUrl);
+      addDownloadTaskAndPoll(api, data.srcUrl);
     } else if (data.selectionText) {
       // The cheapest of checks. Actual invalid URLs will be caught later.
       if (data.selectionText.indexOf('://') !== -1) {
-        addDownloadTask(api, data.selectionText);
+        addDownloadTaskAndPoll(api, data.selectionText);
       } else {
         notify('Failed to add download', 'Selected text is not a valid URL');
       }
