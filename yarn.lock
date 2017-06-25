@@ -1000,9 +1000,9 @@ string_decoder@~1.0.0:
   dependencies:
     buffer-shims "~1.0.0"
 
-synology-typescript-api@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/synology-typescript-api/-/synology-typescript-api-0.2.0.tgz#2a31e82b605aa3d35104cf12aeca162c50bd2eb9"
+synology-typescript-api@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/synology-typescript-api/-/synology-typescript-api-0.2.1.tgz#2bdfb09c8b65bbd0b7f25f1b689450b5c7588fbd"
   dependencies:
     axios "^0.16.1"
     lodash-es "^4.17.4"
