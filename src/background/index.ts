@@ -44,6 +44,7 @@ onStoredStateChange(storedState => {
         '16': 'icons/icon-16-disabled.png',
         '32': 'icons/icon-32-disabled.png',
         '64': 'icons/icon-64-disabled.png',
+        '128': 'icons/icon-128-disabled.png',
         '256': 'icons/icon-256-disabled.png'
       }
     });
@@ -59,6 +60,7 @@ onStoredStateChange(storedState => {
         '16': 'icons/icon-16.png',
         '32': 'icons/icon-32.png',
         '64': 'icons/icon-64.png',
+        '128': 'icons/icon-128.png',
         '256': 'icons/icon-256.png'
       }
     });
