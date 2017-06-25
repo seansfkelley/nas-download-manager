@@ -19,7 +19,7 @@ Synology Download Manager allows you to add and manage your download tasks on yo
 ### Supported Browsers
 
 - Firefox ([view listing](https://addons.mozilla.org/en-US/firefox/addon/synology-download-manager/))
-- Chrome
+- Chrome ([view listing](https://chrome.google.com/webstore/detail/synology-download-manager/iaijiochiiocodhamehbpmdlobhgghgi))
 
 ## Development
 
