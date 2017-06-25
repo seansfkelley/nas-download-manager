@@ -1,3 +1,4 @@
+import { once } from 'lodash-es';
 import { DownloadStationTask } from 'synology-typescript-api';
 
 export type Protocol = 'http' | 'https';
@@ -116,7 +117,16 @@ export function loadSettings() {
 
 let stateListeners: ((state: AllStoredState) => void)[] = [];
 
+const attachSharedStateListener = once(() => {
+  browser.storage.onChanged.addListener((_changes: StorageChangeEvent<AllStoredState>, areaName) => {
+    if (areaName === 'local') {
+      fetchStateAndNotify(stateListeners);
+    }
+  });
+});
+
 export function onStoredStateChange(listener: (state: AllStoredState) => void) {
+  attachSharedStateListener();
   stateListeners.push(listener);
   fetchStateAndNotify([ listener ]);
 }
@@ -128,9 +138,3 @@ function fetchStateAndNotify(listeners: ((state: AllStoredState) => void)[]) {
       listeners.forEach(l => l(defaultedState));
     });
 }
-
-browser.storage.onChanged.addListener((_changes: StorageChangeEvent<AllStoredState>, areaName) => {
-  if (areaName === 'local') {
-    fetchStateAndNotify(stateListeners);
-  }
-});
