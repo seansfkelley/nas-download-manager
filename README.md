@@ -17,6 +17,8 @@ Synology Download Manager allows you to add and manage your download tasks on yo
 
 Currently, only Firefox 53+ is supported. Adding support for Chrome is tracked by [#3](https://github.com/seansfkelley/synology/issues/3).
 
+## Development
+
 ### Building the Extension
 
 Install [Yarn](https://github.com/yarnpkg/yarn) if you don't already have it.
