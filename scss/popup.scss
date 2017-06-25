@@ -79,7 +79,7 @@ html, body, #body, .popup {
     flex: 1;
     overflow-y: auto;
     position: relative;
-    min-height: 100px;
+    min-height: 50px;
     max-height: $mystery-chrome-height-limit;
 
     &.with-foreground {
