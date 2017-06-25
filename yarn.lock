@@ -180,6 +180,10 @@ builtin-modules@^1.1.0:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/builtin-modules/-/builtin-modules-1.1.1.tgz#270f076c5a72c02f5b65a47df94c5fe3a278892f"
 
+chrome-extension-async@^3.2.4:
+  version "3.2.4"
+  resolved "https://registry.yarnpkg.com/chrome-extension-async/-/chrome-extension-async-3.2.4.tgz#c5b3e206688ca81c903b5e239ff3f9a73a29c47e"
+
 cipher-base@^1.0.0, cipher-base@^1.0.1:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/cipher-base/-/cipher-base-1.0.3.tgz#eeabf194419ce900da3018c207d212f2a6df0a07"

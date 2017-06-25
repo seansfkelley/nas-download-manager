@@ -35,6 +35,7 @@
   },
   "dependencies": {
     "axios": "^0.16.1",
+    "chrome-extension-async": "^3.2.4",
     "classnames": "^2.2.5",
     "lodash-es": "^4.17.4",
     "moment": "^2.18.1",
