@@ -4,8 +4,8 @@
   "description": "An open source browser extension for adding/managing download tasks to your Synology DiskStation.",
   "scripts": {
     "test": "exit 0",
-    "watch:styles": "scss --watch scss:dist/css",
-    "build:styles": "scss --update scss:dist/css",
+    "watch:styles": "npm run build:styles -- --watch",
+    "build:styles": "node-sass --recursive --output dist/css scss",
     "build:transpile": "tsc",
     "watch:transpile": "tsc -w",
     "build:bundle": "node build.js",
@@ -30,7 +30,6 @@
     "rollup-plugin-node-globals": "^1.1.0",
     "rollup-plugin-node-resolve": "^3.0.0",
     "rollup-watch": "^3.2.2",
-    "scss": "^0.2.4",
     "typescript": "^2.2.2"
   },
   "dependencies": {
@@ -39,6 +38,7 @@
     "classnames": "^2.2.5",
     "lodash-es": "^4.17.4",
     "moment": "^2.18.1",
+    "node-sass": "^4.5.3",
     "query-string": "^4.3.4",
     "react": "^15.5.4",
     "react-dom": "^15.5.4",
