@@ -11,7 +11,7 @@
     "build:bundle": "node build.js",
     "watch:bundle": "node build.js -w",
     "build": "rimraf lib dist && npm run build:transpile && npm run build:bundle && npm run build:styles",
-    "zip": "rimraf addon.zip && zip -r addon.zip . -i 'dist/*' -i 'html/*' -i 'icons/*' -i 'vendor/*' -i 'manifest.json' -x '**/*.map' -x '**/.DS_Store'"
+    "zip": "rimraf addon.zip && nodezip -c addon.zip dist html icons vendor manifest.json"
   },
   "repository": {
     "type": "git",
@@ -39,6 +39,7 @@
     "lodash-es": "^4.17.4",
     "moment": "^2.18.1",
     "node-sass": "^4.5.3",
+    "node-zip": "^1.1.1",
     "query-string": "^4.3.4",
     "react": "^15.5.4",
     "react-dom": "^15.5.4",
