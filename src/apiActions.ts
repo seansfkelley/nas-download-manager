@@ -1,11 +1,28 @@
 import { uniqueId, find } from 'lodash-es';
 import Axios from 'axios';
-import { ApiClient, ConnectionFailure, isConnectionFailure, SynologyResponse } from 'synology-typescript-api';
+import { ApiClient, ConnectionFailure, isConnectionFailure, SynologyResponse, DownloadStationTaskCreateRequest } from 'synology-typescript-api';
 import { errorMessageFromCode, errorMessageFromConnectionFailure } from './apiErrors';
 import { CachedTasks } from './state';
 import { notify } from './browserApi';
 
 const NO_PERMISSIONS_ERROR_CODE = 105;
+
+// This state seems to happen when you don't touch the browser for a couple days: I guess the session token
+// is invalidated in some fashion but the server doesn't respond with that error code, but instead this one.
+function wrapInNoPermissionsRetry<T extends (api: ApiClient, ...args: any[]) => Promise<ConnectionFailure | SynologyResponse<any>>>(fn: T): T {
+  return function(api: ApiClient, ...args: any[]) {
+    return fn(api, ...args)
+      .then(result => {
+        if (!isConnectionFailure(result) && !result.success && result.error.code === NO_PERMISSIONS_ERROR_CODE) {
+          console.log(`request got permission failure, will retry once; args:`, args, 'result:', result);
+          api.Auth.Logout();
+          return fn(api, ...args);
+        } else {
+          return result;
+        }
+      });
+  } as T;
+}
 
 export function clearCachedTasks() {
   const emptyState: CachedTasks = {
@@ -18,11 +35,16 @@ export function clearCachedTasks() {
   return browser.storage.local.set(emptyState);
 }
 
-export function pollTasks(api: ApiClient) {
-  return pollTasksHelper(api, false);
-}
+const doTaskPoll = wrapInNoPermissionsRetry((api: ApiClient) => {
+  return api.DownloadStation.Task.List({
+    offset: 0,
+    limit: -1,
+    additional: [ 'transfer' ],
+    timeout: 20000
+  });
+});
 
-function pollTasksHelper(api: ApiClient, failOnSessionPermissionError: boolean): Promise<void> {
+export function pollTasks(api: ApiClient): Promise<void> {
   const cachedTasksInit: Partial<CachedTasks> = {
     tasksLastInitiatedFetchTimestamp: Date.now()
   };
@@ -32,12 +54,7 @@ function pollTasksHelper(api: ApiClient, failOnSessionPermissionError: boolean):
 
   return Promise.all([
     browser.storage.local.set(cachedTasksInit),
-    api.DownloadStation.Task.List({
-      offset: 0,
-      limit: -1,
-      additional: [ 'transfer' ],
-      timeout: 20000
-    })
+    doTaskPoll(api)
   ])
     .then(([ _, response ]) => {
       console.log(`(${pollId}) poll completed with response`, response);
@@ -65,12 +82,7 @@ function pollTasksHelper(api: ApiClient, failOnSessionPermissionError: boolean):
         return setCachedTasksResponse({
           tasks: response.data.tasks,
           taskFetchFailureReason: null
-        })
-      } else if (!failOnSessionPermissionError && response.error.code === NO_PERMISSIONS_ERROR_CODE) {
-        // This state seems to happen when you don't touch the browser for a couple days: I guess the session token
-        // is invalidated in some fashion but the server doesn't respond with that error code, but instead this one.
-        api.Auth.Logout();
-        return pollTasksHelper(api, true);
+        });
       } else {
         return setCachedTasksResponse({
           taskFetchFailureReason: {
@@ -135,6 +147,10 @@ function guessFileName(urlWithoutQuery: string, headers: Record<string, string>,
   return maybeFilename.endsWith(metadataFileType.extension) ? maybeFilename : maybeFilename + metadataFileType.extension ;
 }
 
+const doCreateTask = wrapInNoPermissionsRetry((api: ApiClient, options: DownloadStationTaskCreateRequest) => {
+  return api.DownloadStation.Task.Create(options);
+});
+
 export function addDownloadTaskAndPoll(api: ApiClient, url: string, path?: string) {
   const notificationId = notify('Adding download...', url);
   const destination = path && path.startsWith('/') ? path.slice(1) : undefined;
@@ -176,7 +192,7 @@ export function addDownloadTaskAndPoll(api: ApiClient, url: string, path?: strin
               .then(response => {
                 const content = new Blob([ response.data ], { type: metadataFileType.mediaType });
                 const filename = guessFileName(urlWithoutQuery, response.headers, metadataFileType);
-                return api.DownloadStation.Task.Create({
+                return doCreateTask(api, {
                   file: { content, filename },
                   destination
                 })
@@ -184,7 +200,7 @@ export function addDownloadTaskAndPoll(api: ApiClient, url: string, path?: strin
                   .then(pollOnResponse);
               });
           } else {
-            return api.DownloadStation.Task.Create({
+            return doCreateTask(api, {
               uri: [ url ],
               destination
             })
@@ -194,7 +210,7 @@ export function addDownloadTaskAndPoll(api: ApiClient, url: string, path?: strin
         })
         .catch(notifyUnexpectedError);
     } else if (startsWithAnyProtocol(url, DOWNLOADABLE_PROTOCOLS)) {
-      return api.DownloadStation.Task.Create({
+      return doCreateTask(api, {
         uri: [ url ],
         destination
       })
