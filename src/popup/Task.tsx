@@ -81,7 +81,7 @@ export class Task extends React.PureComponent<Props, State> {
     } else if (matchesFilter(this.props.task, 'completed')) {
       return (
         `${upperCase(this.props.task.status)} \u2013 ` +
-        `${formatMetric1024(this.props.task.size)} downloaded `
+        `${formatMetric1024(this.props.task.size)}B downloaded `
       );
     } else if (matchesFilter(this.props.task, 'errored')) {
       return (
