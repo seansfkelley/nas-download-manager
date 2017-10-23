@@ -1,5 +1,6 @@
 import { uniqueId, find } from 'lodash-es';
 import Axios from 'axios';
+import { parse as parseQueryString } from 'query-string';
 import { ApiClient, ConnectionFailure, isConnectionFailure, SynologyResponse, DownloadStationTaskCreateRequest } from 'synology-typescript-api';
 import { errorMessageFromCode, errorMessageFromConnectionFailure } from './apiErrors';
 import { CachedTasks } from './state';
@@ -210,11 +211,12 @@ export function addDownloadTaskAndPoll(api: ApiClient, url: string, path?: strin
         })
         .catch(notifyUnexpectedError);
     } else if (startsWithAnyProtocol(url, DOWNLOADABLE_PROTOCOLS)) {
+      const filename = url.startsWith('magnet:') ? parseQueryString(url).dn : null;
       return doCreateTask(api, {
         uri: [ url ],
         destination
       })
-        .then(notifyTaskAddResult())
+        .then(notifyTaskAddResult(filename))
         .then(pollOnResponse)
         .catch(notifyUnexpectedError);
     } else {
