@@ -86,11 +86,11 @@ class Popup extends React.PureComponent<PopupProps, State> {
       tooltip = 'The hostname, username or password are not configured.';
       icon = 'fa-gear';
     } else if (this.props.tasksLastCompletedFetchTimestamp == null) {
-      text = 'Loading...';
-      tooltip = 'Loading download tasks...';
+      text = 'Updating...';
+      tooltip = 'Updating download tasks...';
       icon = 'fa-refresh fa-spin';
     } else if (this.props.taskFetchFailureReason != null) {
-      text = 'Error loading tasks'
+      text = 'Error updating tasks'
       tooltip = this.props.taskFetchFailureReason.failureMessage;
       classes = 'intent-error';
       icon = 'fa-exclamation-triangle';
