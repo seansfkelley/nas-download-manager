@@ -11,7 +11,7 @@
     "build:bundle": "node build.js",
     "watch:bundle": "node build.js -w",
     "build": "rimraf lib dist && npm run build:transpile && npm run build:bundle && npm run build:styles",
-    "zip": "rimraf addon.zip && nodezip -c addon.zip dist html icons vendor manifest.json"
+    "zip": "rimraf addon.zip && nodezip -c addon.zip dist html icons vendor _locales manifest.json"
   },
   "repository": {
     "type": "git",

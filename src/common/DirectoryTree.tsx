@@ -80,7 +80,7 @@ export class DirectoryTree extends React.PureComponent<Props, State> {
               'disabled': isErrorChild(this.props.file.children)
             })}
             onClick={isErrorChild(this.props.file.children) ? undefined : this.toggleExpanded}
-            title={isErrorChild(this.props.file.children) ? this.props.file.children.failureMessage : 'Expand/collapse directory'}
+            title={isErrorChild(this.props.file.children) ? this.props.file.children.failureMessage : browser.i18n.getMessage('Expandcollapse_directory')}
           >
             <span
               className={classNames('fa', {
@@ -123,7 +123,7 @@ export class DirectoryTree extends React.PureComponent<Props, State> {
   private renderChildren(): React.ReactNode {
     if (this.state.isExpanded) {
       if (isUnloadedChild(this.props.file.children)) {
-        return <div className='children loading'>Loading...</div>;
+        return <div className='children loading'>{browser.i18n.getMessage('Loading')}</div>;
       } else if (isErrorChild(this.props.file.children)) {
         return null;
       } else if (this.props.file.children.length === 0) {

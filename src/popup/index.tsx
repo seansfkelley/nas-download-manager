@@ -82,20 +82,20 @@ class Popup extends React.PureComponent<PopupProps, State> {
     let icon: string;
 
     if (this.props.taskFetchFailureReason === 'missing-config') {
-      text = 'Settings unconfigured';
-      tooltip = 'The hostname, username or password are not configured.';
+      text = browser.i18n.getMessage('Settings_unconfigured');
+      tooltip = browser.i18n.getMessage('The_hostname_username_or_password_are_not_configured');
       icon = 'fa-gear';
     } else if (this.props.tasksLastCompletedFetchTimestamp == null) {
-      text = 'Updating...';
-      tooltip = 'Updating download tasks...';
+      text = browser.i18n.getMessage('Updating');
+      tooltip = browser.i18n.getMessage('Updating_download_tasks');
       icon = 'fa-refresh fa-spin';
     } else if (this.props.taskFetchFailureReason != null) {
-      text = 'Error updating tasks'
+      text = browser.i18n.getMessage('Error_updating_tasks');
       tooltip = this.props.taskFetchFailureReason.failureMessage;
       classes = 'intent-error';
       icon = 'fa-exclamation-triangle';
     } else {
-      text = `Updated ${moment(this.props.tasksLastCompletedFetchTimestamp).fromNow()}`;
+      text = browser.i18n.getMessage('Updated_$time$', moment(this.props.tasksLastCompletedFetchTimestamp).fromNow());
       tooltip = moment(this.props.tasksLastCompletedFetchTimestamp).format('ll LTS');
       classes = 'intent-success';
       icon = 'fa-check';
@@ -107,7 +107,7 @@ class Popup extends React.PureComponent<PopupProps, State> {
       this.props.tasksLastInitiatedFetchTimestamp > this.props.tasksLastCompletedFetchTimestamp
     ) {
       icon = 'fa-refresh fa-spin';
-      tooltip += ' (updating now)'
+      tooltip += ' ' + browser.i18n.getMessage('updating_now');
     }
 
     return (
@@ -118,21 +118,21 @@ class Popup extends React.PureComponent<PopupProps, State> {
         </div>
         <button
           onClick={() => { this.setState({ isAddingDownload: !this.state.isAddingDownload }); }}
-          title='Add download...'
+          title={browser.i18n.getMessage('Add_download')}
           {...disabledPropAndClassName(this.props.createTask == null)}
         >
           <div className='fa fa-lg fa-plus'/>
         </button>
         <button
           onClick={this.props.openDownloadStationUi}
-          title='Open DownloadStation UI...'
+          title={browser.i18n.getMessage('Open_DownloadStation_UI')}
           {...disabledPropAndClassName(this.props.openDownloadStationUi == null)}
         >
           <div className='fa fa-lg fa-share-square-o'/>
         </button>
         <button
           onClick={() => { browser.runtime.openOptionsPage(); }}
-          title='Open settings...'
+          title={browser.i18n.getMessage('Open_settings')}
           className={classNames({ 'called-out': this.props.taskFetchFailureReason === 'missing-config' })}
         >
           <div className='fa fa-lg fa-cog'/>
@@ -143,11 +143,11 @@ class Popup extends React.PureComponent<PopupProps, State> {
 
   private renderBody() {
     if (this.props.taskFetchFailureReason === 'missing-config') {
-      return <NoTasks icon='fa-gear' text='Configure your hostname, username and password in settings.'/>;
+      return <NoTasks icon='fa-gear' text={browser.i18n.getMessage('Configure_your_hostname_username_and_password_in_settings')}/>;
     } else if (this.props.tasksLastCompletedFetchTimestamp == null) {
       return <NoTasks icon='fa-refresh fa-spin'/>;
     } else if (this.props.tasks.length === 0) {
-      return <NoTasks icon='fa-circle-o' text='No download tasks.'/>;
+      return <NoTasks icon='fa-circle-o' text={browser.i18n.getMessage('No_download_tasks')}/>;
     } else {
       const filteredTasks = this.props.tasks.filter(t =>
         (this.props.taskFilter.downloading && matchesFilter(t, 'downloading')) ||
@@ -157,7 +157,7 @@ class Popup extends React.PureComponent<PopupProps, State> {
         (this.props.taskFilter.other && matchesFilter(t, 'other'))
       );
       if (filteredTasks.length === 0) {
-        return <NoTasks icon='fa-filter' text='Download tasks exist, but none match your filters.'/>;
+        return <NoTasks icon='fa-filter' text={browser.i18n.getMessage('Download_tasks_exist_but_none_match_your_filters"')}/>;
       } else {
         const hiddenTaskCount = this.props.tasks.length - filteredTasks.length;
         return (
@@ -178,7 +178,7 @@ class Popup extends React.PureComponent<PopupProps, State> {
             </ul>
             {hiddenTaskCount > 0 && (
               <div className='hidden-count' onClick={() => { browser.runtime.openOptionsPage(); }}>
-                ...and {hiddenTaskCount} more hidden task(s).
+                {browser.i18n.getMessage('and_$count$_more_hidden_tasks', hiddenTaskCount)}
               </div>)}
           </div>
         );

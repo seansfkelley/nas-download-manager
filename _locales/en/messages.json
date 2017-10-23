@@ -1,0 +1,218 @@
+{
+  "extensionDescription": {
+    "message": "Add and manage Download Station tasks on your Synology DiskStation.",
+    "description": "A description of the extension."
+  },
+  "Download_finished": {
+    "message": "Download finished",
+    "description": "Notification body text."
+  },
+  "Download_with_DownloadStation": {
+    "message": "Download with DownloadStation",
+    "description": "Context menu item title."
+  },
+  "Selected_text_is_not_a_valid_URL": {
+    "message": "Selected text is not a valid URL",
+    "description": "Notification body text."
+  },
+  "Failed_to_add_download": {
+    "message": "Failed to add download",
+    "description": "Notification title."
+  },
+  "URL_is_empty_or_missing!": {
+    "message": "URL is empty or missing",
+    "description": "Notification body text."
+  },
+  "URL_to_download": {
+    "message": "URL to download...",
+    "description": "Placeholder for advanced-add form."
+  },
+  "Download_to": {
+    "message": "Download to",
+    "description": "Lead-in for directory name in advanced-add form."
+  },
+  "default_location": {
+    "message": "default location",
+    "description": "Default value for directory name in advanced-add form."
+  },
+  "Dont_add_a_new_task": {
+    "message": "Don't add a new task",
+    "description": "Tooltip for advanced-add form's Cancel button."
+  },
+  "Cancel": {
+    "message": "Cancel",
+    "description": "Cancel button text."
+  },
+  "Download_the_above_URL_to_the_specified_location": {
+    "message": "Download the above URL to the specified location",
+    "description": "Tooltop for advanced-add form's Add button."
+  },
+  "Add": {
+    "message": "Add",
+    "description": "Add button text."
+  },
+  "Loading...": {
+    "message": "Loading...",
+    "description": "Generic loading text."
+  },
+  "Expandcollapse_directory": {
+    "message": "Expand/collapse directory",
+    "description": "Tooltip for expand/collapse button in directory tree view."
+  },
+  "Settings_unconfigured": {
+    "message": "Settings unconfigured",
+    "description": "Task load failure reason."
+  },
+  "The_hostname_username_or_password_are_not_configured": {
+    "message": "The hostname, username or password are not configured",
+    "description": "Tooltip for a type of task load failure."
+  },
+  "Updating...": {
+    "message": "Updating...",
+    "description": "Generic updating text."
+  },
+  "Updating_download_tasks": {
+    "message": "Updating download tasks...",
+    "description": "Tooltip for updating-in-progress text in popup header."
+  },
+  "Error_updating_tasks": {
+    "message": "Error updating tasks",
+    "description": "Text for popup header on load failure."
+  },
+  "Updated_$time$1": {
+    "message": "Updated $TIME$",
+    "description": "Text for popup header on load success.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "five minutes ago"
+      }
+    }
+  },
+  "updating_now": {
+    "message": "(updating now)",
+    "description": "Aside for tooltip on popup header when an update is in progress."
+  },
+  "Add_download": {
+    "message": "Add download...",
+    "description": "Tooltip for popup header button."
+  },
+  "Open_DownloadStation_UI": {
+    "message": "Open DownloadStation UI...",
+    "description": "Tooltip for popup header button."
+  },
+  "Open_settings": {
+    "message": "Open settings...",
+    "description": "Tooltip for popup header button."
+  },
+  "Configure_your_hostname_username_and_password_in_settings": {
+    "message": "Configure your hostname, username and password in settings.",
+    "description": "Body text for popup when no tasks are shown because nothing is configured."
+  },
+  "No_download_tasks": {
+    "message": "No download tasks.",
+    "description": "Body text for popup when no tasks are shown because there are none."
+  },
+  "Download_tasks_exist_but_none_match_your_filters": {
+    "message": "Download tasks exist, but none match your filters.",
+    "description": "Body text for popup when no tasks are shown because they're all filtered out."
+  },
+  "and_$count$_more_hidden_tasks": {
+    "message": "...and $COUNT$ more hidden task(s).",
+    "description": "Trailing text after task list when some tasks are hidden by filters.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "Remove_download": {
+    "message": "Remove download",
+    "description": "Tooltip for delete button on a task list item."
+  },
+  "Resume": {
+    "message": "Resume",
+    "description": "Tooltip for resume button on a task list item."
+  },
+  "Start_seeding": {
+    "message": "Start seeding",
+    "description": "Tooltip for start-seeding button on a task list item."
+  },
+  "Pause": {
+    "message": "Pause",
+    "description": "Tooltip for pause button on a task list item."
+  },
+  "$status$_$current$_of_$total$_downloaded_$speed$": {
+    "message": "$STATUS$ \u2013 $CURRENT$ of $TOTAL$ downloaded ($SPEED$)",
+    "description": "Subtitle for currently-downloading task showing stats.",
+    "placeholders": {
+      "status": {
+        "content": "$1",
+        "example": "DOWNLOADING"
+      },
+      "current": {
+        "content": "$2",
+        "example": "100KB"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10MB"
+      },
+      "speed": {
+        "content": "$4",
+        "example": "50KB/s"
+      }
+    }
+  },
+  "$status$_$total$_uploaded_$speed$": {
+    "message": "$STATUS$ \u2013 $TOTAL$ uploaded ($SPEED$)",
+    "description": "Subtitle for currently-uploading task showing stats.",
+    "placeholders": {
+      "status": {
+        "content": "$1",
+        "example": "UPLOADING"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10MB"
+      },
+      "speed": {
+        "content": "$3",
+        "example": "50KB/s"
+      }
+    }
+  },
+  "$status$_$total$_downloaded": {
+    "message": "$STATUS$ \u2013 $TOTAL$ downloaded",
+    "description": "Subtitle for completed, not-uploading task showing stats.",
+    "placeholders": {
+      "status": {
+        "content": "$1",
+        "example": "COMPLETED"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10MB"
+      }
+    }
+  },
+  "$status$_$current$_of_$total$_downloaded": {
+    "message": "$STATUS$ \u2013 $CURRENT$ of $TOTAL$ downloaded",
+    "description": "Subtitle for status-unknown task showing stats (best effort).",
+    "placeholders": {
+      "status": {
+        "content": "$1",
+        "example": "OTHER"
+      },
+      "current": {
+        "content": "$2",
+        "example": "100KB"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10MB"
+      }
+    }
+  }
+}

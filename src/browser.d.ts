@@ -133,4 +133,7 @@ declare const browser: {
     create: (options?: ContextMenusCreateOptions, callback?: () => void) => number | string;
     update: (id: number | string, options?: ContextMenusCreateOptions) => Promise<void>;
   };
+  i18n: {
+    getMessage: (messageName: string, ...placeholders: (string | number)[]) => string;
+  };
 };

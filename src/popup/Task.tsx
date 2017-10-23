@@ -66,22 +66,22 @@ export class Task extends React.PureComponent<Props, State> {
 
   private renderStatus() {
     if (matchesFilter(this.props.task, 'downloading')) {
-      return (
-        `${upperCase(this.props.task.status)} \u2013 ` +
-        `${formatMetric1024(this.props.task.additional!.transfer!.size_downloaded)}B of ` +
-        `${formatMetric1024(this.props.task.size)}B downloaded ` +
-        `(${formatMetric1024(this.props.task.additional!.transfer!.speed_download)}B/s)`
+      return browser.i18n.getMessage('$status$_$current$_of_$total$_downloaded_$speed$',
+        upperCase(this.props.task.status),
+        `${formatMetric1024(this.props.task.additional!.transfer!.size_downloaded)}B`,
+        `${formatMetric1024(this.props.task.size)}B}`,
+        `${formatMetric1024(this.props.task.additional!.transfer!.speed_download)}B/s`
       );
     } else if (matchesFilter(this.props.task, 'uploading')) {
-      return (
-        `${upperCase(this.props.task.status)} \u2013 ` +
-        `${formatMetric1024(this.props.task.additional!.transfer!.size_uploaded)}B uploaded ` +
-        `(${formatMetric1024(this.props.task.additional!.transfer!.speed_upload)}B/s)`
+      return browser.i18n.getMessage('$status$_$total$_uploaded_$speed$',
+          upperCase(this.props.task.status),
+          `${formatMetric1024(this.props.task.additional!.transfer!.size_uploaded)}B`,
+          `${formatMetric1024(this.props.task.additional!.transfer!.speed_upload)}B/s`
       );
     } else if (matchesFilter(this.props.task, 'completed')) {
-      return (
-        `${upperCase(this.props.task.status)} \u2013 ` +
-        `${formatMetric1024(this.props.task.size)}B downloaded `
+      return browser.i18n.getMessage('$status$_$total$_downloaded',
+        upperCase(this.props.task.status),
+        `${formatMetric1024(this.props.task.size)}B`
       );
     } else if (matchesFilter(this.props.task, 'errored')) {
       return (
@@ -91,10 +91,10 @@ export class Task extends React.PureComponent<Props, State> {
         </span>
       );
     } else {
-      return (
-        `${upperCase(this.props.task.status)} \u2013 ` +
-        `${formatMetric1024(this.props.task.additional!.transfer!.size_downloaded)}B of ` +
-        `${formatMetric1024(this.props.task.size)}B downloaded`
+      return browser.i18n.getMessage('$status$_$current$_of_$total$_downloaded',
+        upperCase(this.props.task.status),
+        `${formatMetric1024(this.props.task.additional!.transfer!.size_downloaded)}B`,
+        `${formatMetric1024(this.props.task.size)}B}`
       );
     }
   }
@@ -128,11 +128,11 @@ export class Task extends React.PureComponent<Props, State> {
       return renderButton(undefined, 'in-progress');
     } else if (this.state.pauseResumeState === 'none') {
       if (this.props.task.status === 'paused') {
-        return renderButton('Resume', 'resumable');
+        return renderButton(browser.i18n.getMessage('Resume'), 'resumable');
       } else if (this.props.task.status === 'finished') {
-        return renderButton('Start seeding', 'resumable');
+        return renderButton(browser.i18n.getMessage('Start_seeding'), 'resumable');
       } else {
-        return renderButton('Pause', 'pausable');
+        return renderButton(browser.i18n.getMessage('Pause'), 'pausable');
       }
     } else {
       return renderButton(this.state.pauseResumeState.failMessage, 'failed');
@@ -143,10 +143,10 @@ export class Task extends React.PureComponent<Props, State> {
     let title: string = '';
     let disabled: boolean = this.state.pauseResumeState === 'in-progress';
     if (this.deleteTask == null || this.state.deleteState === 'in-progress') {
-      title = 'Remove download';
+      title = browser.i18n.getMessage('Remove_download');
       disabled = true;
     } else if (this.state.deleteState === 'none') {
-      title = 'Remove download';
+      title = browser.i18n.getMessage('Remove_download');
     } else if (this.state.deleteState !== 'success') {
       title = this.state.deleteState.failMessage;
       disabled = true;

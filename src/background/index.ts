@@ -81,7 +81,7 @@ onStoredStateChange(storedState => {
       newlyFinishedTaskIds.forEach(id => {
         const task = storedState.tasks.filter(t => t.id === id)[0];
         if (storedState.notifications.enabled) {
-          notify(`${task.title}`, 'Download finished');
+          notify(`${task.title}`, browser.i18n.getMessage('Download_finished'));
         }
       });
     }
@@ -93,7 +93,7 @@ onStoredStateChange(storedState => {
 
 browser.contextMenus.create({
   enabled: true,
-  title: 'Download with DownloadStation',
+  title: browser.i18n.getMessage('Download_with_DownloadStation'),
   contexts: [ 'link', 'audio', 'video', 'selection' ],
   onclick: (data) => {
     if (data.linkUrl) {
@@ -105,10 +105,10 @@ browser.contextMenus.create({
       if (data.selectionText.indexOf('://') !== -1) {
         addDownloadTaskAndPoll(api, data.selectionText);
       } else {
-        notify('Failed to add download', 'Selected text is not a valid URL');
+        notify(browser.i18n.getMessage('Failed_to_add_download'), browser.i18n.getMessage('Selected_text_is_not_a_valid_URL'));
       }
     } else {
-      notify('Failed to add download', 'URL is empty or missing!');
+      notify(browser.i18n.getMessage('Failed_to_add_download'), browser.i18n.getMessage('URL_is_empty_or_missing'));
     }
   }
 });

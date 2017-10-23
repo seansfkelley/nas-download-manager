@@ -32,16 +32,16 @@ export class AdvancedAddDownloadForm extends React.PureComponent<Props, State> {
       <div className='advanced-add-download-form'>
         <input
           type='text'
-          placeholder='URL to download...'
+          placeholder={browser.i18n.getMessage('URL_to_download')}
           value={this.state.downloadUrl}
           onChange={e => { this.setState({ downloadUrl: e.currentTarget.value }); }}
           className='url-input card'
         />
         <div className='download-path card'>
           <div className='path-display' title={this.state.selectedPath}>
-            Download to
+            {browser.i18n.getMessage('Download_to')}
             <span className={classNames('path', { 'faded': !this.state.selectedPath })}>
-              {this.state.selectedPath ? last(this.state.selectedPath.split('/')) : 'default location'}
+              {this.state.selectedPath ? last(this.state.selectedPath.split('/')) : browser.i18n.getMessage('default_location')}
             </span>
           </div>
           <PathSelector
@@ -53,17 +53,17 @@ export class AdvancedAddDownloadForm extends React.PureComponent<Props, State> {
         <div className='buttons'>
           <button
             onClick={this.props.onCancel}
-            title={'Don\'t add a new task'}
+            title={browser.i18n.getMessage('Dont_add_a_new_task')}
           >
-            <span className='fa fa-lg fa-times'/> Cancel
+            <span className='fa fa-lg fa-times'/> {browser.i18n.getMessage('Cancel')}
           </button>
           <button
             onClick={this.addDownload}
-            title='Download the above URL to the specified location'
+            title={browser.i18n.getMessage('Download_the_above_URL_to_the_specified_location')}
             disabled={!hasDownloadUrl}
             className={classNames({ 'disabled': !hasDownloadUrl })}
           >
-            <span className='fa fa-lg fa-plus'/> Add
+            <span className='fa fa-lg fa-plus'/> {browser.i18n.getMessage('Add')}
           </button>
         </div>
       </div>

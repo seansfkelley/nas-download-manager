@@ -2,7 +2,8 @@
   "manifest_version": 2,
   "name": "Synology Download Manager",
   "version": "0.2.2",
-  "description": "Add and manage Download Station tasks on your Synology DiskStation.",
+  "description": "__MSG_extensionDescription__",
+  "default_locale": "en",
   "background": {
     "scripts": [ "dist/js/background.js" ]
   },
