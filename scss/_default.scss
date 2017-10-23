@@ -1,0 +1,21 @@
+button {
+  border-radius: 2px;
+  background-color: #f9f9f9;
+  border: 1px solid #999;
+  padding: 3px 8px;
+  font-size: 1em;
+
+  &.disabled, &:disabled {
+    border-color: #ccc;
+  }
+
+  &:not(.disabled):not(:disabled) {
+    &:hover {
+      background-color: #f0f0f0;
+    }
+
+    &:active {
+      background-color: #ddd;
+    }
+  }
+}

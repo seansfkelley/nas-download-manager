@@ -1,4 +1,5 @@
 @import 'colors';
+@import 'default';
 @import 'advanced-add-download-form';
 
 // Weird stuff happens when the contents of the popup change the size of the actual popup's container.
@@ -63,7 +64,7 @@ html, body, #body, .popup {
 
       &.called-out {
         animation-name: shadow-glow;
-        animation-duration: 2s;
+        animation-duration: 1s;
         animation-iteration-count: infinite;
         animation-timing-function: ease-in-out;
         animation-direction: alternate;

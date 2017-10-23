@@ -1,0 +1,41 @@
+/*
+These styles were originally ripped from chrome://browser/content/extension.css
+and slightly modified to apply to other types of form fields that I use.
+*/
+
+/* Fields */
+input[type="text"],
+input[type="password"],
+input[type="number"],
+textarea,
+select {
+  &:not(textarea) {
+    height: 24px;
+  }
+
+  background-color: #fff;
+  border: 1px solid #b1b1b1;
+  box-shadow: 0 0 0 0 rgba(97, 181, 255, 0);
+  font: caption;
+  padding: 0 6px 0;
+  transition-duration: 250ms;
+  transition-property: box-shadow;
+
+  &.hover {
+    border: 1px solid #858585;
+  }
+
+  &.disabled, &:disabled {
+    color: #999;
+    opacity: .5;
+  }
+
+  &.focused, &:focus, &:focus:hover {
+    border-color: #0996f8;
+    box-shadow: 0 0 0 2px rgba(97, 181, 255, 0.75);
+  }
+
+  &:not(:disabled):hover {
+    border: 1px solid #858585;
+  }
+}
