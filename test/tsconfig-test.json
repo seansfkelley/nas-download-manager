@@ -1,0 +1,7 @@
+{
+  "extends": "../src/tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "rootDir": ".."
+  }
+}

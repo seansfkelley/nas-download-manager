@@ -3,15 +3,15 @@
   "version": "0.1.0",
   "description": "An open source browser extension for adding/managing download tasks to your Synology DiskStation.",
   "scripts": {
-    "test": "exit 0",
+    "test": "TS_NODE_PROJECT=test/tsconfig-test.json mocha --require ts-node/register 'test/**/*.{ts,tsx}'",
     "build:styles": "node-sass --recursive --output dist/css scss",
     "watch:styles": "npm run build:styles -- --watch",
-    "build:transpile": "tsc",
-    "watch:transpile": "tsc -w",
+    "build:transpile": "tsc -p src",
+    "watch:transpile": "tsc -p src -w",
     "build:bundle": "node build.js",
     "watch:bundle": "node build.js -w",
     "build": "rimraf lib dist && npm run build:transpile && npm run build:bundle && npm run build:styles",
-    "zip": "rimraf addon.zip && nodezip -c addon.zip dist html icons vendor manifest.json"
+    "zip": "rimraf addon.zip && nodezip -c addon.zip dist html icons vendor _locales manifest.json"
   },
   "repository": {
     "type": "git",
@@ -19,17 +19,23 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@types/chai": "^4.0.4",
     "@types/classnames": "^0.0.32",
     "@types/lodash-es": "^4.14.5",
+    "@types/mocha": "^2.2.44",
+    "@types/node": "^8.0.47",
     "@types/query-string": "^4.3.1",
     "@types/react": "^15.0.23",
     "@types/react-dom": "^15.5.0",
+    "chai": "^4.1.2",
+    "mocha": "^4.0.1",
     "rollup": "^0.41.6",
     "rollup-plugin-commonjs": "^8.0.2",
     "rollup-plugin-node-builtins": "^2.1.0",
     "rollup-plugin-node-globals": "^1.1.0",
     "rollup-plugin-node-resolve": "^3.0.0",
     "rollup-watch": "^3.2.2",
+    "ts-node": "^3.3.0",
     "typescript": "^2.2.2"
   },
   "dependencies": {

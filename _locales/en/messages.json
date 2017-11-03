@@ -1,0 +1,518 @@
+{
+  "Add_and_manage_Download_Station_tasks_on_your_Synology_DiskStation": {
+    "message": "Add and manage Download Station tasks on your Synology DiskStation.",
+    "description": "A description of the extension."
+  },
+  "Download_finished": {
+    "message": "Download finished",
+    "description": "Notification body text."
+  },
+  "Download_with_DownloadStation": {
+    "message": "Download with DownloadStation",
+    "description": "Context menu item title."
+  },
+  "Selected_text_is_not_a_valid_URL": {
+    "message": "Selected text is not a valid URL",
+    "description": "Notification body text."
+  },
+  "Failed_to_add_download": {
+    "message": "Failed to add download",
+    "description": "Notification title."
+  },
+  "URL_is_empty_or_missing": {
+    "message": "URL is empty or missing",
+    "description": "Notification body text."
+  },
+  "URL_to_download": {
+    "message": "URL to download...",
+    "description": "Placeholder for advanced-add form."
+  },
+  "Download_to": {
+    "message": "Download to",
+    "description": "Lead-in for directory name in advanced-add form."
+  },
+  "default_location": {
+    "message": "default location",
+    "description": "Default value for directory name in advanced-add form."
+  },
+  "Dont_add_a_new_task": {
+    "message": "Don't add a new task",
+    "description": "Tooltip for advanced-add form's Cancel button."
+  },
+  "Cancel": {
+    "message": "Cancel",
+    "description": "Cancel button text."
+  },
+  "Download_the_above_URL_to_the_specified_location": {
+    "message": "Download the above URL to the specified location",
+    "description": "Tooltop for advanced-add form's Add button."
+  },
+  "Add": {
+    "message": "Add",
+    "description": "Add button text."
+  },
+  "Loading": {
+    "message": "Loading...",
+    "description": "Generic loading text."
+  },
+  "Expandcollapse_directory": {
+    "message": "Expand/collapse directory",
+    "description": "Tooltip for expand/collapse button in directory tree view."
+  },
+  "Settings_unconfigured": {
+    "message": "Settings unconfigured",
+    "description": "Task load failure reason."
+  },
+  "The_hostname_username_or_password_are_not_configured": {
+    "message": "The hostname, username or password are not configured",
+    "description": "Tooltip for a type of task load failure."
+  },
+  "Updating": {
+    "message": "Updating...",
+    "description": "Generic updating text."
+  },
+  "Updating_download_tasks": {
+    "message": "Updating download tasks...",
+    "description": "Tooltip for updating-in-progress text in popup header."
+  },
+  "Error_updating_tasks": {
+    "message": "Error updating tasks",
+    "description": "Text for popup header on load failure."
+  },
+  "Updated_$time$": {
+    "message": "Updated $TIME$",
+    "description": "Text for popup header on load success.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "five minutes ago"
+      }
+    }
+  },
+  "updating_now": {
+    "message": "(updating now)",
+    "description": "Aside for tooltip on popup header when an update is in progress."
+  },
+  "Add_download": {
+    "message": "Add download...",
+    "description": "Tooltip for popup header button."
+  },
+  "Open_DownloadStation_UI": {
+    "message": "Open DownloadStation UI...",
+    "description": "Tooltip for popup header button."
+  },
+  "Open_settings": {
+    "message": "Open settings...",
+    "description": "Tooltip for popup header button."
+  },
+  "Configure_your_hostname_username_and_password_in_settings": {
+    "message": "Configure your hostname, username and password in settings.",
+    "description": "Body text for popup when no tasks are shown because nothing is configured."
+  },
+  "No_download_tasks": {
+    "message": "No download tasks.",
+    "description": "Body text for popup when no tasks are shown because there are none."
+  },
+  "Download_tasks_exist_but_none_match_your_filters": {
+    "message": "Download tasks exist, but none match your filters.",
+    "description": "Body text for popup when no tasks are shown because they're all filtered out."
+  },
+  "and_$count$_more_hidden_tasks": {
+    "message": "...and $COUNT$ more hidden task(s).",
+    "description": "Trailing text after task list when some tasks are hidden by filters.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "Remove_download": {
+    "message": "Remove download",
+    "description": "Tooltip for delete button on a task list item."
+  },
+  "Resume": {
+    "message": "Resume",
+    "description": "Tooltip for resume button on a task list item."
+  },
+  "Start_seeding": {
+    "message": "Start seeding",
+    "description": "Tooltip for start-seeding button on a task list item."
+  },
+  "Pause": {
+    "message": "Pause",
+    "description": "Tooltip for pause button on a task list item."
+  },
+  "$status$_$current$_of_$total$_downloaded_$speed$": {
+    "message": "$STATUS$ \u2013 $CURRENT$ of $TOTAL$ downloaded ($SPEED$)",
+    "description": "Subtitle for currently-downloading task showing stats.",
+    "placeholders": {
+      "status": {
+        "content": "$1",
+        "example": "DOWNLOADING"
+      },
+      "current": {
+        "content": "$2",
+        "example": "100KB"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10MB"
+      },
+      "speed": {
+        "content": "$4",
+        "example": "50KB/s"
+      }
+    }
+  },
+  "$status$_$total$_uploaded_$speed$": {
+    "message": "$STATUS$ \u2013 $TOTAL$ uploaded ($SPEED$)",
+    "description": "Subtitle for currently-uploading task showing stats.",
+    "placeholders": {
+      "status": {
+        "content": "$1",
+        "example": "UPLOADING"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10MB"
+      },
+      "speed": {
+        "content": "$3",
+        "example": "50KB/s"
+      }
+    }
+  },
+  "$status$_$total$_downloaded": {
+    "message": "$STATUS$ \u2013 $TOTAL$ downloaded",
+    "description": "Subtitle for completed, not-uploading task showing stats.",
+    "placeholders": {
+      "status": {
+        "content": "$1",
+        "example": "COMPLETED"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10MB"
+      }
+    }
+  },
+  "$status$_$current$_of_$total$_downloaded": {
+    "message": "$STATUS$ \u2013 $CURRENT$ of $TOTAL$ downloaded",
+    "description": "Subtitle for status-unknown task showing stats (best effort).",
+    "placeholders": {
+      "status": {
+        "content": "$1",
+        "example": "OTHER"
+      },
+      "current": {
+        "content": "$2",
+        "example": "100KB"
+      },
+      "total": {
+        "content": "$3",
+        "example": "10MB"
+      }
+    }
+  },
+  "Downloading": {
+    "message": "Downloading",
+    "description": "Task status filtering category."
+  },
+  "Completed_uploading": {
+    "message": "Completed, uploading",
+    "description": "Task status filtering category."
+  },
+  "Completed_not_uploading": {
+    "message": "Completed, not uploading",
+    "description": "Task status filtering category."
+  },
+  "Errored": {
+    "message": "Errored",
+    "description": "Task status filtering category."
+  },
+  "Other": {
+    "message": "Other",
+    "description": "Task status filtering category."
+  },
+  "Connection": {
+    "message": "Connection",
+    "description": "Header for settings section."
+  },
+  "Please_note_that_QuickConnect_IDs_are_not_currently_supported": {
+    "message": "Please note that QuickConnect IDs are not currently supported.",
+    "description": "Subheader for Connection settings section."
+  },
+  "hostname_or_IP_address": {
+    "message": "hostname or IP address",
+    "description": "Placeholder for settings input field."
+  },
+  "Username": {
+    "message": "Username",
+    "description": "Label for field on settings page."
+  },
+  "Password": {
+    "message": "Password",
+    "description": "Label for field on settings page."
+  },
+  "Test_Connection": {
+    "message": "Test Connection",
+    "description": "Label for button on settings page."
+  },
+  "Downloads_List": {
+    "message": "Downloads List",
+    "description": "Header for settings section."
+  },
+  "Display_these_task_types_in_the_popup_menu": {
+    "message": "Display these task types in the popup menu.",
+    "description": "Subheader for DownloadsList settings section."
+  },
+  "Notifications": {
+    "message": "Notifications",
+    "description": "Header for settings section."
+  },
+  "Notify_when_downloads_complete": {
+    "message": "Notify when downloads complete",
+    "description": "Label for option on settings page."
+  },
+  "Check_for_completed_downloads_every": {
+    "message": "Check for completed downloads every",
+    "description": "Prefix for inlined notification interval setting field."
+  },
+  "seconds": {
+    "message": "seconds",
+    "description": "Suffix for inlined notification interval setting field."
+  },
+  "at_least_15": {
+    "message": "(at least 15)",
+    "description": "Error message when notification interval is too short."
+  },
+  "Checking_connection": {
+    "message": "Checking connection...",
+    "description": "Message for connection test status."
+  },
+  "No_changes_to_save": {
+    "message": "No changes to save.",
+    "description": "Message for connection test status."
+  },
+  "Changes_saved": {
+    "message": "Changes saved.",
+    "description": "Message for connection test status."
+  },
+  "Save_failed_check_your_connection_settings": {
+    "message": "Save failed (check your connection settings).",
+    "description": "Message for connection test status."
+  },
+  "Testing_connection": {
+    "message": "Testing connection...",
+    "description": "Message for connection test status."
+  },
+  "Connection_successful": {
+    "message": "Connection successful!",
+    "description": "Message for connection test status."
+  },
+  "Save_Settings": {
+    "message": "Save Settings",
+    "description": "Label for global save-settings button on settings page."
+  },
+  "Connection_failure_missing_connection_configuration": {
+    "message": "Connection failure (missing connection configuration).",
+    "description": "Connection failure explanatory text."
+  },
+  "Connection_failure_likely_wrong_protocol": {
+    "message": "Connection failure (likely wrong protocol).",
+    "description": "Connection failure explanatory text."
+  },
+  "Connection_failure_likely_wrong_hostnameport_or_no_internet_connection": {
+    "message": "Connection failure (likely wrong hostname/port or no internet connection).",
+    "description": "Connection failure explanatory text."
+  },
+  "Connection_failure_timeout_check_your_hostnameport_settings_and_internet_connection": {
+    "message": "Connection failure (timeout; check your hostname/port settings and internet connection).",
+    "description": "Connection failure explanatory text."
+  },
+  "Connection_failure_unknown_reason": {
+    "message": "Connection failure (unknown reason).",
+    "description": "Connection failure explanatory text."
+  },
+  "Unknown_error": {
+    "message": "Unknown error.",
+    "description": "Error message on Synology API call failure."
+  },
+  "Invalid_parameter": {
+    "message": "Invalid parameter.",
+    "description": "Error message on Synology API call failure."
+  },
+  "The_requested_API_does_not_exist": {
+    "message": "The requested API does not exist.",
+    "description": "Error message on Synology API call failure."
+  },
+  "The_requested_method_does_not_exist": {
+    "message": "The requested method does not exist.",
+    "description": "Error message on Synology API call failure."
+  },
+  "The_requested_version_does_not_support_this_functionality": {
+    "message": "The requested version does not support this functionality.",
+    "description": "Error message on Synology API call failure."
+  },
+  "The_logged_in_session_does_not_have_permission": {
+    "message": "The logged in session does not have permission.",
+    "description": "Error message on Synology API call failure."
+  },
+  "Session_timeout": {
+    "message": "Session timeout.",
+    "description": "Error message on Synology API call failure."
+  },
+  "Session_interrupted_by_duplicate_login": {
+    "message": "Session interrupted by duplicate login.",
+    "description": "Error message on Synology API call failure."
+  },
+  "No_such_username_or_incorrect_password": {
+    "message": "No such username or incorrect password.",
+    "description": "Error message on Synology API call failure."
+  },
+  "Account_disabled": {
+    "message": "Account disabled.",
+    "description": "Error message on Synology API call failure."
+  },
+  "Permission_denied": {
+    "message": "Permission denied.",
+    "description": "Error message on Synology API call failure."
+  },
+  "Twostep_verification_needed": {
+    "message": "Two-step verification needed.",
+    "description": "Error message on Synology API call failure."
+  },
+  "Twostep_verification_failed": {
+    "message": "Two-step verification failed.",
+    "description": "Error message on Synology API call failure."
+  },
+  "File_upload_failed": {
+    "message": "File upload failed.",
+    "description": "Error message on Synology API call failure."
+  },
+  "Max_number_of_tasks_reached": {
+    "message": "Max number of tasks reached.",
+    "description": "Error message on Synology API call failure."
+  },
+  "Destination_denied": {
+    "message": "Destination denied.",
+    "description": "Error message on Synology API call failure."
+  },
+  "Destination_does_not_exist": {
+    "message": "Destination does not exist.",
+    "description": "Error message on Synology API call failure."
+  },
+  "Invalid_task_ID": {
+    "message": "Invalid task ID.",
+    "description": "Error message on Synology API call failure."
+  },
+  "Invalid_task_action": {
+    "message": "Invalid task action.",
+    "description": "Error message on Synology API call failure."
+  },
+  "No_default_destination": {
+    "message": "No default destination.",
+    "description": "Error message on Synology API call failure."
+  },
+  "Set_destination_failed": {
+    "message": "Set destination failed.",
+    "description": "Error message on Synology API call failure."
+  },
+  "File_does_not_exist": {
+    "message": "File does not exist.",
+    "description": "Error message on Synology API call failure."
+  },
+  "Invalid_parameter_of_file_operation": {
+    "message": "Invalid parameter of file operation",
+    "description": "Error message on Synology API call failure."
+  },
+  "Unknown_error_of_file_operation": {
+    "message": "Unknown error of file operation",
+    "description": "Error message on Synology API call failure."
+  },
+  "System_is_too_busy": {
+    "message": "System is too busy",
+    "description": "Error message on Synology API call failure."
+  },
+  "Invalid_user_does_this_file_operation": {
+    "message": "Invalid user does this file operation",
+    "description": "Error message on Synology API call failure."
+  },
+  "Invalid_group_does_this_file_operation": {
+    "message": "Invalid group does this file operation",
+    "description": "Error message on Synology API call failure."
+  },
+  "Invalid_user_and_group_does_this_file_operation": {
+    "message": "Invalid user and group does this file operation",
+    "description": "Error message on Synology API call failure."
+  },
+  "Cant_get_usergroup_information_from_the_account_server": {
+    "message": "Can’t get user/group information from the account server",
+    "description": "Error message on Synology API call failure."
+  },
+  "Operation_not_permitted": {
+    "message": "Operation not permitted",
+    "description": "Error message on Synology API call failure."
+  },
+  "No_such_file_or_directory": {
+    "message": "No such file or directory",
+    "description": "Error message on Synology API call failure."
+  },
+  "Nonsupported_file_system_": {
+    "message": "Non-supported file system ",
+    "description": "Error message on Synology API call failure."
+  },
+  "Failed_to_connect_internetbased_file_system_ex_CIFS": {
+    "message": "Failed to connect internet-based file system (ex: CIFS)",
+    "description": "Error message on Synology API call failure."
+  },
+  "Readonly_file_system": {
+    "message": "Read-only file system",
+    "description": "Error message on Synology API call failure."
+  },
+  "Filename_too_long_in_the_nonencrypted_file_system": {
+    "message": "Filename too long in the non-encrypted file system",
+    "description": "Error message on Synology API call failure."
+  },
+  "Filename_too_long_in_the_encrypted_file_system": {
+    "message": "Filename too long in the encrypted file system",
+    "description": "Error message on Synology API call failure."
+  },
+  "File_already_exists": {
+    "message": "File already exists",
+    "description": "Error message on Synology API call failure."
+  },
+  "Disk_quota_exceeded": {
+    "message": "Disk quota exceeded",
+    "description": "Error message on Synology API call failure."
+  },
+  "No_space_left_on_device": {
+    "message": "No space left on device",
+    "description": "Error message on Synology API call failure."
+  },
+  "Inputoutput_error": {
+    "message": "Input/output error",
+    "description": "Error message on Synology API call failure."
+  },
+  "Illegal_name_or_path": {
+    "message": "Illegal name or path",
+    "description": "Error message on Synology API call failure."
+  },
+  "Illegal_file_name": {
+    "message": "Illegal file name",
+    "description": "Error message on Synology API call failure."
+  },
+  "Illegal_file_name_on_FAT_file_system": {
+    "message": "Illegal file name on FAT file system",
+    "description": "Error message on Synology API call failure."
+  },
+  "Device_or_resource_busy": {
+    "message": "Device or resource busy",
+    "description": "Error message on Synology API call failure."
+  },
+  "No_such_task_of_the_file_operation": {
+    "message": "No such task of the file operation",
+    "description": "Error message on Synology API call failure."
+  }
+}
