@@ -45,19 +45,20 @@ describe('i18n', () => {
     const forEachMessage = createForEachMessage(DEFAULT_LOCALE);
 
     it('should have a message and description field which are different', () => {
-      forEachMessage(({ message, description }) => {
-        expect(message).to.exist;
-        expect(description).to.exist;
-        expect(message).to.not.equal(description);
+      forEachMessage(({ message, description }, messageName) => {
+        expect(message, `message for ${messageName}`).to.exist;
+        expect(description, `description for ${messageName}`).to.exist;
+        expect(message).to.not.equal(description, messageName);
       });
     });
 
     it('should have names derivable from the content', () => {
       forEachMessage(({ message }, messageName) => {
-        expect(messageName).to.equal(message
-          .replace(/\$[A-Z]+\$/g, substr => substr.toLowerCase())
-          .replace(/[^A-Za-z0-9$_ ]/g, '')
-          .replace(/ +/g, '_')
+        expect(messageName).to.equal(
+          message
+            .replace(/\$[A-Z]+\$/g, substr => substr.toLowerCase())
+            .replace(/[^A-Za-z0-9$_ ]/g, '')
+            .replace(/ +/g, '_')
         );
       });
     });

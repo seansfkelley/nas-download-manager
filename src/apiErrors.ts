@@ -3,58 +3,59 @@ import { assertNever } from './lang';
 
 export const ERROR_CODES = {
   'common': {
-    100: 'Unknown error.',
-    101: 'Invalid parameter.',
-    102: 'The requested API does not exist.',
-    103: 'The requested method does not exist.',
-    104: 'The requested version does not support this functionality.',
-    105: 'The logged in session does not have permission.',
-    106: 'Session timeout.',
-    107: 'Session interrupted by duplicate login.'
+    100: browser.i18n.getMessage('Unknown_error'),
+    101: browser.i18n.getMessage('Invalid_parameter'),
+    102: browser.i18n.getMessage('The_requested_API_does_not_exist'),
+    103: browser.i18n.getMessage('The_requested_method_does_not_exist'),
+    104: browser.i18n.getMessage('The_requested_version_does_not_support_this_functionality'),
+    105: browser.i18n.getMessage('The_logged_in_session_does_not_have_permission'),
+    106: browser.i18n.getMessage('Session_timeout'),
+    107: browser.i18n.getMessage('Session_interrupted_by_duplicate_login'),
   } as Record<string, string>,
   'Auth': {
-    400: 'No such username or incorrect password.',
-    401: 'Account disabled.',
-    402: 'Permission denied.',
-    403: 'Two-step verification needed.',
-    404: 'Two-step verification failed.'
+    400: browser.i18n.getMessage('No_such_username_or_incorrect_password'),
+    401: browser.i18n.getMessage('Account_disabled'),
+    402: browser.i18n.getMessage('Permission_denied'),
+    403: browser.i18n.getMessage('Twostep_verification_needed'),
+    404: browser.i18n.getMessage('Twostep_verification_failed'),
   } as Record<string, string>,
   'DownloadStation.Task': {
-    400: 'File upload failed.',
-    401: 'Max number of tasks reached.',
-    402: 'Destination denied.',
-    403: 'Destination does not exist.',
-    404: 'Invalid task ID.',
-    405: 'Invalid task action.',
-    406: 'No default destination.',
-    407: 'Set destination failed.',
-    408: 'File does not exist.'
+    400: browser.i18n.getMessage('File_upload_failed'),
+    401: browser.i18n.getMessage('Max_number_of_tasks_reached'),
+    402: browser.i18n.getMessage('Destination_denied'),
+    403: browser.i18n.getMessage('Destination_does_not_exist'),
+    404: browser.i18n.getMessage('Invalid_task_ID'),
+    405: browser.i18n.getMessage('Invalid_task_action'),
+    406: browser.i18n.getMessage('No_default_destination'),
+    407: browser.i18n.getMessage('Set_destination_failed'),
+    408: browser.i18n.getMessage('File_does_not_exist'),
   } as Record<string, string>,
   'FileStation': {
-    160: 'The logged in session does not have permission.', // This one I discovered on my own and isn't documented!
-    400: 'Invalid parameter of file operation',
-    401: 'Unknown error of file operation',
-    402: 'System is too busy',
-    403: 'Invalid user does this file operation',
-    404: 'Invalid group does this file operation',
-    405: 'Invalid user and group does this file operation',
-    406: 'Can’t get user/group information from the account server',
-    407: 'Operation not permitted',
-    408: 'No such file or directory',
-    409: 'Non-supported file system ',
-    410: 'Failed to connect internet-based file system (ex: CIFS)',
-    411: 'Read-only file system',
-    412: 'Filename too long in the non-encrypted file system',
-    413: 'Filename too long in the encrypted file system',
-    414: 'File already exists',
-    415: 'Disk quota exceeded',
-    416: 'No space left on device',
-    417: 'Input/output error',
-    418: 'Illegal name or path',
-    419: 'Illegal file name',
-    420: 'Illegal file name on FAT file system',
-    421: 'Device or resource busy',
-    599: 'No such task of the file operation'
+    // This one I discovered on my own and isn't documented!
+    160: browser.i18n.getMessage('The_logged_in_session_does_not_have_permission'),
+    400: browser.i18n.getMessage('Invalid_parameter_of_file_operation'),
+    401: browser.i18n.getMessage('Unknown_error_of_file_operation'),
+    402: browser.i18n.getMessage('System_is_too_busy'),
+    403: browser.i18n.getMessage('Invalid_user_does_this_file_operation'),
+    404: browser.i18n.getMessage('Invalid_group_does_this_file_operation'),
+    405: browser.i18n.getMessage('Invalid_user_and_group_does_this_file_operation'),
+    406: browser.i18n.getMessage('Cant_get_usergroup_information_from_the_account_server'),
+    407: browser.i18n.getMessage('Operation_not_permitted'),
+    408: browser.i18n.getMessage('No_such_file_or_directory'),
+    409: browser.i18n.getMessage('Nonsupported_file_system_'),
+    410: browser.i18n.getMessage('Failed_to_connect_internetbased_file_system_ex_CIFS'),
+    411: browser.i18n.getMessage('Readonly_file_system'),
+    412: browser.i18n.getMessage('Filename_too_long_in_the_nonencrypted_file_system'),
+    413: browser.i18n.getMessage('Filename_too_long_in_the_encrypted_file_system'),
+    414: browser.i18n.getMessage('File_already_exists'),
+    415: browser.i18n.getMessage('Disk_quota_exceeded'),
+    416: browser.i18n.getMessage('No_space_left_on_device'),
+    417: browser.i18n.getMessage('Inputoutput_error'),
+    418: browser.i18n.getMessage('Illegal_name_or_path'),
+    419: browser.i18n.getMessage('Illegal_file_name'),
+    420: browser.i18n.getMessage('Illegal_file_name_on_FAT_file_system'),
+    421: browser.i18n.getMessage('Device_or_resource_busy'),
+    599: browser.i18n.getMessage('No_such_task_of_the_file_operation'),
   } as Record<string, string>
 };
 
@@ -67,11 +68,17 @@ export function errorMessageFromCode(code: number, secondaryType: keyof typeof E
 
 export function errorMessageFromConnectionFailure(failure: ConnectionFailure) {
   switch (failure.type) {
-    case 'missing-config': return 'Connection failure (missing connection configuration).';
-    case 'probable-wrong-protocol': return 'Connection failure (likely wrong protocol).';
-    case 'probable-wrong-url-or-no-connection': return 'Connection failure (likely wrong hostname/port or no internet connection).';
-    case 'timeout': return 'Connection failure (timeout; check your hostname/port settings and internet connection).';
-    case 'unknown': return 'Connection failure (unknown reason).';
-    default: return assertNever(failure);
+    case 'missing-config':
+      return browser.i18n.getMessage('Connection_failure_missing_connection_configuration');
+    case 'probable-wrong-protocol':
+      return browser.i18n.getMessage('Connection_failure_likely_wrong_protocol');
+    case 'probable-wrong-url-or-no-connection':
+      return browser.i18n.getMessage('Connection_failure_likely_wrong_hostnameport_or_no_internet_connection');
+    case 'timeout':
+      return browser.i18n.getMessage('Connection_failure_timeout_check_your_hostnameport_settings_and_internet_connection');
+    case 'unknown':
+      return browser.i18n.getMessage('Connection_failure_unknown_reason');
+    default:
+      return assertNever(failure);
   }
 }

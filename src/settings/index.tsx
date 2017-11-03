@@ -40,11 +40,11 @@ interface SettingsFormState {
 }
 
 const ORDERED_VISIBLE_TASK_TYPE_NAMES: Record<keyof VisibleTaskSettings, string> = {
-  downloading: 'Downloading',
-  uploading: 'Completed, uploading',
-  completed: 'Completed, not uploading',
-  errored: 'Errored',
-  other: 'Other'
+  downloading: browser.i18n.getMessage('Downloading'),
+  uploading: browser.i18n.getMessage('Completed_uploading'),
+  completed: browser.i18n.getMessage('Completed_not_uploading'),
+  errored: browser.i18n.getMessage('Errored'),
+  other: browser.i18n.getMessage('Other')
 };
 
 const POLL_MIN_INTERVAL = 15;
@@ -78,8 +78,8 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
     return (
       <div className='settings-form'>
         <header>
-          <h3>Connection</h3>
-          <p>Please note that QuickConnect IDs are not currently supported.</p>
+          <h3>{browser.i18n.getMessage('Connection')}</h3>
+          <p>{browser.i18n.getMessage('Please_note_that_QuickConnect_IDs_are_not_currently_supported')}</p>
         </header>
 
         <ul className='settings-list'>
@@ -103,7 +103,7 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
                 <input
                   type='text'
                   {...connectionDisabledProps}
-                  placeholder='hostname or IP address'
+                  placeholder={browser.i18n.getMessage('hostname_or_IP_address')}
                   value={this.state.settings.connection.hostname}
                   onChange={e => {
                     this.setConnectionSetting('hostname', e.currentTarget.value.trim());
@@ -127,7 +127,7 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
 
           <li>
             <div className='label-and-input'>
-              <span className='label'>Username</span>
+              <span className='label'>{browser.i18n.getMessage('Username')}</span>
               <input
                 type='text'
                 {...connectionDisabledProps}
@@ -141,7 +141,7 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
 
           <li>
             <div className='label-and-input'>
-              <span className='label'>Password</span>
+              <span className='label'>{browser.i18n.getMessage('Password')}</span>
               <input
                 type='password'
                 {...connectionDisabledProps}
@@ -166,7 +166,7 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
                 this.state.connectionTest === 'good'
               )}
             >
-              Test Connection
+              {browser.i18n.getMessage('Test_Connection')}
             </button>
             {this.renderConnectionTestResult()}
           </li>
@@ -175,8 +175,8 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
         <div className='horizontal-separator'/>
 
         <header>
-          <h3>Downloads List</h3>
-          <p>Display these task types in the popup menu.</p>
+          <h3>{browser.i18n.getMessage('Downloads_List')}</h3>
+          <p>{browser.i18n.getMessage('Display_these_task_types_in_the_popup_menu')}</p>
         </header>
 
         <ul className='settings-list'>
@@ -200,7 +200,7 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
         <div className='horizontal-separator'/>
 
         <header>
-          <h3>Notifications</h3>
+          <h3>{browser.i18n.getMessage('Notifications')}</h3>
         </header>
 
         <ul className='settings-list'>
@@ -214,12 +214,12 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
               }}
             />
             <label htmlFor='notifications-checkbox'>
-              Notify when downloads complete
+              {browser.i18n.getMessage('Notify_when_downloads_complete')}
             </label>
           </li>
 
           <li>
-            Check for completed downloads every
+            {browser.i18n.getMessage('Check_for_completed_downloads_every')}
             <input
               type='number'
               {...this.disabledPropAndClassName(!this.state.settings.notifications.enabled)}
@@ -235,10 +235,10 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
                 }
               }}
             />
-            seconds
+            {browser.i18n.getMessage('seconds')}
             {isValidPollingInterval(this.state.rawPollingInterval)
               ? undefined
-              : <span className='intent-error wrong-polling-interval'>(at least 15)</span>}
+              : <span className='intent-error wrong-polling-interval'>{browser.i18n.getMessage('at_least_15')}</span>}
           </li>
         </ul>
 
@@ -254,16 +254,16 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
 
     switch (this.state.savingStatus) {
       case 'in-progress':
-        text = 'Checking connection...';
+        text = browser.i18n.getMessage('Checking_connection');
         break;
       case 'unchanged':
-        text = 'No changes to save.';
+        text = browser.i18n.getMessage('No_changes_to_save');
         break;
       case 'saved':
-        text = 'Changes saved.';
+        text = browser.i18n.getMessage('Changes_saved');
         break;
       case 'failed':
-        text = 'Save failed (check your connection settings).';
+        text = browser.i18n.getMessage('Save_failed_check_your_connection_settings');
         break;
       case 'pending-changes':
         text = null;
@@ -287,7 +287,7 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
           onClick={this.saveSettings}
           {...this.disabledPropAndClassName(isDisabled)}
         >
-          Save Settings
+          {browser.i18n.getMessage('Save_Settings')}
         </button>
       </div>
     );
@@ -308,9 +308,9 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
     if (!connectionTest) {
       return renderResult();
     } else if (connectionTest === 'in-progress') {
-      return renderResult('Testing connection...', 'fa-refresh fa-spin');
+      return renderResult(browser.i18n.getMessage('Testing_connection'), 'fa-refresh fa-spin');
     } else if (connectionTest === 'good') {
-      return renderResult('Connection successful!', 'fa-check', 'intent-success');
+      return renderResult(browser.i18n.getMessage('Connection_successful'), 'fa-check', 'intent-success');
     } else if (isErrorCodeResult(connectionTest)) {
       return renderResult(errorMessageFromCode(connectionTest.code, 'Auth'), 'fa-times', 'intent-error');
     } else {
