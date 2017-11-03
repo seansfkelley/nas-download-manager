@@ -1,5 +1,5 @@
 {
-  "extensionDescription": {
+  "Add_and_manage_Download_Station_tasks_on_your_Synology_DiskStation": {
     "message": "Add and manage Download Station tasks on your Synology DiskStation.",
     "description": "A description of the extension."
   },
@@ -19,7 +19,7 @@
     "message": "Failed to add download",
     "description": "Notification title."
   },
-  "URL_is_empty_or_missing!": {
+  "URL_is_empty_or_missing": {
     "message": "URL is empty or missing",
     "description": "Notification body text."
   },
@@ -51,7 +51,7 @@
     "message": "Add",
     "description": "Add button text."
   },
-  "Loading...": {
+  "Loading": {
     "message": "Loading...",
     "description": "Generic loading text."
   },
@@ -67,7 +67,7 @@
     "message": "The hostname, username or password are not configured",
     "description": "Tooltip for a type of task load failure."
   },
-  "Updating...": {
+  "Updating": {
     "message": "Updating...",
     "description": "Generic updating text."
   },
@@ -79,7 +79,7 @@
     "message": "Error updating tasks",
     "description": "Text for popup header on load failure."
   },
-  "Updated_$time$1": {
+  "Updated_$time$": {
     "message": "Updated $TIME$",
     "description": "Text for popup header on load success.",
     "placeholders": {
