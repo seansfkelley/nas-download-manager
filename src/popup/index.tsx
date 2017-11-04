@@ -197,7 +197,7 @@ class Popup extends React.PureComponent<PopupProps, State> {
           <div className='download-tasks'>
             <ul
               onScroll={this.onBodyScroll}
-              ref={e => { this.bodyRef = e; }}
+              ref={e => { this.bodyRef = e || undefined; }}
             >
               {sortTasks(filteredTasks, this.props.taskSort).map(task => (
                 <Task
@@ -275,12 +275,12 @@ getSharedObjects()
         }
       }
 
-      function reloadOnSuccess(response: CallbackResponse) {
+      function reloadOnSuccess(response: CallbackResponse): Promise<CallbackResponse> {
         if (response === 'success') {
           return pollTasks(api)
             .then(() => response);
         } else {
-          return response;
+          return Promise.resolve(response);
         }
       }
 

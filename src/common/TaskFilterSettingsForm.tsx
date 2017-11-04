@@ -14,7 +14,7 @@ export interface Props {
   updateTaskSortType: (taskSortType: TaskSortType) => void;
 }
 
-export class TaskFilterSettingsForm extends React.PureComponent<Props, void> {
+export class TaskFilterSettingsForm extends React.PureComponent<Props> {
   render() {
     return (
       <div className='task-filter-settings-form'>

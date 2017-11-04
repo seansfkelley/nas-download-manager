@@ -49,8 +49,8 @@ const POLL_STEP = 15;
 // elements. So hax with this ref callback that does it by touching the DOM directly. I don't know who
 // is at fault or why, but this workaround works.
 function kludgeRefSetClassname(className: string) {
-  return (e?: HTMLElement) => {
-    if (e) {
+  return (e: HTMLElement | null) => {
+    if (e != null) {
       e.className = className;
     }
   };
@@ -60,7 +60,7 @@ function isValidPollingInterval(stringValue: string) {
   return !isNaN(+stringValue) && +stringValue >= POLL_MIN_INTERVAL
 }
 
-class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState> {
+class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormState> {
   state: SettingsFormState = {
     settings: this.props.initialSettings,
     savingStatus: 'unchanged',
