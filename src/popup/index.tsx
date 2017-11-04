@@ -190,7 +190,7 @@ class Popup extends React.PureComponent<PopupProps, State> {
         (this.props.visibleTasks.other && matchesFilter(t, 'other'))
       );
       if (filteredTasks.length === 0) {
-        return <NoTasks icon='fa-filter' text={browser.i18n.getMessage('Download_tasks_exist_but_none_match_your_filters"')}/>;
+        return <NoTasks icon='fa-filter' text={browser.i18n.getMessage('Download_tasks_exist_but_none_match_your_filters')}/>;
       } else {
         const hiddenTaskCount = this.props.tasks.length - filteredTasks.length;
         return (
