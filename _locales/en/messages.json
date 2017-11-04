@@ -299,8 +299,8 @@
     "message": "Test Connection",
     "description": "Label for button on settings page."
   },
-  "Downloads_List": {
-    "message": "Downloads List",
+  "Task_Display_Settings": {
+    "message": "Task Display Settings",
     "description": "Header for settings section."
   },
   "Display_these_task_types_in_the_popup_menu": {

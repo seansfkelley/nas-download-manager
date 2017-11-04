@@ -169,7 +169,7 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
         <div className='horizontal-separator'/>
 
         <header>
-          <h3>{browser.i18n.getMessage('Downloads_List')}</h3>
+          <h3>{browser.i18n.getMessage('Task_Display_Settings')}</h3>
           <p>{browser.i18n.getMessage('Display_these_task_types_in_the_popup_menu')}</p>
         </header>
 

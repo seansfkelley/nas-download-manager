@@ -39,7 +39,9 @@ export class TaskFilterSettingsForm extends React.PureComponent<Props, void> {
           ))}
         </ul>
         <div className='task-sort-type'>
-          {browser.i18n.getMessage('Order_tasks_by')}
+          <span className='label'>
+            {browser.i18n.getMessage('Order_tasks_by')}
+          </span>
           <select
             value={this.props.taskSortType}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {

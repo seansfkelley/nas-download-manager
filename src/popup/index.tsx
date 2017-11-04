@@ -164,15 +164,13 @@ class Popup extends React.PureComponent<PopupProps, State> {
   private renderDisplaySettings() {
       return (
         <div className={classNames('display-settings', { 'is-visible': this.state.isShowingDisplaySettings })}>
-          <div className='visible-task-types'>
-            <div className='title'>{browser.i18n.getMessage('Downloads_List')}</div>
-            <TaskFilterSettingsForm
-              visibleTasks={this.props.visibleTasks}
-              taskSortType={this.props.taskSort}
-              updateVisibleTasks={this.props.changeVisibleTasks}
-              updateTaskSortType={this.props.changeTaskSort}
-            />
-          </div>
+          <h4 className='title'>{browser.i18n.getMessage('Task_Display_Settings')}</h4>
+          <TaskFilterSettingsForm
+            visibleTasks={this.props.visibleTasks}
+            taskSortType={this.props.taskSort}
+            updateVisibleTasks={this.props.changeVisibleTasks}
+            updateTaskSortType={this.props.changeTaskSort}
+          />
         </div>
       );
   }

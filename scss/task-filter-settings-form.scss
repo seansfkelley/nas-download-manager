@@ -1,0 +1,18 @@
+.task-filter-settings-form {
+  margin-bottom: 13px;
+
+  .task-sort-type {
+    display: flex;
+    align-items: center;
+    margin-left: 15px;
+
+    .label {
+      margin-right: 6px;
+    }
+
+    select {
+      flex: 1;
+      max-width: 400px;
+    }
+  }
+}

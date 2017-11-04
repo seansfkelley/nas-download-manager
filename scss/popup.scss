@@ -1,6 +1,7 @@
 @import 'colors';
 @import 'common';
 @import 'advanced-add-download-form';
+@import 'task-filter-settings-form';
 
 // Weird stuff happens when the contents of the popup change the size of the actual popup's container.
 // In particular, stuff gets extra weird over some internal arbitrary height limit that Chrome has, an
@@ -82,7 +83,18 @@ html, body, #body, .popup {
     overflow: hidden;
 
     &.is-visible {
-      max-height: none;
+      max-height: 1000px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    }
+
+    h4 {
+      margin-left: 15px;
+    }
+
+    .task-filter-settings-form {
+      select {
+        margin-right: 15px;
+      }
     }
   }
 
