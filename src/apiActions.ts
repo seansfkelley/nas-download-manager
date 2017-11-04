@@ -40,7 +40,7 @@ const doTaskPoll = wrapInNoPermissionsRetry((api: ApiClient) => {
   return api.DownloadStation.Task.List({
     offset: 0,
     limit: -1,
-    additional: [ 'transfer' ],
+    additional: [ 'transfer', 'detail' ],
     timeout: 20000
   });
 });

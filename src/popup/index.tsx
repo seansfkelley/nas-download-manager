@@ -1,4 +1,3 @@
-import { sortBy } from 'lodash-es';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import * as momentProxy from 'moment';
@@ -21,7 +20,7 @@ import {
 import { getSharedObjects } from '../browserApi';
 import { addDownloadTaskAndPoll, pollTasks } from '../apiActions';
 import { CallbackResponse } from './popupTypes';
-import { matchesFilter } from './filtering';
+import { matchesFilter, sortTasks } from './filtering';
 import { Task } from './Task';
 import { errorMessageFromCode } from '../apiErrors';
 import { shimExtensionApi } from '../apiShim';
@@ -200,7 +199,7 @@ class Popup extends React.PureComponent<PopupProps, State> {
               onScroll={this.onBodyScroll}
               ref={e => { this.bodyRef = e; }}
             >
-              {sortBy(filteredTasks, t => t.title.toLocaleLowerCase()).map(task => (
+              {sortTasks(filteredTasks, this.props.taskSort).map(task => (
                 <Task
                   key={task.id}
                   task={task}

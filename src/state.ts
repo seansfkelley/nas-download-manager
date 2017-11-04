@@ -1,6 +1,10 @@
 import { once } from 'lodash-es';
 import { DownloadStationTask } from 'synology-typescript-api';
 
+// This number should be incremented each time the shape of the cached tasks changes.
+// Doing so will cause the cache to be clear on initialization and reloaded from the NAS.
+export const CACHED_TASKS_VERSION = 1;
+
 export type Protocol = 'http' | 'https';
 
 const _protocolNames: Record<Protocol, true> = {
@@ -40,6 +44,9 @@ export interface Settings {
   notifications: NotificationSettings;
 }
 
+// HELLO THERE
+//
+// When changing the shape of this, you almost certainly want to update CACHED_TASKS_VERSION above.
 export interface CachedTasks {
   tasks: DownloadStationTask[];
   taskFetchFailureReason: 'missing-config' | { failureMessage: string } | null;
@@ -47,7 +54,11 @@ export interface CachedTasks {
   tasksLastCompletedFetchTimestamp: number | null;
 }
 
-export interface AllStoredState extends Settings, CachedTasks {}
+export interface StorageMeta {
+  cachedTasksVersion?: number;
+}
+
+export interface AllStoredState extends Settings, CachedTasks, StorageMeta {}
 
 // Somewhat awkward trick to make sure the compiler enforces that this runtime constant
 // includes all the compile-time type names.
@@ -60,12 +71,23 @@ const _settingNames: Record<keyof Settings, true> = {
 
 const SETTING_NAMES = Object.keys(_settingNames) as (keyof Settings)[];
 
-const _allStoredStateNames: Record<keyof AllStoredState, true> = {
-  ..._settingNames,
+const _cacheNames: Record<keyof CachedTasks, true> = {
   'tasks': true,
   'taskFetchFailureReason': true,
   'tasksLastInitiatedFetchTimestamp': true,
   'tasksLastCompletedFetchTimestamp': true
+};
+
+const _storageMetaNames: Record<keyof StorageMeta, true> = {
+  'cachedTasksVersion': true
+};
+
+const STORAGE_META_NAMES = Object.keys(_storageMetaNames) as (keyof StorageMeta)[];
+
+const _allStoredStateNames: Record<keyof AllStoredState, true> = {
+  ..._settingNames,
+  ..._cacheNames,
+  ..._storageMetaNames
 };
 
 const ALL_STORED_STATE_NAMES = Object.keys(_allStoredStateNames) as (keyof Settings)[];
@@ -148,6 +170,26 @@ const attachSharedStateListener = once(() => {
     }
   });
 });
+
+export function clearTaskCacheIfNecessary() {
+  return browser.storage.local.get<StorageMeta>(STORAGE_META_NAMES)
+    .then(meta => {
+      if (meta == null || meta.cachedTasksVersion !== CACHED_TASKS_VERSION) {
+        console.log(`got task cache version ${meta == null ? null : meta.cachedTasksVersion} but needed ${CACHED_TASKS_VERSION}, will clear`);
+        const emptyTaskCacheAndVersionBump: CachedTasks & StorageMeta = {
+          tasks: [],
+          taskFetchFailureReason: null,
+          tasksLastCompletedFetchTimestamp: null,
+          tasksLastInitiatedFetchTimestamp: null,
+          cachedTasksVersion: CACHED_TASKS_VERSION
+        };
+        return browser.storage.local.set(emptyTaskCacheAndVersionBump);
+      } else {
+        console.log('no need to clear task cache, version checks out');
+        return Promise.resolve();
+      }
+    })
+}
 
 export function onStoredStateChange(listener: (state: AllStoredState) => void) {
   attachSharedStateListener();
