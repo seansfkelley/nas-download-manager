@@ -36,7 +36,7 @@
     "rollup-plugin-node-resolve": "^3.0.0",
     "rollup-watch": "^3.2.2",
     "ts-node": "^3.3.0",
-    "typescript": "^2.2.2"
+    "typescript": "^2.6.1"
   },
   "dependencies": {
     "axios": "^0.16.1",
