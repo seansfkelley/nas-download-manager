@@ -16,8 +16,7 @@ import {
   VisibleTaskSettings,
   TaskSortType,
   onStoredStateChange,
-  getHostUrl,
-  ORDERED_VISIBLE_TASK_TYPE_NAMES
+  getHostUrl
 } from '../state';
 import { getSharedObjects } from '../browserApi';
 import { addDownloadTaskAndPoll, pollTasks } from '../apiActions';
@@ -26,6 +25,7 @@ import { matchesFilter } from './filtering';
 import { Task } from './Task';
 import { errorMessageFromCode } from '../apiErrors';
 import { shimExtensionApi } from '../apiShim';
+import { TaskFilterSettingsForm } from '../common/TaskFilterSettingsForm';
 
 shimExtensionApi();
 
@@ -50,7 +50,7 @@ interface PopupProps {
   tasksLastInitiatedFetchTimestamp: number | null;
   tasksLastCompletedFetchTimestamp: number | null;
   visibleTasks: VisibleTaskSettings;
-  changeTaskFilter: (filter: VisibleTaskSettings) => void;
+  changeVisibleTasks: (filter: VisibleTaskSettings) => void;
   taskSort: TaskSortType;
   changeTaskSort: (sort: TaskSortType) => void;
   openDownloadStationUi?: () => void;
@@ -79,8 +79,8 @@ class Popup extends React.PureComponent<PopupProps, State> {
     return (
       <div className='popup'>
         {this.renderHeader()}
+        {this.renderDisplaySettings()}
         <div className={classNames('popup-body', { 'with-foreground': this.state.isAddingDownload })}>
-          {this.renderDisplaySettings()}
           {this.renderTaskList()}
           {this.maybeRenderAddDownloadOverlay()}
         </div>
@@ -164,24 +164,15 @@ class Popup extends React.PureComponent<PopupProps, State> {
   private renderDisplaySettings() {
       return (
         <div className={classNames('display-settings', { 'is-visible': this.state.isShowingDisplaySettings })}>
-          {Object.keys(ORDERED_VISIBLE_TASK_TYPE_NAMES).map((type: keyof VisibleTaskSettings) => (
-            <li key={type}>
-              <input
-                id={`${type}-input`}
-                type='checkbox'
-                checked={this.props.visibleTasks[type]}
-                onChange={() => {
-                  this.props.changeTaskFilter({
-                    ...this.props.visibleTasks,
-                    [type]: !this.props.visibleTasks[type]
-                  });
-                }}
-              />
-              <label htmlFor={`${type}-input`}>
-                {ORDERED_VISIBLE_TASK_TYPE_NAMES[type]}
-              </label>
-            </li>
-          ))}
+          <div className='visible-task-types'>
+            <div className='title'>{browser.i18n.getMessage('Downloads_List')}</div>
+            <TaskFilterSettingsForm
+              visibleTasks={this.props.visibleTasks}
+              taskSortType={this.props.taskSort}
+              updateVisibleTasks={this.props.changeVisibleTasks}
+              updateTaskSortType={this.props.changeTaskSort}
+            />
+          </div>
         </div>
       );
   }
@@ -356,7 +347,7 @@ getSharedObjects()
           tasksLastInitiatedFetchTimestamp={storedState.tasksLastInitiatedFetchTimestamp}
           tasksLastCompletedFetchTimestamp={storedState.tasksLastCompletedFetchTimestamp}
           visibleTasks={storedState.visibleTasks}
-          changeTaskFilter={changeTaskFilter}
+          changeVisibleTasks={changeTaskFilter}
           taskSort={storedState.taskSortType}
           changeTaskSort={changeSortType}
           openDownloadStationUi={openDownloadStationUi}

@@ -239,6 +239,10 @@
     "message": "Other",
     "description": "Task status filtering category."
   },
+  "Order_tasks_by": {
+    "message": "Order tasks by",
+    "description": "Prefix text for task-sort-type dropdown."
+  },
   "Name_AZ": {
     "message": "Name, A-Z",
     "description": "Task sort order type."

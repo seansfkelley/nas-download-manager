@@ -19,3 +19,15 @@ button {
     }
   }
 }
+
+ul.settings-list {
+  list-style: none;
+  padding-left: 15px;
+
+  li {
+    margin: 5px auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+  }
+}

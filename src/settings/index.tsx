@@ -11,10 +11,10 @@ import {
   PROTOCOLS,
   ConnectionSettings,
   VisibleTaskSettings,
+  TaskSortType,
   NotificationSettings,
   loadSettings,
   DEFAULT_SETTINGS,
-  ORDERED_VISIBLE_TASK_TYPE_NAMES
 } from '../state';
 import {
   isErrorCodeResult,
@@ -25,6 +25,7 @@ import {
 import { errorMessageFromCode, errorMessageFromConnectionFailure } from '../apiErrors';
 import { assertNever } from '../lang';
 import { shimExtensionApi } from '../apiShim';
+import { TaskFilterSettingsForm } from '../common/TaskFilterSettingsForm';
 
 shimExtensionApi();
 
@@ -172,23 +173,12 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
           <p>{browser.i18n.getMessage('Display_these_task_types_in_the_popup_menu')}</p>
         </header>
 
-        <ul className='settings-list'>
-          {Object.keys(ORDERED_VISIBLE_TASK_TYPE_NAMES).map((type: keyof VisibleTaskSettings) => (
-            <li key={type}>
-              <input
-                id={`${type}-input`}
-                type='checkbox'
-                checked={this.state.settings.visibleTasks[type]}
-                onChange={() => {
-                  this.toggleVisibilitySetting(type)
-                }}
-              />
-              <label htmlFor={`${type}-input`}>
-                {ORDERED_VISIBLE_TASK_TYPE_NAMES[type]}
-              </label>
-            </li>
-          ))}
-        </ul>
+        <TaskFilterSettingsForm
+          visibleTasks={this.state.settings.visibleTasks}
+          taskSortType={this.state.settings.taskSortType}
+          updateVisibleTasks={this.updateVisibleTaskSettings}
+          updateTaskSortType={this.updateTaskSortType}
+        />
 
         <div className='horizontal-separator'/>
 
@@ -332,18 +322,25 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
     });
   }
 
-  private toggleVisibilitySetting<K extends keyof VisibleTaskSettings>(key: K) {
+  private updateVisibleTaskSettings = (visibleTasks: VisibleTaskSettings) => {
     this.setState({
       savingStatus: 'pending-changes',
       settings: {
         ...this.state.settings,
-        visibleTasks: {
-          ...this.state.settings.visibleTasks,
-          [key as string]: !this.state.settings.visibleTasks[key]
-        }
+        visibleTasks
       }
     });
-  }
+  };
+
+  private updateTaskSortType = (taskSortType: TaskSortType) => {
+    this.setState({
+      savingStatus: 'pending-changes',
+      settings: {
+        ...this.state.settings,
+        taskSortType
+      }
+    });
+  };
 
   private setNotificationSetting<K extends keyof NotificationSettings>(key: K, value: NotificationSettings[K]) {
     this.setState({
