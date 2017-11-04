@@ -37,6 +37,9 @@ export function clearCachedTasks() {
 }
 
 const doTaskPoll = wrapInNoPermissionsRetry((api: ApiClient) => {
+  // HELLO THERE
+  //
+  // When changing what this requests, you almost certainly want to update CACHED_TASKS_VERSION in state.ts.
   return api.DownloadStation.Task.List({
     offset: 0,
     limit: -1,
