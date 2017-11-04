@@ -142,7 +142,7 @@ export class Task extends React.PureComponent<Props, State> {
   private renderRemoveButton() {
     let title: string = '';
     let disabled: boolean = this.state.pauseResumeState === 'in-progress';
-    if (this.deleteTask == null || this.state.deleteState === 'in-progress') {
+    if (this.props.onDelete == null || this.state.deleteState === 'in-progress') {
       title = browser.i18n.getMessage('Remove_download');
       disabled = true;
     } else if (this.state.deleteState === 'none') {
@@ -195,4 +195,3 @@ export class Task extends React.PureComponent<Props, State> {
       })
   };
 }
-4
