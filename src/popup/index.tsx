@@ -210,9 +210,13 @@ class Popup extends React.PureComponent<PopupProps, State> {
               ))}
             </ul>
             {hiddenTaskCount > 0 && (
-              <div className='hidden-count' onClick={() => { browser.runtime.openOptionsPage(); }}>
+              <div
+                className='hidden-count'
+                onClick={() => { this.setState({ isShowingDisplaySettings: true }); }}
+              >
                 {browser.i18n.getMessage('and_$count$_more_hidden_tasks', hiddenTaskCount)}
-              </div>)}
+              </div>
+            )}
           </div>
         );
       }
