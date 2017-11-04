@@ -1,6 +1,7 @@
 @import 'colors';
-@import 'default';
+@import 'common';
 @import 'advanced-add-download-form';
+@import 'task-filter-settings-form';
 
 // Weird stuff happens when the contents of the popup change the size of the actual popup's container.
 // In particular, stuff gets extra weird over some internal arbitrary height limit that Chrome has, an
@@ -31,7 +32,8 @@ html, body, #body, .popup {
   // Using 100% here should work, but it doesn't. The browser popup must do something weird
   // such that it changes width depending on the contents, even when it's 100% of the <html>
   // width (which is explicitly specified). :/
-  width: 350px;
+  width: 400px;
+  max-height: $mystery-chrome-height-limit;
 }
 
 .popup {
@@ -76,12 +78,33 @@ html, body, #body, .popup {
     }
   }
 
+  .display-settings {
+    flex-shrink: 0;
+    max-height: 0px;
+    transition: max-height 300ms;
+    overflow: hidden;
+
+    &.is-visible {
+      max-height: 1000px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    }
+
+    h4 {
+      margin-left: 15px;
+    }
+
+    .task-filter-settings-form {
+      select {
+        margin-right: 15px;
+      }
+    }
+  }
+
   .popup-body {
     flex: 1;
     overflow-y: auto;
     position: relative;
     min-height: 50px;
-    max-height: $mystery-chrome-height-limit;
 
     &.with-foreground {
       min-height: 400px;

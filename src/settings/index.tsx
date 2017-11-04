@@ -11,9 +11,10 @@ import {
   PROTOCOLS,
   ConnectionSettings,
   VisibleTaskSettings,
+  TaskSortType,
   NotificationSettings,
   loadSettings,
-  DEFAULT_SETTINGS
+  DEFAULT_SETTINGS,
 } from '../state';
 import {
   isErrorCodeResult,
@@ -24,6 +25,7 @@ import {
 import { errorMessageFromCode, errorMessageFromConnectionFailure } from '../apiErrors';
 import { assertNever } from '../lang';
 import { shimExtensionApi } from '../apiShim';
+import { TaskFilterSettingsForm } from '../common/TaskFilterSettingsForm';
 
 shimExtensionApi();
 
@@ -38,14 +40,6 @@ interface SettingsFormState {
   savingStatus: 'unchanged' | 'pending-changes' | 'in-progress' | 'failed' | 'saved';
   rawPollingInterval: string;
 }
-
-const ORDERED_VISIBLE_TASK_TYPE_NAMES: Record<keyof VisibleTaskSettings, string> = {
-  downloading: browser.i18n.getMessage('Downloading'),
-  uploading: browser.i18n.getMessage('Completed_uploading'),
-  completed: browser.i18n.getMessage('Completed_not_uploading'),
-  errored: browser.i18n.getMessage('Errored'),
-  other: browser.i18n.getMessage('Other')
-};
 
 const POLL_MIN_INTERVAL = 15;
 const POLL_DEFAULT_INTERVAL = 60;
@@ -175,27 +169,16 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
         <div className='horizontal-separator'/>
 
         <header>
-          <h3>{browser.i18n.getMessage('Downloads_List')}</h3>
+          <h3>{browser.i18n.getMessage('Task_Display_Settings')}</h3>
           <p>{browser.i18n.getMessage('Display_these_task_types_in_the_popup_menu')}</p>
         </header>
 
-        <ul className='settings-list'>
-          {Object.keys(ORDERED_VISIBLE_TASK_TYPE_NAMES).map((type: keyof VisibleTaskSettings) => (
-            <li key={type}>
-              <input
-                id={`${type}-input`}
-                type='checkbox'
-                checked={this.state.settings.visibleTasks[type]}
-                onChange={() => {
-                  this.toggleVisibilitySetting(type)
-                }}
-              />
-              <label htmlFor={`${type}-input`}>
-                {ORDERED_VISIBLE_TASK_TYPE_NAMES[type]}
-              </label>
-            </li>
-          ))}
-        </ul>
+        <TaskFilterSettingsForm
+          visibleTasks={this.state.settings.visibleTasks}
+          taskSortType={this.state.settings.taskSortType}
+          updateVisibleTasks={this.updateVisibleTaskSettings}
+          updateTaskSortType={this.updateTaskSortType}
+        />
 
         <div className='horizontal-separator'/>
 
@@ -339,18 +322,25 @@ class SettingsForm extends React.Component<SettingsFormProps, SettingsFormState>
     });
   }
 
-  private toggleVisibilitySetting<K extends keyof VisibleTaskSettings>(key: K) {
+  private updateVisibleTaskSettings = (visibleTasks: VisibleTaskSettings) => {
     this.setState({
       savingStatus: 'pending-changes',
       settings: {
         ...this.state.settings,
-        visibleTasks: {
-          ...this.state.settings.visibleTasks,
-          [key as string]: !this.state.settings.visibleTasks[key]
-        }
+        visibleTasks
       }
     });
-  }
+  };
+
+  private updateTaskSortType = (taskSortType: TaskSortType) => {
+    this.setState({
+      savingStatus: 'pending-changes',
+      settings: {
+        ...this.state.settings,
+        taskSortType
+      }
+    });
+  };
 
   private setNotificationSetting<K extends keyof NotificationSettings>(key: K, value: NotificationSettings[K]) {
     this.setState({
