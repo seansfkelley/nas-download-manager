@@ -33,6 +33,7 @@ html, body, #body, .popup {
   // such that it changes width depending on the contents, even when it's 100% of the <html>
   // width (which is explicitly specified). :/
   width: 400px;
+  max-height: $mystery-chrome-height-limit;
 }
 
 .popup {
@@ -78,6 +79,7 @@ html, body, #body, .popup {
   }
 
   .display-settings {
+    flex-shrink: 0;
     max-height: 0px;
     transition: max-height 300ms;
     overflow: hidden;
@@ -103,7 +105,6 @@ html, body, #body, .popup {
     overflow-y: auto;
     position: relative;
     min-height: 50px;
-    max-height: $mystery-chrome-height-limit;
 
     &.with-foreground {
       min-height: 400px;
