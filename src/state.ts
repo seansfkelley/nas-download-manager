@@ -31,9 +31,12 @@ export interface NotificationSettings {
   pollingInterval: number;
 }
 
+export type TaskSortType = 'name-asc' | 'name-desc' | 'timestamp-completed-asc' | 'timestamp-completed-desc' | 'timestamp-added-asc' | 'timestamp-added-desc' | 'completed-percent-asc' | 'completed-percent-desc';
+
 export interface Settings {
   connection: ConnectionSettings;
   visibleTasks: VisibleTaskSettings;
+  taskSortType: TaskSortType;
   notifications: NotificationSettings;
 }
 
@@ -51,6 +54,7 @@ export interface AllStoredState extends Settings, CachedTasks {}
 const _settingNames: Record<keyof Settings, true> = {
   'connection': true,
   'visibleTasks': true,
+  'taskSortType': true,
   'notifications': true
 };
 
@@ -81,6 +85,7 @@ export const DEFAULT_SETTINGS: Settings = {
     errored: true,
     other: true
   },
+  taskSortType: 'name-asc',
   notifications: {
     enabled: false,
     pollingInterval: 60
@@ -93,6 +98,25 @@ const DEFAULT_ALL_STORED_STATE: AllStoredState = {
   taskFetchFailureReason: null,
   tasksLastInitiatedFetchTimestamp: null,
   tasksLastCompletedFetchTimestamp: null
+};
+
+export const ORDERED_VISIBLE_TASK_TYPE_NAMES: Record<keyof VisibleTaskSettings, string> = {
+  downloading: browser.i18n.getMessage('Downloading'),
+  uploading: browser.i18n.getMessage('Completed_uploading'),
+  completed: browser.i18n.getMessage('Completed_not_uploading'),
+  errored: browser.i18n.getMessage('Errored'),
+  other: browser.i18n.getMessage('Other')
+};
+
+export const ORDERED_TASK_SORT_TYPE_NAMES: Record<TaskSortType, string> = {
+  'name-asc': browser.i18n.getMessage('Name_AZ'),
+  'name-desc': browser.i18n.getMessage('Name_ZA'),
+  'timestamp-added-desc': browser.i18n.getMessage('Date_added_newest_first'),
+  'timestamp-added-asc': browser.i18n.getMessage('Date_added_oldest_first'),
+  'timestamp-completed-desc': browser.i18n.getMessage('Date_completed_newest_first'),
+  'timestamp-completed-asc': browser.i18n.getMessage('Date_completed_oldest_first'),
+  'completed-percent-asc': browser.i18n.getMessage('_complete_least_first'),
+  'completed-percent-desc': browser.i18n.getMessage('_complete_most_first')
 };
 
 export function getHostUrl(settings: ConnectionSettings) {

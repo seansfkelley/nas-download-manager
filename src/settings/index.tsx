@@ -13,7 +13,8 @@ import {
   VisibleTaskSettings,
   NotificationSettings,
   loadSettings,
-  DEFAULT_SETTINGS
+  DEFAULT_SETTINGS,
+  ORDERED_VISIBLE_TASK_TYPE_NAMES
 } from '../state';
 import {
   isErrorCodeResult,
@@ -38,14 +39,6 @@ interface SettingsFormState {
   savingStatus: 'unchanged' | 'pending-changes' | 'in-progress' | 'failed' | 'saved';
   rawPollingInterval: string;
 }
-
-const ORDERED_VISIBLE_TASK_TYPE_NAMES: Record<keyof VisibleTaskSettings, string> = {
-  downloading: browser.i18n.getMessage('Downloading'),
-  uploading: browser.i18n.getMessage('Completed_uploading'),
-  completed: browser.i18n.getMessage('Completed_not_uploading'),
-  errored: browser.i18n.getMessage('Errored'),
-  other: browser.i18n.getMessage('Other')
-};
 
 const POLL_MIN_INTERVAL = 15;
 const POLL_DEFAULT_INTERVAL = 60;

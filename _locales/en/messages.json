@@ -101,6 +101,10 @@
     "message": "Open DownloadStation UI...",
     "description": "Tooltip for popup header button."
   },
+  "Show_task_display_settings": {
+    "message": "Show task display settings...",
+    "description": "Tooltip for popup header button."
+  },
   "Open_settings": {
     "message": "Open settings...",
     "description": "Tooltip for popup header button."
@@ -234,6 +238,38 @@
   "Other": {
     "message": "Other",
     "description": "Task status filtering category."
+  },
+  "Name_AZ": {
+    "message": "Name, A-Z",
+    "description": "Task sort order type."
+  },
+  "Name_ZA": {
+    "message": "Name, Z-A",
+    "description": "Task sort order type."
+  },
+  "Date_added_newest_first": {
+    "message": "Date added, newest first",
+    "description": "Task sort order type."
+  },
+  "Date_added_oldest_first": {
+    "message": "Date added, oldest first",
+    "description": "Task sort order type."
+  },
+  "Date_completed_newest_first": {
+    "message": "Date completed, newest first",
+    "description": "Task sort order type."
+  },
+  "Date_completed_oldest_first": {
+    "message": "Date completed, oldest first",
+    "description": "Task sort order type."
+  },
+  "_complete_least_first": {
+    "message": "% complete, least first",
+    "description": "Task sort order type."
+  },
+  "_complete_most_first": {
+    "message": "% complete, most first",
+    "description": "Task sort order type."
   },
   "Connection": {
     "message": "Connection",

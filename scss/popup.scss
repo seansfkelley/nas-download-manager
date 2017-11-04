@@ -31,7 +31,7 @@ html, body, #body, .popup {
   // Using 100% here should work, but it doesn't. The browser popup must do something weird
   // such that it changes width depending on the contents, even when it's 100% of the <html>
   // width (which is explicitly specified). :/
-  width: 350px;
+  width: 400px;
 }
 
 .popup {
@@ -73,6 +73,16 @@ html, body, #body, .popup {
 
     &.with-shadow {
       box-shadow: 0 1px 2px 2px rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  .display-settings {
+    max-height: 0px;
+    transition: max-height 300ms;
+    overflow: hidden;
+
+    &.is-visible {
+      max-height: none;
     }
   }
 

@@ -11,7 +11,14 @@ const moment: typeof momentProxy = (momentProxy as any).default || momentProxy;
 const classNames: typeof classNamesProxy = (classNamesProxy as any).default || classNamesProxy;
 
 import { AdvancedAddDownloadForm } from '../common/AdvancedAddDownloadForm';
-import { VisibleTaskSettings, onStoredStateChange, getHostUrl } from '../state';
+import {
+  Settings,
+  VisibleTaskSettings,
+  TaskSortType,
+  onStoredStateChange,
+  getHostUrl,
+  ORDERED_VISIBLE_TASK_TYPE_NAMES
+} from '../state';
 import { getSharedObjects } from '../browserApi';
 import { addDownloadTaskAndPoll, pollTasks } from '../apiActions';
 import { CallbackResponse } from './popupTypes';
@@ -42,7 +49,10 @@ interface PopupProps {
   taskFetchFailureReason: 'missing-config' | { failureMessage: string } | null;
   tasksLastInitiatedFetchTimestamp: number | null;
   tasksLastCompletedFetchTimestamp: number | null;
-  taskFilter: VisibleTaskSettings;
+  visibleTasks: VisibleTaskSettings;
+  changeTaskFilter: (filter: VisibleTaskSettings) => void;
+  taskSort: TaskSortType;
+  changeTaskSort: (sort: TaskSortType) => void;
   openDownloadStationUi?: () => void;
   createTask?: (url: string, path?: string) => Promise<void>;
   pauseTask?: (taskId: string) => Promise<CallbackResponse>;
@@ -51,16 +61,18 @@ interface PopupProps {
 }
 
 interface State {
-  shouldShowDropShadow: boolean;
+  isShowingDropShadow: boolean;
   isAddingDownload: boolean;
+  isShowingDisplaySettings: boolean;
 }
 
 class Popup extends React.PureComponent<PopupProps, State> {
   private bodyRef?: HTMLElement;
 
   state: State = {
-    shouldShowDropShadow: false,
-    isAddingDownload: false
+    isShowingDropShadow: false,
+    isAddingDownload: false,
+    isShowingDisplaySettings: false
   };
 
   render() {
@@ -68,7 +80,8 @@ class Popup extends React.PureComponent<PopupProps, State> {
       <div className='popup'>
         {this.renderHeader()}
         <div className={classNames('popup-body', { 'with-foreground': this.state.isAddingDownload })}>
-          {this.renderBody()}
+          {this.renderDisplaySettings()}
+          {this.renderTaskList()}
           {this.maybeRenderAddDownloadOverlay()}
         </div>
       </div>
@@ -111,7 +124,7 @@ class Popup extends React.PureComponent<PopupProps, State> {
     }
 
     return (
-      <header className={classNames({ 'with-shadow': this.state.shouldShowDropShadow })}>
+      <header className={classNames({ 'with-shadow': this.state.isShowingDropShadow })}>
         <div className={classNames('description', classes)} title={tooltip}>
           <div className={classNames('fa fa-lg', icon)}/>
           {text}
@@ -131,6 +144,13 @@ class Popup extends React.PureComponent<PopupProps, State> {
           <div className='fa fa-lg fa-share-square-o'/>
         </button>
         <button
+          onClick={() => { this.setState({ isShowingDisplaySettings: !this.state.isShowingDisplaySettings }); }}
+          title={browser.i18n.getMessage('Show_task_display_settings')}
+          className={classNames({ 'active': this.state.isShowingDisplaySettings })}
+        >
+          <div className='fa fa-lg fa-filter'/>
+        </button>
+        <button
           onClick={() => { browser.runtime.openOptionsPage(); }}
           title={browser.i18n.getMessage('Open_settings')}
           className={classNames({ 'called-out': this.props.taskFetchFailureReason === 'missing-config' })}
@@ -141,7 +161,32 @@ class Popup extends React.PureComponent<PopupProps, State> {
     );
   }
 
-  private renderBody() {
+  private renderDisplaySettings() {
+      return (
+        <div className={classNames('display-settings', { 'is-visible': this.state.isShowingDisplaySettings })}>
+          {Object.keys(ORDERED_VISIBLE_TASK_TYPE_NAMES).map((type: keyof VisibleTaskSettings) => (
+            <li key={type}>
+              <input
+                id={`${type}-input`}
+                type='checkbox'
+                checked={this.props.visibleTasks[type]}
+                onChange={() => {
+                  this.props.changeTaskFilter({
+                    ...this.props.visibleTasks,
+                    [type]: !this.props.visibleTasks[type]
+                  });
+                }}
+              />
+              <label htmlFor={`${type}-input`}>
+                {ORDERED_VISIBLE_TASK_TYPE_NAMES[type]}
+              </label>
+            </li>
+          ))}
+        </div>
+      );
+  }
+
+  private renderTaskList() {
     if (this.props.taskFetchFailureReason === 'missing-config') {
       return <NoTasks icon='fa-gear' text={browser.i18n.getMessage('Configure_your_hostname_username_and_password_in_settings')}/>;
     } else if (this.props.tasksLastCompletedFetchTimestamp == null) {
@@ -150,11 +195,11 @@ class Popup extends React.PureComponent<PopupProps, State> {
       return <NoTasks icon='fa-circle-o' text={browser.i18n.getMessage('No_download_tasks')}/>;
     } else {
       const filteredTasks = this.props.tasks.filter(t =>
-        (this.props.taskFilter.downloading && matchesFilter(t, 'downloading')) ||
-        (this.props.taskFilter.uploading && matchesFilter(t, 'uploading')) ||
-        (this.props.taskFilter.completed && matchesFilter(t, 'completed')) ||
-        (this.props.taskFilter.errored && matchesFilter(t, 'errored')) ||
-        (this.props.taskFilter.other && matchesFilter(t, 'other'))
+        (this.props.visibleTasks.downloading && matchesFilter(t, 'downloading')) ||
+        (this.props.visibleTasks.uploading && matchesFilter(t, 'uploading')) ||
+        (this.props.visibleTasks.completed && matchesFilter(t, 'completed')) ||
+        (this.props.visibleTasks.errored && matchesFilter(t, 'errored')) ||
+        (this.props.visibleTasks.other && matchesFilter(t, 'other'))
       );
       if (filteredTasks.length === 0) {
         return <NoTasks icon='fa-filter' text={browser.i18n.getMessage('Download_tasks_exist_but_none_match_your_filters"')}/>;
@@ -210,9 +255,9 @@ class Popup extends React.PureComponent<PopupProps, State> {
 
   private onBodyScroll = debounce(() => {
     if (this.bodyRef) {
-      this.setState({ shouldShowDropShadow: this.bodyRef.scrollTop !== 0 })
+      this.setState({ isShowingDropShadow: this.bodyRef.scrollTop !== 0 })
     } else {
-      this.setState({ shouldShowDropShadow: false });
+      this.setState({ isShowingDropShadow: false });
     }
   }, 100);
 }
@@ -291,6 +336,18 @@ getSharedObjects()
           }
         : undefined;
 
+      function changeTaskFilter(visibleTasks: VisibleTaskSettings) {
+        // Assign to intermediate so compiler can help with safety.
+        const partialSettings: Partial<Settings> = { visibleTasks };
+        browser.storage.local.set(partialSettings);
+      }
+
+      function changeSortType(taskSortType: TaskSortType) {
+        // Assign to intermediate so compiler can help with safety.
+        const partialSettings: Partial<Settings> = { taskSortType };
+        browser.storage.local.set(partialSettings);
+      }
+
       ReactDOM.render(
         <Popup
           api={api}
@@ -298,7 +355,10 @@ getSharedObjects()
           taskFetchFailureReason={storedState.taskFetchFailureReason}
           tasksLastInitiatedFetchTimestamp={storedState.tasksLastInitiatedFetchTimestamp}
           tasksLastCompletedFetchTimestamp={storedState.tasksLastCompletedFetchTimestamp}
-          taskFilter={storedState.visibleTasks}
+          visibleTasks={storedState.visibleTasks}
+          changeTaskFilter={changeTaskFilter}
+          taskSort={storedState.taskSortType}
+          changeTaskSort={changeSortType}
           openDownloadStationUi={openDownloadStationUi}
           createTask={createTask}
           pauseTask={pauseTask}
