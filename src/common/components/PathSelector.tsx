@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { ApiClient, SynologyResponse, ConnectionFailure, isConnectionFailure } from 'synology-typescript-api';
-import { errorMessageFromConnectionFailure, errorMessageFromCode } from '../apiErrors';
+import { errorMessageFromConnectionFailure, errorMessageFromCode } from '../apis/errors';
 import {
   DirectoryTree,
   DirectoryTreeFile,

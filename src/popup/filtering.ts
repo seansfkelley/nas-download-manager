@@ -1,7 +1,7 @@
 import { sortBy } from 'lodash-es';
 import { DownloadStationTask, DownloadStationTaskNormalStatus, DownloadStationTaskErrorStatus, ALL_TASK_ERROR_STATUSES, ALL_TASK_NORMAL_STATUSES } from 'synology-typescript-api';
-import { VisibleTaskSettings, TaskSortType } from '../state';
-import { assertNever } from '../lang';
+import { VisibleTaskSettings, TaskSortType } from '../common/state';
+import { assertNever } from '../common/lang';
 
 const EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES: { [K in keyof VisibleTaskSettings]?: DownloadStationTaskNormalStatus[] } = {
   downloading: [ 'downloading', 'extracting', 'finishing', 'hash_checking' ],

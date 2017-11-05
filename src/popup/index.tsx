@@ -9,22 +9,22 @@ import { SynologyResponse, DownloadStationTask, ApiClient } from 'synology-types
 const moment: typeof momentProxy = (momentProxy as any).default || momentProxy;
 const classNames: typeof classNamesProxy = (classNamesProxy as any).default || classNamesProxy;
 
-import { AdvancedAddDownloadForm } from '../common/AdvancedAddDownloadForm';
+import { AdvancedAddDownloadForm } from '../common/components/AdvancedAddDownloadForm';
 import {
   Settings,
   VisibleTaskSettings,
   TaskSortType,
   onStoredStateChange,
   getHostUrl
-} from '../state';
-import { getSharedObjects } from '../browserApi';
-import { addDownloadTaskAndPoll, pollTasks } from '../apiActions';
+} from '../common/state';
+import { getSharedObjects } from '../common/apis/messages';
+import { addDownloadTaskAndPoll, pollTasks } from '../common/apis/actions';
 import { CallbackResponse } from './popupTypes';
 import { matchesFilter, sortTasks } from './filtering';
 import { Task } from './Task';
-import { errorMessageFromCode } from '../apiErrors';
-import { shimExtensionApi } from '../apiShim';
-import { TaskFilterSettingsForm } from '../common/TaskFilterSettingsForm';
+import { errorMessageFromCode } from '../common/apis/errors';
+import { shimExtensionApi } from '../common/apis/browserShim';
+import { TaskFilterSettingsForm } from '../common/components/TaskFilterSettingsForm';
 
 shimExtensionApi();
 

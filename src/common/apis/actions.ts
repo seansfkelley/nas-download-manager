@@ -2,9 +2,9 @@ import { uniqueId, find } from 'lodash-es';
 import Axios from 'axios';
 import { parse as parseQueryString } from 'query-string';
 import { ApiClient, ConnectionFailure, isConnectionFailure, SynologyResponse, DownloadStationTaskCreateRequest } from 'synology-typescript-api';
-import { errorMessageFromCode, errorMessageFromConnectionFailure } from './apiErrors';
-import { CachedTasks } from './state';
-import { notify } from './browserApi';
+import { errorMessageFromCode, errorMessageFromConnectionFailure } from './errors';
+import { CachedTasks } from '../state';
+import { notify } from './browserUtils';
 
 const NO_PERMISSIONS_ERROR_CODE = 105;
 

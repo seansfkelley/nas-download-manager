@@ -15,17 +15,17 @@ import {
   NotificationSettings,
   loadSettings,
   DEFAULT_SETTINGS,
-} from '../state';
+} from '../common/state';
 import {
   isErrorCodeResult,
   ConnectionTestResult,
   saveSettings,
   testConnection
 } from './settingsUtils';
-import { errorMessageFromCode, errorMessageFromConnectionFailure } from '../apiErrors';
-import { assertNever } from '../lang';
-import { shimExtensionApi } from '../apiShim';
-import { TaskFilterSettingsForm } from '../common/TaskFilterSettingsForm';
+import { errorMessageFromCode, errorMessageFromConnectionFailure } from '../common/apis/errors';
+import { assertNever } from '../common/lang';
+import { shimExtensionApi } from '../common/apis/browserShim';
+import { TaskFilterSettingsForm } from '../common/components/TaskFilterSettingsForm';
 
 shimExtensionApi();
 

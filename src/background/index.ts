@@ -1,9 +1,10 @@
 import { isEqual } from 'lodash-es';
 import { ApiClient, SessionName } from 'synology-typescript-api';
-import { getHostUrl, onStoredStateChange, NotificationSettings, clearTaskCacheIfNecessary, DEFAULT_SETTINGS } from '../state';
-import { setSharedObjects, notify } from '../browserApi';
-import { addDownloadTaskAndPoll, pollTasks, clearCachedTasks } from '../apiActions';
-import { shimExtensionApi } from '../apiShim';
+import { getHostUrl, onStoredStateChange, NotificationSettings, clearTaskCacheIfNecessary, DEFAULT_SETTINGS } from '../common/state';
+import { notify } from '../common/apis/browserUtils';
+import { setSharedObjects } from '../common/apis/messages';
+import { addDownloadTaskAndPoll, pollTasks, clearCachedTasks } from '../common/apis/actions';
+import { shimExtensionApi } from '../common/apis/browserShim';
 
 shimExtensionApi();
 

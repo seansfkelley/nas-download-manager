@@ -1,5 +1,5 @@
 import { ConnectionFailure } from 'synology-typescript-api';
-import { assertNever } from './lang';
+import { assertNever } from '../lang';
 
 export const ERROR_CODES = {
   'common': {

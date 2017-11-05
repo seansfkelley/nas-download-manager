@@ -6,7 +6,7 @@ import * as classNamesProxy from 'classnames';
 // https://github.com/rollup/rollup/issues/1267
 const classNames: typeof classNamesProxy = (classNamesProxy as any).default || classNamesProxy;
 
-import { formatMetric1024 } from '../format';
+import { formatMetric1024 } from '../common/format';
 import { CallbackResponse } from './popupTypes';
 import { matchesFilter } from './filtering';
 
