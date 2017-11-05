@@ -63,3 +63,4 @@ function bundleAndMaybeWatch(baseDirectory) {
 bundleAndMaybeWatch('settings');
 bundleAndMaybeWatch('background');
 bundleAndMaybeWatch('popup');
+bundleAndMaybeWatch('content');

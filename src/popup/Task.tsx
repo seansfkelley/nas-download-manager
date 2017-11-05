@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { startCase, upperCase } from 'lodash-es';
+import startCase from 'lodash-es/startCase';
+import upperCase from 'lodash-es/upperCase';
 import { DownloadStationTask } from 'synology-typescript-api';
 import * as classNamesProxy from 'classnames';
 

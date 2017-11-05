@@ -308,8 +308,8 @@
     "message": "Display these task types in the popup menu.",
     "description": "Subheader for DownloadsList settings section."
   },
-  "Notifications": {
-    "message": "Notifications",
+  "Miscellaneous": {
+    "message": "Miscellaneous",
     "description": "Header for settings section."
   },
   "Notify_when_downloads_complete": {
@@ -327,6 +327,16 @@
   "at_least_15": {
     "message": "(at least 15)",
     "description": "Error message when notification interval is too short."
+  },
+  "Handle_opening_downloadable_link_types_$protocols$": {
+    "message": "Handle opening downloadable link types ($PROTOCOLS$)",
+    "description": "Label for option on settings page.",
+    "placeholders": {
+      "protocols": {
+        "content": "$1",
+        "example": "http, https"
+      }
+    }
   },
   "Checking_connection": {
     "message": "Checking connection...",

@@ -1,4 +1,4 @@
-import { once } from 'lodash-es';
+import once from 'lodash-es/once';
 import { DownloadStationTask } from 'synology-typescript-api';
 
 // This number should be incremented each time the shape of the cached tasks changes.
@@ -42,6 +42,7 @@ export interface Settings {
   visibleTasks: VisibleTaskSettings;
   taskSortType: TaskSortType;
   notifications: NotificationSettings;
+  shouldHandleDownloadLinks: boolean;
 }
 
 // HELLO THERE
@@ -66,7 +67,8 @@ const _settingNames: Record<keyof Settings, true> = {
   'connection': true,
   'visibleTasks': true,
   'taskSortType': true,
-  'notifications': true
+  'notifications': true,
+  'shouldHandleDownloadLinks': true
 };
 
 const SETTING_NAMES = Object.keys(_settingNames) as (keyof Settings)[];
@@ -111,7 +113,8 @@ export const DEFAULT_SETTINGS: Settings = {
   notifications: {
     enabled: false,
     pollingInterval: 60
-  }
+  },
+  shouldHandleDownloadLinks: true
 };
 
 const DEFAULT_ALL_STORED_STATE: AllStoredState = {

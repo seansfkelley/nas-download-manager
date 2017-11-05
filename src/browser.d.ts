@@ -99,6 +99,16 @@ interface ContextMenusCreateOptions {
 
 type ColorArray = [ number, number, number, number ];
 
+interface SendMessageOptions {
+  includeTlsChannelIdOptional?: boolean;
+  toProxyScript?: boolean;
+}
+
+// TODO, but I don't actually need this...
+type MessageSender = { __messageSenderBrand: any };
+
+type OnMessageListener = (message: object | null | undefined, sender: MessageSender, sendResponse: (response: object) => void) => (Promise<object> | boolean | void);
+
 declare const browser: {
   extension: {
     getURL: (relativeUrl: string) => string;
@@ -111,6 +121,13 @@ declare const browser: {
   runtime: {
     openOptionsPage: () => Promise<void>;
     getBackgroundPage: () => Promise<Window>;
+    // This is only one of 3-4 call signatures, but it's the only one we need.
+    sendMessage: (message: object) => Promise<object>;
+    onMessage: {
+      addListener: (listener: OnMessageListener) => void;
+      removeListener: (listener: OnMessageListener) => void;
+      hasListener: (listener: OnMessageListener) => boolean;
+    };
   };
   storage: {
     local: {

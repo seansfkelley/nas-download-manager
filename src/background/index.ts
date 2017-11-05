@@ -1,8 +1,8 @@
-import { isEqual } from 'lodash-es';
+import isEqual from 'lodash-es/isEqual';
 import { ApiClient, SessionName } from 'synology-typescript-api';
 import { getHostUrl, onStoredStateChange, NotificationSettings, clearTaskCacheIfNecessary, DEFAULT_SETTINGS } from '../common/state';
 import { notify } from '../common/apis/browserUtils';
-import { setSharedObjects } from '../common/apis/messages';
+import { setSharedObjects, isAddTaskMessage } from '../common/apis/messages';
 import { addDownloadTaskAndPoll, pollTasks, clearCachedTasks } from '../common/apis/actions';
 import { shimExtensionApi } from '../common/apis/browserShim';
 
@@ -114,5 +114,11 @@ browser.contextMenus.create({
     } else {
       notify(browser.i18n.getMessage('Failed_to_add_download'), browser.i18n.getMessage('URL_is_empty_or_missing'));
     }
+  }
+});
+
+browser.runtime.onMessage.addListener(message => {
+  if (isAddTaskMessage(message)) {
+    addDownloadTaskAndPoll(api, message.url);
   }
 });

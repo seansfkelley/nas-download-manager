@@ -1,4 +1,4 @@
-import { sortBy } from 'lodash-es';
+import sortBy from 'lodash-es/sortBy';
 import { DownloadStationTask, DownloadStationTaskNormalStatus, DownloadStationTaskErrorStatus, ALL_TASK_ERROR_STATUSES, ALL_TASK_NORMAL_STATUSES } from 'synology-typescript-api';
 import { VisibleTaskSettings, TaskSortType } from '../common/state';
 import { assertNever } from '../common/lang';

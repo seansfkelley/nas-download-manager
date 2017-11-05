@@ -40,6 +40,10 @@ ul.settings-list {
     display: flex;
     align-items: center;
     justify-content: flex-start;
+
+    .indent {
+      margin-left: 20px;
+    }
   }
 }
 

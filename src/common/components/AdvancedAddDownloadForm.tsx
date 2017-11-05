@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { last } from 'lodash-es';
+import last from 'lodash-es/last';
 import { ApiClient } from 'synology-typescript-api';
 import * as classNamesProxy from 'classnames';
 

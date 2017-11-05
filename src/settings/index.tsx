@@ -22,6 +22,7 @@ import {
   saveSettings,
   testConnection
 } from './settingsUtils';
+import { DOWNLOAD_ONLY_PROTOCOLS } from '../common/apis/actions';
 import { errorMessageFromCode, errorMessageFromConnectionFailure } from '../common/apis/errors';
 import { assertNever } from '../common/lang';
 import { shimExtensionApi } from '../common/apis/browserShim';
@@ -183,7 +184,7 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
         <div className='horizontal-separator'/>
 
         <header>
-          <h3>{browser.i18n.getMessage('Notifications')}</h3>
+          <h3>{browser.i18n.getMessage('Miscellaneous')}</h3>
         </header>
 
         <ul className='settings-list'>
@@ -202,7 +203,9 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
           </li>
 
           <li>
-            {browser.i18n.getMessage('Check_for_completed_downloads_every')}
+            <span className='indent'>
+              {browser.i18n.getMessage('Check_for_completed_downloads_every')}
+            </span>
             <input
               type='number'
               {...this.disabledPropAndClassName(!this.state.settings.notifications.enabled)}
@@ -222,6 +225,20 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
             {isValidPollingInterval(this.state.rawPollingInterval)
               ? undefined
               : <span className='intent-error wrong-polling-interval'>{browser.i18n.getMessage('at_least_15')}</span>}
+          </li>
+
+          <li>
+            <input
+              id='handle-links-checkbox'
+              type='checkbox'
+              checked={this.state.settings.shouldHandleDownloadLinks}
+              onChange={() => {
+                this.toggleShouldHandleDownloadLinks();
+              }}
+            />
+            <label htmlFor='handle-links-checkbox'>
+              {browser.i18n.getMessage('Handle_opening_downloadable_link_types_$protocols$', DOWNLOAD_ONLY_PROTOCOLS.join(', '))}
+            </label>
           </li>
         </ul>
 
@@ -351,6 +368,16 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
           ...this.state.settings.notifications,
           [key as string]: value
         }
+      }
+    });
+  }
+
+  private toggleShouldHandleDownloadLinks() {
+    this.setState({
+      savingStatus: 'pending-changes',
+      settings: {
+        ...this.state.settings,
+        shouldHandleDownloadLinks: !this.state.settings.shouldHandleDownloadLinks
       }
     });
   }

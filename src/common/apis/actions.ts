@@ -1,4 +1,5 @@
-import { uniqueId, find } from 'lodash-es';
+import uniqueId from 'lodash-es/uniqueId';
+import find from 'lodash-es/find';
 import Axios from 'axios';
 import { parse as parseQueryString } from 'query-string';
 import { ApiClient, ConnectionFailure, isConnectionFailure, SynologyResponse, DownloadStationTaskCreateRequest } from 'synology-typescript-api';
@@ -105,16 +106,19 @@ const AUTO_DOWNLOAD_TORRENT_FILE_PROTOCOLS = [
   'https'
 ];
 
-const DOWNLOADABLE_PROTOCOLS = [
-  'http',
-  'https',
-  'ftp',
-  'ftps',
+export const DOWNLOAD_ONLY_PROTOCOLS = [
   'magnet',
   'thunder',
   'flashget',
   'qqdl'
 ];
+
+const ALL_DOWNLOADABLE_PROTOCOLS = [
+  'http',
+  'https',
+  'ftp',
+  'ftps'
+].concat(DOWNLOAD_ONLY_PROTOCOLS);
 
 interface MetadataFileType {
   mediaType: string;
@@ -154,6 +158,10 @@ function guessFileName(urlWithoutQuery: string, headers: Record<string, string>,
 const doCreateTask = wrapInNoPermissionsRetry((api: ApiClient, options: DownloadStationTaskCreateRequest) => {
   return api.DownloadStation.Task.Create(options);
 });
+
+export function isDownloadOnlyUrl(url: string | null | undefined) {
+  return url && startsWithAnyProtocol(url, DOWNLOAD_ONLY_PROTOCOLS);
+}
 
 export function addDownloadTaskAndPoll(api: ApiClient, url: string, path?: string) {
   const notificationId = notify('Adding download...', url);
@@ -213,7 +221,7 @@ export function addDownloadTaskAndPoll(api: ApiClient, url: string, path?: strin
           }
         })
         .catch(notifyUnexpectedError);
-    } else if (startsWithAnyProtocol(url, DOWNLOADABLE_PROTOCOLS)) {
+    } else if (startsWithAnyProtocol(url, ALL_DOWNLOADABLE_PROTOCOLS)) {
       const filename = url.startsWith('magnet:') ? parseQueryString(url).dn : null;
       return doCreateTask(api, {
         uri: [ url ],
@@ -223,7 +231,7 @@ export function addDownloadTaskAndPoll(api: ApiClient, url: string, path?: strin
         .then(pollOnResponse)
         .catch(notifyUnexpectedError);
     } else {
-      notify('Failed to add download', `URL must start with one of ${DOWNLOADABLE_PROTOCOLS.join(', ')}`, notificationId);
+      notify('Failed to add download', `URL must start with one of ${ALL_DOWNLOADABLE_PROTOCOLS.join(', ')}`, notificationId);
       return Promise.resolve();
     }
   } else {
