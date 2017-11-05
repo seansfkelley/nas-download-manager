@@ -1,7 +1,8 @@
 {
   "Add_and_manage_Download_Station_tasks_on_your_Synology_DiskStation": {
     "message": "Add and manage Download Station tasks on your Synology DiskStation.",
-    "description": "A description of the extension."
+    "description": "A description of the extension.",
+    "test_skip_reference_check": true
   },
   "Download_finished": {
     "message": "Download finished",

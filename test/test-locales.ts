@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { sync as globSync } from 'glob';
 
 import 'mocha';
 import { expect } from 'chai';
@@ -7,6 +8,7 @@ import { expect } from 'chai';
 interface I18nMessage {
   message: string;
   description: string;
+  test_skip_reference_check?: boolean;
   placeholders?: Record<string, {
     content: string;
     example: string;
@@ -23,17 +25,22 @@ function loadLocale(localeName: string): LocaleMessages {
   return loadJson(path.join('_locales', localeName, 'messages.json'));
 }
 
+function createForEachMessage(localeName: string) {
+  return (fn: (message: I18nMessage, messageName: string) => void) => {
+    const messages = loadLocale(localeName);
+    Object.keys(messages).forEach(key => {
+      fn(messages[key], key);
+    });
+  };
+}
+
 describe('i18n', () => {
   const DEFAULT_LOCALE: string = loadJson('manifest.json').default_locale;
+  const SOURCE_FILES_BY_NAME: Record<string, string> = {};
 
-  function createForEachMessage(localeName: string) {
-    return (fn: (message: I18nMessage, messageName: string) => void) => {
-      const messages = loadLocale(localeName);
-      Object.keys(messages).forEach(key => {
-        fn(messages[key], key);
-      });
-    };
-  }
+  globSync(path.join(__dirname, '..', 'src', '**', '*.ts*')).forEach(filename => {
+    SOURCE_FILES_BY_NAME[filename] = fs.readFileSync(filename).toString('utf8');
+  });
 
   describe('manifest.json', () => {
     it('should have a default locale set', () => {
@@ -63,13 +70,31 @@ describe('i18n', () => {
       });
     });
 
-    xit('should be referenced at least once in any "getMessage" call', () => {
-      // forEachMessage((_message, messageName) => {
-      //   const i18nCall = `browser.i18n.getMessage('${messageName}'`;
-      // });
+    it('should be referenced at least once in any "getMessage" call', () => {
+      forEachMessage(({ test_skip_reference_check }, messageName) => {
+        if (!test_skip_reference_check) {
+          const i18nCall = `browser.i18n.getMessage('${messageName}'`;
+          expect(Object.keys(SOURCE_FILES_BY_NAME).some(name => {
+            return SOURCE_FILES_BY_NAME[name].indexOf(i18nCall) !== -1;
+          }), messageName).to.be.true;
+        }
+      });
     });
 
-    xit('every "getMessage" call should use a known message name', () => {
+    it('every "getMessage" call should use a known message name', () => {
+      const I18N_CALL_REGEX = /browser\.i18n\.getMessage\('([^']+)'/g;
+      const MESSAGES = loadLocale(DEFAULT_LOCALE);
+      Object.keys(SOURCE_FILES_BY_NAME).forEach(name => {
+        const content = SOURCE_FILES_BY_NAME[name];
+        let match;
+        do {
+          match = I18N_CALL_REGEX.exec(content);
+          if (match != null) {
+            const stringName = match[1];
+            expect(MESSAGES[stringName], stringName).to.exist;
+          }
+        } while(match != null);
+      });
     });
 
     describe('with placeholders', () => {
