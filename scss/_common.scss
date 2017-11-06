@@ -20,6 +20,15 @@ button {
   }
 }
 
+select {
+  appearance: none;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  -ms-appearance: none;
+  background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAQAAAAAYLlVAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAAmJLR0QA/4ePzL8AAAAHdElNRQfgCxACEBnQdLlTAAAAeklEQVRo3u3QyQ2AMAwFUVMBddETW1U0RgHhwAFFbLYUOxLMyzXKH0UEAAAAAP6uUd1qpTO/nGSRtVzoLMl4+tJ/ZUsoPm9LcJnXJwxe87oE1/n3BPf554SQ+fuEMWr+OiF0/pwQPp8nTDXmj4Rq83tC1XkAAAAAX7ABm5GrRSevg7kAAAAldEVYdGRhdGU6Y3JlYXRlADIwMTYtMTEtMTZUMDI6MTY6MjUtMDU6MDAzbD3PAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDE2LTExLTE2VDAyOjE2OjI1LTA1OjAwQjGFcwAAAABJRU5ErkJggg==') right / 20px no-repeat #fff;
+  padding-right: 20px;
+}
+
 ul.settings-list {
   list-style: none;
   padding-left: 15px;
