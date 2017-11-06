@@ -378,8 +378,8 @@
     "message": "Connection failure (likely wrong protocol).",
     "description": "Connection failure explanatory text."
   },
-  "Connection_failure_likely_wrong_hostnameport_or_no_internet_connection": {
-    "message": "Connection failure (likely wrong hostname/port or no internet connection).",
+  "Connection_failure_likely_wrong_hostnameport_no_internet_connection_or_invalid_certificate": {
+    "message": "Connection failure (likely wrong hostname/port, no internet connection or invalid certificate).",
     "description": "Connection failure explanatory text."
   },
   "Connection_failure_timeout_check_your_hostnameport_settings_and_internet_connection": {

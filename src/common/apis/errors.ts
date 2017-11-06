@@ -72,8 +72,8 @@ export function errorMessageFromConnectionFailure(failure: ConnectionFailure) {
       return browser.i18n.getMessage('Connection_failure_missing_connection_configuration');
     case 'probable-wrong-protocol':
       return browser.i18n.getMessage('Connection_failure_likely_wrong_protocol');
-    case 'probable-wrong-url-or-no-connection':
-      return browser.i18n.getMessage('Connection_failure_likely_wrong_hostnameport_or_no_internet_connection');
+    case 'probable-wrong-url-or-no-connection-or-cert-error':
+      return browser.i18n.getMessage('Connection_failure_likely_wrong_hostnameport_no_internet_connection_or_invalid_certificate');
     case 'timeout':
       return browser.i18n.getMessage('Connection_failure_timeout_check_your_hostnameport_settings_and_internet_connection');
     case 'unknown':
