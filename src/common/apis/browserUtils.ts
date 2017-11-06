@@ -1,4 +1,4 @@
-import { uniqueId } from 'lodash-es';
+import uniqueId from 'lodash-es/uniqueId';
 
 export function notify(title: string, message?: string, id: string = uniqueId('notification-')) {
   browser.notifications.create(id, {
