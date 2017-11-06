@@ -5,6 +5,7 @@ const resolve = require('rollup-plugin-node-resolve');
 const commonjs = require('rollup-plugin-commonjs');
 const builtins = require('rollup-plugin-node-builtins');
 const globals = require('rollup-plugin-node-globals');
+const sourcemaps = require('rollup-plugin-sourcemaps');
 
 function watchEventHandler(event, filename) {
   switch (event.code) {
@@ -31,6 +32,7 @@ function bundleAndMaybeWatch(baseDirectory) {
     entry: `lib/${baseDirectory}/index.js`,
     dest: `dist/js/${baseDirectory}.js`,
     format: 'es',
+    sourceMap: true,
     plugins: [
       resolve({
         main: true,
@@ -43,7 +45,8 @@ function bundleAndMaybeWatch(baseDirectory) {
         }
       }),
       globals(),
-      builtins()
+      builtins(),
+      sourcemaps()
     ]
   };
 
