@@ -31,47 +31,49 @@ export function matchesFilter(task: DownloadStationTask, filterName: keyof Visib
   return TASK_FILTER_TO_TYPES[filterName].indexOf(task.status) !== -1;
 }
 
-function createSortFunction(taskSortType: TaskSortType) {
-  return (task: DownloadStationTask) => {
-    switch (taskSortType) {
-      case 'name-asc':
-      case 'name-desc':
-        return task.title.toLocaleLowerCase();
-
-      case 'timestamp-completed-asc':
-      case 'timestamp-completed-desc':
-        if (matchesFilter(task, 'completed')) {
-          return task.additional!.detail!.completed_time;
-        } else {
-          return task.additional!.transfer!.size_downloaded / task.size;
-        }
-
-      case 'timestamp-added-asc':
-      case 'timestamp-added-desc':
-        return task.additional!.detail!.started_time;
-
-      case 'completed-percent-asc':
-      case 'completed-percent-desc':
-        return task.additional!.transfer!.size_downloaded / task.size;
-
-      default:
-        return assertNever(taskSortType);
-    }
-  };
+function fractionComplete(task: DownloadStationTask) {
+  return task.additional!.transfer!.size_downloaded / task.size;
 }
 
-const SHOULD_REVERSE_SORT: Record<TaskSortType, boolean> = {
-  'name-asc': false,
-  'name-desc': true,
-  'timestamp-completed-asc': false,
-  'timestamp-completed-desc': true,
-  'timestamp-added-asc': false,
-  'timestamp-added-desc': true,
-  'completed-percent-asc': false,
-  'completed-percent-desc': true,
-};
+export function sortTasks(tasks: DownloadStationTask[], taskSortType: TaskSortType): DownloadStationTask[] {
+  switch (taskSortType) {
+    case 'name-asc':
+      return sortBy(tasks, t => t.title.toLocaleLowerCase());
 
-export function sortTasks(tasks: DownloadStationTask[], taskSortType: TaskSortType) {
-  const sorted = sortBy(tasks, createSortFunction(taskSortType));
-  return SHOULD_REVERSE_SORT[taskSortType] ? sorted.reverse() : sorted;
+    case 'name-desc':
+      return sortBy(tasks, t => t.title.toLocaleLowerCase()).reverse();
+
+    case 'timestamp-completed-asc':
+      return sortBy(tasks, t => {
+        if (matchesFilter(t, 'completed')) {
+          return t.additional!.detail!.completed_time;
+        } else {
+          return fractionComplete(t);
+        }
+      });
+
+    case 'timestamp-completed-desc':
+      return sortBy(tasks, t => {
+        if (matchesFilter(t, 'completed')) {
+          return -t.additional!.detail!.completed_time;
+        } else {
+          return 1 - fractionComplete(t);
+        }
+      }).reverse();
+
+    case 'timestamp-added-asc':
+      return sortBy(tasks, t => t.additional!.detail!.create_time);
+
+    case 'timestamp-added-desc':
+      return sortBy(tasks, t => t.additional!.detail!.create_time).reverse();
+
+    case 'completed-percent-asc':
+      return sortBy(sortTasks(tasks, 'name-asc'), fractionComplete);
+
+    case 'completed-percent-desc':
+      return sortBy(sortTasks(tasks, 'name-desc'), fractionComplete).reverse();
+
+    default:
+      return assertNever(taskSortType);
+  }
 }

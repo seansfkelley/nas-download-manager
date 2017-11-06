@@ -33,7 +33,10 @@ export class Task extends React.PureComponent<Props, State> {
     if (this.state.deleteState === 'success') {
       return null;
     } else {
-      const downloadedFraction = Math.round(this.props.task.additional!.transfer!.size_downloaded / this.props.task.size * 100) / 100;
+      const isErrored = matchesFilter(this.props.task, 'errored');
+      const barFillFraction = isErrored
+        ? 1
+        : Math.round(this.props.task.additional!.transfer!.size_downloaded / this.props.task.size * 100) / 100;
       return (
         <li className='task' key={this.props.task.id}>
           <div className='header'>
@@ -53,10 +56,10 @@ export class Task extends React.PureComponent<Props, State> {
               className={classNames('bar-fill', {
                 'in-progress': matchesFilter(this.props.task, 'downloading' ),
                 'completed': matchesFilter(this.props.task, 'uploading') || matchesFilter(this.props.task, 'completed'),
-                'errored': matchesFilter(this.props.task, 'errored'),
+                'errored': isErrored,
                 'unknown': matchesFilter(this.props.task, 'other')
               })}
-              style={{ width: `${downloadedFraction * 100}%` }}
+              style={{ width: `${barFillFraction * 100}%` }}
             />
             <div className='bar-background'/>
           </div>
@@ -95,7 +98,7 @@ export class Task extends React.PureComponent<Props, State> {
       return browser.i18n.getMessage('ZstatusZ_ZcurrentZ_of_ZtotalZ_downloaded', [
         upperCase(this.props.task.status),
         `${formatMetric1024(this.props.task.additional!.transfer!.size_downloaded)}B`,
-        `${formatMetric1024(this.props.task.size)}B}`
+        `${formatMetric1024(this.props.task.size)}B`
       ]);
     }
   }
