@@ -134,12 +134,12 @@ export const ORDERED_VISIBLE_TASK_TYPE_NAMES: Record<keyof VisibleTaskSettings, 
 };
 
 export const ORDERED_TASK_SORT_TYPE_NAMES: Record<TaskSortType, string> = {
-  'name-asc': browser.i18n.getMessage('Name_AZ'),
-  'name-desc': browser.i18n.getMessage('Name_ZA'),
-  'timestamp-added-desc': browser.i18n.getMessage('Date_added_newest_first'),
-  'timestamp-added-asc': browser.i18n.getMessage('Date_added_oldest_first'),
-  'timestamp-completed-desc': browser.i18n.getMessage('Date_completed_newest_first'),
-  'timestamp-completed-asc': browser.i18n.getMessage('Date_completed_oldest_first'),
+  'name-asc': browser.i18n.getMessage('name_AZ'),
+  'name-desc': browser.i18n.getMessage('name_ZA'),
+  'timestamp-added-desc': browser.i18n.getMessage('date_added_newest_first'),
+  'timestamp-added-asc': browser.i18n.getMessage('date_added_oldest_first'),
+  'timestamp-completed-desc': browser.i18n.getMessage('date_completed_newest_first'),
+  'timestamp-completed-asc': browser.i18n.getMessage('date_completed_oldest_first'),
   'completed-percent-asc': browser.i18n.getMessage('_complete_least_first'),
   'completed-percent-desc': browser.i18n.getMessage('_complete_most_first')
 };

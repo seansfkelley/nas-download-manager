@@ -244,28 +244,28 @@
     "message": "Order tasks by",
     "description": "Prefix text for task-sort-type dropdown."
   },
-  "Name_AZ": {
-    "message": "Name, A-Z",
+  "name_AZ": {
+    "message": "name, A-Z",
     "description": "Task sort order type."
   },
-  "Name_ZA": {
-    "message": "Name, Z-A",
+  "name_ZA": {
+    "message": "name, Z-A",
     "description": "Task sort order type."
   },
-  "Date_added_newest_first": {
-    "message": "Date added, newest first",
+  "date_added_newest_first": {
+    "message": "date added, newest first",
     "description": "Task sort order type."
   },
-  "Date_added_oldest_first": {
-    "message": "Date added, oldest first",
+  "date_added_oldest_first": {
+    "message": "date added, oldest first",
     "description": "Task sort order type."
   },
-  "Date_completed_newest_first": {
-    "message": "Date completed, newest first",
+  "date_completed_newest_first": {
+    "message": "date completed, newest first",
     "description": "Task sort order type."
   },
-  "Date_completed_oldest_first": {
-    "message": "Date completed, oldest first",
+  "date_completed_oldest_first": {
+    "message": "date completed, oldest first",
     "description": "Task sort order type."
   },
   "_complete_least_first": {
