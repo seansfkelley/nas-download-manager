@@ -23,7 +23,7 @@ import {
   saveSettings,
   testConnection
 } from './settingsUtils';
-import { DOWNLOAD_ONLY_PROTOCOLS } from '../common/apis/actions';
+import { DOWNLOAD_ONLY_PROTOCOLS } from '../common/apis/protocols';
 import { errorMessageFromCode, errorMessageFromConnectionFailure } from '../common/apis/errors';
 import { assertNever } from '../common/lang';
 import { TaskFilterSettingsForm } from '../common/components/TaskFilterSettingsForm';

@@ -6,6 +6,11 @@ import { ApiClient, ConnectionFailure, isConnectionFailure, SynologyResponse, Do
 import { errorMessageFromCode, errorMessageFromConnectionFailure } from './errors';
 import { CachedTasks } from '../state';
 import { notify } from './browserUtils';
+import {
+  ALL_DOWNLOADABLE_PROTOCOLS,
+  AUTO_DOWNLOAD_TORRENT_FILE_PROTOCOLS,
+  startsWithAnyProtocol
+} from './protocols';
 
 const NO_PERMISSIONS_ERROR_CODE = 105;
 
@@ -101,25 +106,6 @@ export function pollTasks(api: ApiClient): Promise<void> {
     });
 }
 
-const AUTO_DOWNLOAD_TORRENT_FILE_PROTOCOLS = [
-  'http',
-  'https'
-];
-
-export const DOWNLOAD_ONLY_PROTOCOLS = [
-  'magnet',
-  'thunder',
-  'flashget',
-  'qqdl'
-];
-
-const ALL_DOWNLOADABLE_PROTOCOLS = [
-  'http',
-  'https',
-  'ftp',
-  'ftps'
-].concat(DOWNLOAD_ONLY_PROTOCOLS);
-
 interface MetadataFileType {
   mediaType: string;
   extension: string;
@@ -131,10 +117,6 @@ const METADATA_FILE_TYPES: MetadataFileType[] = [
 ];
 
 const ARBITRARY_FILE_FETCH_SIZE_CUTOFF = 1024 * 1024 * 5;
-
-function startsWithAnyProtocol(url: string, protocols: string[]) {
-  return protocols.some(protocol => url.startsWith(`${protocol}:`));
-}
 
 const FILENAME_PROPERTY_REGEX = /filename=("([^"]+)"|([^"][^ ]+))/;
 
@@ -158,10 +140,6 @@ function guessFileName(urlWithoutQuery: string, headers: Record<string, string>,
 const doCreateTask = wrapInNoPermissionsRetry((api: ApiClient, options: DownloadStationTaskCreateRequest) => {
   return api.DownloadStation.Task.Create(options);
 });
-
-export function isDownloadOnlyUrl(url: string | null | undefined) {
-  return url && startsWithAnyProtocol(url, DOWNLOAD_ONLY_PROTOCOLS);
-}
 
 export function addDownloadTaskAndPoll(api: ApiClient, url: string, path?: string) {
   const notificationId = notify('Adding download...', url);

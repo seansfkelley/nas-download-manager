@@ -1,7 +1,7 @@
 import '../common/apis/browserShim';
 import { sendTaskAddMessage } from '../common/apis/messages';
 import { onStoredStateChange } from '../common/state';
-import { isDownloadOnlyUrl } from '../common/apis/actions';
+import { DOWNLOAD_ONLY_PROTOCOLS, startsWithAnyProtocol } from '../common/apis/protocols';
 
 const LEFT_MOUSE_BUTTON = 0;
 
@@ -28,7 +28,7 @@ function recursivelyFindAnchorAncestor(e: HTMLElement | null, depth: number = 10
 document.addEventListener('click', (e: MouseEvent) => {
   if (enabled && e.button === LEFT_MOUSE_BUTTON) {
     const anchor = recursivelyFindAnchorAncestor(e.target as HTMLElement);
-    if (anchor != null && isDownloadOnlyUrl(anchor.href)) {
+    if (anchor != null && anchor.href && startsWithAnyProtocol(anchor.href, DOWNLOAD_ONLY_PROTOCOLS)) {
       sendTaskAddMessage(anchor.href);
       e.preventDefault();
     }
