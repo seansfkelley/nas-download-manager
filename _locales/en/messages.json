@@ -80,7 +80,7 @@
     "message": "Error updating tasks",
     "description": "Text for popup header on load failure."
   },
-  "Updated_$time$": {
+  "Updated_ZtimeZ": {
     "message": "Updated $TIME$",
     "description": "Text for popup header on load success.",
     "placeholders": {
@@ -122,7 +122,7 @@
     "message": "Download tasks exist, but none match your filters.",
     "description": "Body text for popup when no tasks are shown because they're all filtered out."
   },
-  "and_$count$_more_hidden_tasks": {
+  "and_ZcountZ_more_hidden_tasks": {
     "message": "...and $COUNT$ more hidden task(s).",
     "description": "Trailing text after task list when some tasks are hidden by filters.",
     "placeholders": {
@@ -148,7 +148,7 @@
     "message": "Pause",
     "description": "Tooltip for pause button on a task list item."
   },
-  "$status$_$current$_of_$total$_downloaded_$speed$": {
+  "ZstatusZ_ZcurrentZ_of_ZtotalZ_downloaded_ZspeedZ": {
     "message": "$STATUS$ \u2013 $CURRENT$ of $TOTAL$ downloaded ($SPEED$)",
     "description": "Subtitle for currently-downloading task showing stats.",
     "placeholders": {
@@ -170,7 +170,7 @@
       }
     }
   },
-  "$status$_$total$_uploaded_$speed$": {
+  "ZstatusZ_ZtotalZ_uploaded_ZspeedZ": {
     "message": "$STATUS$ \u2013 $TOTAL$ uploaded ($SPEED$)",
     "description": "Subtitle for currently-uploading task showing stats.",
     "placeholders": {
@@ -188,7 +188,7 @@
       }
     }
   },
-  "$status$_$total$_downloaded": {
+  "ZstatusZ_ZtotalZ_downloaded": {
     "message": "$STATUS$ \u2013 $TOTAL$ downloaded",
     "description": "Subtitle for completed, not-uploading task showing stats.",
     "placeholders": {
@@ -202,7 +202,7 @@
       }
     }
   },
-  "$status$_$current$_of_$total$_downloaded": {
+  "ZstatusZ_ZcurrentZ_of_ZtotalZ_downloaded": {
     "message": "$STATUS$ \u2013 $CURRENT$ of $TOTAL$ downloaded",
     "description": "Subtitle for status-unknown task showing stats (best effort).",
     "placeholders": {
@@ -328,7 +328,7 @@
     "message": "(at least 15)",
     "description": "Error message when notification interval is too short."
   },
-  "Handle_opening_downloadable_link_types_$protocols$": {
+  "Handle_opening_downloadable_link_types_ZprotocolsZ": {
     "message": "Handle opening downloadable link types ($PROTOCOLS$)",
     "description": "Label for option on settings page.",
     "placeholders": {

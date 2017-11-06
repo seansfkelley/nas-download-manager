@@ -66,6 +66,7 @@ describe('i18n', () => {
             .replace(/\$[A-Z]+\$/g, substr => substr.toLowerCase())
             .replace(/[^A-Za-z0-9$_ ]/g, '')
             .replace(/ +/g, '_')
+            .replace(/\$/g, 'Z')
         );
       });
     });

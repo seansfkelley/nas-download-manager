@@ -107,7 +107,7 @@ class Popup extends React.PureComponent<PopupProps, State> {
       classes = 'intent-error';
       icon = 'fa-exclamation-triangle';
     } else {
-      text = browser.i18n.getMessage('Updated_$time$', moment(this.props.tasksLastCompletedFetchTimestamp).fromNow());
+      text = browser.i18n.getMessage('Updated_ZtimeZ', moment(this.props.tasksLastCompletedFetchTimestamp).fromNow());
       tooltip = moment(this.props.tasksLastCompletedFetchTimestamp).format('ll LTS');
       classes = 'intent-success';
       icon = 'fa-check';
@@ -214,7 +214,7 @@ class Popup extends React.PureComponent<PopupProps, State> {
                 className='hidden-count'
                 onClick={() => { this.setState({ isShowingDisplaySettings: true }); }}
               >
-                {browser.i18n.getMessage('and_$count$_more_hidden_tasks', hiddenTaskCount)}
+                {browser.i18n.getMessage('and_ZcountZ_more_hidden_tasks', hiddenTaskCount)}
               </div>
             )}
           </div>

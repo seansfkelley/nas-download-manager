@@ -240,7 +240,7 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
               }}
             />
             <label htmlFor='handle-links-checkbox'>
-              {browser.i18n.getMessage('Handle_opening_downloadable_link_types_$protocols$', DOWNLOAD_ONLY_PROTOCOLS.join(', '))}
+              {browser.i18n.getMessage('Handle_opening_downloadable_link_types_ZprotocolsZ', DOWNLOAD_ONLY_PROTOCOLS.join(', '))}
             </label>
           </li>
         </ul>
