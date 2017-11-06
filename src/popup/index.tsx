@@ -1,3 +1,4 @@
+import '../common/apis/browserShim';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import * as momentProxy from 'moment';
@@ -23,10 +24,7 @@ import { CallbackResponse } from './popupTypes';
 import { matchesFilter, sortTasks } from './filtering';
 import { Task } from './Task';
 import { errorMessageFromCode } from '../common/apis/errors';
-import { shimExtensionApi } from '../common/apis/browserShim';
 import { TaskFilterSettingsForm } from '../common/components/TaskFilterSettingsForm';
-
-shimExtensionApi();
 
 function disabledPropAndClassName(disabled: boolean, className?: string) {
   return {

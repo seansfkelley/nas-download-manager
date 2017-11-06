@@ -1,3 +1,4 @@
+import '../common/apis/browserShim';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import * as classNamesProxy from 'classnames';
@@ -25,10 +26,7 @@ import {
 import { DOWNLOAD_ONLY_PROTOCOLS } from '../common/apis/actions';
 import { errorMessageFromCode, errorMessageFromConnectionFailure } from '../common/apis/errors';
 import { assertNever } from '../common/lang';
-import { shimExtensionApi } from '../common/apis/browserShim';
 import { TaskFilterSettingsForm } from '../common/components/TaskFilterSettingsForm';
-
-shimExtensionApi();
 
 interface SettingsFormProps {
   initialSettings: Settings;

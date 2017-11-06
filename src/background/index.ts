@@ -1,12 +1,10 @@
+import '../common/apis/browserShim';
 import isEqual from 'lodash-es/isEqual';
 import { ApiClient, SessionName } from 'synology-typescript-api';
 import { getHostUrl, onStoredStateChange, NotificationSettings, clearTaskCacheIfNecessary, DEFAULT_SETTINGS } from '../common/state';
 import { notify } from '../common/apis/browserUtils';
 import { setSharedObjects, isAddTaskMessage } from '../common/apis/messages';
 import { addDownloadTaskAndPoll, pollTasks, clearCachedTasks } from '../common/apis/actions';
-import { shimExtensionApi } from '../common/apis/browserShim';
-
-shimExtensionApi();
 
 const api = new ApiClient({});
 const START_TIME = Date.now();

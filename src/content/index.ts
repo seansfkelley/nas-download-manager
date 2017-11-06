@@ -1,3 +1,4 @@
+import '../common/apis/browserShim';
 import { sendTaskAddMessage } from '../common/apis/messages';
 import { onStoredStateChange } from '../common/state';
 import { isDownloadOnlyUrl } from '../common/apis/actions';
