@@ -89,26 +89,28 @@ class Popup extends React.PureComponent<PopupProps, State> {
     let text: string;
     let tooltip: string;
     let classes: string | undefined = undefined;
-    let icon: string;
+    let leftIcon: string;
+    let rightIcon: string | undefined = undefined;
 
     if (this.props.taskFetchFailureReason === 'missing-config') {
       text = browser.i18n.getMessage('Settings_unconfigured');
       tooltip = browser.i18n.getMessage('The_hostname_username_or_password_are_not_configured');
-      icon = 'fa-gear';
+      leftIcon = 'fa-gear';
     } else if (this.props.tasksLastCompletedFetchTimestamp == null) {
       text = browser.i18n.getMessage('Updating');
       tooltip = browser.i18n.getMessage('Updating_download_tasks');
-      icon = 'fa-refresh fa-spin';
+      leftIcon = 'fa-refresh fa-spin';
     } else if (this.props.taskFetchFailureReason != null) {
       text = browser.i18n.getMessage('Error_updating_tasks');
       tooltip = this.props.taskFetchFailureReason.failureMessage;
       classes = 'intent-error';
-      icon = 'fa-exclamation-triangle';
+      leftIcon = 'fa-exclamation-triangle';
+      rightIcon = 'fa-info-circle';
     } else {
       text = browser.i18n.getMessage('Updated_ZtimeZ', [ moment(this.props.tasksLastCompletedFetchTimestamp).fromNow() ]);
       tooltip = moment(this.props.tasksLastCompletedFetchTimestamp).format('ll LTS');
       classes = 'intent-success';
-      icon = 'fa-check';
+      leftIcon = 'fa-check';
     }
 
     if (
@@ -116,15 +118,16 @@ class Popup extends React.PureComponent<PopupProps, State> {
       this.props.tasksLastCompletedFetchTimestamp != null &&
       this.props.tasksLastInitiatedFetchTimestamp > this.props.tasksLastCompletedFetchTimestamp
     ) {
-      icon = 'fa-refresh fa-spin';
+      leftIcon = 'fa-refresh fa-spin';
       tooltip += ' ' + browser.i18n.getMessage('updating_now');
     }
 
     return (
       <header className={classNames({ 'with-shadow': this.state.isShowingDropShadow })}>
         <div className={classNames('description', classes)} title={tooltip}>
-          <div className={classNames('fa fa-lg', icon)}/>
+          <span className={classNames('left-icon fa fa-lg', leftIcon)}/>
           {text}
+          {rightIcon && <span className={classNames('right-icon fa fa-lg', rightIcon)}/>}
         </div>
         <button
           onClick={() => { this.setState({ isAddingDownload: !this.state.isAddingDownload }); }}
