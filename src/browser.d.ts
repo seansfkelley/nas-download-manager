@@ -151,6 +151,6 @@ declare const browser: {
     update: (id: number | string, options?: ContextMenusCreateOptions) => Promise<void>;
   };
   i18n: {
-    getMessage: (messageName: string, placeholders?: string | number | (string | number)[]) => string;
+    getMessage: (messageName: string, placeholders?: (string | number)[]) => string;
   };
 };
