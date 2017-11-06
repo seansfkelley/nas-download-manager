@@ -38,6 +38,7 @@ interface SettingsFormProps {
 interface SettingsFormState {
   settings: Settings;
   connectionTest?: 'in-progress' | ConnectionTestResult;
+  isConnectionTestSlow?: boolean;
   savingStatus: 'unchanged' | 'pending-changes' | 'in-progress' | 'failed' | 'saved';
   rawPollingInterval: string;
 }
@@ -62,6 +63,8 @@ function isValidPollingInterval(stringValue: string) {
 }
 
 class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormState> {
+  private connectionTestSlowTimeout?: number;
+
   state: SettingsFormState = {
     settings: this.props.initialSettings,
     savingStatus: 'unchanged',
@@ -308,7 +311,10 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
     if (!connectionTest) {
       return renderResult();
     } else if (connectionTest === 'in-progress') {
-      return renderResult(browser.i18n.getMessage('Testing_connection'), 'fa-refresh fa-spin');
+      const text = this.state.isConnectionTestSlow
+        ? browser.i18n.getMessage('Testing_connection_this_is_unusually_slow_is_your_NAS_asleep')
+        : browser.i18n.getMessage('Testing_connection');
+      return renderResult(text, 'fa-refresh fa-spin');
     } else if (connectionTest === 'good') {
       return renderResult(browser.i18n.getMessage('Connection_successful'), 'fa-check', 'intent-success');
     } else if (isErrorCodeResult(connectionTest)) {
@@ -329,6 +335,7 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
     this.setState({
       savingStatus: 'pending-changes',
       connectionTest: undefined,
+      isConnectionTestSlow: undefined,
       settings: {
         ...this.state.settings,
         connection: {
@@ -383,14 +390,27 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
   }
 
   private testConnection = () => {
+    clearTimeout(this.connectionTestSlowTimeout!);
+
     this.setState({
-      connectionTest: 'in-progress'
+      connectionTest: 'in-progress',
+      isConnectionTestSlow: undefined
     });
 
+    this.connectionTestSlowTimeout = setTimeout(() => {
+      this.setState({
+        isConnectionTestSlow: true
+      });
+    }, 5000) as any as number;
+
     testConnection(this.state.settings)
-      .then(result => this.setState({
-        connectionTest: result
-      }));
+      .then(result => {
+        clearTimeout(this.connectionTestSlowTimeout!);
+        this.setState({
+          connectionTest: result,
+          isConnectionTestSlow: undefined
+        });
+      });
   };
 
   private saveSettings = () => {
@@ -403,6 +423,10 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
         savingStatus: success ? 'saved' : 'failed'
       }));
   };
+
+  componentWillUnmount() {
+    clearTimeout(this.connectionTestSlowTimeout!);
+  }
 }
 
 const ELEMENT = document.getElementById('body')!;

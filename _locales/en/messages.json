@@ -358,6 +358,10 @@
     "message": "Testing connection...",
     "description": "Message for connection test status."
   },
+  "Testing_connection_this_is_unusually_slow_is_your_NAS_asleep": {
+    "message": "Testing connection... (this is unusually slow, is your NAS asleep?)",
+    "description": "Message for connection test status."
+  },
   "Connection_successful": {
     "message": "Connection successful!",
     "description": "Message for connection test status."
