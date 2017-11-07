@@ -73,7 +73,7 @@ export class Task extends React.PureComponent<Props, State> {
       return browser.i18n.getMessage('ZstatusZ_ZcurrentZ_of_ZtotalZ_downloaded_ZspeedZ', [
         upperCase(this.props.task.status),
         `${formatMetric1024(this.props.task.additional!.transfer!.size_downloaded)}B`,
-        `${formatMetric1024(this.props.task.size)}B}`,
+        `${formatMetric1024(this.props.task.size)}B`,
         `${formatMetric1024(this.props.task.additional!.transfer!.speed_download)}B/s`
       ]);
     } else if (matchesFilter(this.props.task, 'uploading')) {
