@@ -78,95 +78,100 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
           <p>{browser.i18n.getMessage('Please_note_that_QuickConnect_IDs_are_not_currently_supported')}</p>
         </header>
 
-        <ul className='settings-list'>
-          <li>
-            <div className='label-and-input connection-settings'>
-              <span className='label'>Host</span>
-              <div className='input'>
-                <select
-                  {...connectionDisabledProps}
-                  value={this.state.settings.connection.protocol}
-                  onChange={e => {
-                    this.setConnectionSetting('protocol', e.currentTarget.value as Protocol);
-                  }}
-                  ref={kludgeRefSetClassname('protocol-setting')}
-                >
-                  {PROTOCOLS.map(protocol => (
-                    <option key={protocol} value={protocol}>{protocol}</option>
-                  ))}
-                </select>
-                <span>://</span>
+        <form onSubmit={e => {
+          e.preventDefault();
+          this.testConnection();
+        }}>
+          <ul className='settings-list'>
+            <li>
+              <div className='label-and-input connection-settings'>
+                <span className='label'>Host</span>
+                <div className='input'>
+                  <select
+                    {...connectionDisabledProps}
+                    value={this.state.settings.connection.protocol}
+                    onChange={e => {
+                      this.setConnectionSetting('protocol', e.currentTarget.value as Protocol);
+                    }}
+                    ref={kludgeRefSetClassname('protocol-setting')}
+                  >
+                    {PROTOCOLS.map(protocol => (
+                      <option key={protocol} value={protocol}>{protocol}</option>
+                    ))}
+                  </select>
+                  <span>://</span>
+                  <input
+                    type='text'
+                    {...connectionDisabledProps}
+                    placeholder={browser.i18n.getMessage('hostname_or_IP_address')}
+                    value={this.state.settings.connection.hostname}
+                    onChange={e => {
+                      this.setConnectionSetting('hostname', e.currentTarget.value.trim());
+                    }}
+                    ref={kludgeRefSetClassname('host-setting')}
+                  />
+                  <span>:</span>
+                  <input
+                    {...connectionDisabledProps}
+                    type='number'
+                    value={this.state.settings.connection.port === 0 ? '' : this.state.settings.connection.port}
+                    onChange={e => {
+                      const port = +(e.currentTarget.value.replace(/[^0-9]/g, '') || 0);
+                      this.setConnectionSetting('port', port);
+                    }}
+                    ref={kludgeRefSetClassname('port-setting')}
+                  />
+                </div>
+              </div>
+            </li>
+
+            <li>
+              <div className='label-and-input'>
+                <span className='label'>{browser.i18n.getMessage('Username')}</span>
                 <input
                   type='text'
                   {...connectionDisabledProps}
-                  placeholder={browser.i18n.getMessage('hostname_or_IP_address')}
-                  value={this.state.settings.connection.hostname}
+                  value={this.state.settings.connection.username}
                   onChange={e => {
-                    this.setConnectionSetting('hostname', e.currentTarget.value.trim());
+                    this.setConnectionSetting('username', e.currentTarget.value);
                   }}
-                  ref={kludgeRefSetClassname('host-setting')}
-                />
-                <span>:</span>
-                <input
-                  {...connectionDisabledProps}
-                  type='number'
-                  value={this.state.settings.connection.port === 0 ? '' : this.state.settings.connection.port}
-                  onChange={e => {
-                    const port = +(e.currentTarget.value.replace(/[^0-9]/g, '') || 0);
-                    this.setConnectionSetting('port', port);
-                  }}
-                  ref={kludgeRefSetClassname('port-setting')}
                 />
               </div>
-            </div>
-          </li>
+            </li>
 
-          <li>
-            <div className='label-and-input'>
-              <span className='label'>{browser.i18n.getMessage('Username')}</span>
-              <input
-                type='text'
-                {...connectionDisabledProps}
-                value={this.state.settings.connection.username}
-                onChange={e => {
-                  this.setConnectionSetting('username', e.currentTarget.value);
-                }}
-              />
-            </div>
-          </li>
+            <li>
+              <div className='label-and-input'>
+                <span className='label'>{browser.i18n.getMessage('Password')}</span>
+                <input
+                  type='password'
+                  {...connectionDisabledProps}
+                  value={this.state.settings.connection.password}
+                  onChange={e => {
+                    this.setConnectionSetting('password', e.currentTarget.value);
+                  }}
+                />
+              </div>
+            </li>
 
-          <li>
-            <div className='label-and-input'>
-              <span className='label'>{browser.i18n.getMessage('Password')}</span>
-              <input
-                type='password'
-                {...connectionDisabledProps}
-                value={this.state.settings.connection.password}
-                onChange={e => {
-                  this.setConnectionSetting('password', e.currentTarget.value);
-                }}
-              />
-            </div>
-          </li>
-
-          <li>
-            <button
-              onClick={this.testConnection}
-              {...this.disabledPropAndClassName(
-                !this.state.settings.connection.protocol ||
-                !this.state.settings.connection.hostname ||
-                !this.state.settings.connection.port ||
-                !this.state.settings.connection.username ||
-                !this.state.settings.connection.password ||
-                this.state.connectionTest === 'in-progress' ||
-                this.state.connectionTest === 'good'
-              )}
-            >
-              {browser.i18n.getMessage('Test_Connection')}
-            </button>
-            {this.renderConnectionTestResult()}
-          </li>
-        </ul>
+            <li>
+              <button
+                type='submit'
+                {...this.disabledPropAndClassName(
+                  !this.state.settings.connection.protocol ||
+                  !this.state.settings.connection.hostname ||
+                  !this.state.settings.connection.port ||
+                  !this.state.settings.connection.username ||
+                  !this.state.settings.connection.password ||
+                  this.state.connectionTest === 'in-progress' ||
+                  this.state.connectionTest === 'good'
+                )}
+              >
+                {browser.i18n.getMessage('Test_Connection')}
+              </button>
+              {this.renderConnectionTestResult()}
+            </li>
+          </ul>
+        </form>
 
         <div className='horizontal-separator'/>
 
