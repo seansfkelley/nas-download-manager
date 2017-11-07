@@ -42,7 +42,7 @@
   },
   "Cancel": {
     "message": "Cancel",
-    "description": "Cancel button text."
+    "description": "Text for advanced-add form's Cancel button."
   },
   "Download_the_above_URL_to_the_specified_location": {
     "message": "Download the above URL to the specified location",
@@ -50,7 +50,7 @@
   },
   "Add": {
     "message": "Add",
-    "description": "Add button text."
+    "description": "Text for advanced-add form's Add button."
   },
   "Loading": {
     "message": "Loading...",
