@@ -107,7 +107,7 @@ interface SendMessageOptions {
 // TODO, but I don't actually need this...
 type MessageSender = { __messageSenderBrand: any };
 
-type OnMessageListener = (message: object | null | undefined, sender: MessageSender, sendResponse: (response: object) => void) => (Promise<object> | boolean | void);
+type OnMessageListener = (message: object | null | undefined, sender: MessageSender, sendResponse: (response: object) => void) => (Promise<object | void> | boolean | void);
 
 declare const browser: {
   extension: {

@@ -117,6 +117,9 @@ browser.contextMenus.create({
 
 browser.runtime.onMessage.addListener(message => {
   if (isAddTaskMessage(message)) {
-    addDownloadTaskAndPoll(api, message.url);
+    return addDownloadTaskAndPoll(api, message.url);
+  } else {
+    console.error('received a message of unknown type', message);
+    return undefined;
   }
 });
