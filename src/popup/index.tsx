@@ -61,6 +61,11 @@ interface State {
   isShowingDropShadow: boolean;
   isAddingDownload: boolean;
   isShowingDisplaySettings: boolean;
+  // Bleh. If a popup grows larger in Firefox, it will leave it as such until the DOM changes and causes
+  // a relayout. Therefore, after collapsing the filter panel, we want to force a layout to make it the right
+  // size again. Unfortunately we can't do that by just reading a layout property like offsetHeight, we have
+  // to actually change the DOM, hence we render this invisible nonce whenever we toggle the panel.
+  firefoxRerenderNonce: number;
 }
 
 class Popup extends React.PureComponent<PopupProps, State> {
@@ -69,7 +74,8 @@ class Popup extends React.PureComponent<PopupProps, State> {
   state: State = {
     isShowingDropShadow: false,
     isAddingDownload: false,
-    isShowingDisplaySettings: false
+    isShowingDisplaySettings: false,
+    firefoxRerenderNonce: 0
   };
 
   render() {
@@ -81,6 +87,7 @@ class Popup extends React.PureComponent<PopupProps, State> {
           {this.renderTaskList()}
           {this.maybeRenderAddDownloadOverlay()}
         </div>
+        <div style={{ display: 'none' }}>{this.state.firefoxRerenderNonce}</div>
       </div>
     );
   }
@@ -260,6 +267,14 @@ class Popup extends React.PureComponent<PopupProps, State> {
       this.setState({ isShowingDropShadow: false });
     }
   }, 100);
+
+  componentDidUpdate(_prevProps: PopupProps, prevState: State) {
+    if (prevState.isShowingDisplaySettings !== this.state.isShowingDisplaySettings) {
+      setTimeout(() => {
+        this.setState({ firefoxRerenderNonce: this.state.firefoxRerenderNonce + 1 });
+      }, 350);
+    }
+  }
 }
 
 const ELEMENT = document.getElementById('body')!;
