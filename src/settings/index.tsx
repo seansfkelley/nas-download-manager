@@ -1,4 +1,6 @@
 import '../common/apis/browserShim';
+import pick from 'lodash-es/pick';
+import merge from 'lodash-es/merge';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import * as classNamesProxy from 'classnames';
@@ -14,8 +16,8 @@ import {
   VisibleTaskSettings,
   TaskSortType,
   NotificationSettings,
-  loadSettings,
-  DEFAULT_SETTINGS,
+  onStoredStateChange,
+  SETTING_NAMES
 } from '../common/state';
 import {
   isErrorCodeResult,
@@ -34,7 +36,7 @@ interface SettingsFormProps {
 }
 
 interface SettingsFormState {
-  settings: Settings;
+  changedSettings: { [K in keyof Settings]?: Partial<Settings[K]> };
   connectionTest?: 'in-progress' | ConnectionTestResult;
   isConnectionTestSlow?: boolean;
   savingStatus: 'unchanged' | 'pending-changes' | 'in-progress' | 'failed' | 'saved';
@@ -64,12 +66,13 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
   private connectionTestSlowTimeout?: number;
 
   state: SettingsFormState = {
-    settings: this.props.initialSettings,
+    changedSettings: {},
     savingStatus: 'unchanged',
     rawPollingInterval: this.props.initialSettings.notifications.pollingInterval.toString() || POLL_DEFAULT_INTERVAL.toString()
   };
 
   render() {
+    const mergedSettings = this.computeMergedSettings();
     const connectionDisabledProps = this.disabledPropAndClassName(this.state.connectionTest === 'in-progress');
     return (
       <div className='settings-form'>
@@ -89,7 +92,7 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
                 <div className='input'>
                   <select
                     {...connectionDisabledProps}
-                    value={this.state.settings.connection.protocol}
+                    value={mergedSettings.connection.protocol}
                     onChange={e => {
                       this.setConnectionSetting('protocol', e.currentTarget.value as Protocol);
                     }}
@@ -104,7 +107,7 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
                     type='text'
                     {...connectionDisabledProps}
                     placeholder={browser.i18n.getMessage('hostname_or_IP_address')}
-                    value={this.state.settings.connection.hostname}
+                    value={mergedSettings.connection.hostname}
                     onChange={e => {
                       this.setConnectionSetting('hostname', e.currentTarget.value.trim());
                     }}
@@ -114,7 +117,7 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
                   <input
                     {...connectionDisabledProps}
                     type='number'
-                    value={this.state.settings.connection.port === 0 ? '' : this.state.settings.connection.port}
+                    value={mergedSettings.connection.port === 0 ? '' : mergedSettings.connection.port}
                     onChange={e => {
                       const port = +(e.currentTarget.value.replace(/[^0-9]/g, '') || 0);
                       this.setConnectionSetting('port', port);
@@ -131,7 +134,7 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
                 <input
                   type='text'
                   {...connectionDisabledProps}
-                  value={this.state.settings.connection.username}
+                  value={mergedSettings.connection.username}
                   onChange={e => {
                     this.setConnectionSetting('username', e.currentTarget.value);
                   }}
@@ -145,7 +148,7 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
                 <input
                   type='password'
                   {...connectionDisabledProps}
-                  value={this.state.settings.connection.password}
+                  value={mergedSettings.connection.password}
                   onChange={e => {
                     this.setConnectionSetting('password', e.currentTarget.value);
                   }}
@@ -157,11 +160,11 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
               <button
                 type='submit'
                 {...this.disabledPropAndClassName(
-                  !this.state.settings.connection.protocol ||
-                  !this.state.settings.connection.hostname ||
-                  !this.state.settings.connection.port ||
-                  !this.state.settings.connection.username ||
-                  !this.state.settings.connection.password ||
+                  !mergedSettings.connection.protocol ||
+                  !mergedSettings.connection.hostname ||
+                  !mergedSettings.connection.port ||
+                  !mergedSettings.connection.username ||
+                  !mergedSettings.connection.password ||
                   this.state.connectionTest === 'in-progress' ||
                   this.state.connectionTest === 'good'
                 )}
@@ -181,9 +184,9 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
         </header>
 
         <TaskFilterSettingsForm
-          visibleTasks={this.state.settings.visibleTasks}
-          taskSortType={this.state.settings.taskSortType}
-          updateVisibleTasks={this.updateVisibleTaskSettings}
+          visibleTasks={mergedSettings.visibleTasks}
+          taskSortType={mergedSettings.taskSortType}
+          updateTaskTypeVisibility={this.updateTaskTypeVisibility}
           updateTaskSortType={this.updateTaskSortType}
         />
 
@@ -198,9 +201,9 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
             <input
               id='notifications-checkbox'
               type='checkbox'
-              checked={this.state.settings.notifications.enabled}
+              checked={mergedSettings.notifications.enabled}
               onChange={() => {
-                this.setNotificationSetting('enabled', !this.state.settings.notifications.enabled);
+                this.setNotificationSetting('enabled', !mergedSettings.notifications.enabled);
               }}
             />
             <label htmlFor='notifications-checkbox'>
@@ -214,7 +217,7 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
             </span>
             <input
               type='number'
-              {...this.disabledPropAndClassName(!this.state.settings.notifications.enabled)}
+              {...this.disabledPropAndClassName(!mergedSettings.notifications.enabled)}
               min={POLL_MIN_INTERVAL}
               step={POLL_STEP}
               value={this.state.rawPollingInterval}
@@ -237,9 +240,9 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
             <input
               id='handle-links-checkbox'
               type='checkbox'
-              checked={this.state.settings.shouldHandleDownloadLinks}
+              checked={mergedSettings.shouldHandleDownloadLinks}
               onChange={() => {
-                this.toggleShouldHandleDownloadLinks();
+                this.setShouldHandleDownloadLinks(!mergedSettings.shouldHandleDownloadLinks);
               }}
             />
             <label htmlFor='handle-links-checkbox'>
@@ -339,22 +342,25 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
       savingStatus: 'pending-changes',
       connectionTest: undefined,
       isConnectionTestSlow: undefined,
-      settings: {
-        ...this.state.settings,
+      changedSettings: {
+        ...this.state.changedSettings,
         connection: {
-          ...this.state.settings.connection,
+          ...this.state.changedSettings.connection,
           [key as string]: value
         }
       }
     });
   }
 
-  private updateVisibleTaskSettings = (visibleTasks: VisibleTaskSettings) => {
+  private updateTaskTypeVisibility = (taskType: keyof VisibleTaskSettings, visibility: boolean) => {
     this.setState({
       savingStatus: 'pending-changes',
-      settings: {
-        ...this.state.settings,
-        visibleTasks
+      changedSettings: {
+        ...this.state.changedSettings,
+        visibleTasks: {
+          ...this.state.changedSettings.visibleTasks,
+          [taskType]: visibility
+        }
       }
     });
   };
@@ -362,8 +368,8 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
   private updateTaskSortType = (taskSortType: TaskSortType) => {
     this.setState({
       savingStatus: 'pending-changes',
-      settings: {
-        ...this.state.settings,
+      changedSettings: {
+        ...this.state.changedSettings,
         taskSortType
       }
     });
@@ -372,22 +378,22 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
   private setNotificationSetting<K extends keyof NotificationSettings>(key: K, value: NotificationSettings[K]) {
     this.setState({
       savingStatus: 'pending-changes',
-      settings: {
-        ...this.state.settings,
+      changedSettings: {
+        ...this.state.changedSettings,
         notifications: {
-          ...this.state.settings.notifications,
+          ...this.state.changedSettings.notifications,
           [key as string]: value
         }
       }
     });
   }
 
-  private toggleShouldHandleDownloadLinks() {
+  private setShouldHandleDownloadLinks(shouldHandleDownloadLinks: boolean) {
     this.setState({
       savingStatus: 'pending-changes',
-      settings: {
-        ...this.state.settings,
-        shouldHandleDownloadLinks: !this.state.settings.shouldHandleDownloadLinks
+      changedSettings: {
+        ...this.state.changedSettings,
+        shouldHandleDownloadLinks
       }
     });
   }
@@ -406,7 +412,7 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
       });
     }, 5000) as any as number;
 
-    testConnection(this.state.settings)
+    testConnection(this.computeMergedSettings())
       .then(result => {
         clearTimeout(this.connectionTestSlowTimeout!);
         this.setState({
@@ -421,11 +427,16 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
       savingStatus: 'in-progress'
     });
 
-    this.props.saveSettings(this.state.settings)
+    this.props.saveSettings(this.computeMergedSettings())
       .then(success => this.setState({
+        changedSettings: success ? {} : this.state.changedSettings,
         savingStatus: success ? 'saved' : 'failed'
       }));
   };
+
+  private computeMergedSettings(): Settings {
+    return merge({}, this.props.initialSettings, this.state.changedSettings);
+  }
 
   componentWillUnmount() {
     clearTimeout(this.connectionTestSlowTimeout!);
@@ -434,20 +445,10 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
 
 const ELEMENT = document.getElementById('body')!;
 
-loadSettings()
-  .then(settings => {
-    console.log('successfully loaded settings');
-    ReactDOM.render(
-      <SettingsForm
-        initialSettings={settings}
-        saveSettings={saveSettings}
-      />, ELEMENT);
-  })
-  .catch(error => {
-    console.error('error while loading settings', error);
-    ReactDOM.render(
-      <SettingsForm
-        initialSettings={DEFAULT_SETTINGS}
-        saveSettings={saveSettings}
-      />, ELEMENT);
-  })
+onStoredStateChange(state => {
+  ReactDOM.render(
+    <SettingsForm
+      initialSettings={pick(state, SETTING_NAMES) as Settings}
+      saveSettings={saveSettings}
+    />, ELEMENT);
+});

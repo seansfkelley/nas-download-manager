@@ -10,7 +10,7 @@ import {
 export interface Props {
   visibleTasks: VisibleTaskSettings;
   taskSortType: TaskSortType;
-  updateVisibleTasks: (visibleTasks: VisibleTaskSettings) => void;
+  updateTaskTypeVisibility: (taskType: keyof VisibleTaskSettings, visibility: boolean) => void;
   updateTaskSortType: (taskSortType: TaskSortType) => void;
 }
 
@@ -26,10 +26,7 @@ export class TaskFilterSettingsForm extends React.PureComponent<Props> {
                 type='checkbox'
                 checked={this.props.visibleTasks[type]}
                 onChange={() => {
-                  this.props.updateVisibleTasks({
-                    ...this.props.visibleTasks,
-                    [type]: !this.props.visibleTasks[type]
-                  });
+                  this.props.updateTaskTypeVisibility(type, !this.props.visibleTasks[type]);
                 }}
               />
               <label htmlFor={`${type}-input`}>

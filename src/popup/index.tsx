@@ -47,7 +47,7 @@ interface PopupProps {
   tasksLastInitiatedFetchTimestamp: number | null;
   tasksLastCompletedFetchTimestamp: number | null;
   visibleTasks: VisibleTaskSettings;
-  changeVisibleTasks: (filter: VisibleTaskSettings) => void;
+  changeVisibleTasks: (visibleTasks: VisibleTaskSettings) => void;
   taskSort: TaskSortType;
   changeTaskSort: (sort: TaskSortType) => void;
   openDownloadStationUi?: () => void;
@@ -168,12 +168,19 @@ class Popup extends React.PureComponent<PopupProps, State> {
           <TaskFilterSettingsForm
             visibleTasks={this.props.visibleTasks}
             taskSortType={this.props.taskSort}
-            updateVisibleTasks={this.props.changeVisibleTasks}
+            updateTaskTypeVisibility={this.updateTaskTypeVisibility}
             updateTaskSortType={this.props.changeTaskSort}
           />
         </div>
       );
   }
+
+  private updateTaskTypeVisibility = (taskType: keyof VisibleTaskSettings, visibility: boolean) => {
+    this.props.changeVisibleTasks({
+      ...this.props.visibleTasks,
+      [taskType]: visibility
+    });
+  };
 
   private renderTaskList() {
     if (this.props.taskFetchFailureReason === 'missing-config') {
@@ -264,26 +271,38 @@ getSharedObjects()
     pollTasks(api);
     setInterval(() => { pollTasks(api); }, 10000);
 
+    function convertResponse(response: SynologyResponse<any>): CallbackResponse {
+      if (response.success) {
+        return 'success';
+      } else {
+        const reason = errorMessageFromCode(response.error.code, 'DownloadStation.Task');
+        console.error(`API call failed, reason: ${reason}`);
+        return { failMessage: reason };
+      }
+    }
+
+    function reloadOnSuccess(response: CallbackResponse): Promise<CallbackResponse> {
+      if (response === 'success') {
+        return pollTasks(api)
+          .then(() => response);
+      } else {
+        return Promise.resolve(response);
+      }
+    }
+
+    function changeVisibleTasks(visibleTasks: VisibleTaskSettings) {
+      // Assign to intermediate so compiler can help with safety.
+      const partialSettings: Partial<Settings> = { visibleTasks };
+      browser.storage.local.set(partialSettings);
+    }
+
+    function changeSortType(taskSortType: TaskSortType) {
+      // Assign to intermediate so compiler can help with safety.
+      const partialSettings: Partial<Settings> = { taskSortType };
+      browser.storage.local.set(partialSettings);
+    }
+
     onStoredStateChange(storedState => {
-
-      function convertResponse(response: SynologyResponse<any>): CallbackResponse {
-        if (response.success) {
-          return 'success';
-        } else {
-          const reason = errorMessageFromCode(response.error.code, 'DownloadStation.Task');
-          console.error(`API call failed, reason: ${reason}`);
-          return { failMessage: reason };
-        }
-      }
-
-      function reloadOnSuccess(response: CallbackResponse): Promise<CallbackResponse> {
-        if (response === 'success') {
-          return pollTasks(api)
-            .then(() => response);
-        } else {
-          return Promise.resolve(response);
-        }
-      }
 
       const hostUrl = getHostUrl(storedState.connection);
 
@@ -329,18 +348,6 @@ getSharedObjects()
           }
         : undefined;
 
-      function changeTaskFilter(visibleTasks: VisibleTaskSettings) {
-        // Assign to intermediate so compiler can help with safety.
-        const partialSettings: Partial<Settings> = { visibleTasks };
-        browser.storage.local.set(partialSettings);
-      }
-
-      function changeSortType(taskSortType: TaskSortType) {
-        // Assign to intermediate so compiler can help with safety.
-        const partialSettings: Partial<Settings> = { taskSortType };
-        browser.storage.local.set(partialSettings);
-      }
-
       ReactDOM.render(
         <Popup
           api={api}
@@ -349,7 +356,7 @@ getSharedObjects()
           tasksLastInitiatedFetchTimestamp={storedState.tasksLastInitiatedFetchTimestamp}
           tasksLastCompletedFetchTimestamp={storedState.tasksLastCompletedFetchTimestamp}
           visibleTasks={storedState.visibleTasks}
-          changeVisibleTasks={changeTaskFilter}
+          changeVisibleTasks={changeVisibleTasks}
           taskSort={storedState.taskSortType}
           changeTaskSort={changeSortType}
           openDownloadStationUi={openDownloadStationUi}

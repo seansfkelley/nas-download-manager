@@ -71,7 +71,7 @@ const _settingNames: Record<keyof Settings, true> = {
   'shouldHandleDownloadLinks': true
 };
 
-const SETTING_NAMES = Object.keys(_settingNames) as (keyof Settings)[];
+export const SETTING_NAMES = Object.keys(_settingNames) as (keyof Settings)[];
 
 const _cacheNames: Record<keyof CachedTasks, true> = {
   'tasks': true,
@@ -150,18 +150,6 @@ export function getHostUrl(settings: ConnectionSettings) {
   } else {
     return undefined;
   }
-}
-
-export function loadSettings() {
-  console.log('loading persisted settings...');
-  return browser.storage.local.get<Partial<Settings>>(SETTING_NAMES)
-    .then<Settings>(settings => {
-      console.log('loaded persisted settings');
-      return {
-        ...DEFAULT_SETTINGS,
-        ...settings
-      };
-    });
 }
 
 let stateListeners: ((state: AllStoredState) => void)[] = [];
