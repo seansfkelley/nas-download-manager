@@ -5,6 +5,7 @@ import { getHostUrl, onStoredStateChange, NotificationSettings, clearTaskCacheIf
 import { notify } from '../common/apis/browserUtils';
 import { setSharedObjects, isAddTaskMessage } from '../common/apis/messages';
 import { addDownloadTaskAndPoll, pollTasks, clearCachedTasks } from '../common/apis/actions';
+import { ALL_DOWNLOADABLE_PROTOCOLS, startsWithAnyProtocol } from '../common/apis/protocols';
 
 const api = new ApiClient({});
 const START_TIME = Date.now();
@@ -104,7 +105,8 @@ browser.contextMenus.create({
       addDownloadTaskAndPoll(api, data.srcUrl);
     } else if (data.selectionText) {
       // The cheapest of checks. Actual invalid URLs will be caught later.
-      if (data.selectionText.indexOf('://') !== -1) {
+      const trimmedUrl = data.selectionText.trim();
+      if (startsWithAnyProtocol(trimmedUrl, ALL_DOWNLOADABLE_PROTOCOLS)) {
         addDownloadTaskAndPoll(api, data.selectionText);
       } else {
         notify(browser.i18n.getMessage('Failed_to_add_download'), browser.i18n.getMessage('Selected_text_is_not_a_valid_URL'));
