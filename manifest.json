@@ -25,7 +25,7 @@
   ],
   "browser_action": {
     "browser_style": true,
-    "default_title": "Download Station",
+    "default_title": "Synology Download Manager",
     "default_popup": "html/popup.html",
     "default_icon": {
       "16": "icons/icon-16.png",

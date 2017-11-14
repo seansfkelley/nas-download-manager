@@ -479,95 +479,95 @@
     "description": "Error message on Synology API call failure."
   },
   "Invalid_parameter_of_file_operation": {
-    "message": "Invalid parameter of file operation",
+    "message": "Invalid parameter of file operation.",
     "description": "Error message on Synology API call failure."
   },
   "Unknown_error_of_file_operation": {
-    "message": "Unknown error of file operation",
+    "message": "Unknown error of file operation.",
     "description": "Error message on Synology API call failure."
   },
   "System_is_too_busy": {
-    "message": "System is too busy",
+    "message": "System is too busy.",
     "description": "Error message on Synology API call failure."
   },
   "Invalid_user_does_this_file_operation": {
-    "message": "Invalid user does this file operation",
+    "message": "Invalid user does this file operation.",
     "description": "Error message on Synology API call failure."
   },
   "Invalid_group_does_this_file_operation": {
-    "message": "Invalid group does this file operation",
+    "message": "Invalid group does this file operation.",
     "description": "Error message on Synology API call failure."
   },
   "Invalid_user_and_group_does_this_file_operation": {
-    "message": "Invalid user and group does this file operation",
+    "message": "Invalid user and group does this file operation.",
     "description": "Error message on Synology API call failure."
   },
   "Cant_get_usergroup_information_from_the_account_server": {
-    "message": "Can’t get user/group information from the account server",
+    "message": "Can’t get user/group information from the account server.",
     "description": "Error message on Synology API call failure."
   },
   "Operation_not_permitted": {
-    "message": "Operation not permitted",
+    "message": "Operation not permitted.",
     "description": "Error message on Synology API call failure."
   },
   "No_such_file_or_directory": {
-    "message": "No such file or directory",
+    "message": "No such file or directory.",
     "description": "Error message on Synology API call failure."
   },
   "Nonsupported_file_system_": {
-    "message": "Non-supported file system ",
+    "message": "Non-supported file system.",
     "description": "Error message on Synology API call failure."
   },
   "Failed_to_connect_internetbased_file_system_ex_CIFS": {
-    "message": "Failed to connect internet-based file system (ex: CIFS)",
+    "message": "Failed to connect internet-based file system (ex: CIFS).",
     "description": "Error message on Synology API call failure."
   },
   "Readonly_file_system": {
-    "message": "Read-only file system",
+    "message": "Read-only file system.",
     "description": "Error message on Synology API call failure."
   },
   "Filename_too_long_in_the_nonencrypted_file_system": {
-    "message": "Filename too long in the non-encrypted file system",
+    "message": "Filename too long in the non-encrypted file system.",
     "description": "Error message on Synology API call failure."
   },
   "Filename_too_long_in_the_encrypted_file_system": {
-    "message": "Filename too long in the encrypted file system",
+    "message": "Filename too long in the encrypted file system.",
     "description": "Error message on Synology API call failure."
   },
   "File_already_exists": {
-    "message": "File already exists",
+    "message": "File already exists.",
     "description": "Error message on Synology API call failure."
   },
   "Disk_quota_exceeded": {
-    "message": "Disk quota exceeded",
+    "message": "Disk quota exceeded.",
     "description": "Error message on Synology API call failure."
   },
   "No_space_left_on_device": {
-    "message": "No space left on device",
+    "message": "No space left on device.",
     "description": "Error message on Synology API call failure."
   },
   "Inputoutput_error": {
-    "message": "Input/output error",
+    "message": "Input/output error.",
     "description": "Error message on Synology API call failure."
   },
   "Illegal_name_or_path": {
-    "message": "Illegal name or path",
+    "message": "Illegal name or path.",
     "description": "Error message on Synology API call failure."
   },
   "Illegal_file_name": {
-    "message": "Illegal file name",
+    "message": "Illegal file name.",
     "description": "Error message on Synology API call failure."
   },
   "Illegal_file_name_on_FAT_file_system": {
-    "message": "Illegal file name on FAT file system",
+    "message": "Illegal file name on FAT file system.",
     "description": "Error message on Synology API call failure."
   },
   "Device_or_resource_busy": {
-    "message": "Device or resource busy",
+    "message": "Device or resource busy.",
     "description": "Error message on Synology API call failure."
   },
   "No_such_task_of_the_file_operation": {
-    "message": "No such task of the file operation",
+    "message": "No such task of the file operation.",
     "description": "Error message on Synology API call failure."
   }
 }
