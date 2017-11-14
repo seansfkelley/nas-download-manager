@@ -83,7 +83,7 @@ describe('i18n', () => {
     });
 
     it('every "getMessage" call should use a known message name', () => {
-      const I18N_CALL_REGEX = /browser\.i18n\.getMessage\('([^']+)'/g;
+      const I18N_CALL_REGEX = /browser\.i18n\.getMessage\('([^']*)'/g;
       const MESSAGES = loadLocale(DEFAULT_LOCALE);
       Object.keys(SOURCE_FILES_BY_NAME).forEach(name => {
         const content = SOURCE_FILES_BY_NAME[name];

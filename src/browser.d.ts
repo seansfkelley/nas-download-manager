@@ -120,7 +120,7 @@ declare const browser: {
   };
   runtime: {
     openOptionsPage: () => Promise<void>;
-    getBackgroundPage: () => Promise<Window>;
+    getBackgroundPage: () => Promise<Window | null>;
     // This is only one of 3-4 call signatures, but it's the only one we need.
     sendMessage: (message: object) => Promise<object>;
     onMessage: {

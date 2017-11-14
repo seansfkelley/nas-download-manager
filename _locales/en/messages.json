@@ -390,6 +390,10 @@
     "message": "Connection failure (unknown reason).",
     "description": "Connection failure explanatory text."
   },
+  "Private_browsing_mode_is_not_currently_supported": {
+    "message": "Private browsing mode is not currently supported.",
+    "description": "Apologetic text that is the entire popup when the user tries to open it in private browsing mode."
+  },
   "Unknown_error": {
     "message": "Unknown error.",
     "description": "Error message on Synology API call failure."
@@ -514,7 +518,7 @@
     "message": "No such file or directory.",
     "description": "Error message on Synology API call failure."
   },
-  "Nonsupported_file_system_": {
+  "Nonsupported_file_system": {
     "message": "Non-supported file system.",
     "description": "Error message on Synology API call failure."
   },

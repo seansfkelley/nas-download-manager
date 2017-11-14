@@ -42,7 +42,7 @@ export const ERROR_CODES = {
     406: browser.i18n.getMessage('Cant_get_usergroup_information_from_the_account_server'),
     407: browser.i18n.getMessage('Operation_not_permitted'),
     408: browser.i18n.getMessage('No_such_file_or_directory'),
-    409: browser.i18n.getMessage('Nonsupported_file_system_'),
+    409: browser.i18n.getMessage('Nonsupported_file_system'),
     410: browser.i18n.getMessage('Failed_to_connect_internetbased_file_system_ex_CIFS'),
     411: browser.i18n.getMessage('Readonly_file_system'),
     412: browser.i18n.getMessage('Filename_too_long_in_the_nonencrypted_file_system'),

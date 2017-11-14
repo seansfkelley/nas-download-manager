@@ -19,7 +19,11 @@ export function getSharedObjects() {
   if (browser.runtime.getBackgroundPage != null) {
     return browser.runtime.getBackgroundPage()
       .then(window => {
-        return (window as any).__sharedObjects as (SharedObjects | undefined);
+        if (window) {
+          return (window as any).__sharedObjects as (SharedObjects | undefined);
+        } else {
+          return undefined;
+        }
       });
   } else {
     return Promise.reject(new Error('cannot get background page in this environment'));

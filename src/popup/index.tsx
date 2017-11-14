@@ -277,109 +277,122 @@ class Popup extends React.PureComponent<PopupProps, State> {
   }
 }
 
+const PrivateBrowsingUnsupported = () => (
+  <div className='popup'>
+    <NoTasks
+      icon='fa-user-secret'
+      text={browser.i18n.getMessage('Private_browsing_mode_is_not_currently_supported')}
+    />
+  </div>
+);
+
 const ELEMENT = document.getElementById('body')!;
 
 getSharedObjects()
   .then(objects => {
-    const { api } = objects!;
+    if (objects) {
+      const { api } = objects;
 
-    pollTasks(api);
-    setInterval(() => { pollTasks(api); }, 10000);
+      pollTasks(api);
+      setInterval(() => { pollTasks(api); }, 10000);
 
-    function convertResponse(response: SynologyResponse<any>): CallbackResponse {
-      if (response.success) {
-        return 'success';
-      } else {
-        const reason = errorMessageFromCode(response.error.code, 'DownloadStation.Task');
-        console.error(`API call failed, reason: ${reason}`);
-        return { failMessage: reason };
+      function convertResponse(response: SynologyResponse<any>): CallbackResponse {
+        if (response.success) {
+          return 'success';
+        } else {
+          const reason = errorMessageFromCode(response.error.code, 'DownloadStation.Task');
+          console.error(`API call failed, reason: ${reason}`);
+          return { failMessage: reason };
+        }
       }
-    }
 
-    function reloadOnSuccess(response: CallbackResponse): Promise<CallbackResponse> {
-      if (response === 'success') {
-        return pollTasks(api)
-          .then(() => response);
-      } else {
-        return Promise.resolve(response);
+      function reloadOnSuccess(response: CallbackResponse): Promise<CallbackResponse> {
+        if (response === 'success') {
+          return pollTasks(api)
+            .then(() => response);
+        } else {
+          return Promise.resolve(response);
+        }
       }
+
+      function changeVisibleTasks(visibleTasks: VisibleTaskSettings) {
+        // Assign to intermediate so compiler can help with safety.
+        const partialSettings: Partial<Settings> = { visibleTasks };
+        browser.storage.local.set(partialSettings);
+      }
+
+      function changeSortType(taskSortType: TaskSortType) {
+        // Assign to intermediate so compiler can help with safety.
+        const partialSettings: Partial<Settings> = { taskSortType };
+        browser.storage.local.set(partialSettings);
+      }
+
+      onStoredStateChange(storedState => {
+
+        const hostUrl = getHostUrl(storedState.connection);
+
+        const openDownloadStationUi = hostUrl
+          ? () => {
+              browser.tabs.create({
+                url: hostUrl + '/index.cgi?launchApp=SYNO.SDS.DownloadStation.Application',
+                active: true
+              });
+            }
+          : undefined;
+
+        const createTask = hostUrl
+          ? (url: string, path?: string) => {
+              return addDownloadTaskAndPoll(api, url, path);
+            }
+          : undefined;
+
+        const pauseTask = hostUrl
+          ? (taskId: string) => {
+              return api.DownloadStation.Task.Pause({ id: [ taskId ] })
+                .then(convertResponse)
+                .then(reloadOnSuccess);
+            }
+          : undefined;
+
+        const resumeTask = hostUrl
+          ? (taskId: string) => {
+              return api.DownloadStation.Task.Resume({ id: [ taskId ] })
+                .then(convertResponse)
+                .then(reloadOnSuccess);
+            }
+          : undefined;
+
+        const deleteTask = hostUrl
+          ? (taskId: string) => {
+              return api.DownloadStation.Task.Delete({
+                id: [ taskId ],
+                force_complete: false
+              })
+                .then(convertResponse)
+                .then(reloadOnSuccess);
+            }
+          : undefined;
+
+        ReactDOM.render(
+          <Popup
+            api={api}
+            tasks={storedState.tasks}
+            taskFetchFailureReason={storedState.taskFetchFailureReason}
+            tasksLastInitiatedFetchTimestamp={storedState.tasksLastInitiatedFetchTimestamp}
+            tasksLastCompletedFetchTimestamp={storedState.tasksLastCompletedFetchTimestamp}
+            visibleTasks={storedState.visibleTasks}
+            changeVisibleTasks={changeVisibleTasks}
+            taskSort={storedState.taskSortType}
+            changeTaskSort={changeSortType}
+            openDownloadStationUi={openDownloadStationUi}
+            createTask={createTask}
+            pauseTask={pauseTask}
+            resumeTask={resumeTask}
+            deleteTask={deleteTask}
+          />
+        , ELEMENT);
+      });
+    } else {
+      ReactDOM.render(<PrivateBrowsingUnsupported/>, ELEMENT);
     }
-
-    function changeVisibleTasks(visibleTasks: VisibleTaskSettings) {
-      // Assign to intermediate so compiler can help with safety.
-      const partialSettings: Partial<Settings> = { visibleTasks };
-      browser.storage.local.set(partialSettings);
-    }
-
-    function changeSortType(taskSortType: TaskSortType) {
-      // Assign to intermediate so compiler can help with safety.
-      const partialSettings: Partial<Settings> = { taskSortType };
-      browser.storage.local.set(partialSettings);
-    }
-
-    onStoredStateChange(storedState => {
-
-      const hostUrl = getHostUrl(storedState.connection);
-
-      const openDownloadStationUi = hostUrl
-        ? () => {
-            browser.tabs.create({
-              url: hostUrl + '/index.cgi?launchApp=SYNO.SDS.DownloadStation.Application',
-              active: true
-            });
-          }
-        : undefined;
-
-      const createTask = hostUrl
-        ? (url: string, path?: string) => {
-            return addDownloadTaskAndPoll(api, url, path);
-          }
-        : undefined;
-
-      const pauseTask = hostUrl
-        ? (taskId: string) => {
-            return api.DownloadStation.Task.Pause({ id: [ taskId ] })
-              .then(convertResponse)
-              .then(reloadOnSuccess);
-          }
-        : undefined;
-
-      const resumeTask = hostUrl
-        ? (taskId: string) => {
-            return api.DownloadStation.Task.Resume({ id: [ taskId ] })
-              .then(convertResponse)
-              .then(reloadOnSuccess);
-          }
-        : undefined;
-
-      const deleteTask = hostUrl
-        ? (taskId: string) => {
-            return api.DownloadStation.Task.Delete({
-              id: [ taskId ],
-              force_complete: false
-            })
-              .then(convertResponse)
-              .then(reloadOnSuccess);
-          }
-        : undefined;
-
-      ReactDOM.render(
-        <Popup
-          api={api}
-          tasks={storedState.tasks}
-          taskFetchFailureReason={storedState.taskFetchFailureReason}
-          tasksLastInitiatedFetchTimestamp={storedState.tasksLastInitiatedFetchTimestamp}
-          tasksLastCompletedFetchTimestamp={storedState.tasksLastCompletedFetchTimestamp}
-          visibleTasks={storedState.visibleTasks}
-          changeVisibleTasks={changeVisibleTasks}
-          taskSort={storedState.taskSortType}
-          changeTaskSort={changeSortType}
-          openDownloadStationUi={openDownloadStationUi}
-          createTask={createTask}
-          pauseTask={pauseTask}
-          resumeTask={resumeTask}
-          deleteTask={deleteTask}
-        />
-      , ELEMENT);
-    });
 });
