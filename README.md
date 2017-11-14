@@ -28,10 +28,20 @@ Synology Download Manager allows you to add and manage your download tasks on yo
 
 Install [Yarn](https://github.com/yarnpkg/yarn) if you don't already have it.
 
-```
-yarn
-yarn build
-yarn zip
-```
+1. Install dependencies.
 
-This will output a zip file in the repo root that includes all the necessary files for distributing the addon.
+  ```
+  yarn
+  ```
+
+2. Build all assets.
+
+  ```
+  yarn build
+  ```
+
+3. _(Optional)_ Build into a `.zip` file at the repo root suitable for distibuting as an addon. This step is not necessary for doing local development, for which you can just point the browser at the repo root or `manifest.json`. It shells out to `zip`, which it assumes is accessible on your `PATH`.
+
+  ```
+  yarn zip
+  ```

@@ -11,7 +11,7 @@
     "build:bundle": "node build.js",
     "watch:bundle": "node build.js -w",
     "build": "rimraf lib dist && npm run build:transpile && npm run build:bundle && npm run build:styles",
-    "zip": "rimraf addon.zip && rimraf 'dist/**/*.map' && nodezip -c addon.zip dist html icons vendor _locales manifest.json"
+    "zip": "rimraf addon.zip && zip -r addon.zip . -i 'dist/*' -i 'html/*' -i 'icons/*' -i 'vendor/*' -i '_locales/*' -i 'manifest.json' -x '**/*.map' -x '**/.DS_Store'"
   },
   "repository": {
     "type": "git",
@@ -35,8 +35,8 @@
     "rollup-plugin-commonjs": "^8.0.2",
     "rollup-plugin-node-builtins": "^2.1.0",
     "rollup-plugin-node-globals": "^1.1.0",
-    "rollup-plugin-sourcemaps": "^0.4.2",
     "rollup-plugin-node-resolve": "^3.0.0",
+    "rollup-plugin-sourcemaps": "^0.4.2",
     "rollup-watch": "^3.2.2",
     "ts-node": "^3.3.0",
     "typescript": "^2.6.1"
@@ -48,7 +48,6 @@
     "lodash-es": "^4.17.4",
     "moment": "^2.18.1",
     "node-sass": "^4.5.3",
-    "node-zip": "^1.1.1",
     "query-string": "^4.3.4",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
