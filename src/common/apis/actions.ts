@@ -149,18 +149,18 @@ export function addDownloadTaskAndPoll(api: ApiClient, url: string, path?: strin
     return (result: ConnectionFailure | SynologyResponse<{}>) => {
       console.log('task add result', result);
       if (isConnectionFailure(result)) {
-        notify('Failed to connection to DiskStation', 'Please check your settings.', notificationId);
+        notify('Failed to connection to DiskStation', 'Please check your settings.', 'failure', notificationId);
       } else if (result.success) {
-        notify('Download added', filename || url, notificationId);
+        notify('Download added', filename || url, 'success', notificationId);
       } else {
-        notify('Failed to add download', errorMessageFromCode(result.error.code, 'DownloadStation.Task'), notificationId);
+        notify('Failed to add download', errorMessageFromCode(result.error.code, 'DownloadStation.Task'), 'failure', notificationId);
       }
     };
   }
 
   function notifyUnexpectedError(error: any) {
     console.log('unexpected error while trying to add a download task', error);
-    notify('Failed to add download', 'Unexpected error; please check your settings and try again', notificationId);
+    notify('Failed to add download', 'Unexpected error; please check your settings and try again', 'failure', notificationId);
   }
 
   function pollOnResponse() {
@@ -209,11 +209,11 @@ export function addDownloadTaskAndPoll(api: ApiClient, url: string, path?: strin
         .then(pollOnResponse)
         .catch(notifyUnexpectedError);
     } else {
-      notify('Failed to add download', `URL must start with one of ${ALL_DOWNLOADABLE_PROTOCOLS.join(', ')}`, notificationId);
+      notify('Failed to add download', `URL must start with one of ${ALL_DOWNLOADABLE_PROTOCOLS.join(', ')}`, 'failure', notificationId);
       return Promise.resolve();
     }
   } else {
-    notify('Failed to add download', 'No URL to download given', notificationId);
+    notify('Failed to add download', 'No URL to download given', 'failure', notificationId);
     return Promise.resolve();
   }
 }
