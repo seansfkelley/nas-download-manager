@@ -5,11 +5,13 @@ Thanks for filing an issue! I appreciate you taking the time to help improve Syn
 
 ### Versions
 
+**Extension version**: (visible in Synology Download Manager's settings (Firefox) or in the extension list (Chrome))
+
 **Browser and version**: (usually found in the browser's "About")
 
 **DSM version**: (DSM > Control Panel > Info Center > General > DSM version)
 
-**Download Station version**: (DSM > Package Center > Installed > Download  Station > Installed version)
+**Download Station version**: (DSM > Package Center > Installed > Download Station > Installed version)
 
 ### Steps to Reproduce the Issue
 
