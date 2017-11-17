@@ -50,14 +50,14 @@ interface PopupProps {
   createTask?: (url: string, path?: string) => Promise<void>;
   pauseTask?: (taskId: string) => Promise<CallbackResponse>;
   resumeTask?: (taskId: string) => Promise<CallbackResponse>;
-  deleteTask?: (taskId: string) => Promise<CallbackResponse>;
+  deleteTasks?: (taskIds: string[]) => Promise<CallbackResponse>;
 }
 
 interface State {
   isShowingDropShadow: boolean;
   isAddingDownload: boolean;
   isShowingDisplaySettings: boolean;
-
+  isClearingCompletedTasks: boolean;
   // Bleh. If a popup grows larger in Firefox, it will leave it as such until the DOM changes and causes
   // a relayout. Therefore, after collapsing the filter panel, we want to force a layout to make it the right
   // size again. Unfortunately we can't do that by just reading a layout property like offsetHeight, we have
@@ -72,6 +72,7 @@ class Popup extends React.PureComponent<PopupProps, State> {
     isShowingDropShadow: false,
     isAddingDownload: false,
     isShowingDisplaySettings: false,
+    isClearingCompletedTasks: false,
     firefoxRerenderNonce: 0
   };
 
@@ -129,9 +130,9 @@ class Popup extends React.PureComponent<PopupProps, State> {
     return (
       <header className={classNames({ 'with-shadow': this.state.isShowingDropShadow })}>
         <div className={classNames('description', classes)} title={tooltip}>
-          <span className={classNames('left-icon fa fa-lg', leftIcon)}/>
+          <span className={classNames('left-icon fa', leftIcon)}/>
           {text}
-          {rightIcon && <span className={classNames('right-icon fa fa-lg', rightIcon)}/>}
+          {rightIcon && <span className={classNames('right-icon fa', rightIcon)}/>}
         </div>
         <button
           onClick={() => { this.setState({ isAddingDownload: !this.state.isAddingDownload }); }}
@@ -166,6 +167,16 @@ class Popup extends React.PureComponent<PopupProps, State> {
   }
 
   private renderDisplaySettings() {
+      const completedTaskIds = this.props.tasks.filter(t => t.status === 'finished').map(t => t.id);
+      const deleteTasks = this.props.deleteTasks
+        ? () => {
+          this.setState({ isClearingCompletedTasks: true });
+          this.props.deleteTasks!(completedTaskIds)
+            .then(() => {
+              this.setState({ isClearingCompletedTasks: false });
+            });
+        }
+        : undefined;
       return (
         <div className={classNames('display-settings', { 'is-visible': this.state.isShowingDisplaySettings })}>
           <h4 className='title'>{browser.i18n.getMessage('Task_Display_Settings')}</h4>
@@ -175,6 +186,17 @@ class Popup extends React.PureComponent<PopupProps, State> {
             updateTaskTypeVisibility={this.updateTaskTypeVisibility}
             updateTaskSortType={this.props.changeTaskSort}
           />
+          <button
+            onClick={deleteTasks}
+            title={browser.i18n.getMessage('Clear_tasks_that_are_completed_and_not_currently_uploading')}
+            {...disabledPropAndClassName(
+              this.state.isClearingCompletedTasks || deleteTasks == null || completedTaskIds.length === 0,
+              'clear-completed-tasks-button'
+            )}
+          >
+            {browser.i18n.getMessage('Clear_ZcountZ_Completed_Tasks', [ completedTaskIds.length ])}
+            {this.state.isClearingCompletedTasks && <span className='fa fa-spin fa-refresh'/>}
+          </button>
         </div>
       );
   }
@@ -205,6 +227,7 @@ class Popup extends React.PureComponent<PopupProps, State> {
         return <NoTasks icon='fa-filter' text={browser.i18n.getMessage('Download_tasks_exist_but_none_match_your_filters')}/>;
       } else {
         const hiddenTaskCount = this.props.tasks.length - filteredTasks.length;
+        const deleteTask = this.props.deleteTasks ? ((taskId: string) => this.props.deleteTasks!([ taskId ])) : undefined;
         return (
           <div className='download-tasks'>
             <ul
@@ -215,7 +238,7 @@ class Popup extends React.PureComponent<PopupProps, State> {
                 <Task
                   key={task.id}
                   task={task}
-                  onDelete={this.props.deleteTask}
+                  onDelete={deleteTask}
                   onPause={this.props.pauseTask}
                   onResume={this.props.resumeTask}
                 />
@@ -359,10 +382,10 @@ getSharedObjects()
             }
           : undefined;
 
-        const deleteTask = hostUrl
-          ? (taskId: string) => {
+        const deleteTasks = hostUrl
+          ? (taskIds: string[]) => {
               return api.DownloadStation.Task.Delete({
-                id: [ taskId ],
+                id: taskIds,
                 force_complete: false
               })
                 .then(convertResponse)
@@ -386,7 +409,7 @@ getSharedObjects()
               createTask={createTask}
               pauseTask={pauseTask}
               resumeTask={resumeTask}
-              deleteTask={deleteTask}
+              deleteTasks={deleteTasks}
             />
           </FatalErrorWrapper>
         , ELEMENT);

@@ -54,6 +54,12 @@ html, body, #body, .popup {
       white-space: initial;
       margin-right: auto;
       margin-left: 3px;
+      display: flex;
+      align-items: center;
+
+      .fa {
+        font-size: 21px;
+      }
 
       .left-icon {
         margin-left: 2px;
@@ -101,6 +107,16 @@ html, body, #body, .popup {
     .task-filter-settings-form {
       select {
         margin-right: 15px;
+      }
+    }
+
+    .clear-completed-tasks-button {
+      margin-left: 15px;
+      margin-bottom: 10px;
+
+      .fa {
+        margin-left: 5px;
+        font-size: 14px;
       }
     }
   }
