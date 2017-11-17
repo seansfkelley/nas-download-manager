@@ -394,6 +394,26 @@
     "message": "Private browsing mode is not currently supported.",
     "description": "Apologetic text that is the entire popup when the user tries to open it in private browsing mode."
   },
+  "Unknown_error_displaying_tasks": {
+    "message": "Unknown error displaying tasks.",
+    "description": "Main explanatory text for the popup when we have a fatal rendering error."
+  },
+  "Your_download_tasks_are_not_affected": {
+    "message": "Your download tasks are not affected.",
+    "description": "Reassuring explanatory text for when we have a fatal rendering error."
+  },
+  "Please_": {
+    "message": "Please ",
+    "description": "Prefix for action text for the popup when asking the user to file a bug when we have a fatal rendering error."
+  },
+  "file_a_bug": {
+    "message": "file a bug",
+    "description": "Live link text for action text for the popup when asking the user to file a bug when we have a fatal rendering error."
+  },
+  "_and_include_the_information_below": {
+    "message": " and include the information below.",
+    "description": "Suffix for action text for the popup when asking the user to file a bug when we have a fatal rendering error."
+  },
   "Unknown_error": {
     "message": "Unknown error.",
     "description": "Error message on Synology API call failure."

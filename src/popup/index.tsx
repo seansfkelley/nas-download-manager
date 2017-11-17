@@ -23,6 +23,9 @@ import { addDownloadTaskAndPoll, pollTasks } from '../common/apis/actions';
 import { CallbackResponse } from './popupTypes';
 import { matchesFilter, sortTasks } from './filtering';
 import { Task } from './Task';
+import { NoTasks } from './NoTasks';
+import { FatalError } from './FatalError';
+import { FatalErrorWrapper } from './FatalErrorWrapper';
 import { errorMessageFromCode } from '../common/apis/errors';
 import { TaskFilterSettingsForm } from '../common/components/TaskFilterSettingsForm';
 
@@ -32,13 +35,6 @@ function disabledPropAndClassName(disabled: boolean, className?: string) {
     className: classNames({ 'disabled': disabled }, className)
   };
 }
-
-const NoTasks = (props: { icon: string; text?: string; }) => (
-  <div className='no-tasks'>
-    <span className={classNames('fa fa-2x', props.icon )}/>
-    {props.text && <span className='explanation'>{props.text}</span>}
-  </div>
-);
 
 interface PopupProps {
   api: ApiClient;
@@ -61,6 +57,7 @@ interface State {
   isShowingDropShadow: boolean;
   isAddingDownload: boolean;
   isShowingDisplaySettings: boolean;
+
   // Bleh. If a popup grows larger in Firefox, it will leave it as such until the DOM changes and causes
   // a relayout. Therefore, after collapsing the filter panel, we want to force a layout to make it the right
   // size again. Unfortunately we can't do that by just reading a layout property like offsetHeight, we have
@@ -374,25 +371,31 @@ getSharedObjects()
           : undefined;
 
         ReactDOM.render(
-          <Popup
-            api={api}
-            tasks={storedState.tasks}
-            taskFetchFailureReason={storedState.taskFetchFailureReason}
-            tasksLastInitiatedFetchTimestamp={storedState.tasksLastInitiatedFetchTimestamp}
-            tasksLastCompletedFetchTimestamp={storedState.tasksLastCompletedFetchTimestamp}
-            visibleTasks={storedState.visibleTasks}
-            changeVisibleTasks={changeVisibleTasks}
-            taskSort={storedState.taskSortType}
-            changeTaskSort={changeSortType}
-            openDownloadStationUi={openDownloadStationUi}
-            createTask={createTask}
-            pauseTask={pauseTask}
-            resumeTask={resumeTask}
-            deleteTask={deleteTask}
-          />
+          <FatalErrorWrapper>
+            <Popup
+              api={api}
+              tasks={storedState.tasks}
+              taskFetchFailureReason={storedState.taskFetchFailureReason}
+              tasksLastInitiatedFetchTimestamp={storedState.tasksLastInitiatedFetchTimestamp}
+              tasksLastCompletedFetchTimestamp={storedState.tasksLastCompletedFetchTimestamp}
+              visibleTasks={storedState.visibleTasks}
+              changeVisibleTasks={changeVisibleTasks}
+              taskSort={storedState.taskSortType}
+              changeTaskSort={changeSortType}
+              openDownloadStationUi={openDownloadStationUi}
+              createTask={createTask}
+              pauseTask={pauseTask}
+              resumeTask={resumeTask}
+              deleteTask={deleteTask}
+            />
+          </FatalErrorWrapper>
         , ELEMENT);
       });
     } else {
       ReactDOM.render(<PrivateBrowsingUnsupported/>, ELEMENT);
     }
-});
+  })
+  .catch(e => {
+    console.error('error caught while rendering popup', e);
+    ReactDOM.render(<FatalError error={e}/>, ELEMENT);
+  });
