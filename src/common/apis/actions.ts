@@ -120,7 +120,7 @@ const ARBITRARY_FILE_FETCH_SIZE_CUTOFF = 1024 * 1024 * 5;
 
 const FILENAME_PROPERTY_REGEX = /filename=("([^"]+)"|([^"][^ ]+))/;
 
-function guessFileName(urlWithoutQuery: string, headers: Record<string, string>, metadataFileType: MetadataFileType) {
+function guessTorrentFileName(urlWithoutQuery: string, headers: Record<string, string>, metadataFileType: MetadataFileType) {
   let maybeFilename: string | undefined;
   const contentDisposition = headers['content-disposition'];
   if (contentDisposition && contentDisposition.indexOf('filename=') !== -1) {
@@ -135,6 +135,19 @@ function guessFileName(urlWithoutQuery: string, headers: Record<string, string>,
   }
 
   return maybeFilename.endsWith(metadataFileType.extension) ? maybeFilename : maybeFilename + metadataFileType.extension ;
+}
+
+const ED2K_FILENAME_REGEX = /\|file\|([^\|]+)\|/;
+
+function guessFileNameFromUrl(url: string): string | undefined {
+  if (url.startsWith('magnet:')) {
+    return parseQueryString(url).dn;
+  } else if (url.startsWith('ed2k:')) {
+    const match = url.match(ED2K_FILENAME_REGEX);
+    return match ? match[1] : undefined;
+  } else {
+    return undefined;
+  }
 }
 
 const doCreateTask = wrapInNoPermissionsRetry((api: ApiClient, options: DownloadStationTaskCreateRequest) => {
@@ -181,7 +194,7 @@ export function addDownloadTaskAndPoll(api: ApiClient, url: string, path?: strin
             return Axios.get(url, { responseType: 'arraybuffer', timeout: 10000 })
               .then(response => {
                 const content = new Blob([ response.data ], { type: metadataFileType.mediaType });
-                const filename = guessFileName(urlWithoutQuery, response.headers, metadataFileType);
+                const filename = guessTorrentFileName(urlWithoutQuery, response.headers, metadataFileType);
                 return doCreateTask(api, {
                   file: { content, filename },
                   destination
@@ -200,12 +213,11 @@ export function addDownloadTaskAndPoll(api: ApiClient, url: string, path?: strin
         })
         .catch(notifyUnexpectedError);
     } else if (startsWithAnyProtocol(url, ALL_DOWNLOADABLE_PROTOCOLS)) {
-      const filename = url.startsWith('magnet:') ? parseQueryString(url).dn : null;
       return doCreateTask(api, {
         uri: [ url ],
         destination
       })
-        .then(notifyTaskAddResult(filename))
+        .then(notifyTaskAddResult(guessFileNameFromUrl(url)))
         .then(pollOnResponse)
         .catch(notifyUnexpectedError);
     } else {

@@ -2,7 +2,8 @@ export const DOWNLOAD_ONLY_PROTOCOLS = [
   'magnet',
   'thunder',
   'flashget',
-  'qqdl'
+  'qqdl',
+  'ed2k'
 ];
 
 export const AUTO_DOWNLOAD_TORRENT_FILE_PROTOCOLS = [
