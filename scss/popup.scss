@@ -227,6 +227,10 @@ html, body, #body, .popup {
         }
 
         .remove-button, .pause-resume-button {
+          .fa {
+            font-size: 14px;
+          }
+
           &:not(:last-child) {
             margin-right: 3px;
           }
