@@ -11,6 +11,7 @@ Synology Download Manager allows you to add and manage your download tasks on yo
 ### Features
 
 - Right-click and download many types of media (`<video>` and `<audio>` tags) and files (e.g. `.torrent` files).
+- Clear all completed tasks with one click.
 - Choose destination folder for new download tasks.
 - View, filter and sort all the current download tasks in the extension popup.
 - Add/pause/resume/remove download tasks in the extension popup.
