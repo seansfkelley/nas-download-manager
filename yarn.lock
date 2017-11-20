@@ -2124,9 +2124,9 @@ supports-color@^4.0.0:
   dependencies:
     has-flag "^2.0.0"
 
-synology-typescript-api@^0.3.1:
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/synology-typescript-api/-/synology-typescript-api-0.3.1.tgz#cd9658592e4f1fa22b27a40e15502d47d8027642"
+synology-typescript-api@^0.3.2:
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/synology-typescript-api/-/synology-typescript-api-0.3.2.tgz#06032e0d64abbfcdb371b71cd367c03803839396"
   dependencies:
     axios "^0.16.1"
     lodash-es "^4.17.4"
