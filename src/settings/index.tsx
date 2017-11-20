@@ -30,6 +30,8 @@ import { errorMessageFromCode, errorMessageFromConnectionFailure } from '../comm
 import { assertNever } from '../common/lang';
 import { TaskFilterSettingsForm } from '../common/components/TaskFilterSettingsForm';
 
+const ISSUE_32_URL = 'https://github.com/seansfkelley/synology-download-manager/issues/32';
+
 interface SettingsFormProps {
   initialSettings: Settings;
   saveSettings: (settings: Settings) => Promise<boolean>;
@@ -303,7 +305,7 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
   }
 
   private renderConnectionTestResult() {
-    function renderResult(text?: string, icon?: string, className?: string)  {
+    function renderResult(text?: React.ReactNode, icon?: string, className?: string)  {
       return (
         <span className={classNames('connection-test-result', className )}>
           {icon && <span className={classNames('fa', icon)}/>}
@@ -321,8 +323,14 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
         ? browser.i18n.getMessage('Testing_connection_this_is_unusually_slow_is_your_NAS_asleep')
         : browser.i18n.getMessage('Testing_connection');
       return renderResult(text, 'fa-refresh fa-spin');
-    } else if (connectionTest === 'good') {
+    } else if (connectionTest === 'good-and-modern') {
       return renderResult(browser.i18n.getMessage('Connection_successful'), 'fa-check', 'intent-success');
+    } else if (connectionTest === 'good-and-legacy') {
+      return renderResult([
+        browser.i18n.getMessage('Connection_successful_but_may_interfere_with_existing_DSM_sessions_See_'),
+        <a href={ISSUE_32_URL}>{browser.i18n.getMessage('issue_32')}</a>,
+        browser.i18n.getMessage('_for_more_details')
+      ], 'fa-exclamation-triangle', 'intent-warning');
     } else if (isErrorCodeResult(connectionTest)) {
       return renderResult(errorMessageFromCode(connectionTest.code, 'Auth'), 'fa-times', 'intent-error');
     } else {

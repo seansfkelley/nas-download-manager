@@ -6,7 +6,7 @@ export function saveSettings(settings: Settings): Promise<boolean> {
 
   return testConnection(settings)
     .then(result => {
-      if (result !== 'good') {
+      if (result !== 'good-and-modern' && result !== 'good-and-legacy') {
         return false;
       } else {
         return browser.storage.local.set(settings)
@@ -22,7 +22,7 @@ export function saveSettings(settings: Settings): Promise<boolean> {
     });
 }
 
-export type ConnectionTestResult = ConnectionFailure | { code: number } | 'good';
+export type ConnectionTestResult = ConnectionFailure | { code: number } | 'good-and-modern' | 'good-and-legacy';
 
 export function isErrorCodeResult(result: ConnectionTestResult): result is { code: number } {
   return (result as { code: number }).code != null;
@@ -52,7 +52,9 @@ export function testConnection(settings: Settings): Promise<ConnectionTestResult
               console.error('ignoring unexpected failure while logging out after successful connection test', response);
             }
           });
-        return 'good';
+        return response.data.extra.isLegacyLogin
+          ? 'good-and-legacy'
+          : 'good-and-modern';
       }
     });
 }
