@@ -97,6 +97,36 @@ interface ContextMenusCreateOptions {
   enabled?: boolean;
 }
 
+type DangerType = 'file' | 'url' | 'content' | 'uncommon' | 'host' | 'unwanted' | 'safe' | 'accepted';
+
+type InterruptReason = 'FILE_FAILED' | 'FILE_ACCESS_DENIED' | 'FILE_NO_SPACE' | 'FILE_NAME_TOO_LONG' | 'FILE_TOO_LARGE' | 'FILE_VIRUS_INFECTED' | 'FILE_TRANSIENT_ERROR' | 'FILE_BLOCKED' | 'FILE_SECURITY_CHECK_FAILED' | 'FILE_TOO_SHORT' | 'NETWORK_FAILED' | 'NETWORK_TIMEOUT' | 'NETWORK_DISCONNECTED' | 'NETWORK_SERVER_DOWN' | 'NETWORK_INVALID_REQUEST' | 'SERVER_FAILED' | 'SERVER_NO_RANGE' | 'SERVER_BAD_CONTENT' | 'SERVER_UNAUTHORIZED' | 'SERVER_CERT_PROBLEM' | 'SERVER_FORBIDDEN' | 'USER_CANCELED' | 'USER_SHUTDOWN' | 'CRASH';
+
+type DownloadState = 'in_progress' | 'interrupted' | 'complete';
+
+interface DownloadItem {
+  byExtensionId?: string;
+  byExtensionName?: string;
+  bytedReceived: number;
+  canResume: boolean;
+  danger: DangerType;
+  endTime?: string;
+  error?: InterruptReason;
+  estimatedEndTime: string;
+  exists: boolean;
+  filename: string;
+  id: number;
+  incognito: boolean;
+  mime: string;
+  paused: boolean;
+  referrer: string;
+  startTime: string;
+  state: DownloadState;
+  totalBytes: number;
+  url: string;
+}
+
+type DownloadListener = (item: DownloadItem) => void;
+
 type ColorArray = [ number, number, number, number ];
 
 interface SendMessageOptions {
@@ -117,6 +147,13 @@ declare const browser: {
     setBadgeText: (options: { text: string; tabId?: number; }) => void;
     setBadgeBackgroundColor: (options: { color: string | ColorArray; tabId?: number }) => void;
     setIcon: (options: { imageData?: ImageData | Record<string, ImageData>; path?: string | Record<string, string>; tabId?: number; }) => Promise<void>;
+  };
+  downloads: {
+    onCreated: {
+      addListener: (listener: DownloadListener) => void;
+      removeListener: (listener: DownloadListener) => void;
+      hasListener: (listener: DownloadListener) => boolean;
+    }
   };
   runtime: {
     openOptionsPage: () => Promise<void>;

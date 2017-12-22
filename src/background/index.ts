@@ -125,3 +125,7 @@ browser.runtime.onMessage.addListener(message => {
     return undefined;
   }
 });
+
+browser.downloads.onCreated.addListener(item => {
+  console.log(item);
+})
