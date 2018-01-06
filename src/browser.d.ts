@@ -131,7 +131,7 @@ declare const browser: {
   };
   storage: {
     local: {
-      get: <T>(input: string | string[]) => Promise<T>;
+      get: <T>(input: null | string | string[]) => Promise<T>;
       set: <T>(input: T) => Promise<void>;
     };
     onChanged: {

@@ -1,7 +1,7 @@
 import '../common/apis/browserShim';
 import isEqual from 'lodash-es/isEqual';
 import { ApiClient, SessionName } from 'synology-typescript-api';
-import { getHostUrl, onStoredStateChange, NotificationSettings, clearTaskCacheIfNecessary, DEFAULT_SETTINGS } from '../common/state';
+import { getHostUrl, onStoredStateChange, NotificationSettings, updateStateShapeIfNecessary } from '../common/state';
 import { notify } from '../common/apis/browserUtils';
 import { setSharedObjects, isAddTaskMessage } from '../common/apis/messages';
 import { addDownloadTaskAndPoll, pollTasks, clearCachedTasks } from '../common/apis/actions';
@@ -14,10 +14,10 @@ setSharedObjects({ api });
 
 let finishedTaskIds: string[] | undefined;
 
-let notificationSettings: NotificationSettings = DEFAULT_SETTINGS.notifications;
+let lastNotificationSettings: NotificationSettings | undefined;
 let notificationInterval: number | undefined;
 
-clearTaskCacheIfNecessary()
+updateStateShapeIfNecessary()
 .then(() => {
   onStoredStateChange(storedState => {
     const didUpdateSettings = api.updateSettings({
@@ -32,11 +32,13 @@ clearTaskCacheIfNecessary()
         .then(() => { pollTasks(api); });
     }
 
-    if (!isEqual(storedState.notifications, notificationSettings)) {
-      notificationSettings = storedState.notifications;
+    if (!isEqual(storedState.notifications, lastNotificationSettings)) {
+      lastNotificationSettings = storedState.notifications;
       clearInterval(notificationInterval!);
-      if (notificationSettings.enabled) {
-        notificationInterval = setInterval(() => { pollTasks(api); }, notificationSettings.pollingInterval * 1000) as any as number;
+      if (lastNotificationSettings.enableCompletionNotifications) {
+        notificationInterval = setInterval(
+          () => { pollTasks(api); },
+          lastNotificationSettings.completionPollingInterval * 1000) as any as number;
       }
     }
 
@@ -82,7 +84,7 @@ clearTaskCacheIfNecessary()
         const newlyFinishedTaskIds = updatedFinishedTaskIds.filter(id => finishedTaskIds!.indexOf(id) === -1);
         newlyFinishedTaskIds.forEach(id => {
           const task = storedState.tasks.filter(t => t.id === id)[0];
-          if (storedState.notifications.enabled) {
+          if (storedState.notifications.enableCompletionNotifications) {
             notify(`${task.title}`, browser.i18n.getMessage('Download_finished'));
           }
         });

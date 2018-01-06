@@ -70,7 +70,7 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
   state: SettingsFormState = {
     changedSettings: {},
     savingStatus: 'unchanged',
-    rawPollingInterval: this.props.initialSettings.notifications.pollingInterval.toString() || POLL_DEFAULT_INTERVAL.toString()
+    rawPollingInterval: this.props.initialSettings.notifications.completionPollingInterval.toString() || POLL_DEFAULT_INTERVAL.toString()
   };
 
   render() {
@@ -203,9 +203,9 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
             <input
               id='notifications-checkbox'
               type='checkbox'
-              checked={mergedSettings.notifications.enabled}
+              checked={mergedSettings.notifications.enableCompletionNotifications}
               onChange={() => {
-                this.setNotificationSetting('enabled', !mergedSettings.notifications.enabled);
+                this.setNotificationSetting('enableCompletionNotifications', !mergedSettings.notifications.enableCompletionNotifications);
               }}
             />
             <label htmlFor='notifications-checkbox'>
@@ -219,7 +219,7 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
             </span>
             <input
               type='number'
-              {...this.disabledPropAndClassName(!mergedSettings.notifications.enabled)}
+              {...this.disabledPropAndClassName(!mergedSettings.notifications.enableCompletionNotifications)}
               min={POLL_MIN_INTERVAL}
               step={POLL_STEP}
               value={this.state.rawPollingInterval}
@@ -228,7 +228,7 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
                 const rawPollingInterval = e.currentTarget.value;
                 this.setState({ rawPollingInterval });
                 if (isValidPollingInterval(rawPollingInterval)) {
-                  this.setNotificationSetting('pollingInterval', +rawPollingInterval);
+                  this.setNotificationSetting('completionPollingInterval', +rawPollingInterval);
                 }
               }}
             />
