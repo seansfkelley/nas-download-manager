@@ -2,7 +2,7 @@ import uniqueId from 'lodash-es/uniqueId';
 import find from 'lodash-es/find';
 import Axios from 'axios';
 import { parse as parseQueryString } from 'query-string';
-import { ApiClient, ConnectionFailure, isConnectionFailure, SynologyResponse, DownloadStationTaskCreateRequest } from 'synology-typescript-api';
+import { ApiClient, ConnectionFailure, isConnectionFailure, SynologyResponse } from 'synology-typescript-api';
 import { errorMessageFromCode, errorMessageFromConnectionFailure } from './errors';
 import { CachedTasks } from '../state';
 import { notify } from './browserUtils';
@@ -11,25 +11,6 @@ import {
   AUTO_DOWNLOAD_TORRENT_FILE_PROTOCOLS,
   startsWithAnyProtocol
 } from './protocols';
-
-const NO_PERMISSIONS_ERROR_CODE = 105;
-
-// This state seems to happen when you don't touch the browser for a couple days: I guess the session token
-// is invalidated in some fashion but the server doesn't respond with that error code, but instead this one.
-function wrapInNoPermissionsRetry<T extends (api: ApiClient, ...args: any[]) => Promise<ConnectionFailure | SynologyResponse<any>>>(fn: T): T {
-  return function(api: ApiClient, ...args: any[]) {
-    return fn(api, ...args)
-      .then(result => {
-        if (!isConnectionFailure(result) && !result.success && result.error.code === NO_PERMISSIONS_ERROR_CODE) {
-          console.log(`request got permission failure, will retry once; args:`, args, 'result:', result);
-          api.Auth.Logout();
-          return fn(api, ...args);
-        } else {
-          return result;
-        }
-      });
-  } as T;
-}
 
 export function clearCachedTasks() {
   const emptyState: CachedTasks = {
@@ -42,18 +23,6 @@ export function clearCachedTasks() {
   return browser.storage.local.set(emptyState);
 }
 
-const doTaskPoll = wrapInNoPermissionsRetry((api: ApiClient) => {
-  // HELLO THERE
-  //
-  // When changing what this requests, you almost certainly want to update STATE_VERSION.
-  return api.DownloadStation.Task.List({
-    offset: 0,
-    limit: -1,
-    additional: [ 'transfer', 'detail' ],
-    timeout: 20000
-  });
-});
-
 export function pollTasks(api: ApiClient): Promise<void> {
   const cachedTasksInit: Partial<CachedTasks> = {
     tasksLastInitiatedFetchTimestamp: Date.now()
@@ -64,7 +33,15 @@ export function pollTasks(api: ApiClient): Promise<void> {
 
   return Promise.all([
     browser.storage.local.set(cachedTasksInit),
-    doTaskPoll(api)
+    // HELLO THERE
+    //
+    // When changing what this requests, you almost certainly want to update STATE_VERSION.
+    api.DownloadStation.Task.List({
+      offset: 0,
+      limit: -1,
+      additional: [ 'transfer', 'detail' ],
+      timeout: 20000
+    }),
   ])
     .then(([ _, response ]) => {
       console.log(`(${pollId}) poll completed with response`, response);
@@ -150,10 +127,6 @@ function guessFileNameFromUrl(url: string): string | undefined {
   }
 }
 
-const doCreateTask = wrapInNoPermissionsRetry((api: ApiClient, options: DownloadStationTaskCreateRequest) => {
-  return api.DownloadStation.Task.Create(options);
-});
-
 export function addDownloadTaskAndPoll(api: ApiClient, showNonErrorNotifications: boolean, url: string, path?: string) {
   const notificationId = showNonErrorNotifications ? notify('Adding download...', url) : undefined;
   const destination = path && path.startsWith('/') ? path.slice(1) : undefined;
@@ -197,7 +170,7 @@ export function addDownloadTaskAndPoll(api: ApiClient, showNonErrorNotifications
               .then(response => {
                 const content = new Blob([ response.data ], { type: metadataFileType.mediaType });
                 const filename = guessTorrentFileName(urlWithoutQuery, response.headers, metadataFileType);
-                return doCreateTask(api, {
+                return api.DownloadStation.Task.Create({
                   file: { content, filename },
                   destination
                 })
@@ -205,7 +178,7 @@ export function addDownloadTaskAndPoll(api: ApiClient, showNonErrorNotifications
                   .then(pollOnResponse);
               });
           } else {
-            return doCreateTask(api, {
+            return api.DownloadStation.Task.Create({
               uri: [ url ],
               destination
             })
@@ -215,7 +188,7 @@ export function addDownloadTaskAndPoll(api: ApiClient, showNonErrorNotifications
         })
         .catch(notifyUnexpectedError);
     } else if (startsWithAnyProtocol(url, ALL_DOWNLOADABLE_PROTOCOLS)) {
-      return doCreateTask(api, {
+      return api.DownloadStation.Task.Create({
         uri: [ url ],
         destination
       })
