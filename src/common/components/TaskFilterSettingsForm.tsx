@@ -7,6 +7,9 @@ import {
   ORDERED_VISIBLE_TASK_TYPE_NAMES
 } from '../state';
 
+import { SettingsList } from './SettingsList';
+import { SettingsListCheckbox } from './SettingsListCheckbox';
+
 export interface Props {
   visibleTasks: VisibleTaskSettings;
   taskSortType: TaskSortType;
@@ -18,23 +21,18 @@ export class TaskFilterSettingsForm extends React.PureComponent<Props> {
   render() {
     return (
       <div className='task-filter-settings-form'>
-        <ul className='settings-list'>
+        <SettingsList>
           {Object.keys(ORDERED_VISIBLE_TASK_TYPE_NAMES).map((type: keyof VisibleTaskSettings) => (
-            <li key={type}>
-              <input
-                id={`${type}-input`}
-                type='checkbox'
-                checked={this.props.visibleTasks[type]}
-                onChange={() => {
-                  this.props.updateTaskTypeVisibility(type, !this.props.visibleTasks[type]);
-                }}
-              />
-              <label htmlFor={`${type}-input`}>
-                {ORDERED_VISIBLE_TASK_TYPE_NAMES[type]}
-              </label>
-            </li>
+            <SettingsListCheckbox
+              key={type}
+              checked={this.props.visibleTasks[type]}
+              onChange={() => {
+                this.props.updateTaskTypeVisibility(type, !this.props.visibleTasks[type]);
+              }}
+              label={ORDERED_VISIBLE_TASK_TYPE_NAMES[type]}
+            />
           ))}
-        </ul>
+        </SettingsList>
         <div className='task-sort-type'>
           <span className='label'>
             {browser.i18n.getMessage('Order_tasks_by')}

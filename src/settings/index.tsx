@@ -20,17 +20,16 @@ import {
   SETTING_NAMES
 } from '../common/state';
 import {
-  isErrorCodeResult,
   ConnectionTestResult,
   saveSettings,
   testConnection
 } from './settingsUtils';
 import { DOWNLOAD_ONLY_PROTOCOLS } from '../common/apis/protocols';
-import { errorMessageFromCode, errorMessageFromConnectionFailure } from '../common/apis/errors';
 import { assertNever } from '../common/lang';
 import { TaskFilterSettingsForm } from '../common/components/TaskFilterSettingsForm';
-
-const ISSUE_32_URL = 'https://github.com/seansfkelley/synology-download-manager/issues/32';
+import { SettingsList } from '../common/components/SettingsList';
+import { SettingsListCheckbox } from '../common/components/SettingsListCheckbox';
+import { ConnectionTestResultDisplay } from './ConnectionTestResultDisplay';
 
 interface SettingsFormProps {
   initialSettings: Settings;
@@ -39,8 +38,8 @@ interface SettingsFormProps {
 
 interface SettingsFormState {
   changedSettings: { [K in keyof Settings]?: Partial<Settings[K]> };
-  connectionTest?: 'in-progress' | ConnectionTestResult;
-  isConnectionTestSlow?: boolean;
+  connectionTest: 'none' | 'in-progress' | ConnectionTestResult;
+  isConnectionTestSlow: boolean;
   savingStatus: 'unchanged' | 'pending-changes' | 'in-progress' | 'failed' | 'saved';
   rawPollingInterval: string;
 }
@@ -64,18 +63,27 @@ function isValidPollingInterval(stringValue: string) {
   return !isNaN(+stringValue) && +stringValue >= POLL_MIN_INTERVAL
 }
 
+function disabledPropAndClassName(disabled: boolean, otherClassNames?: string) {
+  return {
+    disabled,
+    className: classNames({ 'disabled': disabled }, otherClassNames)
+  };
+}
+
 class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormState> {
   private connectionTestSlowTimeout?: number;
 
   state: SettingsFormState = {
     changedSettings: {},
     savingStatus: 'unchanged',
-    rawPollingInterval: this.props.initialSettings.notifications.completionPollingInterval.toString() || POLL_DEFAULT_INTERVAL.toString()
+    rawPollingInterval: this.props.initialSettings.notifications.completionPollingInterval.toString() || POLL_DEFAULT_INTERVAL.toString(),
+    connectionTest: 'none',
+    isConnectionTestSlow: false,
   };
 
   render() {
     const mergedSettings = this.computeMergedSettings();
-    const connectionDisabledProps = this.disabledPropAndClassName(this.state.connectionTest === 'in-progress');
+    const connectionDisabledProps = disabledPropAndClassName(this.state.connectionTest === 'in-progress');
     return (
       <div className='settings-form'>
         <header>
@@ -161,7 +169,7 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
             <li>
               <button
                 type='submit'
-                {...this.disabledPropAndClassName(
+                {...disabledPropAndClassName(
                   !mergedSettings.connection.protocol ||
                   !mergedSettings.connection.hostname ||
                   !mergedSettings.connection.port ||
@@ -173,7 +181,10 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
               >
                 {browser.i18n.getMessage('Test_Connection')}
               </button>
-              {this.renderConnectionTestResult()}
+              <ConnectionTestResultDisplay
+                testResult={this.state.connectionTest}
+                reassureUser={this.state.isConnectionTestSlow}
+              />
             </li>
           </ul>
         </form>
@@ -198,34 +209,21 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
           <h3>{browser.i18n.getMessage('Miscellaneous')}</h3>
         </header>
 
-        <ul className='settings-list'>
-          <li>
-            <input
-              id='feedback-checkbox'
-              type='checkbox'
-              checked={mergedSettings.notifications.enableFeedbackNotifications}
-              onChange={() => {
-                this.setNotificationSetting('enableFeedbackNotifications', !mergedSettings.notifications.enableFeedbackNotifications);
-              }}
-            />
-            <label htmlFor='feedback-checkbox'>
-              {browser.i18n.getMessage('Notify_when_adding_downloads')}
-            </label>
-          </li>
-
-          <li>
-            <input
-              id='notifications-checkbox'
-              type='checkbox'
-              checked={mergedSettings.notifications.enableCompletionNotifications}
-              onChange={() => {
-                this.setNotificationSetting('enableCompletionNotifications', !mergedSettings.notifications.enableCompletionNotifications);
-              }}
-            />
-            <label htmlFor='notifications-checkbox'>
-              {browser.i18n.getMessage('Notify_when_downloads_complete')}
-            </label>
-          </li>
+        <SettingsList>
+          <SettingsListCheckbox
+            checked={mergedSettings.notifications.enableFeedbackNotifications}
+            onChange={() => {
+              this.setNotificationSetting('enableFeedbackNotifications', !mergedSettings.notifications.enableFeedbackNotifications);
+            }}
+            label={browser.i18n.getMessage('Notify_when_adding_downloads')}
+          />
+          <SettingsListCheckbox
+            checked={mergedSettings.notifications.enableCompletionNotifications}
+            onChange={() => {
+              this.setNotificationSetting('enableCompletionNotifications', !mergedSettings.notifications.enableCompletionNotifications);
+            }}
+            label={browser.i18n.getMessage('Notify_when_downloads_complete')}
+          />
 
           <li>
             <span className='indent'>
@@ -233,7 +231,7 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
             </span>
             <input
               type='number'
-              {...this.disabledPropAndClassName(!mergedSettings.notifications.enableCompletionNotifications)}
+              {...disabledPropAndClassName(!mergedSettings.notifications.enableCompletionNotifications)}
               min={POLL_MIN_INTERVAL}
               step={POLL_STEP}
               value={this.state.rawPollingInterval}
@@ -252,20 +250,17 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
               : <span className='intent-error wrong-polling-interval'>{browser.i18n.getMessage('at_least_15')}</span>}
           </li>
 
-          <li>
-            <input
-              id='handle-links-checkbox'
-              type='checkbox'
-              checked={mergedSettings.shouldHandleDownloadLinks}
-              onChange={() => {
-                this.setShouldHandleDownloadLinks(!mergedSettings.shouldHandleDownloadLinks);
-              }}
-            />
-            <label htmlFor='handle-links-checkbox'>
-              {browser.i18n.getMessage('Handle_opening_downloadable_link_types_ZprotocolsZ', [ DOWNLOAD_ONLY_PROTOCOLS.join(', ') ])}
-            </label>
-          </li>
-        </ul>
+          <SettingsListCheckbox
+            checked={mergedSettings.shouldHandleDownloadLinks}
+            onChange={() => {
+              this.setShouldHandleDownloadLinks(!mergedSettings.shouldHandleDownloadLinks);
+            }}
+            label={browser.i18n.getMessage(
+              'Handle_opening_downloadable_link_types_ZprotocolsZ',
+              [ DOWNLOAD_ONLY_PROTOCOLS.join(', ') ],
+            )}
+          />
+        </SettingsList>
 
         <div className='horizontal-separator'/>
 
@@ -310,7 +305,7 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
         </span>
         <button
           onClick={this.saveSettings}
-          {...this.disabledPropAndClassName(isDisabled)}
+          {...disabledPropAndClassName(isDisabled)}
         >
           {browser.i18n.getMessage('Save_Settings')}
         </button>
@@ -318,52 +313,11 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
     );
   }
 
-  private renderConnectionTestResult() {
-    function renderResult(text?: React.ReactNode, icon?: string, className?: string)  {
-      return (
-        <span className={classNames('connection-test-result', className )}>
-          {icon && <span className={classNames('fa', icon)}/>}
-          {text}
-        </span>
-      );
-    }
-
-    const { connectionTest } = this.state;
-
-    if (!connectionTest) {
-      return renderResult();
-    } else if (connectionTest === 'in-progress') {
-      const text = this.state.isConnectionTestSlow
-        ? browser.i18n.getMessage('Testing_connection_this_is_unusually_slow_is_your_NAS_asleep')
-        : browser.i18n.getMessage('Testing_connection');
-      return renderResult(text, 'fa-refresh fa-spin');
-    } else if (connectionTest === 'good-and-modern') {
-      return renderResult(browser.i18n.getMessage('Connection_successful'), 'fa-check', 'intent-success');
-    } else if (connectionTest === 'good-and-legacy') {
-      return renderResult([
-        browser.i18n.getMessage('Connection_successful_but_may_interfere_with_existing_DSM_sessions_See_'),
-        <a href={ISSUE_32_URL}>{browser.i18n.getMessage('issue_32')}</a>,
-        browser.i18n.getMessage('_for_more_details')
-      ], 'fa-exclamation-triangle', 'intent-warning');
-    } else if (isErrorCodeResult(connectionTest)) {
-      return renderResult(errorMessageFromCode(connectionTest.code, 'Auth'), 'fa-times', 'intent-error');
-    } else {
-      return renderResult(errorMessageFromConnectionFailure(connectionTest), 'fa-times', 'intent-error');
-    }
-  }
-
-  private disabledPropAndClassName(disabled: boolean, otherClassNames?: string) {
-    return {
-      disabled,
-      className: classNames({ 'disabled': disabled }, otherClassNames)
-    };
-  }
-
   private setConnectionSetting<K extends keyof ConnectionSettings>(key: K, value: ConnectionSettings[K]) {
     this.setState({
       savingStatus: 'pending-changes',
-      connectionTest: undefined,
-      isConnectionTestSlow: undefined,
+      connectionTest: 'none',
+      isConnectionTestSlow: false,
       changedSettings: {
         ...this.state.changedSettings,
         connection: {
@@ -425,7 +379,7 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
 
     this.setState({
       connectionTest: 'in-progress',
-      isConnectionTestSlow: undefined
+      isConnectionTestSlow: false
     });
 
     this.connectionTestSlowTimeout = setTimeout(() => {
@@ -439,7 +393,7 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
         clearTimeout(this.connectionTestSlowTimeout!);
         this.setState({
           connectionTest: result,
-          isConnectionTestSlow: undefined
+          isConnectionTestSlow: false
         });
       });
   };
