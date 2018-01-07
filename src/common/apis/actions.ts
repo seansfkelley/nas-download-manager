@@ -154,8 +154,8 @@ const doCreateTask = wrapInNoPermissionsRetry((api: ApiClient, options: Download
   return api.DownloadStation.Task.Create(options);
 });
 
-export function addDownloadTaskAndPoll(api: ApiClient, url: string, path?: string) {
-  const notificationId = notify('Adding download...', url);
+export function addDownloadTaskAndPoll(api: ApiClient, showNonErrorNotifications: boolean, url: string, path?: string) {
+  const notificationId = showNonErrorNotifications ? notify('Adding download...', url) : undefined;
   const destination = path && path.startsWith('/') ? path.slice(1) : undefined;
 
   function notifyTaskAddResult(filename?: string) {
@@ -164,7 +164,9 @@ export function addDownloadTaskAndPoll(api: ApiClient, url: string, path?: strin
       if (isConnectionFailure(result)) {
         notify('Failed to connection to DiskStation', 'Please check your settings.', 'failure', notificationId);
       } else if (result.success) {
-        notify('Download added', filename || url, 'success', notificationId);
+        if (showNonErrorNotifications) {
+          notify('Download added', filename || url, 'success', notificationId);
+        }
       } else {
         notify('Failed to add download', errorMessageFromCode(result.error.code, 'DownloadStation.Task'), 'failure', notificationId);
       }

@@ -17,6 +17,8 @@ let finishedTaskIds: string[] | undefined;
 let lastNotificationSettings: NotificationSettings | undefined;
 let notificationInterval: number | undefined;
 
+let showNonErrorNotifications: boolean = true;
+
 updateStateShapeIfNecessary()
 .then(() => {
   onStoredStateChange(storedState => {
@@ -41,6 +43,8 @@ updateStateShapeIfNecessary()
           lastNotificationSettings.completionPollingInterval * 1000) as any as number;
       }
     }
+
+    showNonErrorNotifications = storedState.notifications.enableFeedbackNotifications;
 
     if (storedState.taskFetchFailureReason) {
       browser.browserAction.setIcon({
@@ -102,14 +106,14 @@ browser.contextMenus.create({
   contexts: [ 'link', 'audio', 'video', 'selection' ],
   onclick: (data) => {
     if (data.linkUrl) {
-      addDownloadTaskAndPoll(api, data.linkUrl)
+      addDownloadTaskAndPoll(api, showNonErrorNotifications, data.linkUrl)
     } else if (data.srcUrl) {
-      addDownloadTaskAndPoll(api, data.srcUrl);
+      addDownloadTaskAndPoll(api, showNonErrorNotifications, data.srcUrl);
     } else if (data.selectionText) {
       // The cheapest of checks. Actual invalid URLs will be caught later.
       const trimmedUrl = data.selectionText.trim();
       if (startsWithAnyProtocol(trimmedUrl, ALL_DOWNLOADABLE_PROTOCOLS)) {
-        addDownloadTaskAndPoll(api, data.selectionText);
+        addDownloadTaskAndPoll(api, showNonErrorNotifications, data.selectionText);
       } else {
         notify(browser.i18n.getMessage('Failed_to_add_download'), browser.i18n.getMessage('Selected_text_is_not_a_valid_URL'), 'failure');
       }
@@ -121,7 +125,7 @@ browser.contextMenus.create({
 
 browser.runtime.onMessage.addListener(message => {
   if (isAddTaskMessage(message)) {
-    return addDownloadTaskAndPoll(api, message.url);
+    return addDownloadTaskAndPoll(api, showNonErrorNotifications, message.url);
   } else {
     console.error('received a message of unknown type', message);
     return undefined;

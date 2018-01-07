@@ -201,6 +201,20 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
         <ul className='settings-list'>
           <li>
             <input
+              id='feedback-checkbox'
+              type='checkbox'
+              checked={mergedSettings.notifications.enableFeedbackNotifications}
+              onChange={() => {
+                this.setNotificationSetting('enableFeedbackNotifications', !mergedSettings.notifications.enableFeedbackNotifications);
+              }}
+            />
+            <label htmlFor='feedback-checkbox'>
+              {browser.i18n.getMessage('Notify_when_adding_downloads')}
+            </label>
+          </li>
+
+          <li>
+            <input
               id='notifications-checkbox'
               type='checkbox'
               checked={mergedSettings.notifications.enableCompletionNotifications}

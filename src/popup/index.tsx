@@ -362,7 +362,7 @@ getSharedObjects()
 
         const createTask = hostUrl
           ? (url: string, path?: string) => {
-              return addDownloadTaskAndPoll(api, url, path);
+              return addDownloadTaskAndPoll(api, storedState.notifications.enableFeedbackNotifications, url, path);
             }
           : undefined;
 

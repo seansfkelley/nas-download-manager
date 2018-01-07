@@ -312,6 +312,10 @@
     "message": "Miscellaneous",
     "description": "Header for settings section."
   },
+  "Notify_when_adding_downloads": {
+    "message": "Notify when adding downloads",
+    "description": "Label for option on settings page."
+  },
   "Notify_when_downloads_complete": {
     "message": "Notify when downloads complete",
     "description": "Label for option on settings page."
