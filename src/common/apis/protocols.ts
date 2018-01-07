@@ -1,23 +1,30 @@
+export const EMULE_PROTOCOL = 'ed2k';
+export const MAGNET_PROTOCOL = 'magnet';
+
 export const DOWNLOAD_ONLY_PROTOCOLS = [
-  'magnet',
+  MAGNET_PROTOCOL,
   'thunder',
   'flashget',
   'qqdl',
-  'ed2k'
+  EMULE_PROTOCOL,
 ];
 
 export const AUTO_DOWNLOAD_TORRENT_FILE_PROTOCOLS = [
   'http',
-  'https'
+  'https',
 ];
 
 export const ALL_DOWNLOADABLE_PROTOCOLS = [
   'http',
   'https',
   'ftp',
-  'ftps'
+  'ftps',
 ].concat(DOWNLOAD_ONLY_PROTOCOLS);
 
-export function startsWithAnyProtocol(url: string, protocols: string[]) {
-  return protocols.some(protocol => url.startsWith(`${protocol}:`));
+export function startsWithAnyProtocol(url: string, protocols: string | string[]) {
+  if (typeof protocols === 'string') {
+    return url.startsWith(`${protocols}:`);
+  } else {
+    return protocols.some(protocol => url.startsWith(`${protocol}:`));
+  }
 }

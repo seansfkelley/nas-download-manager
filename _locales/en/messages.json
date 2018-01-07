@@ -28,6 +28,14 @@
     "message": "Please check your settings",
     "description": "Notification body text."
   },
+  "eMule_is_not_enabled": {
+    "message": "eMule is not enabled",
+    "description": "Notification title."
+  },
+  "Use_DSM_to_enable_eMule_downloads": {
+    "message": "Use DSM to enable eMule downloads",
+    "description": "Notification body text."
+  },
   "Failed_to_add_download": {
     "message": "Failed to add download",
     "description": "Notification title."

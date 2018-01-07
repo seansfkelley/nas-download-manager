@@ -9,6 +9,8 @@ import { notify } from './browserUtils';
 import {
   ALL_DOWNLOADABLE_PROTOCOLS,
   AUTO_DOWNLOAD_TORRENT_FILE_PROTOCOLS,
+  EMULE_PROTOCOL,
+  MAGNET_PROTOCOL,
   startsWithAnyProtocol
 } from './protocols';
 
@@ -17,7 +19,7 @@ export function clearCachedTasks() {
     tasks: [],
     taskFetchFailureReason: null,
     tasksLastCompletedFetchTimestamp: null,
-    tasksLastInitiatedFetchTimestamp: null
+    tasksLastInitiatedFetchTimestamp: null,
   };
 
   return browser.storage.local.set(emptyState);
@@ -25,7 +27,7 @@ export function clearCachedTasks() {
 
 export function pollTasks(api: ApiClient): Promise<void> {
   const cachedTasksInit: Partial<CachedTasks> = {
-    tasksLastInitiatedFetchTimestamp: Date.now()
+    tasksLastInitiatedFetchTimestamp: Date.now(),
   };
 
   const pollId = uniqueId('poll-');
@@ -40,7 +42,7 @@ export function pollTasks(api: ApiClient): Promise<void> {
       offset: 0,
       limit: -1,
       additional: [ 'transfer', 'detail' ],
-      timeout: 20000
+      timeout: 20000,
     }),
   ])
     .then(([ _, response ]) => {
@@ -114,13 +116,13 @@ function guessTorrentFileName(urlWithoutQuery: string, headers: Record<string, s
   return maybeFilename.endsWith(metadataFileType.extension) ? maybeFilename : maybeFilename + metadataFileType.extension ;
 }
 
-const ED2K_FILENAME_REGEX = /\|file\|([^\|]+)\|/;
+const EMULE_FILENAME_REGEX = /\|file\|([^\|]+)\|/;
 
 function guessFileNameFromUrl(url: string): string | undefined {
-  if (url.startsWith('magnet:')) {
-    return parseQueryString(url).dn;
-  } else if (url.startsWith('ed2k:')) {
-    const match = url.match(ED2K_FILENAME_REGEX);
+  if (startsWithAnyProtocol(url, MAGNET_PROTOCOL)) {
+    return parseQueryString(url).dn || undefined;
+  } else if (startsWithAnyProtocol(url, EMULE_PROTOCOL)) {
+    const match = url.match(EMULE_FILENAME_REGEX);
     return match ? match[1] : undefined;
   } else {
     return undefined;
@@ -131,7 +133,24 @@ export function addDownloadTaskAndPoll(api: ApiClient, showNonErrorNotifications
   const notificationId = showNonErrorNotifications ? notify('Adding download...', url) : undefined;
   const destination = path && path.startsWith('/') ? path.slice(1) : undefined;
 
-  function notifyTaskAddResult(filename?: string) {
+  function checkIfEMuleShouldBeEnabled() {
+    if (startsWithAnyProtocol(url, EMULE_PROTOCOL)) {
+      return api.DownloadStation.Info.GetConfig()
+        .then(result => {
+          if (isConnectionFailure(result)) {
+            return Promise.resolve(false);
+          } else if (result.success) {
+            return Promise.resolve(!result.data.emule_enabled);
+          } else {
+            return Promise.resolve(false);
+          }
+        });
+    } else {
+      return Promise.resolve(false);
+    }
+  }
+
+  function onTaskAddResult(filename?: string) {
     return (result: ConnectionFailure | SynologyResponse<{}>) => {
       console.log('task add result', result);
       if (isConnectionFailure(result)) {
@@ -146,17 +165,30 @@ export function addDownloadTaskAndPoll(api: ApiClient, showNonErrorNotifications
           notify(browser.i18n.getMessage('Download_added'), filename || url, 'success', notificationId);
         }
       } else {
-        notify(
-          browser.i18n.getMessage('Failed_to_add_download'),
-          errorMessageFromCode(result.error.code, 'DownloadStation.Task'),
-          'failure',
-          notificationId,
-        );
+        checkIfEMuleShouldBeEnabled()
+          .then(shouldBeEnabled => {
+            if (shouldBeEnabled) {
+              notify(
+                browser.i18n.getMessage('eMule_is_not_enabled'),
+                browser.i18n.getMessage('Use_DSM_to_enable_eMule_downloads'),
+                'failure',
+                notificationId,
+              );
+            } else {
+              notify(
+                browser.i18n.getMessage('Failed_to_add_download'),
+                errorMessageFromCode(result.error.code, 'DownloadStation.Task'),
+                'failure',
+                notificationId,
+              );
+            }
+          })
+          .catch(onUnexpectedError);
       }
     };
   }
 
-  function notifyUnexpectedError(error: any) {
+  function onUnexpectedError(error: any) {
     console.log('unexpected error while trying to add a download task', error);
     notify(
       browser.i18n.getMessage('Failed_to_add_download'),
@@ -189,7 +221,7 @@ export function addDownloadTaskAndPoll(api: ApiClient, showNonErrorNotifications
                   file: { content, filename },
                   destination,
                 })
-                  .then(notifyTaskAddResult(filename))
+                  .then(onTaskAddResult(filename))
                   .then(pollOnResponse);
               });
           } else {
@@ -197,19 +229,19 @@ export function addDownloadTaskAndPoll(api: ApiClient, showNonErrorNotifications
               uri: [ url ],
               destination,
             })
-              .then(notifyTaskAddResult())
+              .then(onTaskAddResult())
               .then(pollOnResponse);
           }
         })
-        .catch(notifyUnexpectedError);
+        .catch(onUnexpectedError);
     } else if (startsWithAnyProtocol(url, ALL_DOWNLOADABLE_PROTOCOLS)) {
       return api.DownloadStation.Task.Create({
         uri: [ url ],
         destination,
       })
-        .then(notifyTaskAddResult(guessFileNameFromUrl(url)))
+        .then(onTaskAddResult(guessFileNameFromUrl(url)))
         .then(pollOnResponse)
-        .catch(notifyUnexpectedError);
+        .catch(onUnexpectedError);
     } else {
       notify(
         browser.i18n.getMessage('Failed_to_add_download'),
