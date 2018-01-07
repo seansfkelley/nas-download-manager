@@ -47,7 +47,13 @@ function bundleAndMaybeWatch(baseDirectory) {
       globals(),
       builtins(),
       sourcemaps()
-    ]
+    ],
+    onwarn: (({ code, message }) => {
+      // Silence eval because Bluebird uses it to do some tricky v8 optimizations, but doesn't _actually_ use it.
+      if (code !== 'EVAL') {
+        console.warn(message);
+      }
+    })
   };
 
   if (process.argv.indexOf('-w') !== -1) {
