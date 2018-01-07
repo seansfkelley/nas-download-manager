@@ -1,5 +1,4 @@
-import '../common/apis/browserShim';
-import '../common/errorHandlers';
+import '../common/sideEffectingInit';
 import { sendTaskAddMessage } from '../common/apis/messages';
 import { onStoredStateChange } from '../common/state';
 import { DOWNLOAD_ONLY_PROTOCOLS, startsWithAnyProtocol } from '../common/apis/protocols';

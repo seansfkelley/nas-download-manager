@@ -1,5 +1,4 @@
-import '../common/apis/browserShim';
-import '../common/errorHandlers';
+import '../common/sideEffectingInit';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import * as momentProxy from 'moment';

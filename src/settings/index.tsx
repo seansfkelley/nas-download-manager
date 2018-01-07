@@ -1,5 +1,4 @@
-import '../common/apis/browserShim';
-import '../common/errorHandlers';
+import '../common/sideEffectingInit';
 import pick from 'lodash-es/pick';
 import merge from 'lodash-es/merge';
 import * as React from 'react';

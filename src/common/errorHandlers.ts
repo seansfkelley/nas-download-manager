@@ -7,6 +7,3 @@ export function onUnhandledError(e: any | undefined) {
   };
   browser.storage.local.set(logging);
 }
-
-window.addEventListener('unhandledrejection', (e: any) => onUnhandledError(e && e.reason));
-window.addEventListener('error', onUnhandledError);
