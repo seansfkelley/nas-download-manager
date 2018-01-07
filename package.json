@@ -39,7 +39,7 @@
     "rollup-plugin-sourcemaps": "^0.4.2",
     "rollup-watch": "^3.2.2",
     "ts-node": "^3.3.0",
-    "typescript": "^2.6.1"
+    "typescript": "^2.6.2"
   },
   "dependencies": {
     "axios": "^0.16.1",
@@ -49,8 +49,8 @@
     "moment": "^2.18.1",
     "node-sass": "^4.5.3",
     "query-string": "^4.3.4",
-    "react": "^16.0.0",
-    "react-dom": "^16.0.0",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
     "rimraf": "^2.6.1",
     "synology-typescript-api": "^0.3.4"
   }
