@@ -4,6 +4,10 @@
     "description": "A description of the extension.",
     "test_skip_reference_check": true
   },
+  "Download_added": {
+    "message": "Download added",
+    "description": "Notification body text."
+  },
   "Download_finished": {
     "message": "Download finished",
     "description": "Notification body text."
@@ -16,12 +20,34 @@
     "message": "Selected text is not a valid URL",
     "description": "Notification body text."
   },
+  "Failed_to_connect_to_DiskStation": {
+    "message": "Failed to connect to DiskStation",
+    "description": "Notification title."
+  },
+  "Please_check_your_settings": {
+    "message": "Please check your settings",
+    "description": "Notification body text."
+  },
   "Failed_to_add_download": {
     "message": "Failed to add download",
     "description": "Notification title."
   },
+  "URL_must_start_with_one_of_ZprotocolsZ": {
+    "message": "URL must start with one of $PROTOCOLS$",
+    "description": "Notification body text.",
+    "placeholders": {
+      "protocols": {
+        "content": "$1",
+        "example": "http, https, ftp"
+      }
+    }
+  },
   "URL_is_empty_or_missing": {
     "message": "URL is empty or missing",
+    "description": "Notification body text."
+  },
+  "Unexpected_error_please_check_your_settings_and_try_again": {
+    "message": "Unexpected error; please check your settings and try again",
     "description": "Notification body text."
   },
   "URL_to_download": {

@@ -49,32 +49,32 @@ export function pollTasks(api: ApiClient): Promise<void> {
       function setCachedTasksResponse(cachedTasks: Partial<CachedTasks>) {
         return browser.storage.local.set({
           tasksLastCompletedFetchTimestamp: Date.now(),
-          ...cachedTasks
+          ...cachedTasks,
         });
       }
 
       if (isConnectionFailure(response)) {
         if (response.type === 'missing-config') {
           return setCachedTasksResponse({
-            taskFetchFailureReason: 'missing-config'
+            taskFetchFailureReason: 'missing-config',
           });
         } else {
           return setCachedTasksResponse({
             taskFetchFailureReason: {
-              failureMessage: errorMessageFromConnectionFailure(response)
-            }
+              failureMessage: errorMessageFromConnectionFailure(response),
+            },
           });
         }
       } else if (response.success) {
         return setCachedTasksResponse({
           tasks: response.data.tasks,
-          taskFetchFailureReason: null
+          taskFetchFailureReason: null,
         });
       } else {
         return setCachedTasksResponse({
           taskFetchFailureReason: {
-            failureMessage: errorMessageFromCode(response.error.code, 'DownloadStation.Task')
-          }
+            failureMessage: errorMessageFromCode(response.error.code, 'DownloadStation.Task'),
+          },
         });
       }
     })
@@ -135,20 +135,35 @@ export function addDownloadTaskAndPoll(api: ApiClient, showNonErrorNotifications
     return (result: ConnectionFailure | SynologyResponse<{}>) => {
       console.log('task add result', result);
       if (isConnectionFailure(result)) {
-        notify('Failed to connection to DiskStation', 'Please check your settings.', 'failure', notificationId);
+        notify(
+          browser.i18n.getMessage('Failed_to_connect_to_DiskStation'),
+          browser.i18n.getMessage('Please_check_your_settings'),
+          'failure',
+          notificationId,
+        );
       } else if (result.success) {
         if (showNonErrorNotifications) {
-          notify('Download added', filename || url, 'success', notificationId);
+          notify(browser.i18n.getMessage('Download_added'), filename || url, 'success', notificationId);
         }
       } else {
-        notify('Failed to add download', errorMessageFromCode(result.error.code, 'DownloadStation.Task'), 'failure', notificationId);
+        notify(
+          browser.i18n.getMessage('Failed_to_add_download'),
+          errorMessageFromCode(result.error.code, 'DownloadStation.Task'),
+          'failure',
+          notificationId,
+        );
       }
     };
   }
 
   function notifyUnexpectedError(error: any) {
     console.log('unexpected error while trying to add a download task', error);
-    notify('Failed to add download', 'Unexpected error; please check your settings and try again', 'failure', notificationId);
+    notify(
+      browser.i18n.getMessage('Failed_to_add_download'),
+      browser.i18n.getMessage('Unexpected_error_please_check_your_settings_and_try_again'),
+      'failure',
+      notificationId,
+    );
   }
 
   function pollOnResponse() {
@@ -172,7 +187,7 @@ export function addDownloadTaskAndPoll(api: ApiClient, showNonErrorNotifications
                 const filename = guessTorrentFileName(urlWithoutQuery, response.headers, metadataFileType);
                 return api.DownloadStation.Task.Create({
                   file: { content, filename },
-                  destination
+                  destination,
                 })
                   .then(notifyTaskAddResult(filename))
                   .then(pollOnResponse);
@@ -180,7 +195,7 @@ export function addDownloadTaskAndPoll(api: ApiClient, showNonErrorNotifications
           } else {
             return api.DownloadStation.Task.Create({
               uri: [ url ],
-              destination
+              destination,
             })
               .then(notifyTaskAddResult())
               .then(pollOnResponse);
@@ -190,17 +205,27 @@ export function addDownloadTaskAndPoll(api: ApiClient, showNonErrorNotifications
     } else if (startsWithAnyProtocol(url, ALL_DOWNLOADABLE_PROTOCOLS)) {
       return api.DownloadStation.Task.Create({
         uri: [ url ],
-        destination
+        destination,
       })
         .then(notifyTaskAddResult(guessFileNameFromUrl(url)))
         .then(pollOnResponse)
         .catch(notifyUnexpectedError);
     } else {
-      notify('Failed to add download', `URL must start with one of ${ALL_DOWNLOADABLE_PROTOCOLS.join(', ')}`, 'failure', notificationId);
+      notify(
+        browser.i18n.getMessage('Failed_to_add_download'),
+        browser.i18n.getMessage('URL_must_start_with_one_of_ZprotocolsZ', [ ALL_DOWNLOADABLE_PROTOCOLS.join(', ') ]),
+        'failure',
+        notificationId,
+      );
       return Promise.resolve();
     }
   } else {
-    notify('Failed to add download', 'No URL to download given', 'failure', notificationId);
+    notify(
+      browser.i18n.getMessage('Failed_to_add_download'),
+      browser.i18n.getMessage('URL_is_empty_or_missing'),
+      'failure',
+      notificationId,
+    );
     return Promise.resolve();
   }
 }
