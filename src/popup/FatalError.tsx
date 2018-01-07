@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { NoTasks } from './NoTasks';
-
-const BUG_REPORT_URL = 'https://github.com/seansfkelley/synology-download-manager/issues/new';
+import { BUG_REPORT_URL } from '../common/constants';
 
 export interface Props {
   error: Error;

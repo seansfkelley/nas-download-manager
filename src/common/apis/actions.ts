@@ -5,6 +5,7 @@ import { parse as parseQueryString } from 'query-string';
 import { ApiClient, ConnectionFailure, isConnectionFailure, SynologyResponse } from 'synology-typescript-api';
 import { errorMessageFromCode, errorMessageFromConnectionFailure } from './errors';
 import { CachedTasks } from '../state';
+import { onUnhandledError } from '../errorHandlers';
 import { notify } from './browserUtils';
 import {
   ALL_DOWNLOADABLE_PROTOCOLS,
@@ -82,6 +83,7 @@ export function pollTasks(api: ApiClient): Promise<void> {
     })
     .catch(error => {
       console.error('unexpected error while trying to poll for new tasks; will not attempt to set anything in browser state', error);
+      onUnhandledError(error);
     });
 }
 
@@ -189,7 +191,7 @@ export function addDownloadTaskAndPoll(api: ApiClient, showNonErrorNotifications
   }
 
   function onUnexpectedError(error: any) {
-    console.log('unexpected error while trying to add a download task', error);
+    onUnhandledError(error);
     notify(
       browser.i18n.getMessage('Failed_to_add_download'),
       browser.i18n.getMessage('Unexpected_error_please_check_your_settings_and_try_again'),

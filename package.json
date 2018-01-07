@@ -43,6 +43,7 @@
   },
   "dependencies": {
     "axios": "^0.16.1",
+    "bluebird": "^3.5.1",
     "chrome-extension-async": "^3.2.4",
     "classnames": "^2.2.5",
     "lodash-es": "^4.17.4",

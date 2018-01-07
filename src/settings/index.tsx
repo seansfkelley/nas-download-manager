@@ -1,4 +1,5 @@
 import '../common/apis/browserShim';
+import '../common/errorHandlers';
 import pick from 'lodash-es/pick';
 import merge from 'lodash-es/merge';
 import * as React from 'react';
@@ -10,6 +11,7 @@ const classNames: typeof classNamesProxy = (classNamesProxy as any).default || c
 
 import {
   Settings,
+  Logging,
   Protocol,
   PROTOCOLS,
   ConnectionSettings,
@@ -19,6 +21,7 @@ import {
   onStoredStateChange,
   SETTING_NAMES
 } from '../common/state';
+import { BUG_REPORT_URL } from '../common/constants';
 import {
   ConnectionTestResult,
   saveSettings,
@@ -34,6 +37,8 @@ import { ConnectionTestResultDisplay } from './ConnectionTestResultDisplay';
 interface SettingsFormProps {
   initialSettings: Settings;
   saveSettings: (settings: Settings) => Promise<boolean>;
+  lastSevereError?: any;
+  clearError: () => void;
 }
 
 interface SettingsFormState {
@@ -262,11 +267,53 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
           />
         </SettingsList>
 
+        {this.maybeRenderDebuggingOutputAndSeparator()}
+
         <div className='horizontal-separator'/>
 
         {this.renderSaveButtonFooter()}
       </div>
     );
+  }
+
+  private maybeRenderDebuggingOutputAndSeparator() {
+    if (this.props.lastSevereError) {
+      return (
+        <>
+          <div className='horizontal-separator'/>
+
+          <header>
+            <h3>{browser.i18n.getMessage('Debugging_Output')}</h3>
+            <p>
+              {browser.i18n.getMessage('Please_')}
+              <a href={BUG_REPORT_URL}>
+                {browser.i18n.getMessage('file_a_bug')}
+              </a>
+              {browser.i18n.getMessage('_and_include_the_information_below')}
+            </p>
+          </header>
+
+          <SettingsList>
+            <li>
+              <textarea
+                className='debugging-output'
+                value={this.props.lastSevereError}
+                readOnly={true}
+                onClick={e => { e.currentTarget.select(); }}
+              />
+            </li>
+
+            <li>
+              <button onClick={this.props.clearError}>
+                {browser.i18n.getMessage('Clear_output')}
+              </button>
+            </li>
+          </SettingsList>
+        </>
+      );
+    } else {
+      return undefined;
+    }
   }
 
   private renderSaveButtonFooter() {
@@ -419,6 +466,13 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
   }
 }
 
+function clearError() {
+  const clearedError: Logging = {
+    lastSevereError: undefined,
+  };
+  browser.storage.local.set(clearedError);
+}
+
 const ELEMENT = document.getElementById('body')!;
 
 onStoredStateChange(state => {
@@ -426,5 +480,7 @@ onStoredStateChange(state => {
     <SettingsForm
       initialSettings={pick(state, SETTING_NAMES) as Settings}
       saveSettings={saveSettings}
+      lastSevereError={state.lastSevereError}
+      clearError={clearError}
     />, ELEMENT);
 });

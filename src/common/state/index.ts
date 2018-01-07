@@ -8,6 +8,7 @@ import {
   TaskSortType,
   ConnectionSettings,
   State,
+  Logging,
 } from './latest';
 import { state0to1 } from './1';
 import { state1to2 } from './2';
@@ -48,6 +49,10 @@ const _cacheNames: Record<keyof CachedTasks, true> = {
   'tasksLastCompletedFetchTimestamp': true
 };
 
+const _loggingNames: Record<keyof Logging, true> = {
+  'lastSevereError': true,
+};
+
 const _stateMetaNames: Record<keyof StateMeta, true> = {
   'stateVersion': true
 };
@@ -55,6 +60,7 @@ const _stateMetaNames: Record<keyof StateMeta, true> = {
 const STORAGE_META_NAMES = Object.keys(_stateMetaNames) as (keyof StateMeta)[];
 
 const _stateWithMetaNames: Record<keyof StateWithMeta, true> = {
+  ..._loggingNames,
   ..._settingNames,
   ..._cacheNames,
   ..._stateMetaNames

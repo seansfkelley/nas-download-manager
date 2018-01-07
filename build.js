@@ -40,7 +40,7 @@ function bundleAndMaybeWatch(baseDirectory) {
       }),
       commonjs({
         namedExports: {
-          'react': [ 'Component', 'PureComponent', 'createElement' ],
+          'react': [ 'Component', 'PureComponent', 'createElement', 'Fragment' ],
           'react-dom': [ 'render' ]
         }
       }),

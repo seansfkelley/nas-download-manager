@@ -1,5 +1,6 @@
 import { SessionName, ApiClient, ConnectionFailure, isConnectionFailure } from 'synology-typescript-api';
 import { Settings, getHostUrl } from '../common/state';
+import { onUnhandledError } from '../common/errorHandlers';
 
 export function saveSettings(settings: Settings): Promise<boolean> {
   console.log('persisting settings...');
@@ -17,7 +18,7 @@ export function saveSettings(settings: Settings): Promise<boolean> {
       }
     })
     .catch(error => {
-      console.log('unexpected failure while persisting settings', error);
+      onUnhandledError(error);
       return false;
     });
 }

@@ -28,7 +28,11 @@ export interface Settings_2 {
   shouldHandleDownloadLinks: boolean;
 }
 
-export interface State_2 extends Settings_2, CachedTasks_1 {}
+export interface Logging_2 {
+  lastSevereError?: any;
+}
+
+export interface State_2 extends Settings_2, CachedTasks_1, Logging_2 {}
 
 export function state1to2(state: State_1): State_2 {
   return {

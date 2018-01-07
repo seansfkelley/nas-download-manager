@@ -1,4 +1,5 @@
 import '../common/apis/browserShim';
+import '../common/errorHandlers';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import * as momentProxy from 'moment';
@@ -18,6 +19,7 @@ import {
   onStoredStateChange,
   getHostUrl
 } from '../common/state';
+import { onUnhandledError } from '../common/errorHandlers';
 import { getSharedObjects } from '../common/apis/messages';
 import { addDownloadTaskAndPoll, pollTasks } from '../common/apis/actions';
 import { CallbackResponse } from './popupTypes';
@@ -419,6 +421,6 @@ getSharedObjects()
     }
   })
   .catch(e => {
-    console.error('error caught while rendering popup', e);
+    onUnhandledError(e);
     ReactDOM.render(<FatalError error={e}/>, ELEMENT);
   });

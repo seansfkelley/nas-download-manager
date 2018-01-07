@@ -340,7 +340,7 @@
   },
   "Display_these_task_types_in_the_popup_menu": {
     "message": "Display these task types in the popup menu.",
-    "description": "Subheader for DownloadsList settings section."
+    "description": "Subheader for Downloads List settings section."
   },
   "Miscellaneous": {
     "message": "Miscellaneous",
@@ -375,6 +375,14 @@
         "example": "http, https"
       }
     }
+  },
+  "Debugging_Output": {
+    "message": "Debugging Output",
+    "description": "Header for settings section."
+  },
+  "Clear_output": {
+    "message": "Clear output",
+    "description": "Button text for clearing debugging output."
   },
   "Checking_connection": {
     "message": "Checking connection...",

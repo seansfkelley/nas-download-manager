@@ -1,4 +1,5 @@
 import '../common/apis/browserShim';
+import '../common/errorHandlers';
 import isEqual from 'lodash-es/isEqual';
 import { ApiClient, SessionName } from 'synology-typescript-api';
 import { getHostUrl, onStoredStateChange, NotificationSettings, updateStateShapeIfNecessary } from '../common/state';
