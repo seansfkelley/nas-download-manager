@@ -81,10 +81,7 @@ export function pollTasks(api: ApiClient): Promise<void> {
         });
       }
     })
-    .catch(error => {
-      console.error('unexpected error while trying to poll for new tasks; will not attempt to set anything in browser state', error);
-      onUnhandledError(error);
-    });
+    .catch(onUnhandledError);
 }
 
 interface MetadataFileType {

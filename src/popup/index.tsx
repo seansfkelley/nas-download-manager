@@ -322,7 +322,6 @@ getSharedObjects()
           return 'success';
         } else {
           const reason = errorMessageFromCode(response.error.code, 'DownloadStation.Task');
-          console.error(`API call failed, reason: ${reason}`);
           return { failMessage: reason };
         }
       }
