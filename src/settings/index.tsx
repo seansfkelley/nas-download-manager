@@ -1,4 +1,4 @@
-import '../common/sideEffectingInit';
+import '../common/init/extensionContext';
 import pick from 'lodash-es/pick';
 import merge from 'lodash-es/merge';
 import * as React from 'react';

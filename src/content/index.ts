@@ -1,4 +1,4 @@
-import '../common/sideEffectingInit';
+import '../common/init/sharedContext';
 import { sendTaskAddMessage } from '../common/apis/messages';
 import { onStoredStateChange } from '../common/state';
 import { DOWNLOAD_ONLY_PROTOCOLS, startsWithAnyProtocol } from '../common/apis/protocols';

@@ -1,4 +1,4 @@
-import '../common/sideEffectingInit';
+import '../common/init/extensionContext';
 import isEqual from 'lodash-es/isEqual';
 import { ApiClient, SessionName } from 'synology-typescript-api';
 import { getHostUrl, onStoredStateChange, NotificationSettings, updateStateShapeIfNecessary } from '../common/state';

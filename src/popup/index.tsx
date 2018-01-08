@@ -1,4 +1,4 @@
-import '../common/sideEffectingInit';
+import '../common/init/extensionContext';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import * as momentProxy from 'moment';
