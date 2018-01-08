@@ -7,7 +7,7 @@ import * as classNamesProxy from 'classnames';
 // https://github.com/rollup/rollup/issues/1267
 const classNames: typeof classNamesProxy = (classNamesProxy as any).default || classNamesProxy;
 
-import { formatMetric1024 } from '../common/format';
+import { formatMetric1024, formatTime, formatPercentage } from '../common/format';
 import { CallbackResponse } from './popupTypes';
 import { matchesFilter } from './filtering';
 
@@ -26,7 +26,7 @@ export interface State {
 export class Task extends React.PureComponent<Props, State> {
   state: State = {
     pauseResumeState: 'none',
-    deleteState: 'none'
+    deleteState: 'none',
   };
 
   render() {
@@ -34,9 +34,6 @@ export class Task extends React.PureComponent<Props, State> {
       return null;
     } else {
       const isErrored = matchesFilter(this.props.task, 'errored');
-      const barFillFraction = isErrored
-        ? 1
-        : Math.round(this.props.task.additional!.transfer!.size_downloaded / this.props.task.size * 100) / 100;
       return (
         <li className='task' key={this.props.task.id}>
           <div className='header'>
@@ -59,7 +56,7 @@ export class Task extends React.PureComponent<Props, State> {
                 'errored': isErrored,
                 'unknown': matchesFilter(this.props.task, 'other')
               })}
-              style={{ width: `${barFillFraction * 100}%` }}
+              style={{ width: `${(isErrored ? 1 : this.computeFractionComplete()) * 100}%` }}
             />
             <div className='bar-background'/>
           </div>
@@ -68,14 +65,29 @@ export class Task extends React.PureComponent<Props, State> {
     }
   }
 
+  private computeFractionComplete() {
+    const fractionComplete = Math.round(this.props.task.additional!.transfer!.size_downloaded / this.props.task.size * 100) / 100;
+    return Number.isFinite(fractionComplete) ? fractionComplete : 0;
+  }
+
+  private computeSecondsRemaining(): number | undefined {
+    const secondsRemaining = Math.round((this.props.task.size - this.props.task.additional!.transfer!.size_downloaded) / this.props.task.additional!.transfer!.speed_download);
+    return Number.isFinite(secondsRemaining) ? secondsRemaining : undefined;
+  }
+
   private renderStatus() {
     if (matchesFilter(this.props.task, 'downloading')) {
-      return browser.i18n.getMessage('ZstatusZ_ZcurrentZ_of_ZtotalZ_downloaded_ZspeedZ', [
+      const fraction = this.computeFractionComplete();
+      const eta = this.computeSecondsRemaining();
+      return browser.i18n.getMessage('ZstatusZ_ZpercentZ_ZcurrentZ_of_ZtotalZ_at_ZspeedZ', [
         upperCase(this.props.task.status),
+        (Number.isFinite(fraction) ? formatPercentage(fraction) : '0%'),
         `${formatMetric1024(this.props.task.additional!.transfer!.size_downloaded)}B`,
         `${formatMetric1024(this.props.task.size)}B`,
         `${formatMetric1024(this.props.task.additional!.transfer!.speed_download)}B/s`
-      ]);
+      ]) + (Number.isFinite(eta as number)
+        ? browser.i18n.getMessage('_ZetaZ_remaining', [ formatTime(eta as number) ])
+        : browser.i18n.getMessage('_no_estimate'));
     } else if (matchesFilter(this.props.task, 'uploading')) {
       return browser.i18n.getMessage('ZstatusZ_ZtotalZ_uploaded_ZspeedZ', [
           upperCase(this.props.task.status),

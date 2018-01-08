@@ -182,27 +182,45 @@
     "message": "Pause",
     "description": "Tooltip for pause button on a task list item."
   },
-  "ZstatusZ_ZcurrentZ_of_ZtotalZ_downloaded_ZspeedZ": {
-    "message": "$STATUS$ \u2013 $CURRENT$ of $TOTAL$ downloaded ($SPEED$)",
-    "description": "Subtitle for currently-downloading task showing stats.",
+  "ZstatusZ_ZpercentZ_ZcurrentZ_of_ZtotalZ_at_ZspeedZ": {
+    "message": "$STATUS$ \u2013 $PERCENT$ ($CURRENT$ of $TOTAL$ at $SPEED$)",
+    "description": "Subtitle prefix for currently-downloading task showing stats.",
     "placeholders": {
       "status": {
         "content": "$1",
         "example": "DOWNLOADING"
       },
-      "current": {
+      "percent": {
         "content": "$2",
+        "example": "65.5%"
+      },
+      "current": {
+        "content": "$3",
         "example": "100KB"
       },
       "total": {
-        "content": "$3",
+        "content": "$4",
         "example": "10MB"
       },
       "speed": {
-        "content": "$4",
+        "content": "$5",
         "example": "50KB/s"
       }
     }
+  },
+  "_ZetaZ_remaining": {
+    "message": " \u2013 $ETA$ remaining",
+    "description": "Subtitle suffix for currently-downloading task.",
+    "placeholders": {
+      "eta": {
+        "content": "$1",
+        "example": "5:45"
+      }
+    }
+  },
+  "_no_estimate": {
+    "message": " \u2013 no estimate",
+    "description": "Subtitle suffix for currently-downloading task."
   },
   "ZstatusZ_ZtotalZ_uploaded_ZspeedZ": {
     "message": "$STATUS$ \u2013 $TOTAL$ uploaded ($SPEED$)",
