@@ -209,7 +209,7 @@ export function addDownloadTaskAndPoll(api: ApiClient, showNonErrorNotifications
           const contentLength = response.headers['content-length'];
           const urlWithoutQuery = url.indexOf('?') !== -1 ? url.slice(0, url.indexOf('?')) : url;
           const metadataFileType = find(METADATA_FILE_TYPES, fileType =>
-            contentType === fileType.mediaType || urlWithoutQuery.endsWith(fileType.extension)
+            contentType.includes(fileType.mediaType) || urlWithoutQuery.endsWith(fileType.extension)
           );
           if (metadataFileType && !isNaN(+contentLength) && +contentLength < ARBITRARY_FILE_FETCH_SIZE_CUTOFF) {
             return Axios.get(url, { responseType: 'arraybuffer', timeout: 10000 })
