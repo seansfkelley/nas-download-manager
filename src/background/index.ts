@@ -5,6 +5,7 @@ import { getHostUrl, onStoredStateChange, NotificationSettings, updateStateShape
 import { notify } from '../common/apis/browserUtils';
 import { setSharedObjects, isAddTaskMessage } from '../common/apis/messages';
 import { addDownloadTaskAndPoll, pollTasks, clearCachedTasks } from '../common/apis/actions';
+import { onUnhandledError } from '../common/errorHandlers';
 import { ALL_DOWNLOADABLE_PROTOCOLS, startsWithAnyProtocol } from '../common/apis/protocols';
 
 const api = new ApiClient({});
@@ -98,7 +99,8 @@ updateStateShapeIfNecessary()
       }));
     }
   });
-});
+})
+.catch(onUnhandledError);
 
 browser.contextMenus.create({
   enabled: true,
