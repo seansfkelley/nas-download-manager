@@ -182,28 +182,24 @@
     "message": "Pause",
     "description": "Tooltip for pause button on a task list item."
   },
-  "ZstatusZ_ZpercentZ_ZcurrentZ_of_ZtotalZ_at_ZspeedZ": {
-    "message": "$STATUS$ \u2013 $PERCENT$ ($CURRENT$ of $TOTAL$ at $SPEED$)",
+  "ZpercentZ_ZcurrentZ_of_ZtotalZ_at_ZspeedZ": {
+    "message": "$PERCENT$ ($CURRENT$ of $TOTAL$ at $SPEED$)",
     "description": "Subtitle prefix for currently-downloading task showing stats.",
     "placeholders": {
-      "status": {
-        "content": "$1",
-        "example": "DOWNLOADING"
-      },
       "percent": {
-        "content": "$2",
+        "content": "$1",
         "example": "65.5%"
       },
       "current": {
-        "content": "$3",
+        "content": "$2",
         "example": "100KB"
       },
       "total": {
-        "content": "$4",
+        "content": "$3",
         "example": "10MB"
       },
       "speed": {
-        "content": "$5",
+        "content": "$4",
         "example": "50KB/s"
       }
     }
@@ -222,52 +218,40 @@
     "message": " \u2013 no estimate",
     "description": "Subtitle suffix for currently-downloading task."
   },
-  "ZstatusZ_ZtotalZ_uploaded_ZspeedZ": {
-    "message": "$STATUS$ \u2013 $TOTAL$ uploaded ($SPEED$)",
+  "ZtotalZ_uploaded_ZspeedZ": {
+    "message": "$TOTAL$ uploaded ($SPEED$)",
     "description": "Subtitle for currently-uploading task showing stats.",
     "placeholders": {
-      "status": {
-        "content": "$1",
-        "example": "UPLOADING"
-      },
       "total": {
-        "content": "$2",
+        "content": "$1",
         "example": "10MB"
       },
       "speed": {
-        "content": "$3",
+        "content": "$2",
         "example": "50KB/s"
       }
     }
   },
-  "ZstatusZ_ZtotalZ_downloaded": {
-    "message": "$STATUS$ \u2013 $TOTAL$ downloaded",
+  "ZtotalZ_downloaded": {
+    "message": "$TOTAL$ downloaded",
     "description": "Subtitle for completed, not-uploading task showing stats.",
     "placeholders": {
-      "status": {
-        "content": "$1",
-        "example": "COMPLETED"
-      },
       "total": {
-        "content": "$2",
+        "content": "$1",
         "example": "10MB"
       }
     }
   },
-  "ZstatusZ_ZcurrentZ_of_ZtotalZ_downloaded": {
-    "message": "$STATUS$ \u2013 $CURRENT$ of $TOTAL$ downloaded",
+  "ZcurrentZ_of_ZtotalZ_downloaded": {
+    "message": "$CURRENT$ of $TOTAL$ downloaded",
     "description": "Subtitle for status-unknown task showing stats (best effort).",
     "placeholders": {
-      "status": {
-        "content": "$1",
-        "example": "OTHER"
-      },
       "current": {
-        "content": "$2",
+        "content": "$1",
         "example": "100KB"
       },
       "total": {
-        "content": "$3",
+        "content": "$2",
         "example": "10MB"
       }
     }

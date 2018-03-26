@@ -76,42 +76,60 @@ export class Task extends React.PureComponent<Props, State> {
   }
 
   private renderStatus() {
+    const renderStatusLine = (iconName: string, subtitle: React.ReactChild) => {
+      return (
+        <span title={startCase(this.props.task.status)}>
+          <span className={classNames('status-icon', iconName)}/>
+          <span className='text'>{subtitle}</span>
+        </span>
+      );
+    };
+
     if (matchesFilter(this.props.task, 'downloading')) {
       const fraction = this.computeFractionComplete();
       const eta = this.computeSecondsRemaining();
-      return browser.i18n.getMessage('ZstatusZ_ZpercentZ_ZcurrentZ_of_ZtotalZ_at_ZspeedZ', [
-        upperCase(this.props.task.status),
-        (Number.isFinite(fraction) ? formatPercentage(fraction) : '0%'),
-        `${formatMetric1024(this.props.task.additional!.transfer!.size_downloaded)}B`,
-        `${formatMetric1024(this.props.task.size)}B`,
-        `${formatMetric1024(this.props.task.additional!.transfer!.speed_download)}B/s`
-      ]) + (Number.isFinite(eta as number)
-        ? browser.i18n.getMessage('_ZetaZ_remaining', [ formatTime(eta as number) ])
-        : browser.i18n.getMessage('_no_estimate'));
+      return renderStatusLine(
+        'fa fa-arrow-down',
+        browser.i18n.getMessage('ZpercentZ_ZcurrentZ_of_ZtotalZ_at_ZspeedZ', [
+          (Number.isFinite(fraction) ? formatPercentage(fraction) : '0%'),
+          `${formatMetric1024(this.props.task.additional!.transfer!.size_downloaded)}B`,
+          `${formatMetric1024(this.props.task.size)}B`,
+          `${formatMetric1024(this.props.task.additional!.transfer!.speed_download)}B/s`
+        ]) + (Number.isFinite(eta as number)
+          ? browser.i18n.getMessage('_ZetaZ_remaining', [ formatTime(eta as number) ])
+          : browser.i18n.getMessage('_no_estimate'))
+      );
     } else if (matchesFilter(this.props.task, 'uploading')) {
-      return browser.i18n.getMessage('ZstatusZ_ZtotalZ_uploaded_ZspeedZ', [
-          upperCase(this.props.task.status),
+      return renderStatusLine(
+        'fa fa-arrow-up',
+        browser.i18n.getMessage('ZtotalZ_uploaded_ZspeedZ', [
           `${formatMetric1024(this.props.task.additional!.transfer!.size_uploaded)}B`,
           `${formatMetric1024(this.props.task.additional!.transfer!.speed_upload)}B/s`,
-      ]);
+        ])
+      );
     } else if (matchesFilter(this.props.task, 'completed')) {
-      return browser.i18n.getMessage('ZstatusZ_ZtotalZ_downloaded', [
-        upperCase(this.props.task.status),
-        `${formatMetric1024(this.props.task.size)}B`
-      ]);
+      return renderStatusLine(
+        'fa fa-check',
+        browser.i18n.getMessage('ZtotalZ_downloaded', [
+          `${formatMetric1024(this.props.task.size)}B`
+        ])
+      );
     } else if (matchesFilter(this.props.task, 'errored')) {
-      return (
+      return renderStatusLine(
+        'fa fa-exclamation-circle',
         <span className='intent-error'>
           <span className='fa fa-exclamation-triangle error-icon'/>
           {upperCase(this.props.task.status)} {this.props.task.status_extra ? `\u2013 ${startCase(this.props.task.status_extra.error_detail)}` : ''}
         </span>
       );
     } else {
-      return browser.i18n.getMessage('ZstatusZ_ZcurrentZ_of_ZtotalZ_downloaded', [
-        upperCase(this.props.task.status),
-        `${formatMetric1024(this.props.task.additional!.transfer!.size_downloaded)}B`,
-        `${formatMetric1024(this.props.task.size)}B`
-      ]);
+      return renderStatusLine(
+        'far fa-clock',
+        browser.i18n.getMessage('ZcurrentZ_of_ZtotalZ_downloaded', [
+          `${formatMetric1024(this.props.task.additional!.transfer!.size_downloaded)}B`,
+          `${formatMetric1024(this.props.task.size)}B`
+        ])
+      );
     }
   }
 
@@ -133,7 +151,7 @@ export class Task extends React.PureComponent<Props, State> {
           <div className={classNames('fa', {
             'fa-pause': state === 'pausable',
             'fa-play': state === 'resumable',
-            'fa-refresh fa-spin': state === 'in-progress',
+            'fa-sync fa-spin': state === 'in-progress',
             'fa-exclamation': state === 'failed'
           })}/>
         </button>
@@ -176,7 +194,7 @@ export class Task extends React.PureComponent<Props, State> {
       >
         <div className={classNames('fa', {
           'fa-times': this.state.deleteState !== 'in-progress',
-          'fa-refresh fa-spin': this.state.deleteState === 'in-progress'
+          'fa-sync fa-spin': this.state.deleteState === 'in-progress'
         })}/>
       </button>
     );

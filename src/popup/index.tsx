@@ -105,7 +105,7 @@ class Popup extends React.PureComponent<PopupProps, State> {
     } else if (this.props.tasksLastCompletedFetchTimestamp == null) {
       text = browser.i18n.getMessage('Updating');
       tooltip = browser.i18n.getMessage('Updating_download_tasks');
-      leftIcon = 'fa-refresh fa-spin';
+      leftIcon = 'fa-sync fa-spin';
     } else if (this.props.taskFetchFailureReason != null) {
       text = browser.i18n.getMessage('Error_updating_tasks');
       tooltip = this.props.taskFetchFailureReason.failureMessage;
@@ -124,7 +124,7 @@ class Popup extends React.PureComponent<PopupProps, State> {
       this.props.tasksLastCompletedFetchTimestamp != null &&
       this.props.tasksLastInitiatedFetchTimestamp > this.props.tasksLastCompletedFetchTimestamp
     ) {
-      leftIcon = 'fa-refresh fa-spin';
+      leftIcon = 'fa-sync fa-spin';
       tooltip += ' ' + browser.i18n.getMessage('updating_now');
     }
 
@@ -147,7 +147,7 @@ class Popup extends React.PureComponent<PopupProps, State> {
           title={browser.i18n.getMessage('Open_DownloadStation_UI')}
           {...disabledPropAndClassName(this.props.openDownloadStationUi == null)}
         >
-          <div className='fa fa-lg fa-share-square-o'/>
+          <div className='fa fa-lg fa-external-link-alt'/>
         </button>
         <button
           onClick={() => { this.setState({ isShowingDisplaySettings: !this.state.isShowingDisplaySettings }); }}
@@ -196,7 +196,7 @@ class Popup extends React.PureComponent<PopupProps, State> {
             )}
           >
             {browser.i18n.getMessage('Clear_ZcountZ_Completed_Tasks', [ completedTaskIds.length ])}
-            {this.state.isClearingCompletedTasks && <span className='fa fa-spin fa-refresh'/>}
+            {this.state.isClearingCompletedTasks && <span className='fa fa-sync fa-spin'/>}
           </button>
         </div>
       );
@@ -213,7 +213,7 @@ class Popup extends React.PureComponent<PopupProps, State> {
     if (this.props.taskFetchFailureReason === 'missing-config') {
       return <NoTasks icon='fa-gear' text={browser.i18n.getMessage('Configure_your_hostname_username_and_password_in_settings')}/>;
     } else if (this.props.tasksLastCompletedFetchTimestamp == null) {
-      return <NoTasks icon='fa-refresh fa-spin'/>;
+      return <NoTasks icon='fa-sync fa-spin'/>;
     } else if (this.props.tasks.length === 0) {
       return <NoTasks icon='fa-circle-o' text={browser.i18n.getMessage('No_download_tasks')}/>;
     } else {

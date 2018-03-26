@@ -23,7 +23,7 @@ export class ConnectionTestResultDisplay extends React.PureComponent<Props, {}> 
       const text = reassureUser
         ? browser.i18n.getMessage('Testing_connection_this_is_unusually_slow_is_your_NAS_asleep')
         : browser.i18n.getMessage('Testing_connection');
-      return this.renderResult(text, 'fa-refresh fa-spin');
+      return this.renderResult(text, 'fa-sync fa-spin');
     } else if (testResult === 'good-and-modern') {
       return this.renderResult(browser.i18n.getMessage('Connection_successful'), 'fa-check', 'intent-success');
     } else if (testResult === 'good-and-legacy') {
