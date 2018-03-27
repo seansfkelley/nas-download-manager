@@ -90,19 +90,21 @@ export class Task extends React.PureComponent<Props, State> {
       const eta = this.computeSecondsRemaining();
       return renderStatusLine(
         'fa fa-arrow-down',
-        browser.i18n.getMessage('ZpercentZ_ZcurrentZ_of_ZtotalZ_at_ZspeedZ', [
+        browser.i18n.getMessage('ZpercentZ_ZestimateZ_ZcurrentZ_of_ZtotalZ_at_ZspeedZ', [
           (Number.isFinite(fraction) ? formatPercentage(fraction) : '0%'),
+          (Number.isFinite(eta as number)
+            ? browser.i18n.getMessage('ZetaZ_remaining', [ formatTime(eta as number) ])
+            : browser.i18n.getMessage('no_estimate')),
           `${formatMetric1024(this.props.task.additional!.transfer!.size_downloaded)}B`,
           `${formatMetric1024(this.props.task.size)}B`,
-          `${formatMetric1024(this.props.task.additional!.transfer!.speed_download)}B/s`
-        ]) + (Number.isFinite(eta as number)
-          ? browser.i18n.getMessage('_ZetaZ_remaining', [ formatTime(eta as number) ])
-          : browser.i18n.getMessage('_no_estimate'))
+          `${formatMetric1024(this.props.task.additional!.transfer!.speed_download)}B/s`,
+        ])
       );
     } else if (matchesFilter(this.props.task, 'uploading')) {
       return renderStatusLine(
         'fa fa-arrow-up',
-        browser.i18n.getMessage('ZtotalZ_uploaded_ZspeedZ', [
+        browser.i18n.getMessage('ZratioZ_ratio_ZtotalZ_uploaded_at_ZspeedZ', [
+          `${(this.props.task.additional!.transfer!.size_uploaded / this.props.task.size).toFixed(2)}`,
           `${formatMetric1024(this.props.task.additional!.transfer!.size_uploaded)}B`,
           `${formatMetric1024(this.props.task.additional!.transfer!.speed_upload)}B/s`,
         ])
@@ -110,22 +112,24 @@ export class Task extends React.PureComponent<Props, State> {
     } else if (matchesFilter(this.props.task, 'completed')) {
       return renderStatusLine(
         'fa fa-check',
-        browser.i18n.getMessage('ZtotalZ_downloaded', [
+        browser.i18n.getMessage('100_ZtotalZ_downloaded', [
           `${formatMetric1024(this.props.task.size)}B`
         ])
       );
     } else if (matchesFilter(this.props.task, 'errored')) {
-      return renderStatusLine(
-        'fa fa-exclamation-circle',
+      return (
         <span className='intent-error'>
           <span className='fa fa-exclamation-triangle error-icon'/>
           {upperCase(this.props.task.status)} {this.props.task.status_extra ? `\u2013 ${startCase(this.props.task.status_extra.error_detail)}` : ''}
         </span>
       );
     } else {
+      const fraction = this.computeFractionComplete();
       return renderStatusLine(
         'far fa-clock',
-        browser.i18n.getMessage('ZcurrentZ_of_ZtotalZ_downloaded', [
+        browser.i18n.getMessage('ZstatusZ_ZpercentZ_ZcurrentZ_of_ZtotalZ_downloaded', [
+          upperCase(this.props.task.status),
+          (Number.isFinite(fraction) ? formatPercentage(fraction) : '0%'),
           `${formatMetric1024(this.props.task.additional!.transfer!.size_downloaded)}B`,
           `${formatMetric1024(this.props.task.size)}B`
         ])

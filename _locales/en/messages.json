@@ -182,30 +182,34 @@
     "message": "Pause",
     "description": "Tooltip for pause button on a task list item."
   },
-  "ZpercentZ_ZcurrentZ_of_ZtotalZ_at_ZspeedZ": {
-    "message": "$PERCENT$ ($CURRENT$ of $TOTAL$ at $SPEED$)",
+  "ZpercentZ_ZestimateZ_ZcurrentZ_of_ZtotalZ_at_ZspeedZ": {
+    "message": "$PERCENT$ \u2013 $ESTIMATE$ \u2013 $CURRENT$ of $TOTAL$ at $SPEED$",
     "description": "Subtitle prefix for currently-downloading task showing stats.",
     "placeholders": {
       "percent": {
         "content": "$1",
         "example": "65.5%"
       },
-      "current": {
+      "estimate": {
         "content": "$2",
+        "example": "1:23 remaining"
+      },
+      "current": {
+        "content": "$3",
         "example": "100KB"
       },
       "total": {
-        "content": "$3",
+        "content": "$4",
         "example": "10MB"
       },
       "speed": {
-        "content": "$4",
+        "content": "$5",
         "example": "50KB/s"
       }
     }
   },
-  "_ZetaZ_remaining": {
-    "message": " \u2013 $ETA$ remaining",
+  "ZetaZ_remaining": {
+    "message": "$ETA$ remaining",
     "description": "Subtitle suffix for currently-downloading task.",
     "placeholders": {
       "eta": {
@@ -214,26 +218,30 @@
       }
     }
   },
-  "_no_estimate": {
-    "message": " \u2013 no estimate",
+  "no_estimate": {
+    "message": "no estimate",
     "description": "Subtitle suffix for currently-downloading task."
   },
-  "ZtotalZ_uploaded_ZspeedZ": {
-    "message": "$TOTAL$ uploaded ($SPEED$)",
+  "ZratioZ_ratio_ZtotalZ_uploaded_at_ZspeedZ": {
+    "message": "$RATIO$ ratio \u2013 $TOTAL$ uploaded at $SPEED$",
     "description": "Subtitle for currently-uploading task showing stats.",
     "placeholders": {
-      "total": {
+      "ratio": {
         "content": "$1",
+        "example": "1.23"
+      },
+      "total": {
+        "content": "$2",
         "example": "10MB"
       },
       "speed": {
-        "content": "$2",
+        "content": "$3",
         "example": "50KB/s"
       }
     }
   },
-  "ZtotalZ_downloaded": {
-    "message": "$TOTAL$ downloaded",
+  "100_ZtotalZ_downloaded": {
+    "message": "100% \u2013 $TOTAL$ downloaded",
     "description": "Subtitle for completed, not-uploading task showing stats.",
     "placeholders": {
       "total": {
@@ -242,16 +250,24 @@
       }
     }
   },
-  "ZcurrentZ_of_ZtotalZ_downloaded": {
-    "message": "$CURRENT$ of $TOTAL$ downloaded",
+  "ZstatusZ_ZpercentZ_ZcurrentZ_of_ZtotalZ_downloaded": {
+    "message": "$STATUS$ \u2013 $PERCENT$ \u2013 $CURRENT$ of $TOTAL$ downloaded",
     "description": "Subtitle for status-unknown task showing stats (best effort).",
     "placeholders": {
-      "current": {
+      "status": {
         "content": "$1",
+        "example": "Paused"
+      },
+      "percent": {
+        "content": "$2",
+        "example": "1.23%"
+      },
+      "current": {
+        "content": "$3",
         "example": "100KB"
       },
       "total": {
-        "content": "$2",
+        "content": "$4",
         "example": "10MB"
       }
     }
