@@ -3,5 +3,9 @@
   "compilerOptions": {
     "module": "commonjs",
     "rootDir": ".."
-  }
+  },
+  "include": [
+    ".",
+    "../src/browser.d.ts"
+  ]
 }
