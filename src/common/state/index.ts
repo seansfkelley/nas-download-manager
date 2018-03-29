@@ -1,4 +1,5 @@
 import once from 'lodash-es/once';
+import mapValues from 'lodash-es/mapValues';
 
 import {
   Protocol,
@@ -163,4 +164,18 @@ function fetchStateAndNotify(listeners: ((state: State) => void)[]) {
     .then(state => {
       listeners.forEach(l => l(state));
     });
+}
+
+export function redactState(state: State): object {
+  const sanitizedConnection: Record<keyof ConnectionSettings, boolean | Protocol> = {
+    ...mapValues(state.connection, Boolean),
+    protocol: state.connection.protocol,
+  };
+
+  return {
+    ...state,
+    lastSevereError: state.lastSevereError ? '(omitted for brevity)' : undefined,
+    connection: sanitizedConnection,
+    tasks: state.tasks.length,
+  };
 }

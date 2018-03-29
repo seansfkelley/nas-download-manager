@@ -42,8 +42,8 @@ export interface CachedTasks_1 {
 
 export interface State_1 extends Settings_1, CachedTasks_1 {}
 
-export function state0to1(_state: null | undefined): Settings_1 {
-  const defaults: Settings_1 = {
+export function state0to1(_state: null | undefined): State_1 {
+  const defaults: State_1 = {
     connection: {
       protocol: 'https',
       hostname: '',
@@ -63,7 +63,11 @@ export function state0to1(_state: null | undefined): Settings_1 {
       enabled: false,
       pollingInterval: 60
     },
-    shouldHandleDownloadLinks: true
+    shouldHandleDownloadLinks: true,
+    tasks: [],
+    taskFetchFailureReason: null,
+    tasksLastInitiatedFetchTimestamp: null,
+    tasksLastCompletedFetchTimestamp: null,
   };
   return defaults;
 }

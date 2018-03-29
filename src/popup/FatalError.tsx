@@ -1,16 +1,21 @@
 import * as React from 'react';
+
 import { NoTasks } from './NoTasks';
 import { BUG_REPORT_URL } from '../common/constants';
+import { State as ExtensionState, redactState } from '../common/state';
 
 export interface Props {
   error: Error;
   errorInfo?: React.ErrorInfo | undefined;
+  state?: ExtensionState;
 }
 
 export class FatalError extends React.PureComponent<Props, {}> {
   render() {
-    const formattedError =
-`${this.props.error.name}: '${this.props.error.message}'
+    const formattedDebugLogs =
+`${this.props.state ? 'Redacted extension state: ' + JSON.stringify(redactState(this.props.state), null, 2) : '(no state provided)'}
+
+${this.props.error.name}: '${this.props.error.message}'
 ${this.props.error.stack ? 'Error stack trace: ' + this.props.error.stack.trim() : '(no Error stack)'}
 
 ${this.props.errorInfo ? 'React stack trace:' + this.props.errorInfo.componentStack : '(no React stack)'}`;
@@ -31,7 +36,7 @@ ${this.props.errorInfo ? 'React stack trace:' + this.props.errorInfo.componentSt
             {browser.i18n.getMessage('_and_include_the_information_below')}
           </span>
           <textarea
-            value={formattedError}
+            value={formattedDebugLogs}
             readOnly={true}
             onClick={e => { e.currentTarget.select(); }}
           />

@@ -9,6 +9,7 @@ import * as classNamesProxy from 'classnames';
 const classNames: typeof classNamesProxy = (classNamesProxy as any).default || classNamesProxy;
 
 import {
+  State as ExtensionState,
   Settings,
   Logging,
   Protocol,
@@ -18,6 +19,7 @@ import {
   TaskSortType,
   NotificationSettings,
   onStoredStateChange,
+  redactState,
   SETTING_NAMES
 } from '../common/state';
 import { BUG_REPORT_URL } from '../common/constants';
@@ -34,7 +36,7 @@ import { SettingsListCheckbox } from '../common/components/SettingsListCheckbox'
 import { ConnectionTestResultDisplay } from './ConnectionTestResultDisplay';
 
 interface SettingsFormProps {
-  initialSettings: Settings;
+  extensionState: ExtensionState;
   saveSettings: (settings: Settings) => Promise<boolean>;
   lastSevereError?: any;
   clearError: () => void;
@@ -80,7 +82,7 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
   state: SettingsFormState = {
     changedSettings: {},
     savingStatus: 'unchanged',
-    rawPollingInterval: this.props.initialSettings.notifications.completionPollingInterval.toString() || POLL_DEFAULT_INTERVAL.toString(),
+    rawPollingInterval: this.props.extensionState.notifications.completionPollingInterval.toString() || POLL_DEFAULT_INTERVAL.toString(),
     connectionTest: 'none',
     isConnectionTestSlow: false,
   };
@@ -277,6 +279,11 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
 
   private maybeRenderDebuggingOutputAndSeparator() {
     if (this.props.lastSevereError) {
+      const formattedDebugLogs =
+`Redacted extension state: ${JSON.stringify(redactState(this.props.extensionState), null, 2)}
+
+${this.props.lastSevereError}`;
+
       return (
         <>
           <div className='horizontal-separator'/>
@@ -296,7 +303,7 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
             <li>
               <textarea
                 className='debugging-output'
-                value={this.props.lastSevereError}
+                value={formattedDebugLogs}
                 readOnly={true}
                 onClick={e => { e.currentTarget.select(); }}
               />
@@ -457,7 +464,7 @@ class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormSt
   };
 
   private computeMergedSettings(): Settings {
-    return merge({}, this.props.initialSettings, this.state.changedSettings);
+    return merge(pick(this.props.extensionState, SETTING_NAMES) as Settings, this.state.changedSettings);
   }
 
   componentWillUnmount() {
@@ -477,7 +484,7 @@ const ELEMENT = document.getElementById('body')!;
 onStoredStateChange(state => {
   ReactDOM.render(
     <SettingsForm
-      initialSettings={pick(state, SETTING_NAMES) as Settings}
+      extensionState={state}
       saveSettings={saveSettings}
       lastSevereError={state.lastSevereError}
       clearError={clearError}

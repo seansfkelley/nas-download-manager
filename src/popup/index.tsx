@@ -101,7 +101,7 @@ class Popup extends React.PureComponent<PopupProps, State> {
     if (this.props.taskFetchFailureReason === 'missing-config') {
       text = browser.i18n.getMessage('Settings_unconfigured');
       tooltip = browser.i18n.getMessage('The_hostname_username_or_password_are_not_configured');
-      leftIcon = 'fa-gear';
+      leftIcon = 'fa-cog';
     } else if (this.props.tasksLastCompletedFetchTimestamp == null) {
       text = browser.i18n.getMessage('Updating');
       tooltip = browser.i18n.getMessage('Updating_download_tasks');
@@ -394,7 +394,7 @@ getSharedObjects()
           : undefined;
 
         ReactDOM.render(
-          <FatalErrorWrapper>
+          <FatalErrorWrapper state={storedState}>
             <Popup
               api={api}
               tasks={storedState.tasks}
