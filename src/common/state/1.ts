@@ -34,6 +34,7 @@ export interface Settings_1 {
 }
 
 export interface CachedTasks_1 {
+  cachedTasksVersion: number;
   tasks: DownloadStationTask[];
   taskFetchFailureReason: 'missing-config' | { failureMessage: string } | null;
   tasksLastInitiatedFetchTimestamp: number | null;
@@ -68,6 +69,7 @@ export function state0to1(_state: null | undefined): State_1 {
       pollingInterval: 60
     },
     shouldHandleDownloadLinks: true,
+    cachedTasksVersion: 1,
     tasks: [],
     taskFetchFailureReason: null,
     tasksLastInitiatedFetchTimestamp: null,

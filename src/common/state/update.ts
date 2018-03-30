@@ -1,8 +1,9 @@
 import { State, StateVersion } from './latest';
 import { state0to1 } from './1';
 import { state1to2 } from './2';
+import { state2to3 } from './3';
 
-const LATEST_STATE_VERSION: StateVersion['stateVersion'] = 2;
+const LATEST_STATE_VERSION: StateVersion['stateVersion'] = 3;
 
 interface AnyStateVersion {
   stateVersion: number;
@@ -15,6 +16,7 @@ function isVersioned(state: any): state is AnyStateVersion {
 const STATE_TRANSFORMS: ((state: any) => any)[] = [
   state0to1,
   state1to2,
+  state2to3,
 ];
 
 export function updateStateToLatest(state: any | null): State {
@@ -44,8 +46,7 @@ export function updateStateToLatest(state: any | null): State {
     throw new Error(`cannot downgrade state shape from ${version} to ${LATEST_STATE_VERSION}`);
   }
 
-  STATE_TRANSFORMS.slice(version).forEach((transform, i) => {
-    console.log(`updating state shape to version ${i + version + 1}`);
+  STATE_TRANSFORMS.slice(version).forEach(transform => {
     state = transform(state);
   });
 
