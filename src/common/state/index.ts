@@ -26,7 +26,7 @@ const _protocolNames: Record<Protocol, true> = {
 export const PROTOCOLS = Object.keys(_protocolNames) as Protocol[];
 
 export interface StateMeta {
-  stateVersion?: number;
+  stateVersion: number;
 }
 
 export interface StateWithMeta extends State, StateMeta {}
@@ -111,24 +111,29 @@ const STATE_TRANSFORMS: ((state: any) => any)[] = [
   state1to2,
 ];
 
+// Exported for testing.
+export function _updateStateToLatest(state: any): StateWithMeta {
+  // state.tasks existing is implicitly the same as version 1 because version 1 was the shape
+  // of the state when this more-formal system was created. state.tasks is a good value to check
+  // because it is very likely to exist. If it doesn't, the user never successfully logged in
+  // and it's probably fine to wipe their state clean.
+  const version = ((state as StateMeta).stateVersion) || (state.tasks != null ? 1 : 0);
+  STATE_TRANSFORMS.slice(version).forEach((transform, i) => {
+    console.log(`updating state shape to version ${i + version + 1}`);
+    state = transform(state);
+  });
+  const stateMeta: StateMeta = { stateVersion: STATE_VERSION };
+  return {
+    ...state,
+    ...stateMeta,
+  };
+}
+
 export function updateStateShapeIfNecessary() {
   function updateStateToLatest() {
     return browser.storage.local.get<any>(null)
       .then(state => {
-        // state.tasks existing is implicitly the same as version 1 because version 1 was the shape
-        // of the state when this more-formal system was created. state.tasks is a good value to check
-        // because it is very likely to exist. If it doesn't, the user never successfully logged in
-        // and it's probably fine to wipe their state clean.
-        const version = ((state as StateMeta).stateVersion) || (state.tasks != null ? 1 : 0);
-        STATE_TRANSFORMS.slice(version).forEach((transform, i) => {
-          console.log(`updating state shape to version ${i + version + 1}`);
-          state = transform(state);
-        });
-        const stateMeta: StateMeta = { stateVersion: STATE_VERSION };
-        return browser.storage.local.set({
-          ...state,
-          ...stateMeta,
-        });
+        return browser.storage.local.set(_updateStateToLatest(state));
       });
   }
 
