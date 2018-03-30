@@ -4,12 +4,10 @@ import mapValues from 'lodash-es/mapValues';
 import {
   Protocol,
   Settings,
-  CachedTasks,
   VisibleTaskSettings,
   TaskSortType,
   ConnectionSettings,
   State,
-  Logging,
   StateVersion,
 } from './latest';
 import { state0to1 } from './1';
@@ -17,7 +15,7 @@ import { state1to2 } from './2';
 
 export * from './latest';
 
-const LATEST_STATE_VERSION: typeof (StateVersion['stateVersion']) = 2;
+const LATEST_STATE_VERSION: StateVersion['stateVersion'] = 2;
 
 interface AnyStateVersion {
   stateVersion: number;
@@ -46,20 +44,14 @@ const _settingNames: Record<keyof Settings, true> = {
 
 export const SETTING_NAMES = Object.keys(_settingNames) as (keyof Settings)[];
 
-const _versionNames: Record<keyof StateVersion, true> = {
-  'stateVersion': true,
-};
-
-const VERSION_NAMES = Object.keys(_versionNames) as (keyof StateVersion)[];
-
 const _allStateNames: Record<keyof State, true> = {
   ..._settingNames,
-  ..._versionNames,
   'tasks': true,
   'taskFetchFailureReason': true,
   'tasksLastInitiatedFetchTimestamp': true,
   'tasksLastCompletedFetchTimestamp': true,
   'lastSevereError': true,
+  'stateVersion': true,
 };
 
 const ALL_STORED_STATE_NAMES = Object.keys(_allStateNames) as (keyof Settings)[];
