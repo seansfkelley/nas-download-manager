@@ -40,7 +40,11 @@ export interface CachedTasks_1 {
   tasksLastCompletedFetchTimestamp: number | null;
 }
 
-export interface State_1 extends Settings_1, CachedTasks_1 {}
+export interface StateVersion_1 {
+  stateVersion: 1;
+}
+
+export interface State_1 extends Settings_1, CachedTasks_1, StateVersion_1 {}
 
 export function state0to1(_state: null | undefined): State_1 {
   const defaults: State_1 = {
@@ -68,6 +72,7 @@ export function state0to1(_state: null | undefined): State_1 {
     taskFetchFailureReason: null,
     tasksLastInitiatedFetchTimestamp: null,
     tasksLastCompletedFetchTimestamp: null,
+    stateVersion: 1,
   };
   return defaults;
 }

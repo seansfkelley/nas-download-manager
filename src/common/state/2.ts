@@ -32,7 +32,11 @@ export interface Logging_2 {
   lastSevereError?: any;
 }
 
-export interface State_2 extends Settings_2, CachedTasks_1, Logging_2 {}
+export interface StateVersion_2 {
+  stateVersion: 2;
+}
+
+export interface State_2 extends Settings_2, CachedTasks_1, Logging_2, StateVersion_2 {}
 
 export function state1to2(state: State_1): State_2 {
   return {
@@ -46,6 +50,7 @@ export function state1to2(state: State_1): State_2 {
       enableFeedbackNotifications: true,
       enableCompletionNotifications: state.notifications.enabled,
       completionPollingInterval: state.notifications.pollingInterval,
-    }
+    },
+    stateVersion: 2,
   };
 }

@@ -2,7 +2,7 @@ import 'mocha';
 import { expect } from 'chai';
 
 import { DownloadStationTask } from 'synology-typescript-api';
-import { _updateStateToLatest, State, StateMeta } from '../src/common/state';
+import { _updateStateToLatest, State } from '../src/common/state';
 import { State_1 } from '../src/common/state/1';
 import { State_2 } from '../src/common/state/2';
 
@@ -46,7 +46,7 @@ const DUMMY_TASK: DownloadStationTask = {
   status: 'downloading',
 };
 
-const UP_TO_DATE_STATE: State & StateMeta = {
+const UP_TO_DATE_STATE: State = {
   connection: {
     protocol: 'http',
     hostname: 'hostname',
@@ -72,6 +72,7 @@ const UP_TO_DATE_STATE: State & StateMeta = {
   taskFetchFailureReason: 'missing-config',
   tasksLastCompletedFetchTimestamp: 0,
   tasksLastInitiatedFetchTimestamp: 0,
+  stateVersion: 2,
 };
 
 // TODO: Interface for incorrect-version-2-with-missing-properties?
@@ -143,7 +144,7 @@ describe('state versioning', () => {
   });
 
   it('should update to the latest version from version 1', () => {
-    const before: State_1 & StateMeta = {
+    const before: State_1 = {
       connection: {
         protocol: 'http',
         hostname: 'hostname',
@@ -175,7 +176,7 @@ describe('state versioning', () => {
   });
 
   it('should update to the latest version from version 2', () => {
-    const before: State_2 & StateMeta = {
+    const before: State_2 = {
       connection: {
         protocol: 'http',
         hostname: 'hostname',
@@ -239,4 +240,8 @@ describe('state versioning', () => {
 
   //   expect(_updateStateToLatest(before)).to.deep.equal(UP_TO_DATE_STATE);
   // });
+
+  it('should throw an error if the state version is too new', () => {
+    expect(() => _updateStateToLatest({ stateVersion: 999 })).to.throw('cannot downgrade');
+  });
 });

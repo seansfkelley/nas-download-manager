@@ -8,4 +8,5 @@ export {
   State_2 as State,
   ConnectionSettings_1 as ConnectionSettings,
   Logging_2 as Logging,
+  StateVersion_2 as StateVersion,
 } from './2';
