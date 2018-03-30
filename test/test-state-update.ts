@@ -2,7 +2,8 @@ import 'mocha';
 import { expect } from 'chai';
 
 import { DownloadStationTask } from 'synology-typescript-api';
-import { _updateStateToLatest, State } from '../src/common/state';
+import { updateStateToLatest } from '../src/common/state/update';
+import { State } from '../src/common/state/latest';
 import { State_1 } from '../src/common/state/1';
 import { State_2 } from '../src/common/state/2';
 
@@ -107,7 +108,7 @@ describe('state versioning', () => {
       tasksLastInitiatedFetchTimestamp: 0,
     };
 
-    expect(_updateStateToLatest(before)).to.deep.equal(UP_TO_DATE_STATE);
+    expect(updateStateToLatest(before)).to.deep.equal(UP_TO_DATE_STATE);
   });
 
   it('should update to the latest version from pre-version 1', () => {
@@ -139,11 +140,11 @@ describe('state versioning', () => {
       cachedTasksVersion: 0,
     };
 
-    expect(_updateStateToLatest(before)).to.deep.equal(UP_TO_DATE_STATE);
+    expect(updateStateToLatest(before)).to.deep.equal(UP_TO_DATE_STATE);
   });
 
   it('should update to the latest version from version 0 (no state)', () => {
-    expect(_updateStateToLatest(null)).to.deep.equal(UP_TO_DATE_STATE);
+    expect(updateStateToLatest(null)).to.deep.equal(UP_TO_DATE_STATE);
   });
 
   it('should update to the latest version from version 1', () => {
@@ -175,7 +176,7 @@ describe('state versioning', () => {
       stateVersion: 1,
     };
 
-    expect(_updateStateToLatest(before)).to.deep.equal(UP_TO_DATE_STATE);
+    expect(updateStateToLatest(before)).to.deep.equal(UP_TO_DATE_STATE);
   });
 
   it('should update to the latest version from version 2', () => {
@@ -208,7 +209,7 @@ describe('state versioning', () => {
       stateVersion: 2,
     };
 
-    expect(_updateStateToLatest(before)).to.deep.equal(UP_TO_DATE_STATE);
+    expect(updateStateToLatest(before)).to.deep.equal(UP_TO_DATE_STATE);
   });
 
   it('should update to the latest version from an erroneous version 2 missing fields', () => {
@@ -239,7 +240,7 @@ describe('state versioning', () => {
       stateVersion: 2,
     };
 
-    expect(_updateStateToLatest(before)).to.deep.equal(UP_TO_DATE_STATE);
+    expect(updateStateToLatest(before)).to.deep.equal(UP_TO_DATE_STATE);
   });
 
   // it('should do nothing when the state is already version 3', () => {
@@ -272,10 +273,10 @@ describe('state versioning', () => {
   //     stateVersion: 2,
   //   };
 
-  //   expect(_updateStateToLatest(before)).to.deep.equal(UP_TO_DATE_STATE);
+  //   expect(updateStateToLatest(before)).to.deep.equal(UP_TO_DATE_STATE);
   // });
 
   it('should throw an error if the state version is too new', () => {
-    expect(() => _updateStateToLatest({ stateVersion: 999 })).to.throw('cannot downgrade');
+    expect(() => updateStateToLatest({ stateVersion: 999 })).to.throw('cannot downgrade');
   });
 });
