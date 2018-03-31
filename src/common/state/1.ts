@@ -34,13 +34,18 @@ export interface Settings_1 {
 }
 
 export interface CachedTasks_1 {
+  cachedTasksVersion: number;
   tasks: DownloadStationTask[];
   taskFetchFailureReason: 'missing-config' | { failureMessage: string } | null;
   tasksLastInitiatedFetchTimestamp: number | null;
   tasksLastCompletedFetchTimestamp: number | null;
 }
 
-export interface State_1 extends Settings_1, CachedTasks_1 {}
+export interface StateVersion_1 {
+  stateVersion: 1;
+}
+
+export interface State_1 extends Settings_1, CachedTasks_1, StateVersion_1 {}
 
 export function state0to1(_state: null | undefined): State_1 {
   const defaults: State_1 = {
@@ -64,10 +69,12 @@ export function state0to1(_state: null | undefined): State_1 {
       pollingInterval: 60
     },
     shouldHandleDownloadLinks: true,
+    cachedTasksVersion: 1,
     tasks: [],
     taskFetchFailureReason: null,
     tasksLastInitiatedFetchTimestamp: null,
     tasksLastCompletedFetchTimestamp: null,
+    stateVersion: 1,
   };
   return defaults;
 }
