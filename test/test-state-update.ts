@@ -103,6 +103,7 @@ describe('state versioning', () => {
       taskFetchFailureReason: null,
       tasksLastCompletedFetchTimestamp: null,
       tasksLastInitiatedFetchTimestamp: null,
+      lastSevereError: undefined,
       stateVersion: 3,
     };
 
@@ -165,6 +166,7 @@ describe('state versioning', () => {
       taskFetchFailureReason: null,
       tasksLastCompletedFetchTimestamp: null,
       tasksLastInitiatedFetchTimestamp: null,
+      lastSevereError: undefined,
       stateVersion: 3,
     };
 
@@ -199,6 +201,7 @@ describe('state versioning', () => {
       taskFetchFailureReason: null,
       tasksLastCompletedFetchTimestamp: null,
       tasksLastInitiatedFetchTimestamp: null,
+      lastSevereError: undefined,
       stateVersion: 3,
     };
 
@@ -261,6 +264,7 @@ describe('state versioning', () => {
       taskFetchFailureReason: null,
       tasksLastCompletedFetchTimestamp: null,
       tasksLastInitiatedFetchTimestamp: null,
+      lastSevereError: undefined,
       stateVersion: 3,
     };
 
@@ -295,6 +299,7 @@ describe('state versioning', () => {
       tasksLastCompletedFetchTimestamp: 0,
       tasksLastInitiatedFetchTimestamp: 0,
       shouldHandleDownloadLinks: true,
+      lastSevereError: new Error(),
       stateVersion: 2,
     };
 
@@ -324,6 +329,7 @@ describe('state versioning', () => {
       taskFetchFailureReason: 'missing-config',
       tasksLastCompletedFetchTimestamp: 0,
       tasksLastInitiatedFetchTimestamp: 0,
+      lastSevereError: undefined,
       stateVersion: 3,
     };
 
@@ -356,6 +362,7 @@ describe('state versioning', () => {
       taskFetchFailureReason: 'missing-config',
       tasksLastCompletedFetchTimestamp: 0,
       tasksLastInitiatedFetchTimestamp: 0,
+      lastSevereError: new Error(),
       stateVersion: 2,
     };
 
@@ -385,6 +392,7 @@ describe('state versioning', () => {
       taskFetchFailureReason: 'missing-config',
       tasksLastCompletedFetchTimestamp: 0,
       tasksLastInitiatedFetchTimestamp: 0,
+      lastSevereError: undefined,
       stateVersion: 3,
     };
 
@@ -419,6 +427,7 @@ describe('state versioning', () => {
       tasksLastCompletedFetchTimestamp: 0,
       tasksLastInitiatedFetchTimestamp: 0,
       shouldHandleDownloadLinks: true,
+      lastSevereError: undefined,
       stateVersion: 3,
     };
 

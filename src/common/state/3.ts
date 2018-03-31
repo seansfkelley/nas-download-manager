@@ -27,6 +27,7 @@ export function state2to3(state: State_2): State_3 {
     shouldHandleDownloadLinks: true,
     taskSortType: 'name-asc',
     ...state,
+    lastSevereError: undefined,
     stateVersion: 3,
   };
 }
