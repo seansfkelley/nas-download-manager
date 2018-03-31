@@ -41,7 +41,7 @@ const _allStateNames: Record<keyof State, true> = {
   'stateVersion': true,
 };
 
-const ALL_STORED_STATE_NAMES = Object.keys(_allStateNames) as (keyof Settings)[];
+const ALL_STORED_STATE_NAMES = Object.keys(_allStateNames) as (keyof State)[];
 
 export const ORDERED_VISIBLE_TASK_TYPE_NAMES: Record<keyof VisibleTaskSettings, string> = {
   downloading: browser.i18n.getMessage('Downloading'),
