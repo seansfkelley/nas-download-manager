@@ -24,11 +24,7 @@ export function updateStateToLatest(state: any | null): State {
     if (state == null) {
       return 0;
     } else if (isVersioned(state)) {
-      if (state.stateVersion == null) {
-        return 0;
-      } else {
-        return state.stateVersion;
-      }
+      return state.stateVersion;
     } else if (state.tasks != null) {
       // state.tasks existing is implicitly the same as version 1 because version 1 was the shape
       // of the state when this more-formal system was created. state.tasks is a good value to check
