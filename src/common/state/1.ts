@@ -48,10 +48,6 @@ export interface StateVersion_1 {
 export interface State_1 extends Settings_1, CachedTasks_1, StateVersion_1 {}
 
 export function state0to1(_state: null | undefined): State_1 {
-  return generateDefaultState();
-}
-
-export function generateDefaultState(): State_1 {
   return {
     connection: {
       protocol: 'https',
