@@ -174,6 +174,40 @@ describe('state versioning', () => {
     expect(updateStateToLatest(before)).to.deep.equal(after);
   });
 
+  it('should update to the latest version with a degenerate tasks-only state', () => {
+    const after: LatestState = {
+      connection: {
+        protocol: 'https',
+        hostname: '',
+        port: 5001,
+        username: '',
+        password: '',
+      },
+      visibleTasks: {
+        downloading: true,
+        uploading: true,
+        completed: true,
+        errored: true,
+        other: true,
+      },
+      notifications: {
+        enableCompletionNotifications: false,
+        enableFeedbackNotifications: true,
+        completionPollingInterval: 60,
+      },
+      shouldHandleDownloadLinks: true,
+      taskSortType: 'name-asc',
+      tasks: [],
+      taskFetchFailureReason: null,
+      tasksLastCompletedFetchTimestamp: null,
+      tasksLastInitiatedFetchTimestamp: null,
+      lastSevereError: undefined,
+      stateVersion: 3,
+    };
+
+    expect(updateStateToLatest({ tasks: [] })).to.deep.equal(after);
+  });
+
   it('should update to the latest version from version 0 (no state)', () => {
     const after: LatestState = {
       connection: {

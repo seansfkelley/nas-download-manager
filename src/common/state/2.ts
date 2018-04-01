@@ -1,5 +1,6 @@
 import { DownloadStationTask } from 'synology-typescript-api';
 import { Omit } from '../lang';
+import { generateDefaultState } from './1';
 
 export {
   Protocol_1,
@@ -47,7 +48,10 @@ export interface StateVersion_2 {
 export interface State_2 extends Settings_2, CachedTasks_2, Logging_2, StateVersion_2 {}
 
 export function state1to2(state: State_1): State_2 {
-  state = { ...state };
+  state = {
+    ...generateDefaultState(),
+    ...state,
+  };
   delete state.cachedTasksVersion;
   return {
     ...(state as Omit<State_1, 'cachedTasksVersion'>),
