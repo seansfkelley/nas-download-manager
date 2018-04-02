@@ -1,6 +1,7 @@
 import '../common/init/extensionContext';
 import pick from 'lodash-es/pick';
 import merge from 'lodash-es/merge';
+import cloneDeep from 'lodash-es/cloneDeep';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import * as classNamesProxy from 'classnames';
@@ -35,14 +36,14 @@ import { SettingsList } from '../common/components/SettingsList';
 import { SettingsListCheckbox } from '../common/components/SettingsListCheckbox';
 import { ConnectionTestResultDisplay } from './ConnectionTestResultDisplay';
 
-interface SettingsFormProps {
+interface Props {
   extensionState: ExtensionState;
   saveSettings: (settings: Settings) => Promise<boolean>;
   lastSevereError?: any;
   clearError: () => void;
 }
 
-interface SettingsFormState {
+interface State {
   changedSettings: { [K in keyof Settings]?: Partial<Settings[K]> };
   connectionTest: 'none' | 'in-progress' | ConnectionTestResult;
   isConnectionTestSlow: boolean;
@@ -76,10 +77,10 @@ function disabledPropAndClassName(disabled: boolean, otherClassNames?: string) {
   };
 }
 
-class SettingsForm extends React.PureComponent<SettingsFormProps, SettingsFormState> {
+class SettingsForm extends React.PureComponent<Props, State> {
   private connectionTestSlowTimeout?: number;
 
-  state: SettingsFormState = {
+  state: State = {
     changedSettings: {},
     savingStatus: 'unchanged',
     rawPollingInterval: this.props.extensionState.notifications.completionPollingInterval.toString() || POLL_DEFAULT_INTERVAL.toString(),
@@ -323,27 +324,22 @@ ${this.props.lastSevereError}`;
   }
 
   private renderSaveButtonFooter() {
-    let text: string | null;
-
-    switch (this.state.savingStatus) {
-      case 'in-progress':
-        text = browser.i18n.getMessage('Checking_connection');
-        break;
-      case 'unchanged':
-        text = browser.i18n.getMessage('No_changes_to_save');
-        break;
-      case 'saved':
-        text = browser.i18n.getMessage('Changes_saved');
-        break;
-      case 'failed':
-        text = browser.i18n.getMessage('Save_failed_check_your_connection_settings');
-        break;
-      case 'pending-changes':
-        text = null;
-        break;
-      default:
-        return assertNever(this.state.savingStatus);
-    }
+    const text = (function(savingStatus) {
+      switch (savingStatus) {
+        case 'in-progress':
+          return browser.i18n.getMessage('Checking_connection');
+        case 'unchanged':
+          return browser.i18n.getMessage('No_changes_to_save');
+        case 'saved':
+          return browser.i18n.getMessage('Changes_saved');
+        case 'failed':
+          return browser.i18n.getMessage('Save_failed_check_your_connection_settings');
+        case 'pending-changes':
+          return null;
+        default:
+          return assertNever(savingStatus);
+      }
+    })(this.state.savingStatus);
 
     const isDisabled = (
       this.state.savingStatus === 'in-progress' ||
@@ -375,9 +371,9 @@ ${this.props.lastSevereError}`;
         ...this.state.changedSettings,
         connection: {
           ...this.state.changedSettings.connection,
-          [key as string]: value
-        }
-      }
+          [key as string]: value,
+        },
+      },
     });
   }
 
@@ -388,9 +384,9 @@ ${this.props.lastSevereError}`;
         ...this.state.changedSettings,
         visibleTasks: {
           ...this.state.changedSettings.visibleTasks,
-          [taskType]: visibility
-        }
-      }
+          [taskType]: visibility,
+        },
+      },
     });
   };
 
@@ -399,8 +395,8 @@ ${this.props.lastSevereError}`;
       savingStatus: 'pending-changes',
       changedSettings: {
         ...this.state.changedSettings,
-        taskSortType
-      }
+        taskSortType,
+      },
     });
   };
 
@@ -411,9 +407,9 @@ ${this.props.lastSevereError}`;
         ...this.state.changedSettings,
         notifications: {
           ...this.state.changedSettings.notifications,
-          [key as string]: value
-        }
-      }
+          [key as string]: value,
+        },
+      },
     });
   }
 
@@ -422,8 +418,8 @@ ${this.props.lastSevereError}`;
       savingStatus: 'pending-changes',
       changedSettings: {
         ...this.state.changedSettings,
-        shouldHandleDownloadLinks
-      }
+        shouldHandleDownloadLinks,
+      },
     });
   }
 
@@ -432,12 +428,12 @@ ${this.props.lastSevereError}`;
 
     this.setState({
       connectionTest: 'in-progress',
-      isConnectionTestSlow: false
+      isConnectionTestSlow: false,
     });
 
     this.connectionTestSlowTimeout = setTimeout(() => {
       this.setState({
-        isConnectionTestSlow: true
+        isConnectionTestSlow: true,
       });
     }, 5000) as any as number;
 
@@ -446,25 +442,25 @@ ${this.props.lastSevereError}`;
         clearTimeout(this.connectionTestSlowTimeout!);
         this.setState({
           connectionTest: result,
-          isConnectionTestSlow: false
+          isConnectionTestSlow: false,
         });
       });
   };
 
   private saveSettings = () => {
     this.setState({
-      savingStatus: 'in-progress'
+      savingStatus: 'in-progress',
     });
 
     this.props.saveSettings(this.computeMergedSettings())
       .then(success => this.setState({
         changedSettings: success ? {} : this.state.changedSettings,
-        savingStatus: success ? 'saved' : 'failed'
+        savingStatus: success ? 'saved' : 'failed',
       }));
   };
 
   private computeMergedSettings(): Settings {
-    return merge(pick(this.props.extensionState, SETTING_NAMES) as Settings, this.state.changedSettings);
+    return merge(cloneDeep(pick(this.props.extensionState, SETTING_NAMES) as Settings), this.state.changedSettings);
   }
 
   componentWillUnmount() {
