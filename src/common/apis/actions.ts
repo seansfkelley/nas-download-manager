@@ -203,15 +203,28 @@ export function addDownloadTaskAndPoll(api: ApiClient, showNonErrorNotifications
 
   if (url) {
     if (startsWithAnyProtocol(url, AUTO_DOWNLOAD_TORRENT_FILE_PROTOCOLS)) {
+      const urlWithoutQuery = url.indexOf('?') !== -1 ? url.slice(0, url.indexOf('?')) : url;
+
       return Axios.head(url, { timeout: 10000 })
         .then(response => {
-          const contentType = response.headers['content-type'].toLowerCase();
+          const contentType = (response.headers['content-type'] || '').toLowerCase();
           const contentLength = response.headers['content-length'];
-          const urlWithoutQuery = url.indexOf('?') !== -1 ? url.slice(0, url.indexOf('?')) : url;
           const metadataFileType = find(METADATA_FILE_TYPES, fileType =>
             contentType.includes(fileType.mediaType) || urlWithoutQuery.endsWith(fileType.extension)
           );
-          if (metadataFileType && !isNaN(+contentLength) && +contentLength < ARBITRARY_FILE_FETCH_SIZE_CUTOFF) {
+          return metadataFileType && !isNaN(+contentLength) && +contentLength < ARBITRARY_FILE_FETCH_SIZE_CUTOFF
+            ? metadataFileType
+            : undefined;
+        })
+        .catch(e => {
+          if (e && e.response && e.response.status === 405) {
+            return Promise.resolve(undefined);
+          } else {
+            throw e;
+          }
+        })
+        .then(metadataFileType => {
+          if (metadataFileType != null) {
             return Axios.get(url, { responseType: 'arraybuffer', timeout: 10000 })
               .then(response => {
                 const content = new Blob([ response.data ], { type: metadataFileType.mediaType });
