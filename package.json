@@ -11,7 +11,8 @@
     "build:bundle": "node build.js",
     "watch:bundle": "node build.js -w",
     "build": "rimraf lib dist && npm run build:transpile && npm run build:bundle && npm run build:styles",
-    "zip": "rimraf addon.zip && zip -r addon.zip . -i 'dist/*' -i 'html/*' -i 'icons/*' -i 'vendor/*' -i '_locales/*' -i 'manifest.json' -x '**/*.map' -x '**/.DS_Store'"
+    "zip": "rimraf addon.zip && zip -r addon.zip . -i 'dist/*' -i 'html/*' -i 'icons/*' -i 'vendor/*' -i '_locales/*' -i 'manifest.json' -x '**/*.map' -x '**/.DS_Store'",
+    "zip-sources": "rimraf sources.zip && zip -r sources.zip . -x '*.zip' -x 'lib/*' -x 'dist/*' -x 'node_modules/*' -x '**/.DS_Store' -x '.git/*'"
   },
   "repository": {
     "type": "git",
