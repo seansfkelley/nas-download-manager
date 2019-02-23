@@ -1,25 +1,15 @@
-import { DownloadStationTask } from 'synology-typescript-api';
-import { Omit } from '../lang';
-import { state0to1 } from './1';
+import { DownloadStationTask } from "synology-typescript-api";
+import { Omit } from "../lang";
+import { state0to1 } from "./1";
 
-export {
-  Protocol_1,
-  VisibleTaskSettings_1,
-  TaskSortType_1,
-  ConnectionSettings_1,
-} from './1';
+export { Protocol_1, VisibleTaskSettings_1, TaskSortType_1, ConnectionSettings_1 } from "./1";
 
-import {
-  State_1,
-  ConnectionSettings_1,
-  VisibleTaskSettings_1,
-  TaskSortType_1,
- } from './1';
+import { State_1, ConnectionSettings_1, VisibleTaskSettings_1, TaskSortType_1 } from "./1";
 
 export interface NotificationSettings_2 {
-  enableFeedbackNotifications: boolean,
-  enableCompletionNotifications: boolean,
-  completionPollingInterval: number,
+  enableFeedbackNotifications: boolean;
+  enableCompletionNotifications: boolean;
+  completionPollingInterval: number;
 }
 
 export interface Settings_2 {
@@ -32,7 +22,7 @@ export interface Settings_2 {
 
 export interface CachedTasks_2 {
   tasks: DownloadStationTask[];
-  taskFetchFailureReason: 'missing-config' | { failureMessage: string } | null;
+  taskFetchFailureReason: "missing-config" | { failureMessage: string } | null;
   tasksLastInitiatedFetchTimestamp: number | null;
   tasksLastCompletedFetchTimestamp: number | null;
 }
@@ -54,7 +44,7 @@ export function state1to2(state: State_1): State_2 {
   };
   delete state.cachedTasksVersion;
   return {
-    ...(state as Omit<State_1, 'cachedTasksVersion'>),
+    ...(state as Omit<State_1, "cachedTasksVersion">),
     // Clear tasks as we changed the shape of the request.
     tasks: [],
     taskFetchFailureReason: null,

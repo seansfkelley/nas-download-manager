@@ -1,7 +1,7 @@
-@import 'colors';
-@import 'common';
-@import 'advanced-add-download-form';
-@import 'task-filter-settings-form';
+@import "colors";
+@import "common";
+@import "advanced-add-download-form";
+@import "task-filter-settings-form";
 
 // Weird stuff happens when the contents of the popup change the size of the actual popup's container.
 // In particular, stuff gets extra weird over some internal arbitrary height limit that Chrome has, an
@@ -28,7 +28,10 @@ body {
   margin: 0;
 }
 
-html, body, #body, .popup {
+html,
+body,
+#body,
+.popup {
   // Using 100% here should work, but it doesn't. The browser popup must do something weird
   // such that it changes width depending on the contents, even when it's 100% of the <html>
   // width (which is explicitly specified). :/
@@ -159,7 +162,8 @@ html, body, #body, .popup {
 }
 
 .fatal-error {
-  .further-explanation, textarea {
+  .further-explanation,
+  textarea {
     margin: 10px 10px 0;
   }
 
@@ -202,7 +206,8 @@ html, body, #body, .popup {
           margin-right: auto;
           overflow: hidden;
 
-          .name, .status {
+          .name,
+          .status {
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -226,7 +231,8 @@ html, body, #body, .popup {
           color: $color-error;
         }
 
-        .remove-button, .pause-resume-button {
+        .remove-button,
+        .pause-resume-button {
           .fa {
             font-size: 14px;
           }
@@ -283,7 +289,8 @@ html, body, #body, .popup {
       }
 
       &:not(:hover) .header {
-        .remove-button, .pause-resume-button {
+        .remove-button,
+        .pause-resume-button {
           display: none;
         }
       }

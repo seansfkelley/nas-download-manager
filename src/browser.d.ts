@@ -3,11 +3,14 @@ interface StorageChange<T> {
   newValue?: T;
 }
 
-type StorageChangeEvent<T> = { [K in keyof T]?: StorageChange<T[K]>; };
+type StorageChangeEvent<T> = { [K in keyof T]?: StorageChange<T[K]> };
 
-type StorageChangeListener<T> = (changes: StorageChangeEvent<T>, areaName: 'sync' | 'local' | 'managed') => void;
+type StorageChangeListener<T> = (
+  changes: StorageChangeEvent<T>,
+  areaName: "sync" | "local" | "managed",
+) => void;
 
-type NotificationTemplateType = 'basic' | 'image' | 'list' | 'progress';
+type NotificationTemplateType = "basic" | "image" | "list" | "progress";
 
 interface NotificationOptions {
   type: NotificationTemplateType;
@@ -42,13 +45,13 @@ interface Tab {
   mutedInfo?: {
     extensionId?: string;
     muted: boolean;
-    reason?: 'capture' | 'extension' | 'user';
+    reason?: "capture" | "extension" | "user";
   };
   openerTabId?: number;
   pinned: boolean;
   selected: boolean;
   sessionId?: string;
-  status?: 'loading' | 'complete';
+  status?: "loading" | "complete";
   title?: string;
   url?: string;
   width?: number;
@@ -65,18 +68,31 @@ interface TabCreateOptions {
   url?: string;
 }
 
-type ContextMenusItemType = 'normal' | 'checkbox' | 'radio' | 'separator';
+type ContextMenusItemType = "normal" | "checkbox" | "radio" | "separator";
 
-type ContextsMenuContextType = 'all' | 'audio' | 'browser_action' | 'editable' | 'frame' | 'image' | 'link' | 'page' | 'page_action' | 'password' | 'selection' | 'tab' | 'video';
+type ContextsMenuContextType =
+  | "all"
+  | "audio"
+  | "browser_action"
+  | "editable"
+  | "frame"
+  | "image"
+  | "link"
+  | "page"
+  | "page_action"
+  | "password"
+  | "selection"
+  | "tab"
+  | "video";
 
 interface ContextMenusOnClickData {
   checked?: boolean;
   editable: boolean;
   frameUrl?: string;
   linkUrl?: string;
-  mediaType?: 'image' | 'video' | 'audio';
+  mediaType?: "image" | "video" | "audio";
   menuItemId: number | string;
-  modifiers: ('Command' | 'Ctrl' | 'MacCtrl' | 'Shift')[];
+  modifiers: ("Command" | "Ctrl" | "MacCtrl" | "Shift")[];
   pageUrl?: string;
   parentMenuItemId?: number | string;
   selectionText?: string;
@@ -97,7 +113,7 @@ interface ContextMenusCreateOptions {
   enabled?: boolean;
 }
 
-type ColorArray = [ number, number, number, number ];
+type ColorArray = [number, number, number, number];
 
 interface SendMessageOptions {
   includeTlsChannelIdOptional?: boolean;
@@ -107,16 +123,24 @@ interface SendMessageOptions {
 // TODO, but I don't actually need this...
 type MessageSender = { __messageSenderBrand: any };
 
-type OnMessageListener = (message: object | null | undefined, sender: MessageSender, sendResponse: (response: object) => void) => (Promise<object | void> | boolean | void);
+type OnMessageListener = (
+  message: object | null | undefined,
+  sender: MessageSender,
+  sendResponse: (response: object) => void,
+) => Promise<object | void> | boolean | void;
 
 declare const browser: {
   extension: {
     getURL: (relativeUrl: string) => string;
   };
   browserAction: {
-    setBadgeText: (options: { text: string; tabId?: number; }) => void;
+    setBadgeText: (options: { text: string; tabId?: number }) => void;
     setBadgeBackgroundColor: (options: { color: string | ColorArray; tabId?: number }) => void;
-    setIcon: (options: { imageData?: ImageData | Record<string, ImageData>; path?: string | Record<string, string>; tabId?: number; }) => Promise<void>;
+    setIcon: (options: {
+      imageData?: ImageData | Record<string, ImageData>;
+      path?: string | Record<string, string>;
+      tabId?: number;
+    }) => Promise<void>;
   };
   runtime: {
     openOptionsPage: () => Promise<void>;

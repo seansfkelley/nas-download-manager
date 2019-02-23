@@ -25,12 +25,15 @@ select {
     border: 1px solid #858585;
   }
 
-  &.disabled, &:disabled {
+  &.disabled,
+  &:disabled {
     color: #999;
-    opacity: .5;
+    opacity: 0.5;
   }
 
-  &.focused, &:focus, &:focus:hover {
+  &.focused,
+  &:focus,
+  &:focus:hover {
     border-color: #0996f8;
     box-shadow: 0 0 0 2px rgba(97, 181, 255, 0.75);
   }

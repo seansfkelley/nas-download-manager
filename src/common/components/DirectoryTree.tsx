@@ -1,10 +1,13 @@
-import * as React from 'react';
-import * as classNamesProxy from 'classnames';
+import * as React from "react";
+import * as classNamesProxy from "classnames";
 
 // https://github.com/rollup/rollup/issues/1267
 const classNames: typeof classNamesProxy = (classNamesProxy as any).default || classNamesProxy;
 
-export type DirectoryTreeFileChildren = 'unloaded' | { failureMessage: string } | DirectoryTreeFile[];
+export type DirectoryTreeFileChildren =
+  | "unloaded"
+  | { failureMessage: string }
+  | DirectoryTreeFile[];
 
 export interface DirectoryTreeFile {
   name: string;
@@ -12,26 +15,39 @@ export interface DirectoryTreeFile {
   children: DirectoryTreeFileChildren;
 }
 
-export function isUnloadedChild(children: DirectoryTreeFileChildren): children is 'unloaded' {
-  return children === 'unloaded';
+export function isUnloadedChild(children: DirectoryTreeFileChildren): children is "unloaded" {
+  return children === "unloaded";
 }
 
-export function isErrorChild(children: DirectoryTreeFileChildren): children is { failureMessage: string } {
-  return (children as { failureMessage: string  }).failureMessage != null;
+export function isErrorChild(
+  children: DirectoryTreeFileChildren,
+): children is { failureMessage: string } {
+  return (children as { failureMessage: string }).failureMessage != null;
 }
 
-export function isLoadedChild(children: DirectoryTreeFileChildren): children is DirectoryTreeFile[] {
+export function isLoadedChild(
+  children: DirectoryTreeFileChildren,
+): children is DirectoryTreeFile[] {
   return !isUnloadedChild(children) && !isErrorChild(children);
 }
 
-export function recursivelyUpdateDirectoryTree(currentNode: DirectoryTreeFile, path: string, newChildren: DirectoryTreeFileChildren): DirectoryTreeFile {
+export function recursivelyUpdateDirectoryTree(
+  currentNode: DirectoryTreeFile,
+  path: string,
+  newChildren: DirectoryTreeFileChildren,
+): DirectoryTreeFile {
   if (currentNode.path === path) {
     return {
       ...currentNode,
-      children: newChildren
+      children: newChildren,
     };
   } else if (!isLoadedChild(currentNode.children)) {
-    console.error(`programmer error: tried to update tree at ${path} but ancestor ${currentNode.path} has no valid children; ancestor:`, currentNode);
+    console.error(
+      `programmer error: tried to update tree at ${path} but ancestor ${
+        currentNode.path
+      } has no valid children; ancestor:`,
+      currentNode,
+    );
     return currentNode;
   } else {
     return {
@@ -42,7 +58,7 @@ export function recursivelyUpdateDirectoryTree(currentNode: DirectoryTreeFile, p
         } else {
           return child;
         }
-      })
+      }),
     };
   }
 }
@@ -60,7 +76,7 @@ export interface State {
 
 export class DirectoryTree extends React.PureComponent<Props, State> {
   state: State = {
-    isExpanded: false
+    isExpanded: false,
   };
 
   componentWillReceiveProps(nextProps: Props) {
@@ -70,32 +86,39 @@ export class DirectoryTree extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const isPlaceholder = isLoadedChild(this.props.file.children) && this.props.file.children.length === 0;
+    const isPlaceholder =
+      isLoadedChild(this.props.file.children) && this.props.file.children.length === 0;
     return (
-      <div className='directory-tree'>
-        <div className={classNames('directory-header', { 'is-selected': this.props.selectedPath === this.props.file.path })}>
+      <div className="directory-tree">
+        <div
+          className={classNames("directory-header", {
+            "is-selected": this.props.selectedPath === this.props.file.path,
+          })}
+        >
           <div
-            className={classNames('directory-icon-wrapper', {
-              'placeholder': isPlaceholder,
-              'disabled': isErrorChild(this.props.file.children)
+            className={classNames("directory-icon-wrapper", {
+              placeholder: isPlaceholder,
+              disabled: isErrorChild(this.props.file.children),
             })}
             onClick={isErrorChild(this.props.file.children) ? undefined : this.toggleExpanded}
-            title={isErrorChild(this.props.file.children) ? this.props.file.children.failureMessage : browser.i18n.getMessage('Expandcollapse_directory')}
+            title={
+              isErrorChild(this.props.file.children)
+                ? this.props.file.children.failureMessage
+                : browser.i18n.getMessage("Expandcollapse_directory")
+            }
           >
             <span
-              className={classNames('fa', {
-                'fa-chevron-right expand-collapse': isUnloadedChild(this.props.file.children) || (!isErrorChild(this.props.file.children) && this.props.file.children.length > 0),
-                'fa-exclamation-triangle intent-warning': isErrorChild(this.props.file.children),
-                'fa-fighter-jet': isPlaceholder,
-                'is-expanded': this.state.isExpanded
+              className={classNames("fa", {
+                "fa-chevron-right expand-collapse":
+                  isUnloadedChild(this.props.file.children) ||
+                  (!isErrorChild(this.props.file.children) && this.props.file.children.length > 0),
+                "fa-exclamation-triangle intent-warning": isErrorChild(this.props.file.children),
+                "fa-fighter-jet": isPlaceholder,
+                "is-expanded": this.state.isExpanded,
               })}
             />
           </div>
-          <div
-            className='name'
-            onClick={this.onSelect}
-            title={this.props.file.name}
-          >
+          <div className="name" onClick={this.onSelect} title={this.props.file.name}>
             {this.props.file.name}
           </div>
         </div>
@@ -115,7 +138,11 @@ export class DirectoryTree extends React.PureComponent<Props, State> {
       this.props.requestLoad(this.props.file.path);
     }
 
-    if (!isExpanded && this.props.selectedPath && this.props.selectedPath.startsWith(this.props.file.path)) {
+    if (
+      !isExpanded &&
+      this.props.selectedPath &&
+      this.props.selectedPath.startsWith(this.props.file.path)
+    ) {
       this.props.onSelect(undefined);
     }
   };
@@ -123,14 +150,14 @@ export class DirectoryTree extends React.PureComponent<Props, State> {
   private renderChildren(): React.ReactNode {
     if (this.state.isExpanded) {
       if (isUnloadedChild(this.props.file.children)) {
-        return <div className='children loading'>{browser.i18n.getMessage('Loading')}</div>;
+        return <div className="children loading">{browser.i18n.getMessage("Loading")}</div>;
       } else if (isErrorChild(this.props.file.children)) {
         return null;
       } else if (this.props.file.children.length === 0) {
         return null;
       } else {
         return (
-          <ul className='children loaded'>
+          <ul className="children loaded">
             {this.props.file.children.map(child => (
               <DirectoryTree
                 key={child.path}

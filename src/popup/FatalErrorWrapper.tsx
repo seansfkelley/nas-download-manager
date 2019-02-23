@@ -1,6 +1,6 @@
-import * as React from 'react';
-import { State as ExtensionState } from '../common/state';
-import { FatalError } from './FatalError';
+import * as React from "react";
+import { State as ExtensionState } from "../common/state";
+import { FatalError } from "./FatalError";
 
 export interface Props {
   state: ExtensionState;
@@ -18,11 +18,13 @@ export class FatalErrorWrapper extends React.PureComponent<Props, State> {
 
   render() {
     if (this.state.error) {
-      return <FatalError
-        error={this.state.error}
-        errorInfo={this.state.errorInfo}
-        state={this.props.state}
-      />;
+      return (
+        <FatalError
+          error={this.state.error}
+          errorInfo={this.state.errorInfo}
+          state={this.props.state}
+        />
+      );
     } else {
       return this.props.children;
     }

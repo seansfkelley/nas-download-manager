@@ -1,1 +1,1 @@
-export type CallbackResponse = 'success' | { failMessage: string };
+export type CallbackResponse = "success" | { failMessage: string };

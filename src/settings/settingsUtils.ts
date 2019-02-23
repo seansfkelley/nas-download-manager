@@ -1,20 +1,24 @@
-import { SessionName, ApiClient, ConnectionFailure, isConnectionFailure } from 'synology-typescript-api';
-import { Settings, getHostUrl } from '../common/state';
-import { onUnhandledError } from '../common/errorHandlers';
+import {
+  SessionName,
+  ApiClient,
+  ConnectionFailure,
+  isConnectionFailure,
+} from "synology-typescript-api";
+import { Settings, getHostUrl } from "../common/state";
+import { onUnhandledError } from "../common/errorHandlers";
 
 export function saveSettings(settings: Settings): Promise<boolean> {
-  console.log('persisting settings...');
+  console.log("persisting settings...");
 
   return testConnection(settings)
     .then(result => {
-      if (result !== 'good-and-modern' && result !== 'good-and-legacy') {
+      if (result !== "good-and-modern" && result !== "good-and-legacy") {
         return false;
       } else {
-        return browser.storage.local.set(settings)
-          .then(() => {
-            console.log('done persisting settings');
-            return true;
-          });
+        return browser.storage.local.set(settings).then(() => {
+          console.log("done persisting settings");
+          return true;
+        });
       }
     })
     .catch(error => {
@@ -23,7 +27,11 @@ export function saveSettings(settings: Settings): Promise<boolean> {
     });
 }
 
-export type ConnectionTestResult = ConnectionFailure | { code: number } | 'good-and-modern' | 'good-and-legacy';
+export type ConnectionTestResult =
+  | ConnectionFailure
+  | { code: number }
+  | "good-and-modern"
+  | "good-and-legacy";
 
 export function isErrorCodeResult(result: ConnectionTestResult): result is { code: number } {
   return (result as { code: number }).code != null;
@@ -34,28 +42,27 @@ export function testConnection(settings: Settings): Promise<ConnectionTestResult
     baseUrl: getHostUrl(settings.connection),
     account: settings.connection.username,
     passwd: settings.connection.password,
-    session: SessionName.DownloadStation
+    session: SessionName.DownloadStation,
   });
 
-  return api.Auth.Login({ timeout: 30000 })
-    .then(response => {
-      if (isConnectionFailure(response)) {
-        return response;
-      } else if (!response.success) {
-        return { code: response.error.code };
-      } else {
-        api.Auth.Logout({ timeout: 10000 })
-          .then(response => {
-            if (response === 'not-logged-in') {
-              // Typescript demands we handle this case, which is correct, but also, it's pretty wat
-              console.error(`wtf: not logged in immediately after successfully logging in`);
-            } else if (isConnectionFailure(response) || !response.success) {
-              console.error('ignoring unexpected failure while logging out after successful connection test', response);
-            }
-          });
-        return response.data.extra.isLegacyLogin
-          ? 'good-and-legacy'
-          : 'good-and-modern';
-      }
-    });
+  return api.Auth.Login({ timeout: 30000 }).then(response => {
+    if (isConnectionFailure(response)) {
+      return response;
+    } else if (!response.success) {
+      return { code: response.error.code };
+    } else {
+      api.Auth.Logout({ timeout: 10000 }).then(response => {
+        if (response === "not-logged-in") {
+          // Typescript demands we handle this case, which is correct, but also, it's pretty wat
+          console.error(`wtf: not logged in immediately after successfully logging in`);
+        } else if (isConnectionFailure(response) || !response.success) {
+          console.error(
+            "ignoring unexpected failure while logging out after successful connection test",
+            response,
+          );
+        }
+      });
+      return response.data.extra.isLegacyLogin ? "good-and-legacy" : "good-and-modern";
+    }
+  });
 }

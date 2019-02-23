@@ -1,14 +1,14 @@
-import * as React from 'react';
+import * as React from "react";
 
 import {
   VisibleTaskSettings,
   TaskSortType,
   ORDERED_TASK_SORT_TYPE_NAMES,
-  ORDERED_VISIBLE_TASK_TYPE_NAMES
-} from '../state';
+  ORDERED_VISIBLE_TASK_TYPE_NAMES,
+} from "../state";
 
-import { SettingsList } from './SettingsList';
-import { SettingsListCheckbox } from './SettingsListCheckbox';
+import { SettingsList } from "./SettingsList";
+import { SettingsListCheckbox } from "./SettingsListCheckbox";
 
 export interface Props {
   visibleTasks: VisibleTaskSettings;
@@ -20,7 +20,7 @@ export interface Props {
 export class TaskFilterSettingsForm extends React.PureComponent<Props> {
   render() {
     return (
-      <div className='task-filter-settings-form'>
+      <div className="task-filter-settings-form">
         <SettingsList>
           {Object.keys(ORDERED_VISIBLE_TASK_TYPE_NAMES).map((type: keyof VisibleTaskSettings) => (
             <SettingsListCheckbox
@@ -33,10 +33,8 @@ export class TaskFilterSettingsForm extends React.PureComponent<Props> {
             />
           ))}
         </SettingsList>
-        <div className='task-sort-type'>
-          <span className='label'>
-            {browser.i18n.getMessage('Order_tasks_by')}
-          </span>
+        <div className="task-sort-type">
+          <span className="label">{browser.i18n.getMessage("Order_tasks_by")}</span>
           <select
             value={this.props.taskSortType}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {

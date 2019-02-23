@@ -1,6 +1,6 @@
-import { DownloadStationTask } from 'synology-typescript-api';
+import { DownloadStationTask } from "synology-typescript-api";
 
-export type Protocol_1 = 'http' | 'https';
+export type Protocol_1 = "http" | "https";
 
 export interface ConnectionSettings_1 {
   protocol: Protocol_1;
@@ -23,7 +23,15 @@ export interface NotificationSettings_1 {
   pollingInterval: number;
 }
 
-export type TaskSortType_1 = 'name-asc' | 'name-desc' | 'timestamp-completed-asc' | 'timestamp-completed-desc' | 'timestamp-added-asc' | 'timestamp-added-desc' | 'completed-percent-asc' | 'completed-percent-desc';
+export type TaskSortType_1 =
+  | "name-asc"
+  | "name-desc"
+  | "timestamp-completed-asc"
+  | "timestamp-completed-desc"
+  | "timestamp-added-asc"
+  | "timestamp-added-desc"
+  | "completed-percent-asc"
+  | "completed-percent-desc";
 
 export interface Settings_1 {
   connection: ConnectionSettings_1;
@@ -36,7 +44,7 @@ export interface Settings_1 {
 export interface CachedTasks_1 {
   cachedTasksVersion: number;
   tasks: DownloadStationTask[];
-  taskFetchFailureReason: 'missing-config' | { failureMessage: string } | null;
+  taskFetchFailureReason: "missing-config" | { failureMessage: string } | null;
   tasksLastInitiatedFetchTimestamp: number | null;
   tasksLastCompletedFetchTimestamp: number | null;
 }
@@ -50,11 +58,11 @@ export interface State_1 extends Settings_1, CachedTasks_1, StateVersion_1 {}
 export function state0to1(_state: null | undefined): State_1 {
   return {
     connection: {
-      protocol: 'https',
-      hostname: '',
+      protocol: "https",
+      hostname: "",
       port: 5001,
-      username: '',
-      password: '',
+      username: "",
+      password: "",
     },
     visibleTasks: {
       downloading: true,
@@ -63,10 +71,10 @@ export function state0to1(_state: null | undefined): State_1 {
       errored: true,
       other: true,
     },
-    taskSortType: 'name-asc',
+    taskSortType: "name-asc",
     notifications: {
       enabled: false,
-      pollingInterval: 60
+      pollingInterval: 60,
     },
     shouldHandleDownloadLinks: true,
     cachedTasksVersion: 1,

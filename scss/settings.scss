@@ -1,6 +1,6 @@
-@import 'colors';
-@import 'common';
-@import 'task-filter-settings-form';
+@import "colors";
+@import "common";
+@import "task-filter-settings-form";
 
 body {
   padding: 2px;
@@ -8,7 +8,7 @@ body {
 
 header {
   p {
-    font-size: .9em;
+    font-size: 0.9em;
     color: #999;
   }
   h3 {
@@ -62,7 +62,8 @@ ul.settings-list {
     margin-right: 5px;
   }
 
-   > .input,  > input {
+  > .input,
+  > input {
     flex: 1;
   }
 }

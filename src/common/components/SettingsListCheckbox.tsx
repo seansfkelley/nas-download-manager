@@ -1,5 +1,5 @@
-import * as React from 'react';
-import uniqueId from 'lodash-es/uniqueId';
+import * as React from "react";
+import uniqueId from "lodash-es/uniqueId";
 
 export interface Props {
   checked: boolean;
@@ -9,12 +9,12 @@ export interface Props {
 
 export class SettingsListCheckbox extends React.PureComponent<Props, {}> {
   render() {
-    const id = uniqueId('checkbox-id-');
+    const id = uniqueId("checkbox-id-");
     return (
       <li>
         <input
           id={id}
-          type='checkbox'
+          type="checkbox"
           checked={this.props.checked}
           onChange={this.props.onChange}
         />

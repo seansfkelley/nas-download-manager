@@ -1,46 +1,46 @@
-import '../common/init/extensionContext';
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-import * as momentProxy from 'moment';
-import * as classNamesProxy from 'classnames';
-import debounce from 'lodash-es/debounce';
-import { SynologyResponse, DownloadStationTask, ApiClient } from 'synology-typescript-api';
+import "../common/init/extensionContext";
+import * as React from "react";
+import * as ReactDOM from "react-dom";
+import * as momentProxy from "moment";
+import * as classNamesProxy from "classnames";
+import debounce from "lodash-es/debounce";
+import { SynologyResponse, DownloadStationTask, ApiClient } from "synology-typescript-api";
 
 // https://github.com/rollup/rollup/issues/1267
 const moment: typeof momentProxy = (momentProxy as any).default || momentProxy;
 const classNames: typeof classNamesProxy = (classNamesProxy as any).default || classNamesProxy;
 
-import { AdvancedAddDownloadForm } from '../common/components/AdvancedAddDownloadForm';
+import { AdvancedAddDownloadForm } from "../common/components/AdvancedAddDownloadForm";
 import {
   Settings,
   VisibleTaskSettings,
   TaskSortType,
   onStoredStateChange,
-  getHostUrl
-} from '../common/state';
-import { onUnhandledError } from '../common/errorHandlers';
-import { getSharedObjects } from '../common/apis/messages';
-import { addDownloadTaskAndPoll, pollTasks } from '../common/apis/actions';
-import { CallbackResponse } from './popupTypes';
-import { matchesFilter, sortTasks } from './filtering';
-import { Task } from './Task';
-import { NoTasks } from './NoTasks';
-import { FatalError } from './FatalError';
-import { FatalErrorWrapper } from './FatalErrorWrapper';
-import { errorMessageFromCode } from '../common/apis/errors';
-import { TaskFilterSettingsForm } from '../common/components/TaskFilterSettingsForm';
+  getHostUrl,
+} from "../common/state";
+import { onUnhandledError } from "../common/errorHandlers";
+import { getSharedObjects } from "../common/apis/messages";
+import { addDownloadTaskAndPoll, pollTasks } from "../common/apis/actions";
+import { CallbackResponse } from "./popupTypes";
+import { matchesFilter, sortTasks } from "./filtering";
+import { Task } from "./Task";
+import { NoTasks } from "./NoTasks";
+import { FatalError } from "./FatalError";
+import { FatalErrorWrapper } from "./FatalErrorWrapper";
+import { errorMessageFromCode } from "../common/apis/errors";
+import { TaskFilterSettingsForm } from "../common/components/TaskFilterSettingsForm";
 
 function disabledPropAndClassName(disabled: boolean, className?: string) {
   return {
     disabled,
-    className: classNames({ 'disabled': disabled }, className)
+    className: classNames({ disabled: disabled }, className),
   };
 }
 
 interface PopupProps {
   api: ApiClient;
   tasks: DownloadStationTask[];
-  taskFetchFailureReason: 'missing-config' | { failureMessage: string } | null;
+  taskFetchFailureReason: "missing-config" | { failureMessage: string } | null;
   tasksLastInitiatedFetchTimestamp: number | null;
   tasksLastCompletedFetchTimestamp: number | null;
   visibleTasks: VisibleTaskSettings;
@@ -74,19 +74,21 @@ class Popup extends React.PureComponent<PopupProps, State> {
     isAddingDownload: false,
     isShowingDisplaySettings: false,
     isClearingCompletedTasks: false,
-    firefoxRerenderNonce: 0
+    firefoxRerenderNonce: 0,
   };
 
   render() {
     return (
-      <div className='popup'>
+      <div className="popup">
         {this.renderHeader()}
         {this.renderDisplaySettings()}
-        <div className={classNames('popup-body', { 'with-foreground': this.state.isAddingDownload })}>
+        <div
+          className={classNames("popup-body", { "with-foreground": this.state.isAddingDownload })}
+        >
           {this.renderTaskList()}
           {this.maybeRenderAddDownloadOverlay()}
         </div>
-        <div style={{ display: 'none' }}>{this.state.firefoxRerenderNonce}</div>
+        <div style={{ display: "none" }}>{this.state.firefoxRerenderNonce}</div>
       </div>
     );
   }
@@ -98,25 +100,27 @@ class Popup extends React.PureComponent<PopupProps, State> {
     let leftIcon: string;
     let rightIcon: string | undefined = undefined;
 
-    if (this.props.taskFetchFailureReason === 'missing-config') {
-      text = browser.i18n.getMessage('Settings_unconfigured');
-      tooltip = browser.i18n.getMessage('The_hostname_username_or_password_are_not_configured');
-      leftIcon = 'fa-cog';
+    if (this.props.taskFetchFailureReason === "missing-config") {
+      text = browser.i18n.getMessage("Settings_unconfigured");
+      tooltip = browser.i18n.getMessage("The_hostname_username_or_password_are_not_configured");
+      leftIcon = "fa-cog";
     } else if (this.props.tasksLastCompletedFetchTimestamp == null) {
-      text = browser.i18n.getMessage('Updating');
-      tooltip = browser.i18n.getMessage('Updating_download_tasks');
-      leftIcon = 'fa-sync fa-spin';
+      text = browser.i18n.getMessage("Updating");
+      tooltip = browser.i18n.getMessage("Updating_download_tasks");
+      leftIcon = "fa-sync fa-spin";
     } else if (this.props.taskFetchFailureReason != null) {
-      text = browser.i18n.getMessage('Error_updating_tasks');
+      text = browser.i18n.getMessage("Error_updating_tasks");
       tooltip = this.props.taskFetchFailureReason.failureMessage;
-      classes = 'intent-error';
-      leftIcon = 'fa-exclamation-triangle';
-      rightIcon = 'fa-info-circle';
+      classes = "intent-error";
+      leftIcon = "fa-exclamation-triangle";
+      rightIcon = "fa-info-circle";
     } else {
-      text = browser.i18n.getMessage('Updated_ZtimeZ', [ moment(this.props.tasksLastCompletedFetchTimestamp).fromNow() ]);
-      tooltip = moment(this.props.tasksLastCompletedFetchTimestamp).format('ll LTS');
-      classes = 'intent-success';
-      leftIcon = 'fa-check';
+      text = browser.i18n.getMessage("Updated_ZtimeZ", [
+        moment(this.props.tasksLastCompletedFetchTimestamp).fromNow(),
+      ]);
+      tooltip = moment(this.props.tasksLastCompletedFetchTimestamp).format("ll LTS");
+      classes = "intent-success";
+      leftIcon = "fa-check";
     }
 
     if (
@@ -124,116 +128,148 @@ class Popup extends React.PureComponent<PopupProps, State> {
       this.props.tasksLastCompletedFetchTimestamp != null &&
       this.props.tasksLastInitiatedFetchTimestamp > this.props.tasksLastCompletedFetchTimestamp
     ) {
-      leftIcon = 'fa-sync fa-spin';
-      tooltip += ' ' + browser.i18n.getMessage('updating_now');
+      leftIcon = "fa-sync fa-spin";
+      tooltip += " " + browser.i18n.getMessage("updating_now");
     }
 
     return (
-      <header className={classNames({ 'with-shadow': this.state.isShowingDropShadow })}>
-        <div className={classNames('description', classes)} title={tooltip}>
-          <span className={classNames('left-icon fa', leftIcon)}/>
+      <header className={classNames({ "with-shadow": this.state.isShowingDropShadow })}>
+        <div className={classNames("description", classes)} title={tooltip}>
+          <span className={classNames("left-icon fa", leftIcon)} />
           {text}
-          {rightIcon && <span className={classNames('right-icon fa', rightIcon)}/>}
+          {rightIcon && <span className={classNames("right-icon fa", rightIcon)} />}
         </div>
         <button
-          onClick={() => { this.setState({ isAddingDownload: !this.state.isAddingDownload }); }}
-          title={browser.i18n.getMessage('Add_download')}
+          onClick={() => {
+            this.setState({ isAddingDownload: !this.state.isAddingDownload });
+          }}
+          title={browser.i18n.getMessage("Add_download")}
           {...disabledPropAndClassName(this.props.createTask == null)}
         >
-          <div className='fa fa-lg fa-plus'/>
+          <div className="fa fa-lg fa-plus" />
         </button>
         <button
           onClick={this.props.openDownloadStationUi}
-          title={browser.i18n.getMessage('Open_DownloadStation_UI')}
+          title={browser.i18n.getMessage("Open_DownloadStation_UI")}
           {...disabledPropAndClassName(this.props.openDownloadStationUi == null)}
         >
-          <div className='fa fa-lg fa-external-link-alt'/>
+          <div className="fa fa-lg fa-external-link-alt" />
         </button>
         <button
-          onClick={() => { this.setState({ isShowingDisplaySettings: !this.state.isShowingDisplaySettings }); }}
-          title={browser.i18n.getMessage('Show_task_display_settings')}
-          className={classNames({ 'active': this.state.isShowingDisplaySettings })}
+          onClick={() => {
+            this.setState({ isShowingDisplaySettings: !this.state.isShowingDisplaySettings });
+          }}
+          title={browser.i18n.getMessage("Show_task_display_settings")}
+          className={classNames({ active: this.state.isShowingDisplaySettings })}
         >
-          <div className='fa fa-lg fa-filter'/>
+          <div className="fa fa-lg fa-filter" />
         </button>
         <button
-          onClick={() => { browser.runtime.openOptionsPage(); }}
-          title={browser.i18n.getMessage('Open_settings')}
-          className={classNames({ 'called-out': this.props.taskFetchFailureReason === 'missing-config' })}
+          onClick={() => {
+            browser.runtime.openOptionsPage();
+          }}
+          title={browser.i18n.getMessage("Open_settings")}
+          className={classNames({
+            "called-out": this.props.taskFetchFailureReason === "missing-config",
+          })}
         >
-          <div className='fa fa-lg fa-cog'/>
+          <div className="fa fa-lg fa-cog" />
         </button>
       </header>
     );
   }
 
   private renderDisplaySettings() {
-      const completedTaskIds = this.props.tasks.filter(t => t.status === 'finished').map(t => t.id);
-      const deleteTasks = this.props.deleteTasks
-        ? () => {
+    const completedTaskIds = this.props.tasks.filter(t => t.status === "finished").map(t => t.id);
+    const deleteTasks = this.props.deleteTasks
+      ? () => {
           this.setState({ isClearingCompletedTasks: true });
-          this.props.deleteTasks!(completedTaskIds)
-            .then(() => {
-              this.setState({ isClearingCompletedTasks: false });
-            });
+          this.props.deleteTasks!(completedTaskIds).then(() => {
+            this.setState({ isClearingCompletedTasks: false });
+          });
         }
-        : undefined;
-      return (
-        <div className={classNames('display-settings', { 'is-visible': this.state.isShowingDisplaySettings })}>
-          <h4 className='title'>{browser.i18n.getMessage('Task_Display_Settings')}</h4>
-          <TaskFilterSettingsForm
-            visibleTasks={this.props.visibleTasks}
-            taskSortType={this.props.taskSort}
-            updateTaskTypeVisibility={this.updateTaskTypeVisibility}
-            updateTaskSortType={this.props.changeTaskSort}
-          />
-          <button
-            onClick={deleteTasks}
-            title={browser.i18n.getMessage('Clear_tasks_that_are_completed_and_not_currently_uploading')}
-            {...disabledPropAndClassName(
-              this.state.isClearingCompletedTasks || deleteTasks == null || completedTaskIds.length === 0,
-              'clear-completed-tasks-button'
-            )}
-          >
-            {browser.i18n.getMessage('Clear_ZcountZ_Completed_Tasks', [ completedTaskIds.length ])}
-            {this.state.isClearingCompletedTasks && <span className='fa fa-sync fa-spin'/>}
-          </button>
-        </div>
-      );
+      : undefined;
+    return (
+      <div
+        className={classNames("display-settings", {
+          "is-visible": this.state.isShowingDisplaySettings,
+        })}
+      >
+        <h4 className="title">{browser.i18n.getMessage("Task_Display_Settings")}</h4>
+        <TaskFilterSettingsForm
+          visibleTasks={this.props.visibleTasks}
+          taskSortType={this.props.taskSort}
+          updateTaskTypeVisibility={this.updateTaskTypeVisibility}
+          updateTaskSortType={this.props.changeTaskSort}
+        />
+        <button
+          onClick={deleteTasks}
+          title={browser.i18n.getMessage(
+            "Clear_tasks_that_are_completed_and_not_currently_uploading",
+          )}
+          {...disabledPropAndClassName(
+            this.state.isClearingCompletedTasks ||
+              deleteTasks == null ||
+              completedTaskIds.length === 0,
+            "clear-completed-tasks-button",
+          )}
+        >
+          {browser.i18n.getMessage("Clear_ZcountZ_Completed_Tasks", [completedTaskIds.length])}
+          {this.state.isClearingCompletedTasks && <span className="fa fa-sync fa-spin" />}
+        </button>
+      </div>
+    );
   }
 
   private updateTaskTypeVisibility = (taskType: keyof VisibleTaskSettings, visibility: boolean) => {
     this.props.changeVisibleTasks({
       ...this.props.visibleTasks,
-      [taskType]: visibility
+      [taskType]: visibility,
     });
   };
 
   private renderTaskList() {
-    if (this.props.taskFetchFailureReason === 'missing-config') {
-      return <NoTasks icon='fa-gear' text={browser.i18n.getMessage('Configure_your_hostname_username_and_password_in_settings')}/>;
+    if (this.props.taskFetchFailureReason === "missing-config") {
+      return (
+        <NoTasks
+          icon="fa-gear"
+          text={browser.i18n.getMessage(
+            "Configure_your_hostname_username_and_password_in_settings",
+          )}
+        />
+      );
     } else if (this.props.tasksLastCompletedFetchTimestamp == null) {
-      return <NoTasks icon='fa-sync fa-spin'/>;
+      return <NoTasks icon="fa-sync fa-spin" />;
     } else if (this.props.tasks.length === 0) {
-      return <NoTasks icon='fa-circle-o' text={browser.i18n.getMessage('No_download_tasks')}/>;
+      return <NoTasks icon="fa-circle-o" text={browser.i18n.getMessage("No_download_tasks")} />;
     } else {
-      const filteredTasks = this.props.tasks.filter(t =>
-        (this.props.visibleTasks.downloading && matchesFilter(t, 'downloading')) ||
-        (this.props.visibleTasks.uploading && matchesFilter(t, 'uploading')) ||
-        (this.props.visibleTasks.completed && matchesFilter(t, 'completed')) ||
-        (this.props.visibleTasks.errored && matchesFilter(t, 'errored')) ||
-        (this.props.visibleTasks.other && matchesFilter(t, 'other'))
+      const filteredTasks = this.props.tasks.filter(
+        t =>
+          (this.props.visibleTasks.downloading && matchesFilter(t, "downloading")) ||
+          (this.props.visibleTasks.uploading && matchesFilter(t, "uploading")) ||
+          (this.props.visibleTasks.completed && matchesFilter(t, "completed")) ||
+          (this.props.visibleTasks.errored && matchesFilter(t, "errored")) ||
+          (this.props.visibleTasks.other && matchesFilter(t, "other")),
       );
       if (filteredTasks.length === 0) {
-        return <NoTasks icon='fa-filter' text={browser.i18n.getMessage('Download_tasks_exist_but_none_match_your_filters')}/>;
+        return (
+          <NoTasks
+            icon="fa-filter"
+            text={browser.i18n.getMessage("Download_tasks_exist_but_none_match_your_filters")}
+          />
+        );
       } else {
         const hiddenTaskCount = this.props.tasks.length - filteredTasks.length;
-        const deleteTask = this.props.deleteTasks ? ((taskId: string) => this.props.deleteTasks!([ taskId ])) : undefined;
+        const deleteTask = this.props.deleteTasks
+          ? (taskId: string) => this.props.deleteTasks!([taskId])
+          : undefined;
         return (
-          <div className='download-tasks'>
+          <div className="download-tasks">
             <ul
               onScroll={this.onBodyScroll}
-              ref={e => { this.bodyRef = e || undefined; }}
+              ref={e => {
+                this.bodyRef = e || undefined;
+              }}
             >
               {sortTasks(filteredTasks, this.props.taskSort).map(task => (
                 <Task
@@ -247,10 +283,12 @@ class Popup extends React.PureComponent<PopupProps, State> {
             </ul>
             {hiddenTaskCount > 0 && (
               <div
-                className='hidden-count'
-                onClick={() => { this.setState({ isShowingDisplaySettings: true }); }}
+                className="hidden-count"
+                onClick={() => {
+                  this.setState({ isShowingDisplaySettings: true });
+                }}
               >
-                {browser.i18n.getMessage('and_ZcountZ_more_hidden_tasks', [ hiddenTaskCount ])}
+                {browser.i18n.getMessage("and_ZcountZ_more_hidden_tasks", [hiddenTaskCount])}
               </div>
             )}
           </div>
@@ -262,12 +300,14 @@ class Popup extends React.PureComponent<PopupProps, State> {
   private maybeRenderAddDownloadOverlay() {
     if (this.state.isAddingDownload) {
       return (
-        <div className='add-download-overlay'>
-          <div className='backdrop'/>
-          <div className='overlay-content'>
+        <div className="add-download-overlay">
+          <div className="backdrop" />
+          <div className="overlay-content">
             <AdvancedAddDownloadForm
               client={this.props.api}
-              onCancel={() => { this.setState({ isAddingDownload: false }); }}
+              onCancel={() => {
+                this.setState({ isAddingDownload: false });
+              }}
               onAddDownload={(url, path) => {
                 this.props.createTask!(url, path);
                 this.setState({ isAddingDownload: false });
@@ -283,7 +323,7 @@ class Popup extends React.PureComponent<PopupProps, State> {
 
   private onBodyScroll = debounce(() => {
     if (this.bodyRef) {
-      this.setState({ isShowingDropShadow: this.bodyRef.scrollTop !== 0 })
+      this.setState({ isShowingDropShadow: this.bodyRef.scrollTop !== 0 });
     } else {
       this.setState({ isShowingDropShadow: false });
     }
@@ -299,15 +339,15 @@ class Popup extends React.PureComponent<PopupProps, State> {
 }
 
 const PrivateBrowsingUnsupported = () => (
-  <div className='popup'>
+  <div className="popup">
     <NoTasks
-      icon='fa-user-secret'
-      text={browser.i18n.getMessage('Private_browsing_mode_is_not_currently_supported')}
+      icon="fa-user-secret"
+      text={browser.i18n.getMessage("Private_browsing_mode_is_not_currently_supported")}
     />
   </div>
 );
 
-const ELEMENT = document.getElementById('body')!;
+const ELEMENT = document.getElementById("body")!;
 
 getSharedObjects()
   .then(objects => {
@@ -315,21 +355,22 @@ getSharedObjects()
       const { api } = objects;
 
       pollTasks(api);
-      setInterval(() => { pollTasks(api); }, 10000);
+      setInterval(() => {
+        pollTasks(api);
+      }, 10000);
 
       function convertResponse(response: SynologyResponse<any>): CallbackResponse {
         if (response.success) {
-          return 'success';
+          return "success";
         } else {
-          const reason = errorMessageFromCode(response.error.code, 'DownloadStation.Task');
+          const reason = errorMessageFromCode(response.error.code, "DownloadStation.Task");
           return { failMessage: reason };
         }
       }
 
       function reloadOnSuccess(response: CallbackResponse): Promise<CallbackResponse> {
-        if (response === 'success') {
-          return pollTasks(api)
-            .then(() => response);
+        if (response === "success") {
+          return pollTasks(api).then(() => response);
         } else {
           return Promise.resolve(response);
         }
@@ -348,27 +389,31 @@ getSharedObjects()
       }
 
       onStoredStateChange(storedState => {
-
         const hostUrl = getHostUrl(storedState.connection);
 
         const openDownloadStationUi = hostUrl
           ? () => {
               browser.tabs.create({
-                url: hostUrl + '/index.cgi?launchApp=SYNO.SDS.DownloadStation.Application',
-                active: true
+                url: hostUrl + "/index.cgi?launchApp=SYNO.SDS.DownloadStation.Application",
+                active: true,
               });
             }
           : undefined;
 
         const createTask = hostUrl
           ? (url: string, path?: string) => {
-              return addDownloadTaskAndPoll(api, storedState.notifications.enableFeedbackNotifications, url, path);
+              return addDownloadTaskAndPoll(
+                api,
+                storedState.notifications.enableFeedbackNotifications,
+                url,
+                path,
+              );
             }
           : undefined;
 
         const pauseTask = hostUrl
           ? (taskId: string) => {
-              return api.DownloadStation.Task.Pause({ id: [ taskId ] })
+              return api.DownloadStation.Task.Pause({ id: [taskId] })
                 .then(convertResponse)
                 .then(reloadOnSuccess);
             }
@@ -376,7 +421,7 @@ getSharedObjects()
 
         const resumeTask = hostUrl
           ? (taskId: string) => {
-              return api.DownloadStation.Task.Resume({ id: [ taskId ] })
+              return api.DownloadStation.Task.Resume({ id: [taskId] })
                 .then(convertResponse)
                 .then(reloadOnSuccess);
             }
@@ -386,7 +431,7 @@ getSharedObjects()
           ? (taskIds: string[]) => {
               return api.DownloadStation.Task.Delete({
                 id: taskIds,
-                force_complete: false
+                force_complete: false,
               })
                 .then(convertResponse)
                 .then(reloadOnSuccess);
@@ -411,14 +456,15 @@ getSharedObjects()
               resumeTask={resumeTask}
               deleteTasks={deleteTasks}
             />
-          </FatalErrorWrapper>
-        , ELEMENT);
+          </FatalErrorWrapper>,
+          ELEMENT,
+        );
       });
     } else {
-      ReactDOM.render(<PrivateBrowsingUnsupported/>, ELEMENT);
+      ReactDOM.render(<PrivateBrowsingUnsupported />, ELEMENT);
     }
   })
   .catch(e => {
     onUnhandledError(e);
-    ReactDOM.render(<FatalError error={e}/>, ELEMENT);
+    ReactDOM.render(<FatalError error={e} />, ELEMENT);
   });

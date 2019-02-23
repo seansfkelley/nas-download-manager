@@ -1,12 +1,6 @@
-import { state0to1 } from './1';
+import { state0to1 } from "./1";
 
-import {
-  CachedTasks_2,
-  Settings_2,
-  State_2,
-  Logging_2,
-  state1to2,
-} from './2';
+import { CachedTasks_2, Settings_2, State_2, Logging_2, state1to2 } from "./2";
 
 export {
   Protocol_1,
@@ -17,7 +11,7 @@ export {
   Settings_2,
   ConnectionSettings_1,
   Logging_2,
-} from './2';
+} from "./2";
 
 export interface StateVersion_3 {
   stateVersion: 3;
