@@ -1,0 +1,11 @@
+/.*
+*.zip
+*.log
+*.md
+yarn.lock
+dist/
+lib/
+icons/
+icon-sources/
+screenshots/
+vendor/

@@ -32,6 +32,7 @@
     "chai": "^4.1.2",
     "glob": "^7.1.2",
     "mocha": "^4.0.1",
+    "prettier": "^1.16.4",
     "rollup": "^0.41.6",
     "rollup-plugin-commonjs": "^8.0.2",
     "rollup-plugin-node-builtins": "^2.1.0",
