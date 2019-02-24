@@ -103,7 +103,7 @@ function fetchStateAndNotify(listeners: ((state: State) => void)[]) {
 
 export function redactState(state: State): object {
   const sanitizedConnection: Record<keyof ConnectionSettings, boolean | Protocol> = {
-    ...mapValues(state.connection, Boolean),
+    ...(mapValues(state.connection, Boolean) as Record<keyof typeof state.connection, boolean>),
     protocol: state.connection.protocol,
   };
 

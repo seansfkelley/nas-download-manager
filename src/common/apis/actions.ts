@@ -1,5 +1,4 @@
 import uniqueId from "lodash-es/uniqueId";
-import find from "lodash-es/find";
 import Axios from "axios";
 import { parse as parseQueryString } from "query-string";
 import {
@@ -229,8 +228,7 @@ export function addDownloadTaskAndPoll(
         .then(response => {
           const contentType = (response.headers["content-type"] || "").toLowerCase();
           const contentLength = response.headers["content-length"];
-          const metadataFileType = find(
-            METADATA_FILE_TYPES,
+          const metadataFileType = METADATA_FILE_TYPES.find(
             fileType =>
               contentType.includes(fileType.mediaType) ||
               urlWithoutQuery.endsWith(fileType.extension),

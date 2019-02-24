@@ -54,6 +54,7 @@
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "rimraf": "^2.6.1",
-    "synology-typescript-api": "^0.3.5"
+    "synology-typescript-api": "^0.3.5",
+    "type-zoo": "^3.3.0"
   }
 }
