@@ -79,7 +79,7 @@ describe("i18n", () => {
     it('should be referenced at least once in any "getMessage" call', () => {
       forEachMessage(({ test_skip_reference_check }, messageName) => {
         if (!test_skip_reference_check) {
-          const I18N_CALL_REGEX = new RegExp(`browser\\.i18n\\.getMessage\\(\\s*'${messageName}'`);
+          const I18N_CALL_REGEX = new RegExp(`browser\\.i18n\\.getMessage\\(\\s*"${messageName}"`);
           expect(
             Object.keys(SOURCE_FILES_BY_NAME).some(name => {
               return SOURCE_FILES_BY_NAME[name].search(I18N_CALL_REGEX) !== -1;
