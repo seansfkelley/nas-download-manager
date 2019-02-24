@@ -435,10 +435,10 @@ check-error@^1.0.1:
   resolved "https://registry.yarnpkg.com/check-error/-/check-error-1.0.2.tgz#574d312edd88bb5dd8912e9286dd6c0aed4aac82"
   integrity sha1-V00xLt2Iu13YkS6Sht1sCu1KrII=
 
-chrome-extension-async@^3.2.4:
-  version "3.2.4"
-  resolved "https://registry.yarnpkg.com/chrome-extension-async/-/chrome-extension-async-3.2.4.tgz#c5b3e206688ca81c903b5e239ff3f9a73a29c47e"
-  integrity sha1-xbPiBmiMqByQO14jn/P5pzopxH4=
+chrome-extension-async@^3.3.2:
+  version "3.3.2"
+  resolved "https://registry.yarnpkg.com/chrome-extension-async/-/chrome-extension-async-3.3.2.tgz#c2106942b09222cef340348c1e9c5c1e77ad7aba"
+  integrity sha512-MsZa46gKl2FHDJ33JROPKBStLKjkEPXT8ABB7O7cWDNRw8L+wyPF0RhDura5bsJySnRJtcLZLIxvBFUOZpu3YA==
 
 cipher-base@^1.0.0, cipher-base@^1.0.1, cipher-base@^1.0.3:
   version "1.0.4"
