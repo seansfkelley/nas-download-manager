@@ -47,7 +47,7 @@
     "axios": "^0.16.1",
     "chrome-extension-async": "^3.3.2",
     "classnames": "^2.2.5",
-    "lodash-es": "^4.17.4",
+    "lodash-es": "^4.17.14",
     "moment": "^2.18.1",
     "node-sass": "^4.5.3",
     "query-string": "^4.3.4",
