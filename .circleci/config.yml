@@ -1,0 +1,25 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/synology-typescript-api
+    docker:
+      - image: circleci/node:8.9.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - yarn-packages-{{ checksum "yarn.lock" }}
+            - yarn-packages-
+      - run:
+          name: Yarn Install
+          command: yarn install --frozen-lockfile
+      - save_cache:
+          key: yarn-packages-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/.cache/yarn
+      - run:
+          name: Typecheck
+          command: npm run build:transpile
+      - run:
+          name: Test
+          command: npm test
