@@ -24,12 +24,13 @@ import {
   SETTING_NAMES,
 } from "../common/state";
 import { BUG_REPORT_URL } from "../common/constants";
-import { ConnectionTestResult, saveSettings, testConnection } from "./settingsUtils";
+import { getSharedObjects } from "../common/apis/messages";
 import { DOWNLOAD_ONLY_PROTOCOLS } from "../common/apis/protocols";
 import { assertNever } from "../common/lang";
 import { TaskFilterSettingsForm } from "../common/components/TaskFilterSettingsForm";
 import { SettingsList } from "../common/components/SettingsList";
 import { SettingsListCheckbox } from "../common/components/SettingsListCheckbox";
+import { ConnectionTestResult, saveSettings, testConnection } from "./settingsUtils";
 import { ConnectionTestResultDisplay } from "./ConnectionTestResultDisplay";
 
 interface Props {
@@ -474,6 +475,18 @@ ${this.props.lastSevereError}`;
         connectionTest: result,
         isConnectionTestSlow: false,
       });
+
+      if (result === "good-and-modern" || result === "good-and-legacy") {
+        getSharedObjects().then(objects => {
+          if (objects != null) {
+            // The client can be overly clever and end up in a state where it has a stale/bad
+            // credentials or something similar. It's been difficult to track down, so terminating
+            // the connection on successful test serves both as a bit of a stop-gap if the user
+            // sees the connection is failing but thinks it shouldn't be.
+            objects.api.Auth.Logout();
+          }
+        });
+      }
     });
   };
 
