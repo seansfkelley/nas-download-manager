@@ -193,7 +193,8 @@ class SettingsForm extends React.PureComponent<Props, State> {
                     !mergedSettings.connection.username ||
                     !mergedSettings.connection.password ||
                     this.state.connectionTest === "in-progress" ||
-                    this.state.connectionTest === "good",
+                    this.state.connectionTest === "good-and-modern" ||
+                    this.state.connectionTest === "good-and-legacy",
                 )}
               >
                 {browser.i18n.getMessage("Test_Connection")}

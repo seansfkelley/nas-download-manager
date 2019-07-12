@@ -158,7 +158,7 @@ export class Task extends React.PureComponent<Props, State> {
         this.props.onResume == null ||
         this.state.deleteState === "in-progress" ||
         this.state.pauseResumeState === "in-progress" ||
-        (this.state.pauseResumeState !== "success" && this.state.pauseResumeState !== "none");
+        (this.state.deleteState !== "success" && this.state.pauseResumeState !== "none");
       return (
         <button
           onClick={this.makePauseResume(state === "resumable" ? "resume" : "pause")}
