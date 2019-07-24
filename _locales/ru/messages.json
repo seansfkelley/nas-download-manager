@@ -1,0 +1,687 @@
+{
+  "Add_and_manage_Download_Station_tasks_on_your_Synology_DiskStation": {
+    "message": "Добавляйте и управляйте задачами Download Station на сервере Synology DiskStation.",
+    "description": "Описание расширения.",
+    "test_skip_reference_check": true
+  },
+  "Download_added": {
+    "message": "Загрузка добавлена",
+    "description": "Основной текст уведомления."
+  },
+  "Download_finished": {
+    "message": "Загрузка завершена",
+    "description": "Основной текст уведомления."
+  },
+  "Download_with_DownloadStation": {
+    "message": "Скачать с помощью DownloadStation",
+    "description": "Заголовок пункта контекстного меню."
+  },
+  "Selected_text_is_not_a_valid_URL": {
+    "message": "Выделенный текст не является допустимым URL-адресом",
+    "description": "Основной текст уведомления."
+  },
+  "Failed_to_connect_to_DiskStation": {
+    "message": "Не удалось подключиться к DiskStation",
+    "description": "Название уведомления."
+  },
+  "Please_check_your_settings": {
+    "message": "Пожалуйста, проверьте свои настройки",
+    "description": "Основной текст уведомления."
+  },
+  "eMule_is_not_enabled": {
+    "message": "eMule не включен",
+    "description": "Название уведомления."
+  },
+  "Use_DSM_to_enable_eMule_downloads": {
+    "message": "Используйте DSM для включения загрузки eMule",
+    "description": "Основной текст уведомления."
+  },
+  "Failed_to_add_download": {
+    "message": "Не удалось добавить загрузку",
+    "description": "Название уведомления."
+  },
+  "URL_must_start_with_one_of_ZprotocolsZ": {
+    "message": "URL-адрес должен начинаться с одного из $PROTOCOLS$.",
+    "description": "Основной текст уведомления.",
+    "placeholders": {
+      "protocols": {
+        "content": "$1",
+        "example": "http, https, ftp"
+      }
+    }
+  },
+  "URL_is_empty_or_missing": {
+    "message": "URL-адрес пуст или отсутствует",
+    "description": "Основной текст уведомления."
+  },
+  "Unexpected_error_please_check_your_settings_and_try_again": {
+    "message": "Непредвиденная ошибка; проверьте настройки и повторите попытку",
+    "description": "Основной текст уведомления."
+  },
+  "URL_to_download": {
+    "message": "URL-адрес для загрузки...",
+    "description": "Заполнитель для расширенной формы добавления."
+  },
+  "Download_to": {
+    "message": "Скачать в",
+    "description": "Указатель для имени каталога в 'Дополнительно->Добавить'."
+  },
+  "default_location": {
+    "message": "расположение по умолчанию",
+    "description": "Значение по умолчанию для имени каталога формы в 'Дополнительно->Добавить'."
+  },
+  "Dont_add_a_new_task": {
+    "message": "Не добавляйте новую задачу",
+    "description": "Подсказка для кнопки отмены формы в 'Дополнительно->Добавить'"
+  },
+  "Cancel": {
+    "message": "Отмена",
+    "description": "Текст кнопки отмены формы 'Дополнительно->Добавить'."
+  },
+  "Download_the_above_URL_to_the_specified_location": {
+    "message": "Загрузить указанный выше URL-адрес в указанное расположение",
+    "description": "Подсказка для кнопки добавления формы 'Дополнительно->Добавить'."
+  },
+  "Add": {
+    "message": "Добавить",
+    "description": "Текст кнопки добавления формы 'Дополнительно->Добавить'."
+  },
+  "Loading": {
+    "message": "Загрузка...",
+    "description": "Общий текст загрузки."
+  },
+  "Expandcollapse_directory": {
+    "message": "Развернуть/свернуть каталог",
+    "description": "Подсказка для кнопки развернуть/свернуть в дереве каталогов."
+  },
+  "Settings_unconfigured": {
+    "message": "Настройки несконфигурированы",
+    "description": "Причина сбоя загрузки задачи."
+  },
+  "The_hostname_username_or_password_are_not_configured": {
+    "message": "Имя хоста, имя пользователя или пароль не настроены",
+    "description": "Подсказка по типу сбоя при загрузке задачи."
+  },
+  "Updating": {
+    "message": "Обновление...",
+    "description": "Общий текст обновления."
+  },
+  "Updating_download_tasks": {
+    "message": "Обновление задач загрузки...",
+    "description": "Подсказка для текста 'обновление-в-прогрессе' во всплывающем заголовке."
+  },
+  "Error_updating_tasks": {
+    "message": "Ошибка обновления задач",
+    "description": "Текст для всплывающего заголовка при ошибке загрузки."
+  },
+  "Updated_ZtimeZ": {
+    "message": "Обновлено $TIME$",
+    "description": "Текст для всплывающего заголовка при успешной загрузке.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "пять минут назад"
+      }
+    }
+  },
+  "updating_now": {
+    "message": "(обновление)",
+    "description": "Помимо всплывающей подсказки для всплывающего заголовка, когда выполняется обновление."
+  },
+  "Add_download": {
+    "message": "Добавить загрузку...",
+    "description": "Подсказка для всплывающей кнопки заголовка."
+  },
+  "Open_DownloadStation_UI": {
+    "message": "Открыть интерфейс DownloadStation...",
+    "description": "Подсказка для всплывающей кнопки заголовка."
+  },
+  "Show_task_display_settings": {
+    "message": "Показать настройки отображения задач...",
+    "description": "Подсказка для всплывающей кнопки заголовка."
+  },
+  "Open_settings": {
+    "message": "Открыть настройки...",
+    "description": "Подсказка для всплывающей кнопки заголовка."
+  },
+  "Configure_your_hostname_username_and_password_in_settings": {
+    "message": "Настройте имя хоста, имя пользователя и пароль в настройках.",
+    "description": "Текст для всплывающего окна, когда нет задач, потому что ничего не настроено."
+  },
+  "No_download_tasks": {
+    "message": "Нет задач загрузки.",
+    "description": "Текст для всплывающего окна, когда нет задач, потому что их нет."
+  },
+  "Download_tasks_exist_but_none_match_your_filters": {
+    "message": "Задачи загрузки существуют, но ни один из них не соответствует вашим фильтрам.",
+    "description": "Основной текст для всплывающего окна, когда задачи не отображаются, потому что они все отфильтрованы."
+  },
+  "and_ZcountZ_more_hidden_tasks": {
+    "message": "...и более $COUNT$ задач скрыто.",
+    "description": "Завершающий текст после списка задач, когда некоторые задачи скрыты фильтрами.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "Remove_download": {
+    "message": "Удалить загрузку",
+    "description": "Подсказка для кнопки удалить в элементе списка задач."
+  },
+  "Resume": {
+    "message": "Продолжить",
+    "description": "Подсказка для кнопки возобновить в элементе списка задач."
+  },
+  "Start_seeding": {
+    "message": "Запустить раздачу",
+    "description": "Всплывающая подсказка для кнопки начала раздачи в элементе списка задач."
+  },
+  "Pause": {
+    "message": "Приостановить",
+    "description": "Подсказка для кнопки паузы в элементе списка задач."
+  },
+  "ZpercentZ_ZestimateZ_ZcurrentZ_of_ZtotalZ_at_ZspeedZ": {
+    "message": "$PERCENT$ \u2013 $ESTIMATE$ \u2013 $CURRENT$ из $TOTAL$ на $SPEED$",
+    "description": "Префикс субтитров для загружаемой в данный момент задачи, показывающий статистику.",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "65.5%"
+      },
+      "estimate": {
+        "content": "$2",
+        "example": "Осталось 1:23"
+      },
+      "current": {
+        "content": "$3",
+        "example": "100КБ"
+      },
+      "total": {
+        "content": "$4",
+        "example": "10МБ"
+      },
+      "speed": {
+        "content": "$5",
+        "example": "50КБ/сек"
+      }
+    }
+  },
+  "ZetaZ_remaining": {
+    "message": "Осталось $ETA$",
+    "description": "Суффикс субтитров для загружаемой в данный момент задачи.",
+    "placeholders": {
+      "eta": {
+        "content": "$1",
+        "example": "5:45"
+      }
+    }
+  },
+  "no_estimate": {
+    "message": "нет оценки",
+    "description": "Суффикс субтитров для загружаемой в данный момент задачи."
+  },
+  "ZratioZ_ratio_ZtotalZ_uploaded_at_ZspeedZ": {
+    "message": "Коэфициент $RATIO$ \u2013 загружено $TOTAL$ на $SPEED$",
+    "description": "Подзаголовок для загружаемой в данный момент задачи, показывающий статистику.",
+    "placeholders": {
+      "ratio": {
+        "content": "$1",
+        "example": "1.23"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10МБ"
+      },
+      "speed": {
+        "content": "$3",
+        "example": "50КБ/сек"
+      }
+    }
+  },
+  "100_ZtotalZ_downloaded": {
+    "message": "100% \u2013 загружено $TOTAL$",
+    "description": "Подзаголовок для завершенной, не загружающей задачи, отображающей статистику.",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "10MB"
+      }
+    }
+  },
+  "ZstatusZ_ZpercentZ_ZcurrentZ_of_ZtotalZ_downloaded": {
+    "message": "$STATUS$ \u2013 $PERCENT$ \u2013 загружено $CURRENT$ из $TOTAL$",
+    "description": "Subtitle for status-unknown task showing stats (best effort).",
+    "placeholders": {
+      "status": {
+        "content": "$1",
+        "example": "Приостановлено"
+      },
+      "percent": {
+        "content": "$2",
+        "example": "1.23%"
+      },
+      "current": {
+        "content": "$3",
+        "example": "100КБ"
+      },
+      "total": {
+        "content": "$4",
+        "example": "10МБ"
+      }
+    }
+  },
+  "Downloading": {
+    "message": "Загрузка",
+    "description": "Категория фильтрации состояния задачи."
+  },
+  "Completed_uploading": {
+    "message": "Завершено, раздаётся",
+    "description": "Категория фильтрации состояния задачи."
+  },
+  "Completed_not_uploading": {
+    "message": "Завершено, не раздаётся",
+    "description": "Категория фильтрации состояния задачи."
+  },
+  "Errored": {
+    "message": "Ошибка",
+    "description": "Категория фильтрации состояния задачи."
+  },
+  "Other": {
+    "message": "Другое",
+    "description": "Категория фильтрации состояния задачи."
+  },
+  "Order_tasks_by": {
+    "message": "Упорядочить задачи по",
+    "description": "Текст префикса для выпадающего списка типа сортировки задач."
+  },
+  "name_AZ": {
+    "message": "имя, а-яA-Z",
+    "description": "Тип сортировки задач."
+  },
+  "name_ZA": {
+    "message": "имя, я-аZ-A",
+    "description": "Тип сортировки задач."
+  },
+  "date_added_newest_first": {
+    "message": "дата добавления, сначала новые",
+    "description": "Тип сортировки задач."
+  },
+  "date_added_oldest_first": {
+    "message": "дата добавления, сначала старые",
+    "description": "Тип сортировки задач."
+  },
+  "date_completed_newest_first": {
+    "message": "дата завершения, сначала самое новое",
+    "description": "Тип сортировки задач."
+  },
+  "date_completed_oldest_first": {
+    "message": "дата завершения, сначала самое старое",
+    "description": "Тип сортировки задач."
+  },
+  "_complete_least_first": {
+    "message": "выполнено %, сначала наименьшее",
+    "description": "Тип сортировки задач."
+  },
+  "_complete_most_first": {
+    "message": "выполнено %, сначала наибольшее",
+    "description": "Тип сортировки задач."
+  },
+  "Connection": {
+    "message": "Соединение",
+    "description": "Заголовок для раздела настроек."
+  },
+  "Please_note_that_QuickConnect_IDs_are_not_currently_supported": {
+    "message": "Обратите внимание, что ID QuickConnect в настоящее время не поддерживается.",
+    "description": "Подзаголовок для раздела настроек соединения."
+  },
+  "hostname_or_IP_address": {
+    "message": "имя хоста или IP-адрес",
+    "description": "Заполнитель для поля ввода настроек."
+  },
+  "Username": {
+    "message": "Имя пользователя",
+    "description": "Метка для поля на странице настроек."
+  },
+  "Password": {
+    "message": "Пароль",
+    "description": "Метка для поля на странице настроек."
+  },
+  "Test_Connection": {
+    "message": "Тестовое соединение",
+    "description": "Метка для поля на странице настроек."
+  },
+  "Task_Display_Settings": {
+    "message": "Настройки отображения задач",
+    "description": "Заголовок для раздела настроек."
+  },
+  "Display_these_task_types_in_the_popup_menu": {
+    "message": "Отображать эти типы задач во всплывающем меню.",
+    "description": "Подзаголовок для раздела настроек списка загрузок."
+  },
+  "Miscellaneous": {
+    "message": "Разное",
+    "description": "Заголовок для раздела настроек."
+  },
+  "Notify_when_adding_downloads": {
+    "message": "Уведомлять при добавлении загрузок",
+    "description": "Метка для опции на странице настроек."
+  },
+  "Notify_when_downloads_complete": {
+    "message": "Уведомлять о завершении загрузки",
+    "description": "Метка для опции на странице настроек."
+  },
+  "Check_for_completed_downloads_every": {
+    "message": "Проверять каждую завершённую загрузку",
+    "description": "Префикс для встроенного поля настройки интервала уведомления."
+  },
+  "seconds": {
+    "message": "секунд",
+    "description": "Суффикс для встроенного поля настройки интервала уведомления."
+  },
+  "at_least_15": {
+    "message": "(не менее 15)",
+    "description": "Сообщение об ошибке, когда интервал уведомления слишком короткий."
+  },
+  "Handle_opening_downloadable_link_types_ZprotocolsZ": {
+    "message": "Работа с открывающимися загружаемыми типами ссылок ($PROTOCOLS$)",
+    "description": "Метка для опции на странице настроек.",
+    "placeholders": {
+      "protocols": {
+        "content": "$1",
+        "example": "http, https"
+      }
+    }
+  },
+  "Debugging_Output": {
+    "message": "Вывод отладки",
+    "description": "Заголовок для раздела настроек."
+  },
+  "Clear_output": {
+    "message": "Очистить вывод",
+    "description": "Текст кнопки для очистки результатов отладки."
+  },
+  "Checking_connection": {
+    "message": "Проверка соединения...",
+    "description": "Сообщение о статусе проверки соединения."
+  },
+  "No_changes_to_save": {
+    "message": "Нет изменений для сохранения.",
+    "description": "Сообщение о статусе проверки соединения."
+  },
+  "Changes_saved": {
+    "message": "Изменения сохранены.",
+    "description": "Сообщение о статусе проверки соединения."
+  },
+  "Save_failed_check_your_connection_settings": {
+    "message": "Сохранить не удалось (проверьте настройки подключения).",
+    "description": "Сообщение о статусе проверки соединения."
+  },
+  "Testing_connection": {
+    "message": "Тестирование соединения...",
+    "description": "Сообщение о статусе проверки соединения."
+  },
+  "Testing_connection_this_is_unusually_slow_is_your_NAS_asleep": {
+    "message": "Проверка соединения... (это необычайно медленно, сетевое хранилище спит?)",
+    "description": "Сообщение о статусе проверки соединения."
+  },
+  "Connection_successful": {
+    "message": "Соединение успешно выполнено!",
+    "description": "Сообщение о состоянии проверки соединения."
+  },
+  "Connection_successful_but_may_interfere_with_existing_DSM_sessions_See_": {
+    "message": "Соединение успешно, но может мешать существующим сессиям DSM. Смотрите ",
+    "description": "Приставка для проверки связи."
+  },
+  "issue_32": {
+    "message": "issue #32",
+    "description": "Текст ссылки для проверки статуса подключения."
+  },
+  "_for_more_details": {
+    "message": " чтобы узнать подробности.",
+    "description": "Суффикс для статуса проверки соединения."
+  },
+  "Save_Settings": {
+    "message": "Сохранить настройки",
+    "description": "Метка для глобальной кнопки сохранения на странице настроек."
+  },
+  "Connection_failure_missing_connection_configuration": {
+    "message": "Ошибка соединения (отсутствует конфигурация соединения).",
+    "description": "Объяснительный текст сбоя подключения."
+  },
+  "Connection_failure_likely_wrong_protocol": {
+    "message": "Ошибка подключения (вероятно, неверный протокол).",
+    "description": "Объяснительный текст сбоя подключения."
+  },
+  "Connection_failure_likely_wrong_hostnameport_no_internet_connection_or_invalid_certificate": {
+    "message": "Ошибка подключения (вероятно, неверное имя хоста/порт, нет подключения к Интернету или неверный сертификат).",
+    "description": "Объяснительный текст сбоя подключения."
+  },
+  "Connection_failure_timeout_check_your_hostnameport_settings_and_internet_connection": {
+    "message": "Ошибка подключения (время вышло; проверьте настройки имени хоста/порта и подключение к интернету).",
+    "description": "Объяснительный текст сбоя подключения."
+  },
+  "Connection_failure_unknown_reason": {
+    "message": "Ошибка подключения (неизвестная причина).",
+    "description": "Объяснительный текст сбоя подключения."
+  },
+  "Private_browsing_mode_is_not_currently_supported": {
+    "message": "Режим приватного просмотра в настоящее время не поддерживается.",
+    "description": "Апологетический текст, который является полным всплывающим окном, когда пользователь пытается открыть его в приватном режиме просмотра."
+  },
+  "Unknown_error_displaying_tasks": {
+    "message": "Неизвестная ошибка при отображении задач.",
+    "description": "Основной пояснительный текст для всплывающего окна, когда мы имеем фатальную ошибку визуализации."
+  },
+  "Your_download_tasks_are_not_affected": {
+    "message": "Это не влияет на выполнение задач по загрузке.",
+    "description": "Обнадеживающий пояснительный текст, когда у нас возникает фатальная ошибка визуализации."
+  },
+  "Please_": {
+    "message": "Пожалуйста ",
+    "description": "Префикс для текста действия для всплывающего окна, когда пользователь просит сообщить об ошибке, когда мы имеем фатальную ошибку визуализации."
+  },
+  "file_a_bug": {
+    "message": "сообщите об ошибке",
+    "description": "Текст ссылки для всплывающего окна при обращении к пользователю с просьбой отправить сообщение об ошибке при обнаружении фатальной ошибки визуализации."
+  },
+  "_and_include_the_information_below": {
+    "message": " и включите информацию ниже.",
+    "description": "Суффикс для текста действия для всплывающего окна, когда пользователь просит сообщить об ошибке, когда у нас возникает фатальная ошибка визуализации."
+  },
+  "Clear_ZcountZ_Completed_Tasks": {
+    "message": "Очистить $COUNT$ выполненых задач",
+    "description": "Метка для кнопки, чтобы очистить выполненные задачи загрузки.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "Clear_tasks_that_are_completed_and_not_currently_uploading": {
+    "message": "Очистить задачи, которые завершены и не загружаются в данный момент",
+    "description": "Подсказка для кнопки, чтобы очистить завершенные задачи загрузки."
+  },
+  "Unknown_error": {
+    "message": "Неизвестная ошибка.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "Invalid_parameter": {
+    "message": "Неверный параметр.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "The_requested_API_does_not_exist": {
+    "message": "Запрашиваемый API не существует.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "The_requested_method_does_not_exist": {
+    "message": "Запрашиваемый метод не существует.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "The_requested_version_does_not_support_this_functionality": {
+    "message": "Запрошенная функция не поддерживает эту версию.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "The_logged_in_session_does_not_have_permission": {
+    "message": "Вход в сеанс не имеет разрешения.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "Session_timeout": {
+    "message": "Вышло время сеанса.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "Session_interrupted_by_duplicate_login": {
+    "message": "Сессия прервана повторным входом в систему.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "No_such_username_or_incorrect_password": {
+    "message": "Такого имени пользователя не существует или неверный пароль.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "Account_disabled": {
+    "message": "Учетная запись отключена.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "Permission_denied": {
+    "message": "Доступ запрещен.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "Twostep_verification_needed": {
+    "message": "Требуется двухэтапная проверка.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "Twostep_verification_failed": {
+    "message": "Двухэтапная проверка не удалась.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "File_upload_failed": {
+    "message": "Ошибка загрузки файла.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "Max_number_of_tasks_reached": {
+    "message": "Достигнуто максимальное количество выполненных задач.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "Destination_denied": {
+    "message": "Место назначения отклонено.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "Destination_does_not_exist": {
+    "message": "Место назначения не существует.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "Invalid_task_ID": {
+    "message": "Недопустимый ID задачи.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "Invalid_task_action": {
+    "message": "Недопустимое действие задачи.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "No_default_destination": {
+    "message": "Нет места назначения по умолчанию.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "Set_destination_failed": {
+    "message": "Не удалось установить места назначения.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "File_does_not_exist": {
+    "message": "Файла не существует.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "Invalid_parameter_of_file_operation": {
+    "message": "Недопустимый параметр работы с файлом.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "Unknown_error_of_file_operation": {
+    "message": "Неизвестная ошибка работы с файлом.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "System_is_too_busy": {
+    "message": "Система слишком занята.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "Invalid_user_does_this_file_operation": {
+    "message": "Недопустимый пользователь выполняет эту операцию с файлом.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "Invalid_group_does_this_file_operation": {
+    "message": "Недопустимая группа выполняет эту операцию с файлом.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "Invalid_user_and_group_does_this_file_operation": {
+    "message": "Недопустимый пользователь и группа выполняет эту операцию с файлом.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "Cant_get_usergroup_information_from_the_account_server": {
+    "message": "Не удается получить информацию о пользователе/группе с сервера учетных записей.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "Operation_not_permitted": {
+    "message": "Операция не разрешена.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "No_such_file_or_directory": {
+    "message": "Нет такого файла или каталога.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "Nonsupported_file_system": {
+    "message": "Файловая система не поддерживается.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "Failed_to_connect_internetbased_file_system_ex_CIFS": {
+    "message": "Не удалось подключить файловую систему на базе Интернета (например: CIFS).",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "Readonly_file_system": {
+    "message": "Файловая система только для чтения.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "Filename_too_long_in_the_nonencrypted_file_system": {
+    "message": "Имя файла слишком длинное в незашифрованной файловой системе.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "Filename_too_long_in_the_encrypted_file_system": {
+    "message": "Имя файла слишком длинное в зашифрованной файловой системе.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "File_already_exists": {
+    "message": "Файл уже существует.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "Disk_quota_exceeded": {
+    "message": "Превышена дисковая квота.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "No_space_left_on_device": {
+    "message": "На устройстве не осталось места.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "Inputoutput_error": {
+    "message": "Ошибка ввода/вывода.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "Illegal_name_or_path": {
+    "message": "Неверное имя или путь.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "Illegal_file_name": {
+    "message": "Неверное имя файла.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "Illegal_file_name_on_FAT_file_system": {
+    "message": "Illegal file name on FAT file system.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "Device_or_resource_busy": {
+    "message": "Устройство или ресурс занят.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  },
+  "No_such_task_of_the_file_operation": {
+    "message": "Нет такой задачи работы с файлом.",
+    "description": "Сообщение об ошибке при сбое вызова Synology API."
+  }
+}
