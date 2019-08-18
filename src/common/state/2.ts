@@ -1,5 +1,4 @@
 import { DownloadStationTask } from "synology-typescript-api";
-import { OmitStrict } from "type-zoo";
 
 import {
   state0to1,
@@ -49,7 +48,7 @@ export function state1to2(state: State_1): State {
   };
   delete state.cachedTasksVersion;
   return {
-    ...(state as OmitStrict<State_1, "cachedTasksVersion">),
+    ...(state as Omit<State_1, "cachedTasksVersion">),
     // Clear tasks as we changed the shape of the request.
     tasks: [],
     taskFetchFailureReason: null,

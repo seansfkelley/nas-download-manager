@@ -45,7 +45,6 @@
     "query-string": "^6.8.2",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
-    "synology-typescript-api": "^0.3.5",
-    "type-zoo": "^3.3.0"
+    "synology-typescript-api": "^0.3.5"
   }
 }

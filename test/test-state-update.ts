@@ -1,7 +1,6 @@
 import "mocha";
 import { expect } from "chai";
 import { DownloadStationTask } from "synology-typescript-api";
-import { OmitStrict } from "type-zoo";
 
 import { updateStateToLatest } from "../src/common/state/update";
 import { State as State_1 } from "../src/common/state/1";
@@ -378,7 +377,7 @@ describe("state versioning", () => {
   });
 
   it("should update to the latest version from an erroneous version 2 missing fields", () => {
-    const before: OmitStrict<State_2, "taskSortType" | "shouldHandleDownloadLinks"> = {
+    const before: Omit<State_2, "taskSortType" | "shouldHandleDownloadLinks"> = {
       connection: {
         protocol: "http",
         hostname: "hostname",
