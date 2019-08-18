@@ -15,6 +15,9 @@
     "url": "git+https://github.com/seansfkelley/synology-download-manager.git"
   },
   "license": "MIT",
+  "browserslist": [
+    "since 2017-06"
+  ],
   "devDependencies": {
     "@types/chai": "^4.0.4",
     "@types/classnames": "^0.0.32",
