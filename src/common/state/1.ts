@@ -1,16 +1,16 @@
 import { DownloadStationTask } from "synology-typescript-api";
 
-export type Protocol_1 = "http" | "https";
+export type Protocol = "http" | "https";
 
-export interface ConnectionSettings_1 {
-  protocol: Protocol_1;
+export interface ConnectionSettings {
+  protocol: Protocol;
   hostname: string;
   port: number;
   username: string;
   password: string;
 }
 
-export interface VisibleTaskSettings_1 {
+export interface VisibleTaskSettings {
   downloading: boolean;
   uploading: boolean;
   completed: boolean;
@@ -18,12 +18,12 @@ export interface VisibleTaskSettings_1 {
   other: boolean;
 }
 
-export interface NotificationSettings_1 {
+export interface NotificationSettings {
   enabled: boolean;
   pollingInterval: number;
 }
 
-export type TaskSortType_1 =
+export type TaskSortType =
   | "name-asc"
   | "name-desc"
   | "timestamp-completed-asc"
@@ -33,15 +33,15 @@ export type TaskSortType_1 =
   | "completed-percent-asc"
   | "completed-percent-desc";
 
-export interface Settings_1 {
-  connection: ConnectionSettings_1;
-  visibleTasks: VisibleTaskSettings_1;
-  taskSortType: TaskSortType_1;
-  notifications: NotificationSettings_1;
+export interface Settings {
+  connection: ConnectionSettings;
+  visibleTasks: VisibleTaskSettings;
+  taskSortType: TaskSortType;
+  notifications: NotificationSettings;
   shouldHandleDownloadLinks: boolean;
 }
 
-export interface CachedTasks_1 {
+export interface CachedTasks {
   cachedTasksVersion: number;
   tasks: DownloadStationTask[];
   taskFetchFailureReason: "missing-config" | { failureMessage: string } | null;
@@ -49,13 +49,13 @@ export interface CachedTasks_1 {
   tasksLastCompletedFetchTimestamp: number | null;
 }
 
-export interface StateVersion_1 {
+export interface StateVersion {
   stateVersion: 1;
 }
 
-export interface State_1 extends Settings_1, CachedTasks_1, StateVersion_1 {}
+export interface State extends Settings, CachedTasks, StateVersion {}
 
-export function state0to1(_state: null | undefined): State_1 {
+export function state0to1(_state: null | undefined): State {
   return {
     connection: {
       protocol: "https",

@@ -1,43 +1,48 @@
 import { DownloadStationTask } from "synology-typescript-api";
 import { OmitStrict } from "type-zoo";
-import { state0to1 } from "./1";
 
-export { Protocol_1, VisibleTaskSettings_1, TaskSortType_1, ConnectionSettings_1 } from "./1";
+import {
+  state0to1,
+  State as State_1,
+  ConnectionSettings as ConnectionSettings_1,
+  VisibleTaskSettings as VisibleTaskSettings_1,
+  TaskSortType as TaskSortType_1,
+} from "./1";
 
-import { State_1, ConnectionSettings_1, VisibleTaskSettings_1, TaskSortType_1 } from "./1";
+export { Protocol, VisibleTaskSettings, TaskSortType, ConnectionSettings } from "./1";
 
-export interface NotificationSettings_2 {
+export interface NotificationSettings {
   enableFeedbackNotifications: boolean;
   enableCompletionNotifications: boolean;
   completionPollingInterval: number;
 }
 
-export interface Settings_2 {
+export interface Settings {
   connection: ConnectionSettings_1;
   visibleTasks: VisibleTaskSettings_1;
   taskSortType: TaskSortType_1;
-  notifications: NotificationSettings_2;
+  notifications: NotificationSettings;
   shouldHandleDownloadLinks: boolean;
 }
 
-export interface CachedTasks_2 {
+export interface CachedTasks {
   tasks: DownloadStationTask[];
   taskFetchFailureReason: "missing-config" | { failureMessage: string } | null;
   tasksLastInitiatedFetchTimestamp: number | null;
   tasksLastCompletedFetchTimestamp: number | null;
 }
 
-export interface Logging_2 {
+export interface Logging {
   lastSevereError: any | undefined;
 }
 
-export interface StateVersion_2 {
+export interface StateVersion {
   stateVersion: 2;
 }
 
-export interface State_2 extends Settings_2, CachedTasks_2, Logging_2, StateVersion_2 {}
+export interface State extends Settings, CachedTasks, Logging, StateVersion {}
 
-export function state1to2(state: State_1): State_2 {
+export function state1to2(state: State_1): State {
   state = {
     ...state0to1(null),
     ...state,

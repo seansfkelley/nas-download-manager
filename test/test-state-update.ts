@@ -4,9 +4,9 @@ import { DownloadStationTask } from "synology-typescript-api";
 import { OmitStrict } from "type-zoo";
 
 import { updateStateToLatest } from "../src/common/state/update";
-import { State_1 } from "../src/common/state/1";
-import { State_2 } from "../src/common/state/2";
-import { State as LatestState } from "../src/common/state/latest";
+import { State as State_1 } from "../src/common/state/1";
+import { State as State_2 } from "../src/common/state/2";
+import { State as State_3 } from "../src/common/state/3";
 
 interface PreVersioningState_0 {
   connection: {
@@ -83,7 +83,7 @@ describe("state versioning", () => {
       tasksLastInitiatedFetchTimestamp: 0,
     };
 
-    const after: LatestState = {
+    const after: State_3 = {
       connection: {
         protocol: "http",
         hostname: "hostname",
@@ -146,7 +146,7 @@ describe("state versioning", () => {
       cachedTasksVersion: 0,
     };
 
-    const after: LatestState = {
+    const after: State_3 = {
       connection: {
         protocol: "http",
         hostname: "hostname",
@@ -181,7 +181,7 @@ describe("state versioning", () => {
   });
 
   it("should update to the latest version with a degenerate tasks-only state", () => {
-    const after: LatestState = {
+    const after: State_3 = {
       connection: {
         protocol: "https",
         hostname: "",
@@ -215,7 +215,7 @@ describe("state versioning", () => {
   });
 
   it("should update to the latest version from version 0 (no state)", () => {
-    const after: LatestState = {
+    const after: State_3 = {
       connection: {
         protocol: "https",
         hostname: "",
@@ -278,7 +278,7 @@ describe("state versioning", () => {
       stateVersion: 1,
     };
 
-    const after: LatestState = {
+    const after: State_3 = {
       connection: {
         protocol: "http",
         hostname: "hostname",
@@ -343,7 +343,7 @@ describe("state versioning", () => {
       stateVersion: 2,
     };
 
-    const after: LatestState = {
+    const after: State_3 = {
       connection: {
         protocol: "http",
         hostname: "hostname",
@@ -406,7 +406,7 @@ describe("state versioning", () => {
       stateVersion: 2,
     };
 
-    const after: LatestState = {
+    const after: State_3 = {
       connection: {
         protocol: "http",
         hostname: "hostname",
@@ -441,7 +441,7 @@ describe("state versioning", () => {
   });
 
   it("should do nothing when the state is already latest", () => {
-    const before: LatestState = {
+    const before: State_3 = {
       connection: {
         protocol: "http",
         hostname: "hostname",
