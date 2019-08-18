@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as moment from "moment";
-import * as classNames from "classnames";
+import classNames from "classnames";
 import debounce from "lodash-es/debounce";
 import { DownloadStationTask, ApiClient } from "synology-typescript-api";
 

@@ -1,5 +1,5 @@
 import * as React from "react";
-import * as classNames from "classnames";
+import classNames from "classnames";
 
 import { errorMessageFromCode, errorMessageFromConnectionFailure } from "../common/apis/errors";
 import { ConnectionTestResult, isErrorCodeResult } from "./settingsUtils";

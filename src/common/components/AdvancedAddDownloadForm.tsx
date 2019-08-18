@@ -1,7 +1,7 @@
 import * as React from "react";
 import last from "lodash-es/last";
 import { ApiClient } from "synology-typescript-api";
-import * as classNames from "classnames";
+import classNames from "classnames";
 
 import { PathSelector } from "./PathSelector";
 

@@ -6,7 +6,7 @@ import merge from "lodash-es/merge";
 import cloneDeep from "lodash-es/cloneDeep";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import * as classNames from "classnames";
+import classNames from "classnames";
 
 import {
   State as ExtensionState,

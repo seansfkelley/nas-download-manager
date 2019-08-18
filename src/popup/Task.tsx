@@ -2,7 +2,7 @@ import * as React from "react";
 import startCase from "lodash-es/startCase";
 import upperCase from "lodash-es/upperCase";
 import { DownloadStationTask } from "synology-typescript-api";
-import * as classNames from "classnames";
+import classNames from "classnames";
 
 import { formatMetric1024, formatTime, formatPercentage } from "../common/format";
 import { CallbackResponse } from "./popupTypes";
