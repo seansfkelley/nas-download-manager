@@ -26,6 +26,46 @@ let notificationInterval: number | undefined;
 
 let showNonErrorNotifications: boolean = true;
 
+browser.contextMenus.create({
+  enabled: true,
+  title: browser.i18n.getMessage("Download_with_DownloadStation"),
+  contexts: ["link", "audio", "video", "selection"],
+  onclick: data => {
+    if (data.linkUrl) {
+      addDownloadTaskAndPoll(api, showNonErrorNotifications, data.linkUrl);
+    } else if (data.srcUrl) {
+      addDownloadTaskAndPoll(api, showNonErrorNotifications, data.srcUrl);
+    } else if (data.selectionText) {
+      // The cheapest of checks. Actual invalid URLs will be caught later.
+      const trimmedUrl = data.selectionText.trim();
+      if (startsWithAnyProtocol(trimmedUrl, ALL_DOWNLOADABLE_PROTOCOLS)) {
+        addDownloadTaskAndPoll(api, showNonErrorNotifications, data.selectionText);
+      } else {
+        notify(
+          browser.i18n.getMessage("Failed_to_add_download"),
+          browser.i18n.getMessage("Selected_text_is_not_a_valid_URL"),
+          "failure",
+        );
+      }
+    } else {
+      notify(
+        browser.i18n.getMessage("Failed_to_add_download"),
+        browser.i18n.getMessage("URL_is_empty_or_missing"),
+        "failure",
+      );
+    }
+  },
+});
+
+browser.runtime.onMessage.addListener(message => {
+  if (isAddTaskMessage(message)) {
+    return addDownloadTaskAndPoll(api, showNonErrorNotifications, message.url);
+  } else {
+    console.error("received a message of unknown type", message);
+    return undefined;
+  }
+});
+
 updateStateShapeIfNecessary()
   .then(() => {
     onStoredStateChange(storedState => {
@@ -116,43 +156,3 @@ updateStateShapeIfNecessary()
     });
   })
   .catch(onUnhandledError);
-
-browser.contextMenus.create({
-  enabled: true,
-  title: browser.i18n.getMessage("Download_with_DownloadStation"),
-  contexts: ["link", "audio", "video", "selection"],
-  onclick: data => {
-    if (data.linkUrl) {
-      addDownloadTaskAndPoll(api, showNonErrorNotifications, data.linkUrl);
-    } else if (data.srcUrl) {
-      addDownloadTaskAndPoll(api, showNonErrorNotifications, data.srcUrl);
-    } else if (data.selectionText) {
-      // The cheapest of checks. Actual invalid URLs will be caught later.
-      const trimmedUrl = data.selectionText.trim();
-      if (startsWithAnyProtocol(trimmedUrl, ALL_DOWNLOADABLE_PROTOCOLS)) {
-        addDownloadTaskAndPoll(api, showNonErrorNotifications, data.selectionText);
-      } else {
-        notify(
-          browser.i18n.getMessage("Failed_to_add_download"),
-          browser.i18n.getMessage("Selected_text_is_not_a_valid_URL"),
-          "failure",
-        );
-      }
-    } else {
-      notify(
-        browser.i18n.getMessage("Failed_to_add_download"),
-        browser.i18n.getMessage("URL_is_empty_or_missing"),
-        "failure",
-      );
-    }
-  },
-});
-
-browser.runtime.onMessage.addListener(message => {
-  if (isAddTaskMessage(message)) {
-    return addDownloadTaskAndPoll(api, showNonErrorNotifications, message.url);
-  } else {
-    console.error("received a message of unknown type", message);
-    return undefined;
-  }
-});
