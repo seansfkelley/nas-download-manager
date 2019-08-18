@@ -60,7 +60,7 @@ If you, like me, are paranoid that open-source extensions may not show you the s
     In **Firefox**, visit `about:support` > Application Basics > Profile Folder to open your profile folder. There, you can find this extension at `extensions/{b17c0686-033c-4d03-b526-b16c99998c98}.xpi`.
 
 4. Unzip the extension file into a folder (it may not have a `.zip` extension, but it is a zip file).
-5. Inside you will see a subset of the file hierarchy that you see in your copy of the repo. All the Javascript is contained in `dist/js`. 
+5. Inside you will see a subset of the file hierarchy that you see in your copy of the repo. All the Javascript is contained in `dist/js`.
 
     If you'd like to, you can scan the other files as well and verify that there is no executable code inside them. Most of them are CSS styles or JSON configuration.
 
