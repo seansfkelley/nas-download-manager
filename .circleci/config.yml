@@ -1,7 +1,7 @@
 version: 2
 jobs:
   build:
-    working_directory: ~/synology-typescript-api
+    working_directory: ~/synology-download-manager
     docker:
       - image: circleci/node:8.9.0
     steps:
