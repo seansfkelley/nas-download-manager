@@ -1,34 +1,4 @@
-import { ApiClient } from "synology-typescript-api";
-
-export interface SharedObjects {
-  api: ApiClient;
-}
-
-export function setSharedObjects(objects: SharedObjects) {
-  if (browser.runtime.getBackgroundPage != null) {
-    return browser.runtime.getBackgroundPage().then(window => {
-      (window as any).__sharedObjects = objects;
-    });
-  } else {
-    return Promise.reject(new Error("cannot get background page in this environment"));
-  }
-}
-
-export function getSharedObjects() {
-  if (browser.runtime.getBackgroundPage != null) {
-    return browser.runtime.getBackgroundPage().then(window => {
-      if (window) {
-        return (window as any).__sharedObjects as (SharedObjects | undefined);
-      } else {
-        return undefined;
-      }
-    });
-  } else {
-    return Promise.reject(new Error("cannot get background page in this environment"));
-  }
-}
-
-export const ADD_TASK_MESSAGE_TYPE = "add-task";
+export const ADD_TASK_MESSAGE_TYPE = "add-task" as const;
 
 export interface AddTaskMessage {
   type: typeof ADD_TASK_MESSAGE_TYPE;
@@ -39,7 +9,7 @@ export function isAddTaskMessage(message: object | null | undefined): message is
   return message != null && (message as any).type === ADD_TASK_MESSAGE_TYPE;
 }
 
-export function sendTaskAddMessage(url: string) {
+export function sendAddTaskMessage(url: string) {
   const addTaskMessage = {
     type: ADD_TASK_MESSAGE_TYPE,
     url,

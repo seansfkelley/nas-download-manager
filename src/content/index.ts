@@ -1,5 +1,5 @@
 import "../common/init/sharedContext";
-import { sendTaskAddMessage } from "../common/apis/messages";
+import { sendAddTaskMessage } from "../common/apis/messages";
 import { onStoredStateChange } from "../common/state";
 import { DOWNLOAD_ONLY_PROTOCOLS, startsWithAnyProtocol } from "../common/apis/protocols";
 
@@ -36,7 +36,7 @@ document.addEventListener("click", (e: MouseEvent) => {
       anchor.href &&
       startsWithAnyProtocol(anchor.href, DOWNLOAD_ONLY_PROTOCOLS)
     ) {
-      sendTaskAddMessage(anchor.href);
+      sendAddTaskMessage(anchor.href);
       e.preventDefault();
     }
   }

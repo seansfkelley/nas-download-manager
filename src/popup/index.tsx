@@ -19,7 +19,7 @@ import {
   getHostUrl,
 } from "../common/state";
 import { onUnhandledError } from "../common/errorHandlers";
-import { getSharedObjects } from "../common/apis/messages";
+import { getSharedObjects } from "../common/apis/sharedObjects";
 import { addDownloadTaskAndPoll, pollTasks } from "../common/apis/actions";
 import { CallbackResponse } from "./popupTypes";
 import { matchesFilter, sortTasks } from "./filtering";

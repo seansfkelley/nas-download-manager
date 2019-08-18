@@ -8,7 +8,8 @@ import {
   updateStateShapeIfNecessary,
 } from "../common/state";
 import { notify } from "../common/apis/browserUtils";
-import { setSharedObjects, isAddTaskMessage } from "../common/apis/messages";
+import { setSharedObjects } from "../common/apis/sharedObjects";
+import { isAddTaskMessage } from "../common/apis/messages";
 import { addDownloadTaskAndPoll, pollTasks, clearCachedTasks } from "../common/apis/actions";
 import { onUnhandledError } from "../common/errorHandlers";
 import { ALL_DOWNLOADABLE_PROTOCOLS, startsWithAnyProtocol } from "../common/apis/protocols";

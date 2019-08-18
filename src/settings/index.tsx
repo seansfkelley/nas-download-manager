@@ -24,7 +24,7 @@ import {
   SETTING_NAMES,
 } from "../common/state";
 import { BUG_REPORT_URL } from "../common/constants";
-import { getSharedObjects } from "../common/apis/messages";
+import { getSharedObjects } from "../common/apis/sharedObjects";
 import { DOWNLOAD_ONLY_PROTOCOLS } from "../common/apis/protocols";
 import { assertNever } from "../common/lang";
 import { TaskFilterSettingsForm } from "../common/components/TaskFilterSettingsForm";
