@@ -1,12 +1,8 @@
 import * as React from "react";
-import * as momentProxy from "moment";
-import * as classNamesProxy from "classnames";
+import * as moment from "moment";
+import * as classNames from "classnames";
 import debounce from "lodash-es/debounce";
 import { DownloadStationTask, ApiClient } from "synology-typescript-api";
-
-// https://github.com/rollup/rollup/issues/1267
-const moment: typeof momentProxy = (momentProxy as any).default || momentProxy;
-const classNames: typeof classNamesProxy = (classNamesProxy as any).default || classNamesProxy;
 
 import { AdvancedAddDownloadForm } from "../common/components/AdvancedAddDownloadForm";
 import { VisibleTaskSettings, TaskSortType } from "../common/state";

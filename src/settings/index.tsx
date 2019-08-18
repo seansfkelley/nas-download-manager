@@ -6,10 +6,7 @@ import merge from "lodash-es/merge";
 import cloneDeep from "lodash-es/cloneDeep";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import * as classNamesProxy from "classnames";
-
-// https://github.com/rollup/rollup/issues/1267
-const classNames: typeof classNamesProxy = (classNamesProxy as any).default || classNamesProxy;
+import * as classNames from "classnames";
 
 import {
   State as ExtensionState,

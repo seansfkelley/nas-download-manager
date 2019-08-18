@@ -1,7 +1,5 @@
 import * as React from "react";
-import * as classNamesProxy from "classnames";
-
-const classNames: typeof classNamesProxy = (classNamesProxy as any).default || classNamesProxy;
+import * as classNames from "classnames";
 
 import { errorMessageFromCode, errorMessageFromConnectionFailure } from "../common/apis/errors";
 import { ConnectionTestResult, isErrorCodeResult } from "./settingsUtils";
@@ -57,7 +55,7 @@ export class ConnectionTestResultDisplay extends React.PureComponent<Props, {}> 
     }
   }
 
-  renderResult(text?: React.ReactNode, icon?: string, className?: string) {
+  private renderResult(text?: React.ReactNode, icon?: string, className?: string) {
     return (
       <span className={classNames("connection-test-result", className)}>
         {icon && <span className={classNames("fa", icon)} />}

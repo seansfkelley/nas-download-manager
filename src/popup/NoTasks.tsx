@@ -1,7 +1,5 @@
 import * as React from "react";
-import * as classNamesProxy from "classnames";
-
-const classNames: typeof classNamesProxy = (classNamesProxy as any).default || classNamesProxy;
+import * as classNames from "classnames";
 
 export interface Props {
   icon: string;
