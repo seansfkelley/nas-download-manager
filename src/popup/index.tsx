@@ -6,7 +6,13 @@ import * as ReactDOM from "react-dom";
 import * as momentProxy from "moment";
 import * as classNamesProxy from "classnames";
 import debounce from "lodash-es/debounce";
-import { SynologyResponse, DownloadStationTask, ApiClient } from "synology-typescript-api";
+import {
+  SynologyResponse,
+  DownloadStationTask,
+  ApiClient,
+  ConnectionFailure,
+  isConnectionFailure,
+} from "synology-typescript-api";
 
 // https://github.com/rollup/rollup/issues/1267
 const moment: typeof momentProxy = (momentProxy as any).default || momentProxy;
@@ -29,7 +35,7 @@ import { Task } from "./Task";
 import { NoTasks } from "./NoTasks";
 import { FatalError } from "./FatalError";
 import { FatalErrorWrapper } from "./FatalErrorWrapper";
-import { errorMessageFromCode } from "../common/apis/errors";
+import { errorMessageFromCode, errorMessageFromConnectionFailure } from "../common/apis/errors";
 import { TaskFilterSettingsForm } from "../common/components/TaskFilterSettingsForm";
 
 function disabledPropAndClassName(disabled: boolean, className?: string) {
@@ -184,11 +190,10 @@ class Popup extends React.PureComponent<PopupProps, State> {
   private renderDisplaySettings() {
     const completedTaskIds = this.props.tasks.filter(t => t.status === "finished").map(t => t.id);
     const deleteTasks = this.props.deleteTasks
-      ? () => {
+      ? async () => {
           this.setState({ isClearingCompletedTasks: true });
-          this.props.deleteTasks!(completedTaskIds).then(() => {
-            this.setState({ isClearingCompletedTasks: false });
-          });
+          await this.props.deleteTasks!(completedTaskIds);
+          this.setState({ isClearingCompletedTasks: false });
         }
       : undefined;
     return (
@@ -361,21 +366,32 @@ getSharedObjects()
         pollTasks(api);
       }, 10000);
 
-      function convertResponse(response: SynologyResponse<any>): CallbackResponse {
-        if (response.success) {
-          return "success";
+      function convertResponse(
+        response:
+          | SynologyResponse<any>
+          | ConnectionFailure
+          | {
+              type: "missing-config";
+            },
+      ): CallbackResponse {
+        if (isConnectionFailure(response)) {
+          return {
+            failMessage: errorMessageFromConnectionFailure(response),
+          };
+        } else if (!response.success) {
+          return {
+            failMessage: errorMessageFromCode(response.error.code, "DownloadStation.Task"),
+          };
         } else {
-          const reason = errorMessageFromCode(response.error.code, "DownloadStation.Task");
-          return { failMessage: reason };
+          return "success";
         }
       }
 
-      function reloadOnSuccess(response: CallbackResponse): Promise<CallbackResponse> {
+      async function reloadOnSuccess(response: CallbackResponse): Promise<CallbackResponse> {
         if (response === "success") {
-          return pollTasks(api).then(() => response);
-        } else {
-          return Promise.resolve(response);
+          await pollTasks(api);
         }
+        return response;
       }
 
       function changeVisibleTasks(visibleTasks: VisibleTaskSettings) {
@@ -403,41 +419,39 @@ getSharedObjects()
           : undefined;
 
         const createTask = hostUrl
-          ? (url: string, path?: string) => {
-              return addDownloadTaskAndPoll(
+          ? (url: string, path?: string) =>
+              addDownloadTaskAndPoll(
                 api,
                 storedState.notifications.enableFeedbackNotifications,
                 url,
                 path,
-              );
-            }
+              )
           : undefined;
 
         const pauseTask = hostUrl
-          ? (taskId: string) => {
-              return api.DownloadStation.Task.Pause({ id: [taskId] })
-                .then(convertResponse)
-                .then(reloadOnSuccess);
-            }
+          ? async (taskId: string) =>
+              reloadOnSuccess(
+                convertResponse(await api.DownloadStation.Task.Pause({ id: [taskId] })),
+              )
           : undefined;
 
         const resumeTask = hostUrl
-          ? (taskId: string) => {
-              return api.DownloadStation.Task.Resume({ id: [taskId] })
-                .then(convertResponse)
-                .then(reloadOnSuccess);
-            }
+          ? async (taskId: string) =>
+              reloadOnSuccess(
+                convertResponse(await api.DownloadStation.Task.Resume({ id: [taskId] })),
+              )
           : undefined;
 
         const deleteTasks = hostUrl
-          ? (taskIds: string[]) => {
-              return api.DownloadStation.Task.Delete({
-                id: taskIds,
-                force_complete: false,
-              })
-                .then(convertResponse)
-                .then(reloadOnSuccess);
-            }
+          ? async (taskIds: string[]) =>
+              reloadOnSuccess(
+                convertResponse(
+                  await api.DownloadStation.Task.Delete({
+                    id: taskIds,
+                    force_complete: false,
+                  }),
+                ),
+              )
           : undefined;
 
         ReactDOM.render(

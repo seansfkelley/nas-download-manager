@@ -19,6 +19,8 @@ import {
   startsWithAnyProtocol,
 } from "./protocols";
 
+const METHOD_NOT_ALLOWED_CODE = 405;
+
 export function clearCachedTasks() {
   const emptyState: CachedTasks = {
     tasks: [],
@@ -30,7 +32,14 @@ export function clearCachedTasks() {
   return browser.storage.local.set(emptyState);
 }
 
-export function pollTasks(api: ApiClient): Promise<void> {
+function setCachedTasks(cachedTasks: Partial<CachedTasks>) {
+  return browser.storage.local.set({
+    tasksLastCompletedFetchTimestamp: Date.now(),
+    ...cachedTasks,
+  });
+}
+
+export async function pollTasks(api: ApiClient): Promise<void> {
   const cachedTasksInit: Partial<CachedTasks> = {
     tasksLastInitiatedFetchTimestamp: Date.now(),
   };
@@ -38,54 +47,48 @@ export function pollTasks(api: ApiClient): Promise<void> {
   const pollId = uniqueId("poll-");
   console.log(`(${pollId}) polling for tasks...`);
 
-  return Promise.all([
-    browser.storage.local.set(cachedTasksInit),
+  try {
+    await browser.storage.local.set(cachedTasksInit);
+
     // HELLO THERE
     //
     // When changing what this requests, you almost certainly want to update STATE_VERSION.
-    api.DownloadStation.Task.List({
+    const response = await api.DownloadStation.Task.List({
       offset: 0,
       limit: -1,
       additional: ["transfer", "detail"],
       timeout: 20000,
-    }),
-  ])
-    .then(([_, response]) => {
-      console.log(`(${pollId}) poll completed with response`, response);
+    });
 
-      function setCachedTasksResponse(cachedTasks: Partial<CachedTasks>) {
-        return browser.storage.local.set({
-          tasksLastCompletedFetchTimestamp: Date.now(),
-          ...cachedTasks,
-        });
-      }
+    console.log(`(${pollId}) poll completed with response`, response);
 
-      if (isConnectionFailure(response)) {
-        if (response.type === "missing-config") {
-          return setCachedTasksResponse({
-            taskFetchFailureReason: "missing-config",
-          });
-        } else {
-          return setCachedTasksResponse({
-            taskFetchFailureReason: {
-              failureMessage: errorMessageFromConnectionFailure(response),
-            },
-          });
-        }
-      } else if (response.success) {
-        return setCachedTasksResponse({
-          tasks: response.data.tasks,
-          taskFetchFailureReason: null,
+    if (isConnectionFailure(response)) {
+      if (response.type === "missing-config") {
+        await setCachedTasks({
+          taskFetchFailureReason: "missing-config",
         });
       } else {
-        return setCachedTasksResponse({
+        await setCachedTasks({
           taskFetchFailureReason: {
-            failureMessage: errorMessageFromCode(response.error.code, "DownloadStation.Task"),
+            failureMessage: errorMessageFromConnectionFailure(response),
           },
         });
       }
-    })
-    .catch(onUnhandledError);
+    } else if (response.success) {
+      await setCachedTasks({
+        tasks: response.data.tasks,
+        taskFetchFailureReason: null,
+      });
+    } else {
+      await setCachedTasks({
+        taskFetchFailureReason: {
+          failureMessage: errorMessageFromCode(response.error.code, "DownloadStation.Task"),
+        },
+      });
+    }
+  } catch (e) {
+    onUnhandledError(e);
+  }
 }
 
 interface MetadataFileType {
@@ -101,6 +104,10 @@ const METADATA_FILE_TYPES: MetadataFileType[] = [
 const ARBITRARY_FILE_FETCH_SIZE_CUTOFF = 1024 * 1024 * 5;
 
 const FILENAME_PROPERTY_REGEX = /filename=("([^"]+)"|([^"][^ ]+))/;
+
+function stripQueryString(url: string) {
+  return [url].indexOf("?") !== -1 ? url.slice(0, url.indexOf("?")) : url;
+}
 
 function guessTorrentFileName(
   urlWithoutQuery: string,
@@ -125,6 +132,33 @@ function guessTorrentFileName(
     : maybeFilename + metadataFileType.extension;
 }
 
+async function getMetadataFileType(url: string) {
+  let headResponse;
+
+  try {
+    headResponse = await Axios.head(url, { timeout: 10000 });
+  } catch (e) {
+    if (e && e.response && e.response.status === METHOD_NOT_ALLOWED_CODE) {
+      return undefined;
+    } else {
+      throw e;
+    }
+  }
+
+  const contentType = (headResponse.headers["content-type"] || "").toLowerCase();
+  const contentLength = headResponse.headers["content-length"];
+  const metadataFileType = METADATA_FILE_TYPES.find(
+    fileType =>
+      contentType.includes(fileType.mediaType) ||
+      stripQueryString(url).endsWith(fileType.extension),
+  );
+  return metadataFileType &&
+    !isNaN(+contentLength) &&
+    +contentLength < ARBITRARY_FILE_FETCH_SIZE_CUTOFF
+    ? metadataFileType
+    : undefined;
+}
+
 const EMULE_FILENAME_REGEX = /\|file\|([^\|]+)\|/;
 
 function guessFileNameFromUrl(url: string): string | undefined {
@@ -143,150 +177,109 @@ function guessFileNameFromUrl(url: string): string | undefined {
   }
 }
 
-export function addDownloadTaskAndPoll(
+export async function addDownloadTaskAndPoll(
   api: ApiClient,
   showNonErrorNotifications: boolean,
   url: string,
   path?: string,
-) {
+): Promise<void> {
   const notificationId = showNonErrorNotifications ? notify("Adding download...", url) : undefined;
-  const destination = path && path.startsWith("/") ? path.slice(1) : undefined;
 
-  function checkIfEMuleShouldBeEnabled() {
+  async function checkIfEMuleShouldBeEnabled() {
     if (startsWithAnyProtocol(url, EMULE_PROTOCOL)) {
-      return api.DownloadStation.Info.GetConfig().then(result => {
-        if (isConnectionFailure(result)) {
-          return Promise.resolve(false);
-        } else if (result.success) {
-          return Promise.resolve(!result.data.emule_enabled);
-        } else {
-          return Promise.resolve(false);
-        }
-      });
+      const result = await api.DownloadStation.Info.GetConfig();
+      if (isConnectionFailure(result)) {
+        return false;
+      } else if (result.success) {
+        return !result.data.emule_enabled;
+      } else {
+        return false;
+      }
     } else {
-      return Promise.resolve(false);
+      return false;
     }
   }
 
-  function onTaskAddResult(filename?: string) {
-    return (result: ConnectionFailure | SynologyResponse<{}>) => {
-      console.log("task add result", result);
-      if (isConnectionFailure(result)) {
+  async function onTaskAddResult(
+    result: ConnectionFailure | SynologyResponse<{}>,
+    filename?: string,
+  ) {
+    console.log("task add result", result);
+
+    if (isConnectionFailure(result)) {
+      notify(
+        browser.i18n.getMessage("Failed_to_connect_to_DiskStation"),
+        browser.i18n.getMessage("Please_check_your_settings"),
+        "failure",
+        notificationId,
+      );
+    } else if (result.success) {
+      if (showNonErrorNotifications) {
         notify(
-          browser.i18n.getMessage("Failed_to_connect_to_DiskStation"),
-          browser.i18n.getMessage("Please_check_your_settings"),
+          browser.i18n.getMessage("Download_added"),
+          filename || url,
+          "success",
+          notificationId,
+        );
+      }
+    } else {
+      if (await checkIfEMuleShouldBeEnabled()) {
+        notify(
+          browser.i18n.getMessage("eMule_is_not_enabled"),
+          browser.i18n.getMessage("Use_DSM_to_enable_eMule_downloads"),
           "failure",
           notificationId,
         );
-      } else if (result.success) {
-        if (showNonErrorNotifications) {
-          notify(
-            browser.i18n.getMessage("Download_added"),
-            filename || url,
-            "success",
-            notificationId,
-          );
-        }
       } else {
-        checkIfEMuleShouldBeEnabled()
-          .then(shouldBeEnabled => {
-            if (shouldBeEnabled) {
-              notify(
-                browser.i18n.getMessage("eMule_is_not_enabled"),
-                browser.i18n.getMessage("Use_DSM_to_enable_eMule_downloads"),
-                "failure",
-                notificationId,
-              );
-            } else {
-              notify(
-                browser.i18n.getMessage("Failed_to_add_download"),
-                errorMessageFromCode(result.error.code, "DownloadStation.Task"),
-                "failure",
-                notificationId,
-              );
-            }
-          })
-          .catch(onUnexpectedError);
+        notify(
+          browser.i18n.getMessage("Failed_to_add_download"),
+          errorMessageFromCode(result.error.code, "DownloadStation.Task"),
+          "failure",
+          notificationId,
+        );
       }
-    };
+    }
   }
 
-  function onUnexpectedError(error: any) {
-    onUnhandledError(error);
-    notify(
-      browser.i18n.getMessage("Failed_to_add_download"),
-      browser.i18n.getMessage("Unexpected_error_please_check_your_settings_and_try_again"),
-      "failure",
-      notificationId,
-    );
-  }
+  const destination = path && path.startsWith("/") ? path.slice(1) : undefined;
 
-  function pollOnResponse() {
-    return pollTasks(api);
-  }
-
-  if (url) {
-    if (startsWithAnyProtocol(url, AUTO_DOWNLOAD_TORRENT_FILE_PROTOCOLS)) {
+  try {
+    if (!url) {
+      notify(
+        browser.i18n.getMessage("Failed_to_add_download"),
+        browser.i18n.getMessage("URL_is_empty_or_missing"),
+        "failure",
+        notificationId,
+      );
+    } else if (startsWithAnyProtocol(url, AUTO_DOWNLOAD_TORRENT_FILE_PROTOCOLS)) {
       const urlWithoutQuery = url.indexOf("?") !== -1 ? url.slice(0, url.indexOf("?")) : url;
+      const metadataFileType = await getMetadataFileType(urlWithoutQuery);
 
-      return Axios.head(url, { timeout: 10000 })
-        .then(response => {
-          const contentType = (response.headers["content-type"] || "").toLowerCase();
-          const contentLength = response.headers["content-length"];
-          const metadataFileType = METADATA_FILE_TYPES.find(
-            fileType =>
-              contentType.includes(fileType.mediaType) ||
-              urlWithoutQuery.endsWith(fileType.extension),
-          );
-          return metadataFileType &&
-            !isNaN(+contentLength) &&
-            +contentLength < ARBITRARY_FILE_FETCH_SIZE_CUTOFF
-            ? metadataFileType
-            : undefined;
-        })
-        .catch(e => {
-          if (e && e.response && e.response.status === 405) {
-            return Promise.resolve(undefined);
-          } else {
-            throw e;
-          }
-        })
-        .then(metadataFileType => {
-          if (metadataFileType != null) {
-            return Axios.get(url, { responseType: "arraybuffer", timeout: 10000 }).then(
-              response => {
-                const content = new Blob([response.data], { type: metadataFileType.mediaType });
-                const filename = guessTorrentFileName(
-                  urlWithoutQuery,
-                  response.headers,
-                  metadataFileType,
-                );
-                return api.DownloadStation.Task.Create({
-                  file: { content, filename },
-                  destination,
-                })
-                  .then(onTaskAddResult(filename))
-                  .then(pollOnResponse);
-              },
-            );
-          } else {
-            return api.DownloadStation.Task.Create({
-              uri: [url],
-              destination,
-            })
-              .then(onTaskAddResult())
-              .then(pollOnResponse);
-          }
-        })
-        .catch(onUnexpectedError);
+      if (metadataFileType != null) {
+        const response = await Axios.get(url, { responseType: "arraybuffer", timeout: 10000 });
+        const content = new Blob([response.data], { type: metadataFileType.mediaType });
+        const filename = guessTorrentFileName(urlWithoutQuery, response.headers, metadataFileType);
+        const result = await api.DownloadStation.Task.Create({
+          file: { content, filename },
+          destination,
+        });
+        await onTaskAddResult(result, filename);
+        await pollTasks(api);
+      } else {
+        const result = await api.DownloadStation.Task.Create({
+          uri: [url],
+          destination,
+        });
+        await onTaskAddResult(result);
+        await pollTasks(api);
+      }
     } else if (startsWithAnyProtocol(url, ALL_DOWNLOADABLE_PROTOCOLS)) {
-      return api.DownloadStation.Task.Create({
+      const result = await api.DownloadStation.Task.Create({
         uri: [url],
         destination,
-      })
-        .then(onTaskAddResult(guessFileNameFromUrl(url)))
-        .then(pollOnResponse)
-        .catch(onUnexpectedError);
+      });
+      await onTaskAddResult(result, guessFileNameFromUrl(url));
+      await pollTasks(api);
     } else {
       notify(
         browser.i18n.getMessage("Failed_to_add_download"),
@@ -296,15 +289,14 @@ export function addDownloadTaskAndPoll(
         "failure",
         notificationId,
       );
-      return Promise.resolve();
     }
-  } else {
+  } catch (e) {
+    onUnhandledError(e);
     notify(
       browser.i18n.getMessage("Failed_to_add_download"),
-      browser.i18n.getMessage("URL_is_empty_or_missing"),
+      browser.i18n.getMessage("Unexpected_error_please_check_your_settings_and_try_again"),
       "failure",
       notificationId,
     );
-    return Promise.resolve();
   }
 }

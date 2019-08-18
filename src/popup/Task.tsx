@@ -223,31 +223,31 @@ export class Task extends React.PureComponent<Props, State> {
   }
 
   private makePauseResume(what: "pause" | "resume") {
-    return () => {
+    return async () => {
       this.setState({
         pauseResumeState: "in-progress",
       });
 
-      (what === "pause" ? this.props.onPause! : this.props.onResume!)(this.props.task.id).then(
-        response => {
-          this.setState({
-            // This is a little gross, but here we just unset the state and fall back onto whatever this.props.task states.
-            pauseResumeState: response === "success" ? "none" : response,
-          });
-        },
+      const response = await (what === "pause" ? this.props.onPause! : this.props.onResume!)(
+        this.props.task.id,
       );
+
+      this.setState({
+        // This is a little gross, but here we just unset the state and fall back onto whatever this.props.task states.
+        pauseResumeState: response === "success" ? "none" : response,
+      });
     };
   }
 
-  private deleteTask = () => {
+  private deleteTask = async () => {
     this.setState({
       deleteState: "in-progress",
     });
 
-    this.props.onDelete!(this.props.task.id).then(response => {
-      this.setState({
-        deleteState: response,
-      });
+    const response = await this.props.onDelete!(this.props.task.id);
+
+    this.setState({
+      deleteState: response,
     });
   };
 }

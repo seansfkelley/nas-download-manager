@@ -80,13 +80,10 @@ const attachSharedStateListener = once(() => {
   });
 });
 
-export function updateStateShapeIfNecessary() {
-  return browser.storage.local
-    .get<any>(null)
-    .then(updateStateToLatest)
-    .then(updatedState => {
-      return browser.storage.local.set(updatedState);
-    });
+export async function updateStateShapeIfNecessary() {
+  return browser.storage.local.set(
+    await updateStateToLatest(await browser.storage.local.get<any>(null)),
+  );
 }
 
 export function onStoredStateChange(listener: (state: State) => void) {
@@ -95,10 +92,9 @@ export function onStoredStateChange(listener: (state: State) => void) {
   fetchStateAndNotify([listener]);
 }
 
-function fetchStateAndNotify(listeners: ((state: State) => void)[]) {
-  return browser.storage.local.get<State>(ALL_STORED_STATE_NAMES).then(state => {
-    listeners.forEach(l => l(state));
-  });
+async function fetchStateAndNotify(listeners: ((state: State) => void)[]) {
+  const state = await browser.storage.local.get<State>(ALL_STORED_STATE_NAMES);
+  listeners.forEach(l => l(state));
 }
 
 export function redactState(state: State): object {

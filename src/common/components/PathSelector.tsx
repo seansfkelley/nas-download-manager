@@ -101,7 +101,7 @@ export class PathSelector extends React.PureComponent<Props, State> {
     }
   }
 
-  private loadNestedDirectory = (path: string) => {
+  private loadNestedDirectory = async (path: string) => {
     if (!isLoadedChild(this.state.directoryTree.children)) {
       console.error(
         `programmer error: cannot load nested directories when top-level directories are not in a valid state`,
@@ -109,25 +109,26 @@ export class PathSelector extends React.PureComponent<Props, State> {
     } else {
       const stashedRequestVersion = (this.requestVersionByPath[path] =
         (this.requestVersionByPath[path] || 0) + 1);
-      this.props.client.FileStation.List.list({
+
+      const response = await this.props.client.FileStation.List.list({
         folder_path: path,
         sort_by: "name",
         filetype: "dir",
-      }).then(response => {
-        if (stashedRequestVersion === this.requestVersionByPath[path]) {
-          this.updateTreeWithResponse(path, response, data =>
-            data.files.map(f => ({
-              path: f.path,
-              name: f.name,
-              children: "unloaded" as "unloaded",
-            })),
-          );
-        }
       });
+
+      if (stashedRequestVersion === this.requestVersionByPath[path]) {
+        this.updateTreeWithResponse(path, response, data =>
+          data.files.map(f => ({
+            path: f.path,
+            name: f.name,
+            children: "unloaded" as "unloaded",
+          })),
+        );
+      }
     }
   };
 
-  private loadTopLevelDirectories = () => {
+  private loadTopLevelDirectories = async () => {
     this.setState({
       directoryTree: recursivelyUpdateDirectoryTree(
         this.state.directoryTree,
@@ -137,17 +138,17 @@ export class PathSelector extends React.PureComponent<Props, State> {
     });
     const stashedRequestVersion = (this.requestVersionByPath[ROOT_PATH] =
       (this.requestVersionByPath[ROOT_PATH] || 0) + 1);
-    this.props.client.FileStation.List.list_share({ sort_by: "name" }).then(response => {
-      if (stashedRequestVersion === this.requestVersionByPath[ROOT_PATH]) {
-        this.updateTreeWithResponse(ROOT_PATH, response, data =>
-          data.shares.map(d => ({
-            name: d.name,
-            path: d.path,
-            children: "unloaded" as "unloaded",
-          })),
-        );
-      }
-    });
+    const response = await this.props.client.FileStation.List.list_share({ sort_by: "name" });
+
+    if (stashedRequestVersion === this.requestVersionByPath[ROOT_PATH]) {
+      this.updateTreeWithResponse(ROOT_PATH, response, data =>
+        data.shares.map(d => ({
+          name: d.name,
+          path: d.path,
+          children: "unloaded" as "unloaded",
+        })),
+      );
+    }
   };
 
   private updateTreeWithResponse<T>(

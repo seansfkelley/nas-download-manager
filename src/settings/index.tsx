@@ -457,7 +457,7 @@ ${this.props.lastSevereError}`;
     });
   }
 
-  private testConnection = () => {
+  private testConnection = async () => {
     clearTimeout(this.connectionTestSlowTimeout!);
 
     this.setState({
@@ -471,38 +471,38 @@ ${this.props.lastSevereError}`;
       });
     }, 5000) as any) as number;
 
-    testConnection(this.computeMergedSettings()).then(result => {
-      clearTimeout(this.connectionTestSlowTimeout!);
-      this.setState({
-        connectionTest: result,
-        isConnectionTestSlow: false,
-      });
+    const result = await testConnection(this.computeMergedSettings());
 
-      if (result === "good-and-modern" || result === "good-and-legacy") {
-        getSharedObjects().then(objects => {
-          if (objects != null) {
-            // The client can be overly clever and end up in a state where it has a stale/bad
-            // credentials or something similar. It's been difficult to track down, so terminating
-            // the connection on successful test serves both as a bit of a stop-gap if the user
-            // sees the connection is failing but thinks it shouldn't be.
-            objects.api.Auth.Logout();
-          }
-        });
-      }
+    clearTimeout(this.connectionTestSlowTimeout!);
+    this.setState({
+      connectionTest: result,
+      isConnectionTestSlow: false,
     });
+
+    if (result === "good-and-modern" || result === "good-and-legacy") {
+      const objects = await getSharedObjects();
+
+      if (objects != null) {
+        // The client can be overly clever and end up in a state where it has a stale/bad
+        // credentials or something similar. It's been difficult to track down, so terminating
+        // the connection on successful test serves both as a bit of a stop-gap if the user
+        // sees the connection is failing but thinks it shouldn't be.
+        objects.api.Auth.Logout();
+      }
+    }
   };
 
-  private saveSettings = () => {
+  private saveSettings = async () => {
     this.setState({
       savingStatus: "in-progress",
     });
 
-    this.props.saveSettings(this.computeMergedSettings()).then(success =>
-      this.setState({
-        changedSettings: success ? {} : this.state.changedSettings,
-        savingStatus: success ? "saved" : "failed",
-      }),
-    );
+    const success = await this.props.saveSettings(this.computeMergedSettings());
+
+    this.setState({
+      changedSettings: success ? {} : this.state.changedSettings,
+      savingStatus: success ? "saved" : "failed",
+    });
   };
 
   private computeMergedSettings(): Settings {

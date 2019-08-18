@@ -7,24 +7,24 @@ import {
 import { Settings, getHostUrl } from "../common/state";
 import { onUnhandledError } from "../common/errorHandlers";
 
-export function saveSettings(settings: Settings): Promise<boolean> {
+export async function saveSettings(settings: Settings): Promise<boolean> {
   console.log("persisting settings...");
 
-  return testConnection(settings)
-    .then(result => {
-      if (result !== "good-and-modern" && result !== "good-and-legacy") {
-        return false;
-      } else {
-        return browser.storage.local.set(settings).then(() => {
-          console.log("done persisting settings");
-          return true;
-        });
-      }
-    })
-    .catch(error => {
-      onUnhandledError(error);
+  try {
+    const result = await testConnection(settings);
+
+    if (result !== "good-and-modern" && result !== "good-and-legacy") {
       return false;
-    });
+    } else {
+      await browser.storage.local.set(settings);
+
+      console.log("done persisting settings");
+      return true;
+    }
+  } catch (e) {
+    onUnhandledError(e);
+    return false;
+  }
 }
 
 export type ConnectionTestResult =
@@ -37,7 +37,7 @@ export function isErrorCodeResult(result: ConnectionTestResult): result is { cod
   return (result as { code: number }).code != null;
 }
 
-export function testConnection(settings: Settings): Promise<ConnectionTestResult> {
+export async function testConnection(settings: Settings): Promise<ConnectionTestResult> {
   const api = new ApiClient({
     baseUrl: getHostUrl(settings.connection),
     account: settings.connection.username,
@@ -45,24 +45,24 @@ export function testConnection(settings: Settings): Promise<ConnectionTestResult
     session: SessionName.DownloadStation,
   });
 
-  return api.Auth.Login({ timeout: 30000 }).then(response => {
-    if (isConnectionFailure(response)) {
-      return response;
-    } else if (!response.success) {
-      return { code: response.error.code };
-    } else {
-      api.Auth.Logout({ timeout: 10000 }).then(response => {
-        if (response === "not-logged-in") {
-          // Typescript demands we handle this case, which is correct, but also, it's pretty wat
-          console.error(`wtf: not logged in immediately after successfully logging in`);
-        } else if (isConnectionFailure(response) || !response.success) {
-          console.error(
-            "ignoring unexpected failure while logging out after successful connection test",
-            response,
-          );
-        }
-      });
-      return response.data.extra.isLegacyLogin ? "good-and-legacy" : "good-and-modern";
-    }
-  });
+  const loginResponse = await api.Auth.Login({ timeout: 30000 });
+  if (isConnectionFailure(loginResponse)) {
+    return loginResponse;
+  } else if (!loginResponse.success) {
+    return { code: loginResponse.error.code };
+  } else {
+    // Note that this is fire-and-forget.
+    api.Auth.Logout({ timeout: 10000 }).then(logoutResponse => {
+      if (logoutResponse === "not-logged-in") {
+        // Typescript demands we handle this case, which is correct, but also, it's pretty wat
+        console.error(`wtf: not logged in immediately after successfully logging in`);
+      } else if (isConnectionFailure(logoutResponse) || !logoutResponse.success) {
+        console.error(
+          "ignoring unexpected failure while logging out after successful connection test",
+          logoutResponse,
+        );
+      }
+    });
+    return loginResponse.data.extra.isLegacyLogin ? "good-and-legacy" : "good-and-modern";
+  }
 }
