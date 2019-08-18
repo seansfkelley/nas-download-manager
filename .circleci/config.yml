@@ -18,8 +18,8 @@ jobs:
           paths:
             - ~/.cache/yarn
       - run:
-          name: Typecheck
-          command: npm run build:transpile
+          name: Lint
+          command: yarn lint
       - run:
           name: Test
-          command: npm test
+          command: yarn test

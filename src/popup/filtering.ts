@@ -10,7 +10,7 @@ import { VisibleTaskSettings, TaskSortType } from "../common/state";
 import { assertNever } from "../common/lang";
 
 const EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES: {
-  [K in keyof VisibleTaskSettings]?: DownloadStationTaskNormalStatus[]
+  [K in keyof VisibleTaskSettings]?: DownloadStationTaskNormalStatus[];
 } = {
   downloading: ["downloading", "extracting", "finishing", "hash_checking"],
   uploading: ["seeding"],
