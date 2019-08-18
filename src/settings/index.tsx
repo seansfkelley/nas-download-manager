@@ -1,3 +1,5 @@
+import "../../scss/fields.scss";
+import "../../scss/settings.scss";
 import "../common/init/extensionContext";
 import pick from "lodash-es/pick";
 import merge from "lodash-es/merge";

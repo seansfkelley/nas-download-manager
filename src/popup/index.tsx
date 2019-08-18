@@ -1,3 +1,5 @@
+import "../../scss/fields.scss";
+import "../../scss/popup.scss";
 import "../common/init/extensionContext";
 import * as React from "react";
 import * as ReactDOM from "react-dom";

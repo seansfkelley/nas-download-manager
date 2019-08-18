@@ -1,8 +1,7 @@
 .DS_Store
 node_modules/
 *.log
-lib/
 dist/
-.sass-cache
 addon.zip
 sources.zip
+.cache

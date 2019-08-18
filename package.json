@@ -5,15 +5,10 @@
   "scripts": {
     "test": "TS_NODE_PROJECT=test/tsconfig-test.json mocha --require ts-node/register 'test/**/*.{ts,tsx}'",
     "lint": "prettier --check src/**/* && tsc -p src --noemit",
-    "build:styles": "node-sass --recursive --output dist/css scss",
-    "watch:styles": "npm run build:styles -- --watch",
-    "build:transpile": "tsc -p src",
-    "watch:transpile": "tsc -p src -w",
-    "build:bundle": "node build.js",
-    "watch:bundle": "node build.js -w",
-    "build": "rimraf lib dist && npm run build:transpile && npm run build:bundle && npm run build:styles",
-    "zip": "rimraf addon.zip && zip -r addon.zip . -i 'dist/*' -i 'html/*' -i 'icons/*' -i 'vendor/*' -i '_locales/*' -i 'manifest.json' -x '**/*.map' -x '**/.DS_Store'",
-    "zip-sources": "rimraf sources.zip && zip -r sources.zip . -x '*.zip' -x 'lib/*' -x 'dist/*' -x 'node_modules/*' -x '**/.DS_Store' -x '.git/*'"
+    "watch": "parcel watch src/content/index.ts src/background/index.ts src/settings/index.tsx src/popup/index.tsx",
+    "build": "rm -rf dist && parcel build src/content/index.ts src/background/index.ts src/settings/index.tsx src/popup/index.tsx",
+    "zip": "rm -rf addon.zip && zip -r addon.zip . -i 'dist/*' -i 'html/*' -i 'icons/*' -i 'vendor/*' -i '_locales/*' -i 'manifest.json' -x '**/*.map' -x '**/.DS_Store'",
+    "zip-sources": "rm -rf sources.zip && zip -r sources.zip . -x '*.zip' -x 'lib/*' -x 'dist/*' -x 'node_modules/*' -x '**/.DS_Store' -x '.git/*'"
   },
   "repository": {
     "type": "git",
@@ -32,14 +27,9 @@
     "chai": "^4.1.2",
     "glob": "^7.1.2",
     "mocha": "^4.0.1",
+    "parcel-bundler": "^1.12.3",
     "prettier": "^1.18.2",
-    "rollup": "^0.41.6",
-    "rollup-plugin-commonjs": "^8.0.2",
-    "rollup-plugin-node-builtins": "^2.1.0",
-    "rollup-plugin-node-globals": "^1.1.0",
-    "rollup-plugin-node-resolve": "^3.0.0",
-    "rollup-plugin-sourcemaps": "^0.4.2",
-    "rollup-watch": "^3.2.2",
+    "sass": "^1.22.10",
     "ts-node": "^3.3.0",
     "typescript": "^3.5.3"
   },
@@ -49,11 +39,9 @@
     "classnames": "^2.2.5",
     "lodash-es": "^4.17.14",
     "moment": "^2.18.1",
-    "node-sass": "^4.12.0",
     "query-string": "^6.8.2",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
-    "rimraf": "^2.6.1",
     "synology-typescript-api": "^0.3.5",
     "type-zoo": "^3.3.0"
   }

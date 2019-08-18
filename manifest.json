@@ -5,13 +5,13 @@
   "description": "__MSG_Add_and_manage_Download_Station_tasks_on_your_Synology_DiskStation__",
   "default_locale": "en",
   "background": {
-    "scripts": ["dist/js/background.js"]
+    "scripts": ["dist/background/index.js"]
   },
   "permissions": ["contextMenus", "storage", "notifications", "http://*/*", "https://*/*"],
   "content_scripts": [
     {
       "matches": ["http://*/*", "https://*/*"],
-      "js": ["dist/js/content.js"]
+      "js": ["dist/content/index.js"]
     }
   ],
   "browser_action": {
