@@ -129,7 +129,12 @@ const EMULE_FILENAME_REGEX = /\|file\|([^\|]+)\|/;
 
 function guessFileNameFromUrl(url: string): string | undefined {
   if (startsWithAnyProtocol(url, MAGNET_PROTOCOL)) {
-    return parseQueryString(url).dn || undefined;
+    const dn = parseQueryString(url).dn;
+    if (dn) {
+      return typeof dn === "string" ? dn : dn[0];
+    } else {
+      return undefined;
+    }
   } else if (startsWithAnyProtocol(url, EMULE_PROTOCOL)) {
     const match = url.match(EMULE_FILENAME_REGEX);
     return match ? match[1] : undefined;
