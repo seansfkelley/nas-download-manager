@@ -1,4 +1,3 @@
-import once from "lodash-es/once";
 import mapValues from "lodash-es/mapValues";
 
 import {
@@ -72,13 +71,18 @@ export function getHostUrl(settings: ConnectionSettings) {
 
 let stateListeners: ((state: State) => void)[] = [];
 
-const attachSharedStateListener = once(() => {
-  browser.storage.onChanged.addListener((_changes: StorageChangeEvent<State>, areaName) => {
-    if (areaName === "local") {
-      fetchStateAndNotify(stateListeners);
-    }
-  });
-});
+let didAttachSingletonListener = false;
+
+function attachSharedStateListener() {
+  if (!didAttachSingletonListener) {
+    didAttachSingletonListener = true;
+    browser.storage.onChanged.addListener((_changes: StorageChangeEvent<State>, areaName) => {
+      if (areaName === "local") {
+        fetchStateAndNotify(stateListeners);
+      }
+    });
+  }
+}
 
 export async function updateStateShapeIfNecessary() {
   return browser.storage.local.set(
