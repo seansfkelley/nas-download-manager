@@ -1,0 +1,29 @@
+#!/usr/bin/env node
+const path = require("path");
+const fs = require("fs");
+const difference = require("lodash/difference");
+
+const ROOT = path.join(__dirname, "..");
+
+if (process.argv.length != 3) {
+  console.log(process.argv);
+  console.error("usage: diff-messages <locale>");
+  process.exit(1);
+}
+
+const knownLocales = fs.readdirSync(path.join(ROOT, "_locales"));
+const locale = process.argv[2].toLowerCase();
+
+if (!knownLocales.includes(locale)) {
+  console.error(`unknown locale '${locale}'`);
+  process.exit(1);
+}
+
+const defaultLocale = require(path.join(ROOT, "manifest.json")).default_locale;
+const defaultMessages = require(path.join(ROOT, "_locales", defaultLocale, "messages.json"));
+const messages = require(path.join(ROOT, "_locales", locale, "messages.json"));
+const missingKeys = difference(Object.keys(defaultMessages), Object.keys(messages));
+
+missingKeys.forEach(k => {
+  console.log(`"${k}": ${JSON.stringify(defaultMessages[k], null, 2)},`);
+});
