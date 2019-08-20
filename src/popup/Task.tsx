@@ -5,8 +5,8 @@ import { DownloadStationTask } from "synology-typescript-api";
 import classNames from "classnames";
 
 import { formatMetric1024, formatTime, formatPercentage } from "../common/format";
+import { matchesFilter } from "../common/filtering";
 import { CallbackResponse } from "./popupTypes";
-import { matchesFilter } from "./filtering";
 
 export interface Props {
   task: DownloadStationTask;

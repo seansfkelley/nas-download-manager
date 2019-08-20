@@ -21,6 +21,7 @@ import {
   onStoredStateChange,
   redactState,
   SETTING_NAMES,
+  BadgeDisplayType,
 } from "../common/state";
 import { BUG_REPORT_URL } from "../common/constants";
 import { getSharedObjects } from "../common/apis/sharedObjects";
@@ -217,8 +218,10 @@ class SettingsForm extends React.PureComponent<Props, State> {
         <TaskFilterSettingsForm
           visibleTasks={mergedSettings.visibleTasks}
           taskSortType={mergedSettings.taskSortType}
+          badgeDisplayType={mergedSettings.badgeDisplayType}
           updateTaskTypeVisibility={this.updateTaskTypeVisibility}
           updateTaskSortType={this.updateTaskSortType}
+          updateBadgeDisplayType={this.updateBadgeDisplayType}
         />
 
         <div className="horizontal-separator" />
@@ -424,6 +427,16 @@ ${this.props.lastSevereError}`;
       changedSettings: {
         ...this.state.changedSettings,
         taskSortType,
+      },
+    });
+  };
+
+  private updateBadgeDisplayType = (badgeDisplayType: BadgeDisplayType) => {
+    this.setState({
+      savingStatus: "pending-changes",
+      changedSettings: {
+        ...this.state.changedSettings,
+        badgeDisplayType,
       },
     });
   };

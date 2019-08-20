@@ -5,6 +5,8 @@ import {
   TaskSortType,
   ORDERED_TASK_SORT_TYPE_NAMES,
   ORDERED_VISIBLE_TASK_TYPE_NAMES,
+  BadgeDisplayType,
+  ORDERED_BADGE_DISPLAY_TYPE_NAMES,
 } from "../state";
 
 import { SettingsList } from "./SettingsList";
@@ -13,8 +15,10 @@ import { SettingsListCheckbox } from "./SettingsListCheckbox";
 export interface Props {
   visibleTasks: VisibleTaskSettings;
   taskSortType: TaskSortType;
+  badgeDisplayType: BadgeDisplayType;
   updateTaskTypeVisibility: (taskType: keyof VisibleTaskSettings, visibility: boolean) => void;
   updateTaskSortType: (taskSortType: TaskSortType) => void;
+  updateBadgeDisplayType: (badgeDisplayType: BadgeDisplayType) => void;
 }
 
 export class TaskFilterSettingsForm extends React.PureComponent<Props> {
@@ -44,6 +48,21 @@ export class TaskFilterSettingsForm extends React.PureComponent<Props> {
             {Object.keys(ORDERED_TASK_SORT_TYPE_NAMES).map((type: TaskSortType) => (
               <option key={type} value={type}>
                 {ORDERED_TASK_SORT_TYPE_NAMES[type]}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="badge-display-type">
+          <span className="label">{browser.i18n.getMessage("Badge_shows")}</span>
+          <select
+            value={this.props.taskSortType}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+              this.props.updateBadgeDisplayType(e.currentTarget.value as BadgeDisplayType);
+            }}
+          >
+            {Object.keys(ORDERED_BADGE_DISPLAY_TYPE_NAMES).map((type: BadgeDisplayType) => (
+              <option key={type} value={type}>
+                {ORDERED_BADGE_DISPLAY_TYPE_NAMES[type]}
               </option>
             ))}
           </select>

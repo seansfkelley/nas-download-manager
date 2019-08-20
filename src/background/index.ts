@@ -13,6 +13,8 @@ import { isAddTaskMessage } from "../common/apis/messages";
 import { addDownloadTaskAndPoll, pollTasks, clearCachedTasks } from "../common/apis/actions";
 import { onUnhandledError } from "../common/errorHandlers";
 import { ALL_DOWNLOADABLE_PROTOCOLS, startsWithAnyProtocol } from "../common/apis/protocols";
+import { assertNever } from "../common/lang";
+import { filterTasks } from "../common/filtering";
 
 const api = new ApiClient({});
 const START_TIME = Date.now();
@@ -121,8 +123,18 @@ updateStateShapeIfNecessary()
           },
         });
 
+        let taskCount;
+        if (storedState.badgeDisplayType === "total") {
+          taskCount = storedState.tasks.length;
+        } else if (storedState.badgeDisplayType === "filtered") {
+          taskCount = filterTasks(storedState.tasks, storedState.visibleTasks).length;
+        } else {
+          assertNever(storedState.badgeDisplayType);
+          return; // Can't `return assertNever(...)` because the linter complains.
+        }
+
         browser.browserAction.setBadgeText({
-          text: storedState.tasks.length === 0 ? "" : storedState.tasks.length.toString(),
+          text: taskCount === 0 ? "" : taskCount.toString(),
         });
 
         browser.browserAction.setBadgeBackgroundColor({ color: [0, 217, 0, 255] });

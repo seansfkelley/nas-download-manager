@@ -9,4 +9,5 @@ export {
   ConnectionSettings,
   Logging,
   StateVersion,
-} from "./3";
+  BadgeDisplayType,
+} from "./4";

@@ -25,7 +25,7 @@ export interface StateVersion {
 
 export interface State extends Settings_2, CachedTasks_2, Logging_2, StateVersion {}
 
-export function state2to3(state: State_2): State {
+export function transition(state: State_2): State {
   state = {
     ...state1to2(state0to1(null)),
     ...state,

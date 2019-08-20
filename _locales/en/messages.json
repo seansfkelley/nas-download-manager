@@ -328,6 +328,18 @@
     "message": "% complete, most first",
     "description": "Task sort order type."
   },
+  "Badge_shows": {
+    "message": "Badge shows",
+    "description": "Prefix text for badge-display-type dropdown."
+  },
+  "total_task_count": {
+    "message": "total task count",
+    "description": "Badge display type."
+  },
+  "filtered_task_count": {
+    "message": "filtered task count",
+    "description": "Badge_display type."
+  },
   "Connection": {
     "message": "Connection",
     "description": "Header for settings section."

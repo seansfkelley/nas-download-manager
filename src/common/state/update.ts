@@ -13,26 +13,26 @@ function isVersioned(state: any): state is AnyStateVersion {
   return state && (state as AnyStateVersion).stateVersion != null;
 }
 
+function getStartingVersion(state: any) {
+  if (state == null) {
+    return 0;
+  } else if (isVersioned(state)) {
+    return state.stateVersion;
+  } else if (state.tasks != null) {
+    // state.tasks existing is implicitly the same as version 1 because version 1 was the shape
+    // of the state when this more-formal system was created. state.tasks is a good value to check
+    // because it is very likely to exist. If it doesn't, the user never successfully logged in
+    // and it's probably fine to wipe their state clean.
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
 const STATE_TRANSFORMS: ((state: any) => any)[] = [state0to1, state1to2, state2to3];
 
 export function updateStateToLatest(state: any | null): State {
-  function getStartingVersion() {
-    if (state == null) {
-      return 0;
-    } else if (isVersioned(state)) {
-      return state.stateVersion;
-    } else if (state.tasks != null) {
-      // state.tasks existing is implicitly the same as version 1 because version 1 was the shape
-      // of the state when this more-formal system was created. state.tasks is a good value to check
-      // because it is very likely to exist. If it doesn't, the user never successfully logged in
-      // and it's probably fine to wipe their state clean.
-      return 1;
-    } else {
-      return 0;
-    }
-  }
-
-  const version = getStartingVersion();
+  const version = getStartingVersion(state);
 
   if (version > LATEST_STATE_VERSION) {
     throw new Error(`cannot downgrade state shape from ${version} to ${LATEST_STATE_VERSION}`);

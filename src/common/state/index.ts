@@ -9,6 +9,7 @@ import {
   State,
 } from "./latest";
 import { updateStateToLatest } from "./update";
+import { BadgeDisplayType } from "./4";
 export * from "./latest";
 
 const _protocolNames: Record<Protocol, true> = {
@@ -59,6 +60,11 @@ export const ORDERED_TASK_SORT_TYPE_NAMES: Record<TaskSortType, string> = {
   "timestamp-completed-asc": browser.i18n.getMessage("date_completed_oldest_first"),
   "completed-percent-asc": browser.i18n.getMessage("_complete_least_first"),
   "completed-percent-desc": browser.i18n.getMessage("_complete_most_first"),
+};
+
+export const ORDERED_BADGE_DISPLAY_TYPE_NAMES: Record<BadgeDisplayType, string> = {
+  total: browser.i18n.getMessage("total_task_count"),
+  filtered: browser.i18n.getMessage("filtered_task_count"),
 };
 
 export function getHostUrl(settings: ConnectionSettings) {

@@ -6,8 +6,8 @@ import {
   ALL_TASK_ERROR_STATUSES,
   ALL_TASK_NORMAL_STATUSES,
 } from "synology-typescript-api";
-import { VisibleTaskSettings, TaskSortType } from "../common/state";
-import { assertNever } from "../common/lang";
+import { VisibleTaskSettings, TaskSortType } from "./state";
+import { assertNever } from "./lang";
 
 const EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES: {
   [K in keyof VisibleTaskSettings]?: DownloadStationTaskNormalStatus[];
@@ -47,6 +47,17 @@ const TASK_FILTER_TO_TYPES: Record<
 
 export function matchesFilter(task: DownloadStationTask, filterName: keyof VisibleTaskSettings) {
   return TASK_FILTER_TO_TYPES[filterName].indexOf(task.status) !== -1;
+}
+
+export function filterTasks(tasks: DownloadStationTask[], visibleTasks: VisibleTaskSettings) {
+  return tasks.filter(
+    t =>
+      (visibleTasks.downloading && matchesFilter(t, "downloading")) ||
+      (visibleTasks.uploading && matchesFilter(t, "uploading")) ||
+      (visibleTasks.completed && matchesFilter(t, "completed")) ||
+      (visibleTasks.errored && matchesFilter(t, "errored")) ||
+      (visibleTasks.other && matchesFilter(t, "other")),
+  );
 }
 
 function fractionComplete(task: DownloadStationTask) {

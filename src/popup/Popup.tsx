@@ -4,13 +4,13 @@ import classNames from "classnames";
 import debounce from "lodash-es/debounce";
 import { DownloadStationTask, ApiClient } from "synology-typescript-api";
 
+import { VisibleTaskSettings, TaskSortType, BadgeDisplayType } from "../common/state";
+import { matchesFilter, sortTasks, filterTasks } from "../common/filtering";
 import { AdvancedAddDownloadForm } from "../common/components/AdvancedAddDownloadForm";
-import { VisibleTaskSettings, TaskSortType } from "../common/state";
+import { TaskFilterSettingsForm } from "../common/components/TaskFilterSettingsForm";
 import { CallbackResponse } from "./popupTypes";
-import { matchesFilter, sortTasks } from "./filtering";
 import { Task } from "./Task";
 import { NoTasks } from "./NoTasks";
-import { TaskFilterSettingsForm } from "../common/components/TaskFilterSettingsForm";
 
 function disabledPropAndClassName(disabled: boolean, className?: string) {
   return {
@@ -29,6 +29,8 @@ export interface Props {
   changeVisibleTasks: (visibleTasks: VisibleTaskSettings) => void;
   taskSort: TaskSortType;
   changeTaskSort: (sort: TaskSortType) => void;
+  badgeDisplay: BadgeDisplayType;
+  changeBadgeDisplay: (display: BadgeDisplayType) => void;
   openDownloadStationUi?: () => void;
   createTask?: (url: string, path?: string) => Promise<void>;
   pauseTask?: (taskId: string) => Promise<CallbackResponse>;
@@ -180,8 +182,10 @@ export class Popup extends React.PureComponent<Props, State> {
         <TaskFilterSettingsForm
           visibleTasks={this.props.visibleTasks}
           taskSortType={this.props.taskSort}
+          badgeDisplayType={this.props.badgeDisplay}
           updateTaskTypeVisibility={this.updateTaskTypeVisibility}
           updateTaskSortType={this.props.changeTaskSort}
+          updateBadgeDisplayType={this.props.changeBadgeDisplay}
         />
         <button
           onClick={deleteTasks}
@@ -224,14 +228,7 @@ export class Popup extends React.PureComponent<Props, State> {
     } else if (this.props.tasks.length === 0) {
       return <NoTasks icon="fa-circle-o" text={browser.i18n.getMessage("No_download_tasks")} />;
     } else {
-      const filteredTasks = this.props.tasks.filter(
-        t =>
-          (this.props.visibleTasks.downloading && matchesFilter(t, "downloading")) ||
-          (this.props.visibleTasks.uploading && matchesFilter(t, "uploading")) ||
-          (this.props.visibleTasks.completed && matchesFilter(t, "completed")) ||
-          (this.props.visibleTasks.errored && matchesFilter(t, "errored")) ||
-          (this.props.visibleTasks.other && matchesFilter(t, "other")),
-      );
+      const filteredTasks = filterTasks(this.props.tasks, this.props.visibleTasks);
       if (filteredTasks.length === 0) {
         return (
           <NoTasks

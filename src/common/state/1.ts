@@ -55,7 +55,7 @@ export interface StateVersion {
 
 export interface State extends Settings, CachedTasks, StateVersion {}
 
-export function state0to1(_state: null | undefined): State {
+export function transition(_state: null | undefined): State {
   return {
     connection: {
       protocol: "https",
