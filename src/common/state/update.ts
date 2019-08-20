@@ -1,9 +1,11 @@
 import { State, StateVersion } from "./latest";
-import { state0to1 } from "./1";
-import { state1to2 } from "./2";
-import { state2to3 } from "./3";
+import { transition as state0to1 } from "./1";
+import { transition as state1to2 } from "./2";
+import { transition as state2to3 } from "./3";
+import { transition as state3to4 } from "./4";
 
-const LATEST_STATE_VERSION: StateVersion["stateVersion"] = 3;
+const LATEST_STATE_VERSION: StateVersion["stateVersion"] = 4;
+const STATE_TRANSFORMS: ((state: any) => any)[] = [state0to1, state1to2, state2to3, state3to4];
 
 interface AnyStateVersion {
   stateVersion: number;
@@ -28,8 +30,6 @@ function getStartingVersion(state: any) {
     return 0;
   }
 }
-
-const STATE_TRANSFORMS: ((state: any) => any)[] = [state0to1, state1to2, state2to3];
 
 export function updateStateToLatest(state: any | null): State {
   const version = getStartingVersion(state);

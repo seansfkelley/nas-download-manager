@@ -5,7 +5,7 @@ import debounce from "lodash-es/debounce";
 import { DownloadStationTask, ApiClient } from "synology-typescript-api";
 
 import { VisibleTaskSettings, TaskSortType, BadgeDisplayType } from "../common/state";
-import { matchesFilter, sortTasks, filterTasks } from "../common/filtering";
+import { sortTasks, filterTasks } from "../common/filtering";
 import { AdvancedAddDownloadForm } from "../common/components/AdvancedAddDownloadForm";
 import { TaskFilterSettingsForm } from "../common/components/TaskFilterSettingsForm";
 import { CallbackResponse } from "./popupTypes";

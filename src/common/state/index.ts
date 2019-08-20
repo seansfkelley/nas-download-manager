@@ -27,6 +27,7 @@ const _settingNames: Record<keyof Settings, true> = {
   taskSortType: true,
   notifications: true,
   shouldHandleDownloadLinks: true,
+  badgeDisplayType: true,
 };
 
 export const SETTING_NAMES = Object.keys(_settingNames) as (keyof Settings)[];

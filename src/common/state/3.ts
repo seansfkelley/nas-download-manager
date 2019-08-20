@@ -1,11 +1,11 @@
-import { state0to1 } from "./1";
+import { transition as transition_1 } from "./1";
 
 import {
   State as State_2,
   CachedTasks as CachedTasks_2,
   Settings as Settings_2,
   Logging as Logging_2,
-  state1to2,
+  transition as transition_2,
 } from "./2";
 
 export {
@@ -27,7 +27,7 @@ export interface State extends Settings_2, CachedTasks_2, Logging_2, StateVersio
 
 export function transition(state: State_2): State {
   state = {
-    ...state1to2(state0to1(null)),
+    ...transition_2(transition_1(null)),
     ...state,
   };
   delete (state as any).cachedTasksVersion;

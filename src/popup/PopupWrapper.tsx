@@ -7,6 +7,7 @@ import {
   TaskSortType,
   State as ExtensionState,
   getHostUrl,
+  BadgeDisplayType,
 } from "../common/state";
 import { pollTasks, addDownloadTaskAndPoll } from "../common/apis/actions";
 import { FatalErrorWrapper } from "./FatalErrorWrapper";
@@ -33,6 +34,8 @@ export class PopupWrapper extends React.PureComponent<Props> {
           changeVisibleTasks={this.changeVisibleTasks}
           taskSort={this.props.state.taskSortType}
           changeTaskSort={this.changeSortType}
+          badgeDisplay={this.props.state.badgeDisplayType}
+          changeBadgeDisplay={this.changeBadgeDisplay}
           {...this.makeCallbacks()}
         />
       </FatalErrorWrapper>
@@ -52,6 +55,10 @@ export class PopupWrapper extends React.PureComponent<Props> {
 
   private changeSortType = (taskSortType: TaskSortType) => {
     this.props.updateSettings({ taskSortType });
+  };
+
+  private changeBadgeDisplay = (badgeDisplayType: BadgeDisplayType) => {
+    this.props.updateSettings({ badgeDisplayType });
   };
 
   private makeCallbacks(): Partial<PopupProps> {

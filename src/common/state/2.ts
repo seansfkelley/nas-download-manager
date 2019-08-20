@@ -1,7 +1,7 @@
 import { DownloadStationTask } from "synology-typescript-api";
 
 import {
-  state0to1,
+  transition as transition_1,
   State as State_1,
   ConnectionSettings as ConnectionSettings_1,
   VisibleTaskSettings as VisibleTaskSettings_1,
@@ -43,7 +43,7 @@ export interface State extends Settings, CachedTasks, Logging, StateVersion {}
 
 export function transition(state: State_1): State {
   state = {
-    ...state0to1(null),
+    ...transition_1(null),
     ...state,
   };
   delete state.cachedTasksVersion;
