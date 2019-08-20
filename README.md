@@ -47,6 +47,10 @@ Install [Yarn](https://github.com/yarnpkg/yarn) if you don't already have it.
   yarn zip
   ```
 
+### Translating the Extension
+
+TODO
+
 ## For the Paranoid: Verifying Your Installation
 
 If you, like me, are paranoid that open-source extensions may not show you the same code that they actually publish to the browser add-on stores, you can follow these steps.
