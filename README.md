@@ -25,6 +25,8 @@ Synology Download Manager allows you to add and manage your download tasks on yo
 
 ## Development
 
+Please note that development is not actively supported on Windows. Some of the below commands may fail and require manually invoking an analogous Windows command instead.
+
 ### Building the Extension
 
 Install [Yarn](https://github.com/yarnpkg/yarn) if you don't already have it.
