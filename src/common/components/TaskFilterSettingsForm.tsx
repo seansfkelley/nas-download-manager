@@ -55,7 +55,7 @@ export class TaskFilterSettingsForm extends React.PureComponent<Props> {
         <div className="badge-display-type">
           <span className="label">{browser.i18n.getMessage("Badge_shows")}</span>
           <select
-            value={this.props.taskSortType}
+            value={this.props.badgeDisplayType}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
               this.props.updateBadgeDisplayType(e.currentTarget.value as BadgeDisplayType);
             }}

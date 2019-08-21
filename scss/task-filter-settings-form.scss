@@ -1,6 +1,7 @@
 .task-filter-settings-form {
   margin-bottom: 13px;
 
+  .badge-display-type,
   .task-sort-type {
     display: flex;
     align-items: center;
@@ -14,5 +15,9 @@
       flex: 1;
       max-width: 400px;
     }
+  }
+
+  .badge-display-type {
+    margin-top: 8px;
   }
 }
