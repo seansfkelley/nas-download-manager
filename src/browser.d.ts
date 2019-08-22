@@ -176,5 +176,6 @@ declare const browser: {
   };
   i18n: {
     getMessage: (messageName: string, placeholders?: (string | number)[]) => string;
+    getUILanguage: () => string;
   };
 };

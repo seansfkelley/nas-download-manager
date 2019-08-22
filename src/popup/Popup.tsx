@@ -1,9 +1,9 @@
 import * as React from "react";
-import moment from "moment";
 import classNames from "classnames";
 import debounce from "lodash-es/debounce";
 import { DownloadStationTask, ApiClient } from "synology-typescript-api";
 
+import { moment } from "../common/moment";
 import { VisibleTaskSettings, TaskSortType, BadgeDisplayType } from "../common/state";
 import { sortTasks, filterTasks } from "../common/filtering";
 import { AdvancedAddDownloadForm } from "../common/components/AdvancedAddDownloadForm";
