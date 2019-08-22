@@ -1,15 +1,9 @@
 import mapValues from "lodash-es/mapValues";
 
-import {
-  Protocol,
-  Settings,
-  VisibleTaskSettings,
-  TaskSortType,
-  ConnectionSettings,
-  State,
-} from "./latest";
+import { Protocol, VisibleTaskSettings, TaskSortType, ConnectionSettings, State } from "./latest";
 import { updateStateToLatest } from "./update";
 import { BadgeDisplayType } from "./4";
+export * from "./listen";
 export * from "./latest";
 
 const _protocolNames: Record<Protocol, true> = {
@@ -18,31 +12,6 @@ const _protocolNames: Record<Protocol, true> = {
 };
 
 export const PROTOCOLS = Object.keys(_protocolNames) as Protocol[];
-
-// Somewhat awkward trick to make sure the compiler enforces that this runtime constant
-// includes all the compile-time type names.
-const _settingNames: Record<keyof Settings, true> = {
-  connection: true,
-  visibleTasks: true,
-  taskSortType: true,
-  notifications: true,
-  shouldHandleDownloadLinks: true,
-  badgeDisplayType: true,
-};
-
-export const SETTING_NAMES = Object.keys(_settingNames) as (keyof Settings)[];
-
-const _allStateNames: Record<keyof State, true> = {
-  ..._settingNames,
-  tasks: true,
-  taskFetchFailureReason: true,
-  tasksLastInitiatedFetchTimestamp: true,
-  tasksLastCompletedFetchTimestamp: true,
-  lastSevereError: true,
-  stateVersion: true,
-};
-
-const ALL_STORED_STATE_NAMES = Object.keys(_allStateNames) as (keyof State)[];
 
 export const ORDERED_VISIBLE_TASK_TYPE_NAMES: Record<keyof VisibleTaskSettings, string> = {
   downloading: browser.i18n.getMessage("Downloading"),
@@ -76,36 +45,10 @@ export function getHostUrl(settings: ConnectionSettings) {
   }
 }
 
-let stateListeners: ((state: State) => void)[] = [];
-
-let didAttachSingletonListener = false;
-
-function attachSharedStateListener() {
-  if (!didAttachSingletonListener) {
-    didAttachSingletonListener = true;
-    browser.storage.onChanged.addListener((_changes: StorageChangeEvent<State>, areaName) => {
-      if (areaName === "local") {
-        fetchStateAndNotify(stateListeners);
-      }
-    });
-  }
-}
-
 export async function updateStateShapeIfNecessary() {
   return browser.storage.local.set(
     await updateStateToLatest(await browser.storage.local.get<any>(null)),
   );
-}
-
-export function onStoredStateChange(listener: (state: State) => void) {
-  attachSharedStateListener();
-  stateListeners.push(listener);
-  fetchStateAndNotify([listener]);
-}
-
-async function fetchStateAndNotify(listeners: ((state: State) => void)[]) {
-  const state = await browser.storage.local.get<State>(ALL_STORED_STATE_NAMES);
-  listeners.forEach(l => l(state));
 }
 
 export function redactState(state: State): object {

@@ -1,6 +1,6 @@
 import "../common/init/sharedContext";
 import { sendAddTaskMessage } from "../common/apis/messages";
-import { onStoredStateChange } from "../common/state";
+import { onStoredStateChange } from "../common/state/listen";
 import { DOWNLOAD_ONLY_PROTOCOLS, startsWithAnyProtocol } from "../common/apis/protocols";
 
 const LEFT_MOUSE_BUTTON = 0;
