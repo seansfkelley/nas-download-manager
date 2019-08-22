@@ -10,7 +10,7 @@ import { AdvancedAddDownloadForm } from "../common/components/AdvancedAddDownloa
 import { TaskFilterSettingsForm } from "../common/components/TaskFilterSettingsForm";
 import { CallbackResponse } from "./popupTypes";
 import { Task } from "./Task";
-import { NoTasks } from "./NoTasks";
+import { NonIdealState } from "../common/components/NonIdealState";
 
 function disabledPropAndClassName(disabled: boolean, className?: string) {
   return {
@@ -216,7 +216,7 @@ export class Popup extends React.PureComponent<Props, State> {
   private renderTaskList() {
     if (this.props.taskFetchFailureReason === "missing-config") {
       return (
-        <NoTasks
+        <NonIdealState
           icon="fa-gear"
           text={browser.i18n.getMessage(
             "Configure_your_hostname_username_and_password_in_settings",
@@ -224,14 +224,16 @@ export class Popup extends React.PureComponent<Props, State> {
         />
       );
     } else if (this.props.tasksLastCompletedFetchTimestamp == null) {
-      return <NoTasks icon="fa-sync fa-spin" />;
+      return <NonIdealState icon="fa-sync fa-spin" />;
     } else if (this.props.tasks.length === 0) {
-      return <NoTasks icon="fa-circle-o" text={browser.i18n.getMessage("No_download_tasks")} />;
+      return (
+        <NonIdealState icon="fa-circle-o" text={browser.i18n.getMessage("No_download_tasks")} />
+      );
     } else {
       const filteredTasks = filterTasks(this.props.tasks, this.props.visibleTasks);
       if (filteredTasks.length === 0) {
         return (
-          <NoTasks
+          <NonIdealState
             icon="fa-filter"
             text={browser.i18n.getMessage("Download_tasks_exist_but_none_match_your_filters")}
           />

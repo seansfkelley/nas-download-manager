@@ -78,13 +78,19 @@ ul.settings-list {
 }
 
 .connection-settings {
-  .input {
-    display: flex;
-    align-items: center;
+  .host-settings {
+    .input {
+      display: flex;
+      align-items: center;
 
-    > :not(select):not(input) {
-      margin: 0 3px;
+      > :not(select):not(input) {
+        margin: 0 3px;
+      }
     }
+  }
+
+  button[type="submit"] {
+    margin-left: auto;
   }
 }
 
@@ -103,10 +109,11 @@ ul.settings-list {
 
 .connection-test-result {
   display: flex;
-  align-items: center;
-  margin-left: 10px;
+  flex: 1;
+  margin-right: 10px;
 
   .fa {
+    margin-left: auto;
     margin-right: 5px;
     font-size: 14px;
   }
@@ -126,13 +133,12 @@ textarea.debugging-output {
   height: 3em;
 }
 
-.save-settings-footer {
-  margin-top: 10px;
+.cannot-save {
   display: flex;
-  align-items: center;
-  justify-content: flex-end;
-
-  .save-result {
-    margin-right: 10px;
-  }
+  justify-content: center;
+  margin: 2px;
+  padding: 6px;
+  border-radius: 3px;
+  border: 1px solid $color-error;
+  background-color: fade-out($color-error, 0.8);
 }

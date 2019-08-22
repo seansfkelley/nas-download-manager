@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { NoTasks } from "./NoTasks";
+import { NonIdealState } from "../common/components/NonIdealState";
 import { BUG_REPORT_URL } from "../common/constants";
 import { State as ExtensionState, redactState } from "../common/state";
 
@@ -32,7 +32,7 @@ ${
 }`;
     return (
       <div className="popup fatal-error">
-        <NoTasks
+        <NonIdealState
           icon="fa-exclamation-triangle"
           text={browser.i18n.getMessage("Unknown_error_displaying_tasks")}
         >
@@ -51,7 +51,7 @@ ${
               e.currentTarget.select();
             }}
           />
-        </NoTasks>
+        </NonIdealState>
       </div>
     );
   }

@@ -1,20 +1,16 @@
 import "../../scss/fields.scss";
 import "../../scss/settings.scss";
+import "../../scss/non-ideal-state.scss";
 import "../common/init/extensionContext";
 import pick from "lodash-es/pick";
-import merge from "lodash-es/merge";
-import cloneDeep from "lodash-es/cloneDeep";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import classNames from "classnames";
+import { ApiClient } from "synology-typescript-api";
 
 import {
   State as ExtensionState,
   Settings,
   Logging,
-  Protocol,
-  PROTOCOLS,
-  ConnectionSettings,
   VisibleTaskSettings,
   TaskSortType,
   NotificationSettings,
@@ -22,18 +18,21 @@ import {
   redactState,
   SETTING_NAMES,
   BadgeDisplayType,
+  ConnectionSettings,
 } from "../common/state";
 import { BUG_REPORT_URL } from "../common/constants";
-import { getSharedObjects } from "../common/apis/sharedObjects";
 import { DOWNLOAD_ONLY_PROTOCOLS } from "../common/apis/protocols";
-import { assertNever } from "../common/lang";
 import { TaskFilterSettingsForm } from "../common/components/TaskFilterSettingsForm";
 import { SettingsList } from "../common/components/SettingsList";
 import { SettingsListCheckbox } from "../common/components/SettingsListCheckbox";
-import { ConnectionTestResult, saveSettings, testConnection } from "./settingsUtils";
-import { ConnectionTestResultDisplay } from "./ConnectionTestResultDisplay";
+import { saveSettings } from "./settingsUtils";
+import { ConnectionSettings as ConnectionSettingsComponent } from "./ConnectionSettings";
+import { disabledPropAndClassName, kludgeRefSetClassname } from "./classnameUtil";
+import { getSharedObjects } from "../common/apis/sharedObjects";
+import { NonIdealState } from "../common/components/NonIdealState";
 
 interface Props {
+  api: ApiClient;
   extensionState: ExtensionState;
   saveSettings: (settings: Settings) => Promise<boolean>;
   lastSevereError?: any;
@@ -41,10 +40,7 @@ interface Props {
 }
 
 interface State {
-  changedSettings: { [K in keyof Settings]?: Partial<Settings[K]> };
-  connectionTest: "none" | "in-progress" | ConnectionTestResult;
-  isConnectionTestSlow: boolean;
-  savingStatus: "unchanged" | "pending-changes" | "in-progress" | "failed" | "saved";
+  savesFailed: boolean;
   rawPollingInterval: string;
 }
 
@@ -52,48 +48,27 @@ const POLL_MIN_INTERVAL = 15;
 const POLL_DEFAULT_INTERVAL = 60;
 const POLL_STEP = 15;
 
-// For some reason, (p)react in the Firefox settings page is incapable of setting the classname on <input>
-// elements. So hax with this ref callback that does it by touching the DOM directly. I don't know who
-// is at fault or why, but this workaround works.
-function kludgeRefSetClassname(className: string) {
-  return (e: HTMLElement | null) => {
-    if (e != null) {
-      e.className = className;
-    }
-  };
-}
-
 function isValidPollingInterval(stringValue: string) {
   return !isNaN(+stringValue) && +stringValue >= POLL_MIN_INTERVAL;
 }
 
-function disabledPropAndClassName(disabled: boolean, otherClassNames?: string) {
-  return {
-    disabled,
-    className: classNames({ disabled: disabled }, otherClassNames),
-  };
-}
-
 class SettingsForm extends React.PureComponent<Props, State> {
-  private connectionTestSlowTimeout?: number;
-
   state: State = {
-    changedSettings: {},
-    savingStatus: "unchanged",
+    savesFailed: false,
     rawPollingInterval:
       this.props.extensionState.notifications.completionPollingInterval.toString() ||
       POLL_DEFAULT_INTERVAL.toString(),
-    connectionTest: "none",
-    isConnectionTestSlow: false,
   };
 
   render() {
-    const mergedSettings = this.computeMergedSettings();
-    const connectionDisabledProps = disabledPropAndClassName(
-      this.state.connectionTest === "in-progress",
-    );
     return (
       <div className="settings-form">
+        {this.state.savesFailed ? (
+          <div className="intent-error cannot-save">
+            {browser.i18n.getMessage("Cannot_save_settings_This_is_a_bug_please_file_an_issue")}
+          </div>
+        ) : null}
+
         <header>
           <h3>{browser.i18n.getMessage("Connection")}</h3>
           <p>
@@ -103,106 +78,10 @@ class SettingsForm extends React.PureComponent<Props, State> {
           </p>
         </header>
 
-        <form
-          onSubmit={e => {
-            e.preventDefault();
-            this.testConnection();
-          }}
-        >
-          <SettingsList>
-            <li className="label-and-input connection-settings">
-              <span className="label">Host</span>
-              <div className="input">
-                <select
-                  {...connectionDisabledProps}
-                  value={mergedSettings.connection.protocol}
-                  onChange={e => {
-                    this.setConnectionSetting("protocol", e.currentTarget.value as Protocol);
-                  }}
-                  ref={kludgeRefSetClassname("protocol-setting")}
-                >
-                  {PROTOCOLS.map(protocol => (
-                    <option key={protocol} value={protocol}>
-                      {protocol}
-                    </option>
-                  ))}
-                </select>
-                <span>://</span>
-                <input
-                  type="text"
-                  {...connectionDisabledProps}
-                  placeholder={browser.i18n.getMessage("hostname_or_IP_address")}
-                  value={mergedSettings.connection.hostname}
-                  onChange={e => {
-                    this.setConnectionSetting("hostname", e.currentTarget.value.trim());
-                  }}
-                  ref={kludgeRefSetClassname("host-setting")}
-                />
-                <span>:</span>
-                <input
-                  {...connectionDisabledProps}
-                  type="number"
-                  value={mergedSettings.connection.port === 0 ? "" : mergedSettings.connection.port}
-                  onChange={e => {
-                    const port = +(e.currentTarget.value.replace(/[^0-9]/g, "") || 0);
-                    this.setConnectionSetting("port", port);
-                  }}
-                  ref={kludgeRefSetClassname("port-setting")}
-                />
-              </div>
-            </li>
-
-            <li className="label-and-input">
-              <span className="label">{browser.i18n.getMessage("Username")}</span>
-              <div className="input">
-                <input
-                  type="text"
-                  {...connectionDisabledProps}
-                  value={mergedSettings.connection.username}
-                  onChange={e => {
-                    this.setConnectionSetting("username", e.currentTarget.value);
-                  }}
-                />
-              </div>
-            </li>
-
-            <li className="label-and-input">
-              <span className="label">{browser.i18n.getMessage("Password")}</span>
-              <div className="input">
-                <input
-                  type="password"
-                  {...connectionDisabledProps}
-                  value={mergedSettings.connection.password}
-                  onChange={e => {
-                    this.setConnectionSetting("password", e.currentTarget.value);
-                  }}
-                />
-              </div>
-            </li>
-
-            <li>
-              <button
-                type="submit"
-                {...disabledPropAndClassName(
-                  !mergedSettings.connection.protocol ||
-                    !mergedSettings.connection.hostname ||
-                    !mergedSettings.connection.port ||
-                    !mergedSettings.connection.username ||
-                    !mergedSettings.connection.password ||
-                    this.state.connectionTest === "in-progress" ||
-                    this.state.connectionTest === "good-and-modern" ||
-                    this.state.connectionTest === "good-and-legacy",
-                )}
-              >
-                {browser.i18n.getMessage("Test_Connection")}
-              </button>
-              <ConnectionTestResultDisplay
-                testResult={this.state.connectionTest}
-                reassureUser={this.state.isConnectionTestSlow}
-              />
-            </li>
-          </SettingsList>
-        </form>
+        <ConnectionSettingsComponent
+          connectionSettings={this.props.extensionState.connection}
+          saveConnectionSettings={this.updateConnectionSettings}
+        />
 
         <div className="horizontal-separator" />
 
@@ -212,9 +91,9 @@ class SettingsForm extends React.PureComponent<Props, State> {
         </header>
 
         <TaskFilterSettingsForm
-          visibleTasks={mergedSettings.visibleTasks}
-          taskSortType={mergedSettings.taskSortType}
-          badgeDisplayType={mergedSettings.badgeDisplayType}
+          visibleTasks={this.props.extensionState.visibleTasks}
+          taskSortType={this.props.extensionState.taskSortType}
+          badgeDisplayType={this.props.extensionState.badgeDisplayType}
           updateTaskTypeVisibility={this.updateTaskTypeVisibility}
           updateTaskSortType={this.updateTaskSortType}
           updateBadgeDisplayType={this.updateBadgeDisplayType}
@@ -228,21 +107,21 @@ class SettingsForm extends React.PureComponent<Props, State> {
 
         <SettingsList>
           <SettingsListCheckbox
-            checked={mergedSettings.notifications.enableFeedbackNotifications}
+            checked={this.props.extensionState.notifications.enableFeedbackNotifications}
             onChange={() => {
               this.setNotificationSetting(
                 "enableFeedbackNotifications",
-                !mergedSettings.notifications.enableFeedbackNotifications,
+                !this.props.extensionState.notifications.enableFeedbackNotifications,
               );
             }}
             label={browser.i18n.getMessage("Notify_when_adding_downloads")}
           />
           <SettingsListCheckbox
-            checked={mergedSettings.notifications.enableCompletionNotifications}
+            checked={this.props.extensionState.notifications.enableCompletionNotifications}
             onChange={() => {
               this.setNotificationSetting(
                 "enableCompletionNotifications",
-                !mergedSettings.notifications.enableCompletionNotifications,
+                !this.props.extensionState.notifications.enableCompletionNotifications,
               );
             }}
             label={browser.i18n.getMessage("Notify_when_downloads_complete")}
@@ -255,7 +134,7 @@ class SettingsForm extends React.PureComponent<Props, State> {
             <input
               type="number"
               {...disabledPropAndClassName(
-                !mergedSettings.notifications.enableCompletionNotifications,
+                !this.props.extensionState.notifications.enableCompletionNotifications,
               )}
               min={POLL_MIN_INTERVAL}
               step={POLL_STEP}
@@ -280,9 +159,11 @@ class SettingsForm extends React.PureComponent<Props, State> {
           </li>
 
           <SettingsListCheckbox
-            checked={mergedSettings.shouldHandleDownloadLinks}
+            checked={this.props.extensionState.shouldHandleDownloadLinks}
             onChange={() => {
-              this.setShouldHandleDownloadLinks(!mergedSettings.shouldHandleDownloadLinks);
+              this.setShouldHandleDownloadLinks(
+                !this.props.extensionState.shouldHandleDownloadLinks,
+              );
             }}
             label={browser.i18n.getMessage("Handle_opening_downloadable_link_types_ZprotocolsZ", [
               DOWNLOAD_ONLY_PROTOCOLS.join(", "),
@@ -291,10 +172,6 @@ class SettingsForm extends React.PureComponent<Props, State> {
         </SettingsList>
 
         {this.maybeRenderDebuggingOutputAndSeparator()}
-
-        <div className="horizontal-separator" />
-
-        {this.renderSaveButtonFooter()}
       </div>
     );
   }
@@ -347,180 +224,56 @@ ${this.props.lastSevereError}`;
     }
   }
 
-  private renderSaveButtonFooter() {
-    const text = (function(savingStatus) {
-      switch (savingStatus) {
-        case "in-progress":
-          return browser.i18n.getMessage("Checking_connection");
-        case "unchanged":
-          return browser.i18n.getMessage("No_changes_to_save");
-        case "saved":
-          return browser.i18n.getMessage("Changes_saved");
-        case "failed":
-          return browser.i18n.getMessage("Save_failed_check_your_connection_settings");
-        case "pending-changes":
-          return null;
-        default:
-          return assertNever(savingStatus);
-      }
-    })(this.state.savingStatus);
-
-    const isDisabled =
-      this.state.savingStatus === "in-progress" ||
-      this.state.savingStatus === "unchanged" ||
-      this.state.savingStatus === "saved";
-
-    return (
-      <div className="save-settings-footer">
-        <span
-          className={classNames("save-result", {
-            "intent-error": this.state.savingStatus === "failed",
-          })}
-        >
-          {text}
-        </span>
-        <button onClick={this.saveSettings} {...disabledPropAndClassName(isDisabled)}>
-          {browser.i18n.getMessage("Save_Settings")}
-        </button>
-      </div>
-    );
-  }
-
-  private setConnectionSetting<K extends keyof ConnectionSettings>(
-    key: K,
-    value: ConnectionSettings[K],
-  ) {
-    this.setState({
-      savingStatus: "pending-changes",
-      connectionTest: "none",
-      isConnectionTestSlow: false,
-      changedSettings: {
-        ...this.state.changedSettings,
-        connection: {
-          ...this.state.changedSettings.connection,
-          [key as string]: value,
-        },
-      },
-    });
-  }
-
   private updateTaskTypeVisibility = (taskType: keyof VisibleTaskSettings, visibility: boolean) => {
-    this.setState({
-      savingStatus: "pending-changes",
-      changedSettings: {
-        ...this.state.changedSettings,
-        visibleTasks: {
-          ...this.state.changedSettings.visibleTasks,
-          [taskType]: visibility,
-        },
+    this.saveSettings({
+      visibleTasks: {
+        ...this.props.extensionState.visibleTasks,
+        [taskType]: visibility,
       },
     });
   };
 
   private updateTaskSortType = (taskSortType: TaskSortType) => {
-    this.setState({
-      savingStatus: "pending-changes",
-      changedSettings: {
-        ...this.state.changedSettings,
-        taskSortType,
-      },
-    });
+    this.saveSettings({ taskSortType });
   };
 
   private updateBadgeDisplayType = (badgeDisplayType: BadgeDisplayType) => {
-    this.setState({
-      savingStatus: "pending-changes",
-      changedSettings: {
-        ...this.state.changedSettings,
-        badgeDisplayType,
-      },
-    });
+    this.saveSettings({ badgeDisplayType });
+  };
+
+  private updateConnectionSettings = async (connection: ConnectionSettings) => {
+    this.saveSettings({ connection });
+    this.props.api.Auth.Logout();
   };
 
   private setNotificationSetting<K extends keyof NotificationSettings>(
     key: K,
     value: NotificationSettings[K],
   ) {
-    this.setState({
-      savingStatus: "pending-changes",
-      changedSettings: {
-        ...this.state.changedSettings,
-        notifications: {
-          ...this.state.changedSettings.notifications,
-          [key as string]: value,
-        },
+    this.saveSettings({
+      notifications: {
+        ...this.props.extensionState.notifications,
+        [key as string]: value,
       },
     });
   }
 
   private setShouldHandleDownloadLinks(shouldHandleDownloadLinks: boolean) {
-    this.setState({
-      savingStatus: "pending-changes",
-      changedSettings: {
-        ...this.state.changedSettings,
-        shouldHandleDownloadLinks,
-      },
+    this.saveSettings({
+      shouldHandleDownloadLinks,
     });
   }
 
-  private testConnection = async () => {
-    clearTimeout(this.connectionTestSlowTimeout!);
-
-    this.setState({
-      connectionTest: "in-progress",
-      isConnectionTestSlow: false,
+  private saveSettings = async (settings: Partial<Settings>) => {
+    const success = await this.props.saveSettings({
+      ...(pick(this.props.extensionState, SETTING_NAMES) as Settings),
+      ...settings,
     });
 
-    this.connectionTestSlowTimeout = (setTimeout(() => {
-      this.setState({
-        isConnectionTestSlow: true,
-      });
-    }, 5000) as any) as number;
-
-    const result = await testConnection(this.computeMergedSettings());
-
-    clearTimeout(this.connectionTestSlowTimeout!);
     this.setState({
-      connectionTest: result,
-      isConnectionTestSlow: false,
-    });
-
-    if (result === "good-and-modern" || result === "good-and-legacy") {
-      const objects = await getSharedObjects();
-
-      if (objects != null) {
-        // The client can be overly clever and end up in a state where it has a stale/bad
-        // credentials or something similar. It's been difficult to track down, so terminating
-        // the connection on successful test serves both as a bit of a stop-gap if the user
-        // sees the connection is failing but thinks it shouldn't be.
-        objects.api.Auth.Logout();
-      }
-    }
-  };
-
-  private saveSettings = async () => {
-    this.setState({
-      savingStatus: "in-progress",
-    });
-
-    const success = await this.props.saveSettings(this.computeMergedSettings());
-
-    this.setState({
-      changedSettings: success ? {} : this.state.changedSettings,
-      savingStatus: success ? "saved" : "failed",
+      savesFailed: this.state.savesFailed || !success,
     });
   };
-
-  private computeMergedSettings(): Settings {
-    return merge(
-      cloneDeep(pick(this.props.extensionState, SETTING_NAMES) as Settings),
-      this.state.changedSettings,
-    );
-  }
-
-  componentWillUnmount() {
-    clearTimeout(this.connectionTestSlowTimeout!);
-  }
 }
 
 function clearError() {
@@ -532,14 +285,27 @@ function clearError() {
 
 const ELEMENT = document.getElementById("body")!;
 
-onStoredStateChange(state => {
-  ReactDOM.render(
-    <SettingsForm
-      extensionState={state}
-      saveSettings={saveSettings}
-      lastSevereError={state.lastSevereError}
-      clearError={clearError}
-    />,
-    ELEMENT,
-  );
+getSharedObjects().then(objects => {
+  if (objects == null) {
+    ReactDOM.render(
+      <NonIdealState
+        icon="fa-user-secret"
+        text={browser.i18n.getMessage("Cannot_configure_settings_in_private_browsing")}
+      />,
+      ELEMENT,
+    );
+  } else {
+    onStoredStateChange(state => {
+      ReactDOM.render(
+        <SettingsForm
+          api={objects.api}
+          extensionState={state}
+          saveSettings={saveSettings}
+          lastSevereError={state.lastSevereError}
+          clearError={clearError}
+        />,
+        ELEMENT,
+      );
+    });
+  }
 });

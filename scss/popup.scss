@@ -140,27 +140,6 @@ body,
   }
 }
 
-.no-tasks {
-  margin: 20px 0 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  color: $color-text-faded;
-  padding: 10px;
-
-  .fa {
-    margin-bottom: 8px;
-  }
-
-  .explanation {
-    font-weight: 500;
-    font-size: 14px;
-    max-width: 60%;
-    text-align: center;
-  }
-}
-
 .fatal-error {
   .further-explanation,
   textarea {

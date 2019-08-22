@@ -4,23 +4,15 @@ import {
   ConnectionFailure,
   isConnectionFailure,
 } from "synology-typescript-api";
-import { Settings, getHostUrl } from "../common/state";
+import { Settings, getHostUrl, ConnectionSettings } from "../common/state";
 import { onUnhandledError } from "../common/errorHandlers";
 
 export async function saveSettings(settings: Settings): Promise<boolean> {
   console.log("persisting settings...");
-
   try {
-    const result = await testConnection(settings);
-
-    if (result !== "good-and-modern" && result !== "good-and-legacy") {
-      return false;
-    } else {
-      await browser.storage.local.set(settings);
-
-      console.log("done persisting settings");
-      return true;
-    }
+    await browser.storage.local.set(settings);
+    console.log("done persisting settings");
+    return true;
   } catch (e) {
     onUnhandledError(e);
     return false;
@@ -37,11 +29,11 @@ export function isErrorCodeResult(result: ConnectionTestResult): result is { cod
   return (result as { code: number }).code != null;
 }
 
-export async function testConnection(settings: Settings): Promise<ConnectionTestResult> {
+export async function testConnection(settings: ConnectionSettings): Promise<ConnectionTestResult> {
   const api = new ApiClient({
-    baseUrl: getHostUrl(settings.connection),
-    account: settings.connection.username,
-    passwd: settings.connection.password,
+    baseUrl: getHostUrl(settings),
+    account: settings.username,
+    passwd: settings.password,
     session: SessionName.DownloadStation,
   });
 

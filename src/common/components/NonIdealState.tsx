@@ -7,10 +7,10 @@ export interface Props {
   className?: string;
 }
 
-export class NoTasks extends React.PureComponent<Props, {}> {
+export class NonIdealState extends React.PureComponent<Props> {
   render() {
     return (
-      <div className={classNames("no-tasks", this.props.className)}>
+      <div className={classNames("non-ideal-state", this.props.className)}>
         <span className={classNames("fa fa-2x", this.props.icon)} />
         {this.props.text && <span className="explanation">{this.props.text}</span>}
         {this.props.children}

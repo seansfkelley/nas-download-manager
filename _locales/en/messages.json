@@ -360,8 +360,8 @@
     "message": "Password",
     "description": "Label for field on settings page."
   },
-  "Test_Connection": {
-    "message": "Test Connection",
+  "Test_Connection_and_Save": {
+    "message": "Test Connection and Save",
     "description": "Label for button on settings page."
   },
   "Task_Display_Settings": {
@@ -426,9 +426,9 @@
     "message": "Changes saved.",
     "description": "Message for connection test status."
   },
-  "Save_failed_check_your_connection_settings": {
-    "message": "Save failed (check your connection settings).",
-    "description": "Message for connection test status."
+  "Cannot_save_settings_This_is_a_bug_please_file_an_issue": {
+    "message": "Cannot save settings. This is a bug; please file an issue.",
+    "description": "Message shown in settings page when something is very wrong."
   },
   "Testing_connection": {
     "message": "Testing connection...",
@@ -703,5 +703,9 @@
   "No_directories": {
     "message": "No directories.",
     "description": "Message in advanced add form if there are no root directories."
+  },
+  "Cannot_configure_settings_in_private_browsing": {
+    "message": "Cannot configure settings in private browsing.",
+    "description": "Error message that replaces the settings page when the user is in private mode."
   }
 }

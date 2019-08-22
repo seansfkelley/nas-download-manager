@@ -1,9 +1,9 @@
 import * as React from "react";
-import { NoTasks } from "./NoTasks";
+import { NonIdealState } from "../common/components/NonIdealState";
 
 export const PrivateBrowsingUnsupported = () => (
   <div className="popup">
-    <NoTasks
+    <NonIdealState
       icon="fa-user-secret"
       text={browser.i18n.getMessage("Private_browsing_mode_is_not_currently_supported")}
     />
