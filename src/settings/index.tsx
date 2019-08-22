@@ -109,56 +109,52 @@ class SettingsForm extends React.PureComponent<Props, State> {
             this.testConnection();
           }}
         >
-          <ul className="settings-list">
-            <li>
-              <div className="label-and-input connection-settings">
-                <span className="label">Host</span>
-                <div className="input">
-                  <select
-                    {...connectionDisabledProps}
-                    value={mergedSettings.connection.protocol}
-                    onChange={e => {
-                      this.setConnectionSetting("protocol", e.currentTarget.value as Protocol);
-                    }}
-                    ref={kludgeRefSetClassname("protocol-setting")}
-                  >
-                    {PROTOCOLS.map(protocol => (
-                      <option key={protocol} value={protocol}>
-                        {protocol}
-                      </option>
-                    ))}
-                  </select>
-                  <span>://</span>
-                  <input
-                    type="text"
-                    {...connectionDisabledProps}
-                    placeholder={browser.i18n.getMessage("hostname_or_IP_address")}
-                    value={mergedSettings.connection.hostname}
-                    onChange={e => {
-                      this.setConnectionSetting("hostname", e.currentTarget.value.trim());
-                    }}
-                    ref={kludgeRefSetClassname("host-setting")}
-                  />
-                  <span>:</span>
-                  <input
-                    {...connectionDisabledProps}
-                    type="number"
-                    value={
-                      mergedSettings.connection.port === 0 ? "" : mergedSettings.connection.port
-                    }
-                    onChange={e => {
-                      const port = +(e.currentTarget.value.replace(/[^0-9]/g, "") || 0);
-                      this.setConnectionSetting("port", port);
-                    }}
-                    ref={kludgeRefSetClassname("port-setting")}
-                  />
-                </div>
+          <SettingsList>
+            <li className="label-and-input connection-settings">
+              <span className="label">Host</span>
+              <div className="input">
+                <select
+                  {...connectionDisabledProps}
+                  value={mergedSettings.connection.protocol}
+                  onChange={e => {
+                    this.setConnectionSetting("protocol", e.currentTarget.value as Protocol);
+                  }}
+                  ref={kludgeRefSetClassname("protocol-setting")}
+                >
+                  {PROTOCOLS.map(protocol => (
+                    <option key={protocol} value={protocol}>
+                      {protocol}
+                    </option>
+                  ))}
+                </select>
+                <span>://</span>
+                <input
+                  type="text"
+                  {...connectionDisabledProps}
+                  placeholder={browser.i18n.getMessage("hostname_or_IP_address")}
+                  value={mergedSettings.connection.hostname}
+                  onChange={e => {
+                    this.setConnectionSetting("hostname", e.currentTarget.value.trim());
+                  }}
+                  ref={kludgeRefSetClassname("host-setting")}
+                />
+                <span>:</span>
+                <input
+                  {...connectionDisabledProps}
+                  type="number"
+                  value={mergedSettings.connection.port === 0 ? "" : mergedSettings.connection.port}
+                  onChange={e => {
+                    const port = +(e.currentTarget.value.replace(/[^0-9]/g, "") || 0);
+                    this.setConnectionSetting("port", port);
+                  }}
+                  ref={kludgeRefSetClassname("port-setting")}
+                />
               </div>
             </li>
 
-            <li>
-              <div className="label-and-input">
-                <span className="label">{browser.i18n.getMessage("Username")}</span>
+            <li className="label-and-input">
+              <span className="label">{browser.i18n.getMessage("Username")}</span>
+              <div className="input">
                 <input
                   type="text"
                   {...connectionDisabledProps}
@@ -170,9 +166,9 @@ class SettingsForm extends React.PureComponent<Props, State> {
               </div>
             </li>
 
-            <li>
-              <div className="label-and-input">
-                <span className="label">{browser.i18n.getMessage("Password")}</span>
+            <li className="label-and-input">
+              <span className="label">{browser.i18n.getMessage("Password")}</span>
+              <div className="input">
                 <input
                   type="password"
                   {...connectionDisabledProps}
@@ -205,7 +201,7 @@ class SettingsForm extends React.PureComponent<Props, State> {
                 reassureUser={this.state.isConnectionTestSlow}
               />
             </li>
-          </ul>
+          </SettingsList>
         </form>
 
         <div className="horizontal-separator" />

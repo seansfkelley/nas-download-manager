@@ -2,6 +2,10 @@
 @import "common";
 @import "task-filter-settings-form";
 
+* {
+  box-sizing: border-box;
+}
+
 body {
   padding: 2px;
 }
@@ -58,13 +62,18 @@ ul.settings-list {
   align-items: center;
 
   > .label {
-    width: 80px;
+    flex: 1;
+    min-width: 100px;
     margin-right: 5px;
   }
 
-  > .input,
-  > input {
-    flex: 1;
+  > .input {
+    flex: 4;
+    display: flex;
+
+    input {
+      flex: 1;
+    }
   }
 }
 
@@ -93,6 +102,8 @@ ul.settings-list {
 }
 
 .connection-test-result {
+  display: flex;
+  align-items: center;
   margin-left: 10px;
 
   .fa {
