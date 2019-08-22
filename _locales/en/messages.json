@@ -414,18 +414,6 @@
     "message": "Clear output",
     "description": "Button text for clearing debugging output."
   },
-  "Checking_connection": {
-    "message": "Checking connection...",
-    "description": "Message for connection test status."
-  },
-  "No_changes_to_save": {
-    "message": "No changes to save.",
-    "description": "Message for connection test status."
-  },
-  "Changes_saved": {
-    "message": "Changes saved.",
-    "description": "Message for connection test status."
-  },
   "Cannot_save_settings_This_is_a_bug_please_file_an_issue": {
     "message": "Cannot save settings. This is a bug; please file an issue.",
     "description": "Message shown in settings page when something is very wrong."
@@ -453,10 +441,6 @@
   "_for_more_details": {
     "message": " for more details.",
     "description": "SUffix for connection test status."
-  },
-  "Save_Settings": {
-    "message": "Save Settings",
-    "description": "Label for global save-settings button on settings page."
   },
   "Connection_failure_missing_connection_configuration": {
     "message": "Connection failure (missing connection configuration).",
