@@ -695,5 +695,13 @@
   "No_such_task_of_the_file_operation": {
     "message": "No such task of the file operation.",
     "description": "Error message on Synology API call failure."
+  },
+  "Loading_directories": {
+    "message": "Loading directories...",
+    "description": "Message while waiting for directories to load in advanced add form."
+  },
+  "No_directories": {
+    "message": "No directories.",
+    "description": "Message in advanced add form if there are no root directories."
   }
 }

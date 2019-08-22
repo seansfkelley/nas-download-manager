@@ -45,7 +45,7 @@ export class PathSelector extends React.PureComponent<Props, State> {
 
   private renderContent() {
     if (isUnloadedChild(this.state.directoryTree.children)) {
-      return <div className="no-content">Loading directories...</div>;
+      return <div className="no-content">{browser.i18n.getMessage("Loading_directories")}</div>;
     } else if (isErrorChild(this.state.directoryTree.children)) {
       return (
         <div className="no-content intent-error">
@@ -54,7 +54,7 @@ export class PathSelector extends React.PureComponent<Props, State> {
         </div>
       );
     } else if (this.state.directoryTree.children.length === 0) {
-      return <div className="no-content">No directories.</div>;
+      return <div className="no-content">{browser.i18n.getMessage("No_directories")}</div>;
     } else {
       return (
         <div>
