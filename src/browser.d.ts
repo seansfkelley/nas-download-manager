@@ -157,6 +157,7 @@ declare const browser: {
     local: {
       get: <T>(input: null | string | string[]) => Promise<T>;
       set: <T>(input: T) => Promise<void>;
+      clear: () => Promise<void>;
     };
     onChanged: {
       addListener: <T extends object>(listener: StorageChangeListener<T>) => void;

@@ -45,9 +45,9 @@ export function getHostUrl(settings: ConnectionSettings) {
 }
 
 export async function updateStateShapeIfNecessary() {
-  return browser.storage.local.set<Partial<State>>(
-    await updateStateToLatest(await browser.storage.local.get<any>(null)),
-  );
+  const updated = await updateStateToLatest(await browser.storage.local.get<any>(null));
+  await browser.storage.local.clear();
+  return browser.storage.local.set<State>(updated);
 }
 
 export function redactState(state: State): object {
