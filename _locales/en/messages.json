@@ -338,7 +338,7 @@
   },
   "filtered_task_count": {
     "message": "filtered task count",
-    "description": "Badge_display type."
+    "description": "Badge display type."
   },
   "Connection": {
     "message": "Connection",
