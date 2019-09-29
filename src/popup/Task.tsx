@@ -64,7 +64,7 @@ export class Task extends React.PureComponent<Props, State> {
 
   private computeFractionComplete() {
     const fractionComplete =
-      Math.round(
+      Math.floor(
         (this.props.task.additional!.transfer!.size_downloaded / this.props.task.size) * 100,
       ) / 100;
     return Number.isFinite(fractionComplete) ? fractionComplete : 0;
@@ -94,8 +94,8 @@ export class Task extends React.PureComponent<Props, State> {
       return renderStatusLine(
         "fa fa-arrow-down",
         browser.i18n.getMessage("ZpercentZ_ZestimateZ_ZcurrentZ_of_ZtotalZ_at_ZspeedZ", [
-          Number.isFinite(fraction) ? formatPercentage(fraction) : "0%",
-          eta != null && Number.isFinite(eta)
+          formatPercentage(fraction),
+          eta != null
             ? browser.i18n.getMessage("ZetaZ_remaining", [formatTime(eta)])
             : browser.i18n.getMessage("no_estimate"),
           `${formatMetric1024(this.props.task.additional!.transfer!.size_downloaded)}B`,
@@ -137,7 +137,7 @@ export class Task extends React.PureComponent<Props, State> {
         "far fa-clock",
         browser.i18n.getMessage("ZstatusZ_ZpercentZ_ZcurrentZ_of_ZtotalZ_downloaded", [
           upperCase(this.props.task.status),
-          Number.isFinite(fraction) ? formatPercentage(fraction) : "0%",
+          formatPercentage(fraction),
           `${formatMetric1024(this.props.task.additional!.transfer!.size_downloaded)}B`,
           `${formatMetric1024(this.props.task.size)}B`,
         ]),
