@@ -23,6 +23,10 @@ Synology Download Manager allows you to add and manage your download tasks on yo
 - Firefox ([view listing](https://addons.mozilla.org/en-US/firefox/addon/synology-download-manager/))
 - Chrome ([view listing](https://chrome.google.com/webstore/detail/synology-download-manager/iaijiochiiocodhamehbpmdlobhgghgi))
 
+## Privacy
+
+Synology Download Manager needs your login credentials to communicate with your NAS. It doesn't collect, store or transmit any other information. [Read more.](./PRIVACY.md)
+
 ## Development
 
 Please note that development is not actively supported on Windows. Some of the below commands may fail and require manually invoking an analogous Windows command instead.
