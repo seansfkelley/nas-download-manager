@@ -95,8 +95,8 @@ export class Task extends React.PureComponent<Props, State> {
         "fa fa-arrow-down",
         browser.i18n.getMessage("ZpercentZ_ZestimateZ_ZcurrentZ_of_ZtotalZ_at_ZspeedZ", [
           Number.isFinite(fraction) ? formatPercentage(fraction) : "0%",
-          Number.isFinite(eta as number)
-            ? browser.i18n.getMessage("ZetaZ_remaining", [formatTime(eta as number)])
+          eta != null && Number.isFinite(eta)
+            ? browser.i18n.getMessage("ZetaZ_remaining", [formatTime(eta)])
             : browser.i18n.getMessage("no_estimate"),
           `${formatMetric1024(this.props.task.additional!.transfer!.size_downloaded)}B`,
           `${formatMetric1024(this.props.task.size)}B`,

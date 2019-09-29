@@ -17,7 +17,7 @@ import { CallbackResponse } from "./popupTypes";
 interface Props {
   api: ApiClient;
   state: ExtensionState;
-  updateSettings: (settings: Partial<Settings>) => void;
+  updateSettings: (settings: Settings) => void;
 }
 
 export class PopupWrapper extends React.PureComponent<Props> {
@@ -30,11 +30,11 @@ export class PopupWrapper extends React.PureComponent<Props> {
           taskFetchFailureReason={this.props.state.taskFetchFailureReason}
           tasksLastInitiatedFetchTimestamp={this.props.state.tasksLastInitiatedFetchTimestamp}
           tasksLastCompletedFetchTimestamp={this.props.state.tasksLastCompletedFetchTimestamp}
-          visibleTasks={this.props.state.visibleTasks}
+          visibleTasks={this.props.state.settings.visibleTasks}
           changeVisibleTasks={this.changeVisibleTasks}
-          taskSort={this.props.state.taskSortType}
+          taskSort={this.props.state.settings.taskSortType}
           changeTaskSort={this.changeSortType}
-          badgeDisplay={this.props.state.badgeDisplayType}
+          badgeDisplay={this.props.state.settings.badgeDisplayType}
           changeBadgeDisplay={this.changeBadgeDisplay}
           {...this.makeCallbacks()}
         />
@@ -50,19 +50,19 @@ export class PopupWrapper extends React.PureComponent<Props> {
   }
 
   private changeVisibleTasks = (visibleTasks: VisibleTaskSettings) => {
-    this.props.updateSettings({ visibleTasks });
+    this.props.updateSettings({ ...this.props.state.settings, visibleTasks });
   };
 
   private changeSortType = (taskSortType: TaskSortType) => {
-    this.props.updateSettings({ taskSortType });
+    this.props.updateSettings({ ...this.props.state.settings, taskSortType });
   };
 
   private changeBadgeDisplay = (badgeDisplayType: BadgeDisplayType) => {
-    this.props.updateSettings({ badgeDisplayType });
+    this.props.updateSettings({ ...this.props.state.settings, badgeDisplayType });
   };
 
   private makeCallbacks(): Partial<PopupProps> {
-    const hostUrl = getHostUrl(this.props.state.connection);
+    const hostUrl = getHostUrl(this.props.state.settings.connection);
     if (hostUrl) {
       return {
         openDownloadStationUi: () => {
@@ -74,7 +74,7 @@ export class PopupWrapper extends React.PureComponent<Props> {
         createTask: (url: string, path?: string) =>
           addDownloadTaskAndPoll(
             this.props.api,
-            this.props.state.notifications.enableFeedbackNotifications,
+            this.props.state.settings.notifications.enableFeedbackNotifications,
             url,
             path,
           ),

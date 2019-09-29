@@ -72,9 +72,9 @@ updateStateShapeIfNecessary()
   .then(() => {
     onStoredStateChange(storedState => {
       const didUpdateSettings = api.updateSettings({
-        baseUrl: getHostUrl(storedState.connection),
-        account: storedState.connection.username,
-        passwd: storedState.connection.password,
+        baseUrl: getHostUrl(storedState.settings.connection),
+        account: storedState.settings.connection.username,
+        passwd: storedState.settings.connection.password,
         session: SessionName.DownloadStation,
       });
 
@@ -84,8 +84,8 @@ updateStateShapeIfNecessary()
         });
       }
 
-      if (!isEqual(storedState.notifications, lastNotificationSettings)) {
-        lastNotificationSettings = storedState.notifications;
+      if (!isEqual(storedState.settings.notifications, lastNotificationSettings)) {
+        lastNotificationSettings = storedState.settings.notifications;
         clearInterval(notificationInterval!);
         if (lastNotificationSettings.enableCompletionNotifications) {
           notificationInterval = (setInterval(() => {
@@ -94,7 +94,7 @@ updateStateShapeIfNecessary()
         }
       }
 
-      showNonErrorNotifications = storedState.notifications.enableFeedbackNotifications;
+      showNonErrorNotifications = storedState.settings.notifications.enableFeedbackNotifications;
 
       if (storedState.taskFetchFailureReason) {
         browser.browserAction.setIcon({
@@ -124,12 +124,12 @@ updateStateShapeIfNecessary()
         });
 
         let taskCount;
-        if (storedState.badgeDisplayType === "total") {
+        if (storedState.settings.badgeDisplayType === "total") {
           taskCount = storedState.tasks.length;
-        } else if (storedState.badgeDisplayType === "filtered") {
-          taskCount = filterTasks(storedState.tasks, storedState.visibleTasks).length;
+        } else if (storedState.settings.badgeDisplayType === "filtered") {
+          taskCount = filterTasks(storedState.tasks, storedState.settings.visibleTasks).length;
         } else {
-          assertNever(storedState.badgeDisplayType);
+          assertNever(storedState.settings.badgeDisplayType);
           return; // Can't `return assertNever(...)` because the linter complains.
         }
 
@@ -154,7 +154,7 @@ updateStateShapeIfNecessary()
           );
           newlyFinishedTaskIds.forEach(id => {
             const task = storedState.tasks.filter(t => t.id === id)[0];
-            if (storedState.notifications.enableCompletionNotifications) {
+            if (storedState.settings.notifications.enableCompletionNotifications) {
               notify(`${task.title}`, browser.i18n.getMessage("Download_finished"));
             }
           });

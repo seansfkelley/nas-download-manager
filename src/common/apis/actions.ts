@@ -8,7 +8,7 @@ import {
   SynologyResponse,
 } from "synology-typescript-api";
 import { errorMessageFromCode, errorMessageFromConnectionFailure } from "./errors";
-import { CachedTasks } from "../state";
+import { CachedTasks, State } from "../state";
 import { onUnhandledError } from "../errorHandlers";
 import { notify } from "./browserUtils";
 import {
@@ -29,11 +29,11 @@ export function clearCachedTasks() {
     tasksLastInitiatedFetchTimestamp: null,
   };
 
-  return browser.storage.local.set(emptyState);
+  return browser.storage.local.set<Partial<State>>(emptyState);
 }
 
 function setCachedTasks(cachedTasks: Partial<CachedTasks>) {
-  return browser.storage.local.set({
+  return browser.storage.local.set<Partial<State>>({
     tasksLastCompletedFetchTimestamp: Date.now(),
     ...cachedTasks,
   });
@@ -48,7 +48,7 @@ export async function pollTasks(api: ApiClient): Promise<void> {
   console.log(`(${pollId}) polling for tasks...`);
 
   try {
-    await browser.storage.local.set(cachedTasksInit);
+    await browser.storage.local.set<Partial<State>>(cachedTasksInit);
 
     // HELLO THERE
     //

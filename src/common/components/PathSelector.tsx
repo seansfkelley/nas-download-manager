@@ -121,7 +121,7 @@ export class PathSelector extends React.PureComponent<Props, State> {
           data.files.map(f => ({
             path: f.path,
             name: f.name,
-            children: "unloaded" as "unloaded",
+            children: "unloaded" as const,
           })),
         );
       }
@@ -145,7 +145,7 @@ export class PathSelector extends React.PureComponent<Props, State> {
         data.shares.map(d => ({
           name: d.name,
           path: d.path,
-          children: "unloaded" as "unloaded",
+          children: "unloaded" as const,
         })),
       );
     }

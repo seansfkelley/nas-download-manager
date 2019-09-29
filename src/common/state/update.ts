@@ -3,9 +3,16 @@ import { transition as state0to1 } from "./1";
 import { transition as state1to2 } from "./2";
 import { transition as state2to3 } from "./3";
 import { transition as state3to4 } from "./4";
+import { transition as state4to5 } from "./5";
 
-const LATEST_STATE_VERSION: StateVersion["stateVersion"] = 4;
-const STATE_TRANSFORMS: ((state: any) => any)[] = [state0to1, state1to2, state2to3, state3to4];
+const LATEST_STATE_VERSION: StateVersion["stateVersion"] = 5;
+const STATE_TRANSFORMS: ((state: any) => any)[] = [
+  state0to1,
+  state1to2,
+  state2to3,
+  state3to4,
+  state4to5,
+];
 
 interface AnyStateVersion {
   stateVersion: number;

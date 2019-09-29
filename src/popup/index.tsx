@@ -5,7 +5,7 @@ import "../common/init/extensionContext";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
-import { onStoredStateChange, Settings } from "../common/state";
+import { onStoredStateChange, Settings, State } from "../common/state";
 import { onUnhandledError } from "../common/errorHandlers";
 import { getSharedObjects } from "../common/apis/sharedObjects";
 import { pollTasks } from "../common/apis/actions";
@@ -15,8 +15,8 @@ import { PopupWrapper } from "./PopupWrapper";
 
 const ELEMENT = document.getElementById("body")!;
 
-function updateSettings(settings: Partial<Settings>) {
-  browser.storage.local.set(settings);
+function updateSettings(settings: Settings) {
+  browser.storage.local.set<Partial<State>>({ settings });
 }
 
 getSharedObjects()

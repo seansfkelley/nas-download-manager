@@ -157,7 +157,7 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
       isConnectionTestSlow: false,
       changedSettings: {
         ...this.state.changedSettings,
-        [key as string]: value,
+        [key]: value,
       },
     });
   }

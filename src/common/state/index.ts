@@ -3,15 +3,14 @@ import mapValues from "lodash-es/mapValues";
 import { Protocol, VisibleTaskSettings, TaskSortType, ConnectionSettings, State } from "./latest";
 import { updateStateToLatest } from "./update";
 import { BadgeDisplayType } from "./4";
+import { typesafeUnionMembers } from "../lang";
 export * from "./listen";
 export * from "./latest";
 
-const _protocolNames: Record<Protocol, true> = {
+export const PROTOCOLS = typesafeUnionMembers<Protocol>({
   http: true,
   https: true,
-};
-
-export const PROTOCOLS = Object.keys(_protocolNames) as Protocol[];
+});
 
 export const ORDERED_VISIBLE_TASK_TYPE_NAMES: Record<keyof VisibleTaskSettings, string> = {
   downloading: browser.i18n.getMessage("Downloading"),
@@ -46,21 +45,27 @@ export function getHostUrl(settings: ConnectionSettings) {
 }
 
 export async function updateStateShapeIfNecessary() {
-  return browser.storage.local.set(
+  return browser.storage.local.set<Partial<State>>(
     await updateStateToLatest(await browser.storage.local.get<any>(null)),
   );
 }
 
 export function redactState(state: State): object {
   const sanitizedConnection: Record<keyof ConnectionSettings, boolean | Protocol> = {
-    ...(mapValues(state.connection, Boolean) as Record<keyof typeof state.connection, boolean>),
-    protocol: state.connection.protocol,
+    ...(mapValues(state.settings.connection, Boolean) as Record<
+      keyof typeof state.settings.connection,
+      boolean
+    >),
+    protocol: state.settings.connection.protocol,
   };
 
   return {
     ...state,
+    settings: {
+      ...state.settings,
+      connection: sanitizedConnection,
+    },
     lastSevereError: state.lastSevereError ? "(omitted for brevity)" : undefined,
-    connection: sanitizedConnection,
     tasks: state.tasks.length,
   };
 }

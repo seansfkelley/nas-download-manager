@@ -1,4 +1,4 @@
-import { Logging } from "./state";
+import { Logging, State } from "./state";
 
 export function onUnhandledError(e: any | undefined) {
   console.error("unhandled error", e);
@@ -11,5 +11,5 @@ ${e.stack ? "Error stack trace: " + e.stack.trim() : "(no error stack)"}`
   const logging: Logging = {
     lastSevereError: formattedError,
   };
-  browser.storage.local.set(logging);
+  browser.storage.local.set<Partial<State>>(logging);
 }

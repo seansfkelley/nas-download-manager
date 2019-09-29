@@ -2,7 +2,6 @@ import "../../scss/fields.scss";
 import "../../scss/settings.scss";
 import "../../scss/non-ideal-state.scss";
 import "../common/init/extensionContext";
-import pick from "lodash-es/pick";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { ApiClient } from "synology-typescript-api";
@@ -30,6 +29,7 @@ import { ConnectionSettings as ConnectionSettingsComponent } from "./ConnectionS
 import { disabledPropAndClassName, kludgeRefSetClassname } from "./classnameUtil";
 import { getSharedObjects } from "../common/apis/sharedObjects";
 import { NonIdealState } from "../common/components/NonIdealState";
+import { typesafePick } from "../common/lang";
 
 interface Props {
   api: ApiClient;
@@ -56,7 +56,7 @@ class SettingsForm extends React.PureComponent<Props, State> {
   state: State = {
     savesFailed: false,
     rawPollingInterval:
-      this.props.extensionState.notifications.completionPollingInterval.toString() ||
+      this.props.extensionState.settings.notifications.completionPollingInterval.toString() ||
       POLL_DEFAULT_INTERVAL.toString(),
   };
 
@@ -79,7 +79,7 @@ class SettingsForm extends React.PureComponent<Props, State> {
         </header>
 
         <ConnectionSettingsComponent
-          connectionSettings={this.props.extensionState.connection}
+          connectionSettings={this.props.extensionState.settings.connection}
           saveConnectionSettings={this.updateConnectionSettings}
         />
 
@@ -91,9 +91,9 @@ class SettingsForm extends React.PureComponent<Props, State> {
         </header>
 
         <TaskFilterSettingsForm
-          visibleTasks={this.props.extensionState.visibleTasks}
-          taskSortType={this.props.extensionState.taskSortType}
-          badgeDisplayType={this.props.extensionState.badgeDisplayType}
+          visibleTasks={this.props.extensionState.settings.visibleTasks}
+          taskSortType={this.props.extensionState.settings.taskSortType}
+          badgeDisplayType={this.props.extensionState.settings.badgeDisplayType}
           updateTaskTypeVisibility={this.updateTaskTypeVisibility}
           updateTaskSortType={this.updateTaskSortType}
           updateBadgeDisplayType={this.updateBadgeDisplayType}
@@ -107,21 +107,21 @@ class SettingsForm extends React.PureComponent<Props, State> {
 
         <SettingsList>
           <SettingsListCheckbox
-            checked={this.props.extensionState.notifications.enableFeedbackNotifications}
+            checked={this.props.extensionState.settings.notifications.enableFeedbackNotifications}
             onChange={() => {
               this.setNotificationSetting(
                 "enableFeedbackNotifications",
-                !this.props.extensionState.notifications.enableFeedbackNotifications,
+                !this.props.extensionState.settings.notifications.enableFeedbackNotifications,
               );
             }}
             label={browser.i18n.getMessage("Notify_when_adding_downloads")}
           />
           <SettingsListCheckbox
-            checked={this.props.extensionState.notifications.enableCompletionNotifications}
+            checked={this.props.extensionState.settings.notifications.enableCompletionNotifications}
             onChange={() => {
               this.setNotificationSetting(
                 "enableCompletionNotifications",
-                !this.props.extensionState.notifications.enableCompletionNotifications,
+                !this.props.extensionState.settings.notifications.enableCompletionNotifications,
               );
             }}
             label={browser.i18n.getMessage("Notify_when_downloads_complete")}
@@ -134,7 +134,7 @@ class SettingsForm extends React.PureComponent<Props, State> {
             <input
               type="number"
               {...disabledPropAndClassName(
-                !this.props.extensionState.notifications.enableCompletionNotifications,
+                !this.props.extensionState.settings.notifications.enableCompletionNotifications,
               )}
               min={POLL_MIN_INTERVAL}
               step={POLL_STEP}
@@ -159,10 +159,10 @@ class SettingsForm extends React.PureComponent<Props, State> {
           </li>
 
           <SettingsListCheckbox
-            checked={this.props.extensionState.shouldHandleDownloadLinks}
+            checked={this.props.extensionState.settings.shouldHandleDownloadLinks}
             onChange={() => {
               this.setShouldHandleDownloadLinks(
-                !this.props.extensionState.shouldHandleDownloadLinks,
+                !this.props.extensionState.settings.shouldHandleDownloadLinks,
               );
             }}
             label={browser.i18n.getMessage("Handle_opening_downloadable_link_types_ZprotocolsZ", [
@@ -227,7 +227,7 @@ ${this.props.lastSevereError}`;
   private updateTaskTypeVisibility = (taskType: keyof VisibleTaskSettings, visibility: boolean) => {
     this.saveSettings({
       visibleTasks: {
-        ...this.props.extensionState.visibleTasks,
+        ...this.props.extensionState.settings.visibleTasks,
         [taskType]: visibility,
       },
     });
@@ -252,8 +252,8 @@ ${this.props.lastSevereError}`;
   ) {
     this.saveSettings({
       notifications: {
-        ...this.props.extensionState.notifications,
-        [key as string]: value,
+        ...this.props.extensionState.settings.notifications,
+        [key]: value,
       },
     });
   }
@@ -266,7 +266,7 @@ ${this.props.lastSevereError}`;
 
   private saveSettings = async (settings: Partial<Settings>) => {
     const success = await this.props.saveSettings({
-      ...(pick(this.props.extensionState, SETTING_NAMES) as Settings),
+      ...typesafePick(this.props.extensionState.settings, ...SETTING_NAMES),
       ...settings,
     });
 
@@ -280,7 +280,7 @@ function clearError() {
   const clearedError: Logging = {
     lastSevereError: undefined,
   };
-  browser.storage.local.set(clearedError);
+  browser.storage.local.set<Partial<ExtensionState>>(clearedError);
 }
 
 const ELEMENT = document.getElementById("body")!;

@@ -11,12 +11,7 @@ export const SETTING_NAMES = typesafeUnionMembers<keyof Settings>({
 });
 
 const ALL_STORED_STATE_NAMES = typesafeUnionMembers<keyof State>({
-  connection: true,
-  visibleTasks: true,
-  taskSortType: true,
-  notifications: true,
-  shouldHandleDownloadLinks: true,
-  badgeDisplayType: true,
+  settings: true,
   tasks: true,
   taskFetchFailureReason: true,
   tasksLastInitiatedFetchTimestamp: true,

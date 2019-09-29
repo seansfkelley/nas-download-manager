@@ -4,13 +4,13 @@ import {
   ConnectionFailure,
   isConnectionFailure,
 } from "synology-typescript-api";
-import { Settings, getHostUrl, ConnectionSettings } from "../common/state";
+import { Settings, getHostUrl, ConnectionSettings, State } from "../common/state";
 import { onUnhandledError } from "../common/errorHandlers";
 
 export async function saveSettings(settings: Settings): Promise<boolean> {
   console.log("persisting settings...");
   try {
-    await browser.storage.local.set(settings);
+    await browser.storage.local.set<Partial<State>>({ settings });
     console.log("done persisting settings");
     return true;
   } catch (e) {
