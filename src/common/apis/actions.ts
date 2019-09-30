@@ -21,6 +21,8 @@ import {
 
 const METHOD_NOT_ALLOWED_CODE = 405;
 
+type WithoutPromise<T> = T extends Promise<infer U> ? U : T;
+
 export function clearCachedTasks() {
   const emptyState: CachedTasks = {
     tasks: [],
@@ -50,15 +52,24 @@ export async function pollTasks(api: ApiClient): Promise<void> {
   try {
     await browser.storage.local.set<Partial<State>>(cachedTasksInit);
 
-    // HELLO THERE
-    //
-    // When changing what this requests, you almost certainly want to update STATE_VERSION.
-    const response = await api.DownloadStation.Task.List({
-      offset: 0,
-      limit: -1,
-      additional: ["transfer", "detail"],
-      timeout: 20000,
-    });
+    // This type declaration shouldn't be necessary, but without it this bug happens:
+    // https://github.com/microsoft/TypeScript/issues/33666
+    let response: WithoutPromise<ReturnType<typeof api.DownloadStation.Task.List>>;
+
+    try {
+      // HELLO THERE
+      //
+      // When changing what this requests, you almost certainly want to update STATE_VERSION.
+      response = await api.DownloadStation.Task.List({
+        offset: 0,
+        limit: -1,
+        additional: ["transfer", "detail"],
+        timeout: 20000,
+      });
+    } catch (e) {
+      onUnhandledError(e, "error while fetching list of tasks");
+      return;
+    }
 
     console.log(`(${pollId}) poll completed with response`, response);
 
@@ -200,6 +211,16 @@ export async function addDownloadTaskAndPoll(
     }
   }
 
+  function onUnexpectedError(e: any | undefined, message?: string) {
+    onUnhandledError(e, message);
+    notify(
+      browser.i18n.getMessage("Failed_to_add_download"),
+      browser.i18n.getMessage("Unexpected_error_please_check_your_settings_and_try_again"),
+      "failure",
+      notificationId,
+    );
+  }
+
   async function onTaskAddResult(
     result: ConnectionFailure | SynologyResponse<{}>,
     filename?: string,
@@ -223,7 +244,15 @@ export async function addDownloadTaskAndPoll(
         );
       }
     } else {
-      if (await checkIfEMuleShouldBeEnabled()) {
+      let shouldEMuleBeEnabled;
+      try {
+        shouldEMuleBeEnabled = await checkIfEMuleShouldBeEnabled();
+      } catch (e) {
+        onUnexpectedError(e, "error while checking emule settings");
+        return;
+      }
+
+      if (shouldEMuleBeEnabled) {
         notify(
           browser.i18n.getMessage("eMule_is_not_enabled"),
           browser.i18n.getMessage("Use_DSM_to_enable_eMule_downloads"),
@@ -253,33 +282,61 @@ export async function addDownloadTaskAndPoll(
       );
     } else if (startsWithAnyProtocol(url, AUTO_DOWNLOAD_TORRENT_FILE_PROTOCOLS)) {
       const urlWithoutQuery = url.indexOf("?") !== -1 ? url.slice(0, url.indexOf("?")) : url;
-      const metadataFileType = await getMetadataFileType(urlWithoutQuery);
+      let metadataFileType;
+
+      try {
+        metadataFileType = await getMetadataFileType(urlWithoutQuery);
+      } catch (e) {
+        onUnexpectedError(e, "error while trying to fetch metadata file type for download url");
+        return;
+      }
 
       if (metadataFileType != null) {
-        const response = await Axios.get(url, { responseType: "arraybuffer", timeout: 10000 });
+        let response;
+
+        try {
+          response = await Axios.get(url, { responseType: "arraybuffer", timeout: 10000 });
+        } catch (e) {
+          onUnexpectedError(e, "error while trying to fetch metadata file");
+          return;
+        }
+
         const content = new Blob([response.data], { type: metadataFileType.mediaType });
         const filename = guessTorrentFileName(urlWithoutQuery, response.headers, metadataFileType);
-        const result = await api.DownloadStation.Task.Create({
-          file: { content, filename },
-          destination,
-        });
-        await onTaskAddResult(result, filename);
-        await pollTasks(api);
+
+        try {
+          const result = await api.DownloadStation.Task.Create({
+            file: { content, filename },
+            destination,
+          });
+          await onTaskAddResult(result, filename);
+          await pollTasks(api);
+        } catch (e) {
+          onUnexpectedError(e, "error while trying to create task from metadata file or fetch");
+        }
       } else {
+        try {
+          const result = await api.DownloadStation.Task.Create({
+            uri: [url],
+            destination,
+          });
+          await onTaskAddResult(result);
+          await pollTasks(api);
+        } catch (e) {
+          onUnexpectedError(e, "error while trying to create task from metadata file url or fetch");
+        }
+      }
+    } else if (startsWithAnyProtocol(url, ALL_DOWNLOADABLE_PROTOCOLS)) {
+      try {
         const result = await api.DownloadStation.Task.Create({
           uri: [url],
           destination,
         });
-        await onTaskAddResult(result);
+        await onTaskAddResult(result, guessFileNameFromUrl(url));
         await pollTasks(api);
+      } catch (e) {
+        onUnexpectedError(e, "error while trying to create task from url or fetch");
       }
-    } else if (startsWithAnyProtocol(url, ALL_DOWNLOADABLE_PROTOCOLS)) {
-      const result = await api.DownloadStation.Task.Create({
-        uri: [url],
-        destination,
-      });
-      await onTaskAddResult(result, guessFileNameFromUrl(url));
-      await pollTasks(api);
     } else {
       notify(
         browser.i18n.getMessage("Failed_to_add_download"),
@@ -291,12 +348,6 @@ export async function addDownloadTaskAndPoll(
       );
     }
   } catch (e) {
-    onUnhandledError(e);
-    notify(
-      browser.i18n.getMessage("Failed_to_add_download"),
-      browser.i18n.getMessage("Unexpected_error_please_check_your_settings_and_try_again"),
-      "failure",
-      notificationId,
-    );
+    onUnexpectedError(e);
   }
 }
