@@ -194,10 +194,24 @@ export async function addDownloadTaskAndPoll(
   url: string,
   path?: string,
 ): Promise<void> {
-  const notificationId = showNonErrorNotifications ? notify("Adding download...", url) : undefined;
+  // It should be safe to just blindly string-replace this. Commas are not URL-significant, but they
+  // are significant to Synology. If we find a comma in a URL, then that URL is not technically
+  // malformed but it will interfere with the way the Synology attempts to parse the result and as
+  // such will cause the request to fail.
+  //
+  // We expect the url argument to be a single, downloadable URL. Since commas are used to separate
+  // mutiple downloadable URLs, the function signature for that (if it happens) will be `string[]` so
+  // it's clear who's responsible for comma-separating the arguments.
+  //
+  // https://github.com/seansfkelley/synology-download-manager/issues/118
+  const sanitizedUrl = url.replace(",", "%2C");
+
+  const notificationId = showNonErrorNotifications
+    ? notify("Adding download...", sanitizedUrl)
+    : undefined;
 
   async function checkIfEMuleShouldBeEnabled() {
-    if (startsWithAnyProtocol(url, EMULE_PROTOCOL)) {
+    if (startsWithAnyProtocol(sanitizedUrl, EMULE_PROTOCOL)) {
       const result = await api.DownloadStation.Info.GetConfig();
       if (isConnectionFailure(result)) {
         return false;
@@ -238,7 +252,7 @@ export async function addDownloadTaskAndPoll(
       if (showNonErrorNotifications) {
         notify(
           browser.i18n.getMessage("Download_added"),
-          filename || url,
+          filename || sanitizedUrl,
           "success",
           notificationId,
         );
@@ -273,15 +287,18 @@ export async function addDownloadTaskAndPoll(
   const destination = path && path.startsWith("/") ? path.slice(1) : undefined;
 
   try {
-    if (!url) {
+    if (!sanitizedUrl) {
       notify(
         browser.i18n.getMessage("Failed_to_add_download"),
         browser.i18n.getMessage("URL_is_empty_or_missing"),
         "failure",
         notificationId,
       );
-    } else if (startsWithAnyProtocol(url, AUTO_DOWNLOAD_TORRENT_FILE_PROTOCOLS)) {
-      const urlWithoutQuery = url.indexOf("?") !== -1 ? url.slice(0, url.indexOf("?")) : url;
+    } else if (startsWithAnyProtocol(sanitizedUrl, AUTO_DOWNLOAD_TORRENT_FILE_PROTOCOLS)) {
+      const urlWithoutQuery =
+        sanitizedUrl.indexOf("?") !== -1
+          ? sanitizedUrl.slice(0, sanitizedUrl.indexOf("?"))
+          : sanitizedUrl;
       let metadataFileType;
 
       try {
@@ -295,7 +312,7 @@ export async function addDownloadTaskAndPoll(
         let response;
 
         try {
-          response = await Axios.get(url, { responseType: "arraybuffer", timeout: 10000 });
+          response = await Axios.get(sanitizedUrl, { responseType: "arraybuffer", timeout: 10000 });
         } catch (e) {
           onUnexpectedError(e, "error while trying to fetch metadata file");
           return;
@@ -317,7 +334,7 @@ export async function addDownloadTaskAndPoll(
       } else {
         try {
           const result = await api.DownloadStation.Task.Create({
-            uri: [url],
+            uri: [sanitizedUrl],
             destination,
           });
           await onTaskAddResult(result);
@@ -326,13 +343,13 @@ export async function addDownloadTaskAndPoll(
           onUnexpectedError(e, "error while trying to create task from metadata file url or fetch");
         }
       }
-    } else if (startsWithAnyProtocol(url, ALL_DOWNLOADABLE_PROTOCOLS)) {
+    } else if (startsWithAnyProtocol(sanitizedUrl, ALL_DOWNLOADABLE_PROTOCOLS)) {
       try {
         const result = await api.DownloadStation.Task.Create({
-          uri: [url],
+          uri: [sanitizedUrl],
           destination,
         });
-        await onTaskAddResult(result, guessFileNameFromUrl(url));
+        await onTaskAddResult(result, guessFileNameFromUrl(sanitizedUrl));
         await pollTasks(api);
       } catch (e) {
         onUnexpectedError(e, "error while trying to create task from url or fetch");
