@@ -2,7 +2,7 @@
 
 > An open source browser extension for adding/managing download tasks to your Synology DiskStation.
 
-[![Donate](https://img.shields.io/badge/Donate%20$5-PayPal-brightgreen.svg)](https://paypal.me/downloadmanager/5)
+[![Donate](https://img.shields.io/badge/Donate%20$2-PayPal-brightgreen.svg)](https://paypal.me/downloadmanager/2)
 
 ## About
 
