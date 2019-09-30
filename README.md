@@ -55,11 +55,31 @@ Install [Yarn](https://github.com/yarnpkg/yarn) if you don't already have it.
 
 ### Translating the Extension
 
-TODO
+I need help localizing Synology Download Manager! Read in detail about [how to localize WebExtensions](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Internationalization), or skip to the sections below for short summaries.
 
-- messages.json
-- helper script
-- moment.js locale
+#### Adding a New Language
+
+In order to add the new language, base your translation file off the English messages file.
+
+1. Copy `_locales/en/messages.json` into a new file at `_locales/<your language code>/messages.json`.
+2. Edit the `message` field in each item with your translation.
+3. In `src/common/moment.ts`, add a new import line like `import "moment/locale/<your language code>";`.
+4. Load (or reload) the extension to test it out. You may need to remove the extension entirely and then re-add it for changes to be reflected.
+5. Open a pull request!
+
+There are automated checks to ensure that you're only defining translated strings that the extension actually uses.
+
+#### Editing an Existing Language
+
+If you're adding more strings for an incomplete translation, you can use `./scripts/diff-messages <your language code>` to get a list of all the entries you need to add to the `messages.json` in a format that is easily copy-pasted:
+
+```
+$ ./scripts/diff-messages ru
+"Badge_shows": {
+  "message": "Badge shows",
+  "description": "Prefix text for badge-display-type dropdown."
+},
+```
 
 ## For the Paranoid: Verifying Your Installation
 
