@@ -178,7 +178,7 @@ export class Task extends React.PureComponent<Props, State> {
     if (this.state.pauseResumeState === "in-progress") {
       return renderButton(undefined, "in-progress");
     } else if (this.state.pauseResumeState === "none") {
-      if (this.props.task.status === "paused") {
+      if (this.props.task.status === "paused" || this.props.task.status === "error") {
         return renderButton(browser.i18n.getMessage("Resume"), "resumable");
       } else if (this.props.task.status === "finished") {
         return renderButton(browser.i18n.getMessage("Start_seeding"), "resumable");
