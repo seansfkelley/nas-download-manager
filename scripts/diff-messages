@@ -23,6 +23,13 @@ const defaultMessages = require(path.join(ROOT, "_locales", defaultLocale, "mess
 const messages = require(path.join(ROOT, "_locales", locale, "messages.json"));
 const missingKeys = difference(Object.keys(defaultMessages), Object.keys(messages));
 
-missingKeys.forEach(k => {
-  console.log(`"${k}": ${JSON.stringify(defaultMessages[k], null, 2)},`);
-});
+if (missingKeys.length === 0) {
+  console.error(`locale ${locale} is up-to-date with the default locale (${defaultLocale})`);
+} else {
+  console.error("copy-paste the following to the end of your messages.json file");
+  console.error("be sure to watch out for missing/extra commas messing up your syntax!");
+  console.error();
+  missingKeys.forEach(k => {
+    console.log(`"${k}": ${JSON.stringify(defaultMessages[k], null, 2)},`);
+  });
+}
