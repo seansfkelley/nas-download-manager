@@ -3,7 +3,7 @@ import * as path from "path";
 import { sync as globSync } from "glob";
 
 import "mocha";
-import { expect } from "chai";
+import { expect, assert } from "chai";
 
 interface I18nMessage {
   message: string;
@@ -44,7 +44,9 @@ describe("i18n", () => {
   const SOURCE_FILES_BY_NAME: Record<string, string> = {};
 
   globSync(path.join(__dirname, "..", "src", "**", "*.ts*")).forEach(filename => {
-    SOURCE_FILES_BY_NAME[filename] = fs.readFileSync(filename).toString("utf8");
+    if (!filename.endsWith(".d.ts")) {
+      SOURCE_FILES_BY_NAME[filename] = fs.readFileSync(filename).toString("utf8");
+    }
   });
 
   describe("manifest.json", () => {
@@ -91,18 +93,27 @@ describe("i18n", () => {
     });
 
     it('every "getMessage" call should use a known message name', () => {
-      const I18N_CALL_REGEX = /browser\.i18n\.getMessage\(\s*'([^']*)'/g;
+      const I18N_CALL_REGEX = /browser\.i18n\.getMessage\(\s*"([^"]*)"/g;
       const MESSAGES = loadLocale(DEFAULT_LOCALE);
       Object.keys(SOURCE_FILES_BY_NAME).forEach(name => {
         const content = SOURCE_FILES_BY_NAME[name];
         let match;
+        let didMatch = false;
         do {
           match = I18N_CALL_REGEX.exec(content);
           if (match != null) {
+            didMatch = true;
             const stringName = match[1];
             expect(MESSAGES[stringName], stringName).to.exist;
           }
         } while (match != null);
+
+        // Note that this doesn't use the full browser.i18n.getMessage name because it's
+        // trying to guard against formatting changes that might cause such a strict
+        // regex to fail, such as breaking lines across the dot.
+        if (!didMatch && /getMessage/.exec(content)) {
+          assert.fail(`${name} appears to have an untested getMessage call`);
+        }
       });
     });
 
