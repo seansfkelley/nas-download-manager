@@ -117,14 +117,16 @@ const ARBITRARY_FILE_FETCH_SIZE_CUTOFF = 1024 * 1024 * 5;
 const FILENAME_PROPERTY_REGEX = /filename=("([^"]+)"|([^"][^ ]+))/;
 
 function stripQueryString(url: string) {
-  return [url].indexOf("?") !== -1 ? url.slice(0, url.indexOf("?")) : url;
+  return url.indexOf("?") !== -1 ? url.slice(0, url.indexOf("?")) : url;
 }
 
 function guessTorrentFileName(
-  urlWithoutQuery: string,
+  url: string,
   headers: Record<string, string>,
   metadataFileType: MetadataFileType,
 ) {
+  const urlWithoutQuery = stripQueryString(url);
+
   let maybeFilename: string | undefined;
   const contentDisposition = headers["content-disposition"];
   if (contentDisposition && contentDisposition.indexOf("filename=") !== -1) {
@@ -295,14 +297,10 @@ export async function addDownloadTaskAndPoll(
         notificationId,
       );
     } else if (startsWithAnyProtocol(sanitizedUrl, AUTO_DOWNLOAD_TORRENT_FILE_PROTOCOLS)) {
-      const urlWithoutQuery =
-        sanitizedUrl.indexOf("?") !== -1
-          ? sanitizedUrl.slice(0, sanitizedUrl.indexOf("?"))
-          : sanitizedUrl;
       let metadataFileType;
 
       try {
-        metadataFileType = await getMetadataFileType(urlWithoutQuery);
+        metadataFileType = await getMetadataFileType(url);
       } catch (e) {
         onUnexpectedError(e, "error while trying to fetch metadata file type for download url");
         return;
@@ -319,7 +317,7 @@ export async function addDownloadTaskAndPoll(
         }
 
         const content = new Blob([response.data], { type: metadataFileType.mediaType });
-        const filename = guessTorrentFileName(urlWithoutQuery, response.headers, metadataFileType);
+        const filename = guessTorrentFileName(url, response.headers, metadataFileType);
 
         try {
           const result = await api.DownloadStation.Task.Create({
