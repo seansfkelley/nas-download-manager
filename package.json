@@ -1,6 +1,6 @@
 {
   "name": "synology-download-manager",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "An open source browser extension for adding/managing download tasks to your Synology DiskStation.",
   "scripts": {
     "test": "TS_NODE_PROJECT=test/tsconfig-test.json mocha --require ts-node/register 'test/**/*.{ts,tsx}'",
