@@ -206,7 +206,8 @@ export async function addDownloadTaskAndPoll(
   // it's clear who's responsible for comma-separating the arguments.
   //
   // https://github.com/seansfkelley/synology-download-manager/issues/118
-  const sanitizedUrl = url.replace(",", "%2C");
+  // https://github.com/seansfkelley/synology-download-manager/issues/126
+  const sanitizedUrl = url.replace(/,/g, "%2C");
 
   const notificationId = showNonErrorNotifications
     ? notify("Adding download...", sanitizedUrl)
