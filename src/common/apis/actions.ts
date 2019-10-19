@@ -19,8 +19,6 @@ import {
   startsWithAnyProtocol,
 } from "./protocols";
 
-const METHOD_NOT_ALLOWED_CODE = 405;
-
 type WithoutPromise<T> = T extends Promise<infer U> ? U : T;
 
 export function clearCachedTasks() {
@@ -151,7 +149,9 @@ async function getMetadataFileType(url: string) {
   try {
     headResponse = await Axios.head(url, { timeout: 10000 });
   } catch (e) {
-    if (e && e.response && e.response.status === METHOD_NOT_ALLOWED_CODE) {
+    if (e && e.response && e.response.status != null) {
+      // If we got a response at all, then it wasn't a severe error, just something
+      // that the remote server likely can't handle or disallows.
       return undefined;
     } else {
       throw e;
