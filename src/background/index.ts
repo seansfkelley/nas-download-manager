@@ -28,6 +28,26 @@ let notificationInterval: number | undefined;
 
 let showNonErrorNotifications: boolean = true;
 
+async function addSelectionTextUrls(selection : string) {
+  // The cheapest of checks. Actual invalid URLs will be caught later.
+  let urls = selection.split("\n")
+    .map(url => url.trim())
+    .filter(url => startsWithAnyProtocol(url, ALL_DOWNLOADABLE_PROTOCOLS));
+
+  // No url finded in the selection.
+  if (urls.length == 0) {
+    notify(
+      browser.i18n.getMessage("Failed_to_add_download"),
+      browser.i18n.getMessage("Selected_text_is_not_a_valid_URL"),
+      "failure",
+    );
+  }
+
+  for (let url of urls) {
+    await addDownloadTaskAndPoll(api, showNonErrorNotifications, url);
+  }
+}
+
 browser.contextMenus.create({
   enabled: true,
   title: browser.i18n.getMessage("Download_with_DownloadStation"),
@@ -38,17 +58,7 @@ browser.contextMenus.create({
     } else if (data.srcUrl) {
       addDownloadTaskAndPoll(api, showNonErrorNotifications, data.srcUrl);
     } else if (data.selectionText) {
-      // The cheapest of checks. Actual invalid URLs will be caught later.
-      const trimmedUrl = data.selectionText.trim();
-      if (startsWithAnyProtocol(trimmedUrl, ALL_DOWNLOADABLE_PROTOCOLS)) {
-        addDownloadTaskAndPoll(api, showNonErrorNotifications, data.selectionText);
-      } else {
-        notify(
-          browser.i18n.getMessage("Failed_to_add_download"),
-          browser.i18n.getMessage("Selected_text_is_not_a_valid_URL"),
-          "failure",
-        );
-      }
+      addSelectionTextUrls(data.selectionText);
     } else {
       notify(
         browser.i18n.getMessage("Failed_to_add_download"),
