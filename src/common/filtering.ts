@@ -26,7 +26,8 @@ const EXPLICITLY_SPECIFIED_TYPES = (Object.keys(
 
 const ERRORED_TYPES = (ALL_TASK_ERROR_STATUSES as (
   | DownloadStationTaskNormalStatus
-  | DownloadStationTaskErrorStatus)[]).concat(["error"]);
+  | DownloadStationTaskErrorStatus
+)[]).concat(["error"]);
 
 const OTHER_STATUSES = ALL_TASK_NORMAL_STATUSES.filter(
   status =>
