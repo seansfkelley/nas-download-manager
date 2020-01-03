@@ -8,5 +8,6 @@ import "moment/locale/ru";
 // `en` (which is the default for both moment and this extension).
 // https://github.com/moment/moment/blob/6a06e7a0db2c83fb92aa72bbf6bde955d4c75a16/src/lib/locale/locales.js#L129-L132
 moment.locale([browser.i18n.getUILanguage(), "en"]);
+import "moment/locale/de";
 
 export { moment };
