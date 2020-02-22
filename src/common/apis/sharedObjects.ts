@@ -17,7 +17,7 @@ export async function getSharedObjects() {
   if (browser.runtime.getBackgroundPage != null) {
     const window = await browser.runtime.getBackgroundPage();
     if (window) {
-      return (window as any).__sharedObjects as (SharedObjects | undefined);
+      return (window as any).__sharedObjects as SharedObjects | undefined;
     } else {
       return undefined;
     }
