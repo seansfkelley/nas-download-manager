@@ -2,12 +2,14 @@ import * as React from "react";
 import last from "lodash-es/last";
 import { ApiClient } from "synology-typescript-api";
 import classNames from "classnames";
+import TextareaAutosize from "react-textarea-autosize";
 
 import { PathSelector } from "./PathSelector";
+import { startsWithAnyProtocol, ALL_DOWNLOADABLE_PROTOCOLS } from "../apis/protocols";
 
 export interface Props {
   client: ApiClient;
-  onAddDownload: (url: string, path: string | undefined) => void;
+  onAddDownload: (urls: string[], path: string | undefined) => void;
   onCancel: () => void;
 }
 
@@ -27,14 +29,15 @@ export class AdvancedAddDownloadForm extends React.PureComponent<Props, State> {
 
     return (
       <div className="advanced-add-download-form">
-        <input
-          type="text"
-          placeholder={browser.i18n.getMessage("URL_to_download")}
+        <TextareaAutosize
+          className="url-input card"
+          minRows={1}
+          maxRows={5}
           value={this.state.downloadUrl}
           onChange={e => {
             this.setState({ downloadUrl: e.currentTarget.value });
           }}
-          className="url-input card"
+          placeholder={browser.i18n.getMessage("URLs_to_download_one_per_line")}
         />
         <div className="download-path card">
           <div className="path-display" title={this.state.selectedPath}>
@@ -72,7 +75,12 @@ export class AdvancedAddDownloadForm extends React.PureComponent<Props, State> {
   }
 
   private addDownload = () => {
-    this.props.onAddDownload(this.state.downloadUrl, this.state.selectedPath);
+    let urls = this.state.downloadUrl
+      .split("\n")
+      .map(url => url.trim())
+      // The cheapest of checks. Actual invalid URLs will be caught later.
+      .filter(url => startsWithAnyProtocol(url, ALL_DOWNLOADABLE_PROTOCOLS));
+    this.props.onAddDownload(urls, this.state.selectedPath);
   };
 
   private setSelectedPath = (selectedPath: string) => {

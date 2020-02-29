@@ -9,8 +9,8 @@ import {
 } from "../common/state";
 import { notify } from "../common/apis/browserUtils";
 import { setSharedObjects } from "../common/apis/sharedObjects";
-import { isAddTaskMessage } from "../common/apis/messages";
-import { addDownloadTaskAndPoll, pollTasks, clearCachedTasks } from "../common/apis/actions";
+import { isAddTasksMessage } from "../common/apis/messages";
+import { addDownloadTasksAndPoll, pollTasks, clearCachedTasks } from "../common/apis/actions";
 import { onUnhandledError } from "../common/errorHandlers";
 import { ALL_DOWNLOADABLE_PROTOCOLS, startsWithAnyProtocol } from "../common/apis/protocols";
 import { assertNever } from "../common/lang";
@@ -35,20 +35,24 @@ browser.contextMenus.create({
   contexts: ["link", "audio", "video", "selection"],
   onclick: data => {
     if (data.linkUrl) {
-      addDownloadTaskAndPoll(api, showNonErrorNotifications, data.linkUrl);
+      addDownloadTasksAndPoll(api, showNonErrorNotifications, [data.linkUrl]);
     } else if (data.srcUrl) {
-      addDownloadTaskAndPoll(api, showNonErrorNotifications, data.srcUrl);
+      addDownloadTasksAndPoll(api, showNonErrorNotifications, [data.srcUrl]);
     } else if (data.selectionText) {
-      // The cheapest of checks. Actual invalid URLs will be caught later.
-      const trimmedUrl = data.selectionText.trim();
-      if (startsWithAnyProtocol(trimmedUrl, ALL_DOWNLOADABLE_PROTOCOLS)) {
-        addDownloadTaskAndPoll(api, showNonErrorNotifications, data.selectionText);
-      } else {
+      let urls = data.selectionText
+        .split("\n")
+        .map(url => url.trim())
+        // The cheapest of checks. Actual invalid URLs will be caught later.
+        .filter(url => startsWithAnyProtocol(url, ALL_DOWNLOADABLE_PROTOCOLS));
+
+      if (urls.length == 0) {
         notify(
           browser.i18n.getMessage("Failed_to_add_download"),
           browser.i18n.getMessage("Selected_text_is_not_a_valid_URL"),
           "failure",
         );
+      } else {
+        addDownloadTasksAndPoll(api, showNonErrorNotifications, urls);
       }
     } else {
       notify(
@@ -61,8 +65,8 @@ browser.contextMenus.create({
 });
 
 browser.runtime.onMessage.addListener(message => {
-  if (isAddTaskMessage(message)) {
-    return addDownloadTaskAndPoll(api, showNonErrorNotifications, message.url);
+  if (isAddTasksMessage(message)) {
+    return addDownloadTasksAndPoll(api, showNonErrorNotifications, message.urls, message.path);
   } else {
     console.error("received a message of unknown type", message);
     return undefined;

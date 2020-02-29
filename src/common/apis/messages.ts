@@ -1,18 +1,20 @@
-export const ADD_TASK_MESSAGE_TYPE = "add-task" as const;
+export const ADD_TASKS_MESSAGE_TYPE = "add-task" as const;
 
-export interface AddTaskMessage {
-  type: typeof ADD_TASK_MESSAGE_TYPE;
-  url: string;
+export interface AddTasksMessage {
+  type: typeof ADD_TASKS_MESSAGE_TYPE;
+  urls: string[];
+  path?: string;
 }
 
-export function isAddTaskMessage(message: object | null | undefined): message is AddTaskMessage {
-  return message != null && (message as any).type === ADD_TASK_MESSAGE_TYPE;
+export function isAddTasksMessage(message: object | null | undefined): message is AddTasksMessage {
+  return message != null && (message as any).type === ADD_TASKS_MESSAGE_TYPE;
 }
 
-export function sendAddTaskMessage(url: string) {
-  const addTaskMessage = {
-    type: ADD_TASK_MESSAGE_TYPE,
-    url,
+export function sendAddTasksMessage(urls: string[], path?: string) {
+  const message: AddTasksMessage = {
+    type: ADD_TASKS_MESSAGE_TYPE,
+    urls,
+    path,
   };
-  browser.runtime.sendMessage(addTaskMessage);
+  browser.runtime.sendMessage(message);
 }

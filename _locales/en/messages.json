@@ -58,8 +58,8 @@
     "message": "Unexpected error; please check your settings and try again",
     "description": "Notification body text."
   },
-  "URL_to_download": {
-    "message": "URL to download...",
+  "URLs_to_download_one_per_line": {
+    "message": "URL(s) to download (one per line)...",
     "description": "Placeholder for advanced-add form."
   },
   "Download_to": {
@@ -691,5 +691,65 @@
   "Cannot_configure_settings_in_private_browsing": {
     "message": "Cannot configure settings in private browsing.",
     "description": "Error message that replaces the settings page when the user is in private mode."
+  },
+  "Adding_download": {
+    "message": "Adding download...",
+    "description": "Notification title."
+  },
+  "Adding_ZcountZ_downloads": {
+    "message": "Adding $COUNT$ downloads...",
+    "description": "Notification title.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "ZcountZ_downloads_added": {
+    "message": "$COUNT$ downloads added",
+    "description": "Notification body text.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "Failed_to_add_ZcountZ_downloads": {
+    "message": "Failed to add $COUNT$ downloads",
+    "description": "Notification body text.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "ZsuccessZ_downloads_added_ZfailedZ_failed": {
+    "message": "$SUCCESS$ downloads added; $FAILED$ failed",
+    "description": "Notification body text.",
+    "placeholders": {
+      "success": {
+        "content": "$1",
+        "example": "2"
+      },
+      "failed": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "Try_adding_downloads_individually_andor_checking_your_URLs_or_settings": {
+    "message": "Try adding downloads individually and/or checking your URLs or settings",
+    "description": "Notification body text."
+  },
+  "No_downloadable_URLs_provided": {
+    "message": "No downloadable URLs provided",
+    "description": "Notification body text."
+  },
+  "Please_be_patient_this_make_take_some_time": {
+    "message": "Please be patient; this make take some time",
+    "description": "Notification body text."
   }
 }

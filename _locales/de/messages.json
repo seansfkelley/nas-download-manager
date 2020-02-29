@@ -58,10 +58,6 @@
     "message": "Unerwarteter Fehler; bitte Einstellungen prüfen und erneut versuchen",
     "description": "Notification body text."
   },
-  "URL_to_download": {
-    "message": "URL zum Download...",
-    "description": "Placeholder for advanced-add form."
-  },
   "Download_to": {
     "message": "Download nach",
     "description": "Lead-in for directory name in advanced-add form."

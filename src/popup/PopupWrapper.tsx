@@ -9,10 +9,11 @@ import {
   getHostUrl,
   BadgeDisplayType,
 } from "../common/state";
-import { pollTasks, addDownloadTaskAndPoll } from "../common/apis/actions";
+import { pollTasks } from "../common/apis/actions";
 import { FatalErrorWrapper } from "./FatalErrorWrapper";
 import { Popup, Props as PopupProps } from "./Popup";
 import { CallbackResponse } from "./popupTypes";
+import { sendAddTasksMessage } from "../common/apis/messages";
 
 interface Props {
   api: ApiClient;
@@ -71,13 +72,7 @@ export class PopupWrapper extends React.PureComponent<Props> {
             active: true,
           });
         },
-        createTask: (url: string, path?: string) =>
-          addDownloadTaskAndPoll(
-            this.props.api,
-            this.props.state.settings.notifications.enableFeedbackNotifications,
-            url,
-            path,
-          ),
+        createTasks: (urls: string[], path?: string) => sendAddTasksMessage(urls, path),
         pauseTask: async (taskId: string) =>
           this.reloadOnSuccess(
             CallbackResponse.from(

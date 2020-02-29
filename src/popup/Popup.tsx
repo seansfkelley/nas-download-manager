@@ -32,7 +32,7 @@ export interface Props {
   badgeDisplay: BadgeDisplayType;
   changeBadgeDisplay: (display: BadgeDisplayType) => void;
   openDownloadStationUi?: () => void;
-  createTask?: (url: string, path?: string) => Promise<void>;
+  createTasks?: (urls: string[], path?: string) => void;
   pauseTask?: (taskId: string) => Promise<CallbackResponse>;
   resumeTask?: (taskId: string) => Promise<CallbackResponse>;
   deleteTasks?: (taskIds: string[]) => Promise<CallbackResponse>;
@@ -128,7 +128,7 @@ export class Popup extends React.PureComponent<Props, State> {
             this.setState({ isAddingDownload: !this.state.isAddingDownload });
           }}
           title={browser.i18n.getMessage("Add_download")}
-          {...disabledPropAndClassName(this.props.createTask == null)}
+          {...disabledPropAndClassName(this.props.createTasks == null)}
         >
           <div className="fa fa-lg fa-plus" />
         </button>
@@ -288,8 +288,8 @@ export class Popup extends React.PureComponent<Props, State> {
               onCancel={() => {
                 this.setState({ isAddingDownload: false });
               }}
-              onAddDownload={(url, path) => {
-                this.props.createTask!(url, path);
+              onAddDownload={(urls, path) => {
+                this.props.createTasks!(urls, path);
                 this.setState({ isAddingDownload: false });
               }}
             />
