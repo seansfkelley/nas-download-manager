@@ -25,6 +25,7 @@ let finishedTaskIds: string[] | undefined;
 
 let lastNotificationSettings: NotificationSettings | undefined;
 let notificationInterval: number | undefined;
+let didInitializeSettings: boolean = false;
 
 let showNonErrorNotifications: boolean = true;
 
@@ -79,9 +80,22 @@ updateStateShapeIfNecessary()
       });
 
       if (didUpdateSettings) {
-        clearCachedTasks().then(() => {
-          pollTasks(api);
-        });
+        const clearCachePromise = clearCachedTasks();
+
+        if (didInitializeSettings) {
+          // Don't use await because we want this to fire in the background.
+          clearCachePromise.then(() => {
+            pollTasks(api);
+          });
+        }
+
+        // This is a little bit of a hack, but basically: onStoredStateChange eagerly fires this
+        // listener when it initializes. That first time through, the client gets initialized for
+        // the first time, and so we necessarily clear and reload. However, if the user hasn't
+        // configured notifications, we should try to avoid pinging the NAS, since we know we're
+        // opening in the background. Hence this boolean. If notifications are enabled, those'll
+        // still get set up and we'll starting pinging in the background.
+        didInitializeSettings = true;
       }
 
       if (!isEqual(storedState.settings.notifications, lastNotificationSettings)) {
