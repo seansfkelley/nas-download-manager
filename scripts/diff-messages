@@ -22,14 +22,37 @@ const defaultLocale = require(path.join(ROOT, "manifest.json")).default_locale;
 const defaultMessages = require(path.join(ROOT, "_locales", defaultLocale, "messages.json"));
 const messages = require(path.join(ROOT, "_locales", locale, "messages.json"));
 const missingKeys = difference(Object.keys(defaultMessages), Object.keys(messages));
+const outdatedKeys = Object.entries(messages)
+  .filter(([key, value]) => "needs_update" in value)
+  .map(([key, _]) => key);
 
-if (missingKeys.length === 0) {
+if (missingKeys.length === 0 && outdatedKeys.length === 0) {
   console.error(`locale ${locale} is up-to-date with the default locale (${defaultLocale})`);
 } else {
-  console.error("copy-paste the following to the end of your messages.json file");
-  console.error("be sure to watch out for missing/extra commas messing up your syntax!");
-  console.error();
-  missingKeys.forEach(k => {
-    console.log(`"${k}": ${JSON.stringify(defaultMessages[k], null, 2)},`);
-  });
+  if (missingKeys.length) {
+    console.error("Some translations are missing! Copy-paste the following onto the end of your");
+    console.error(
+      "messages.json file and watch out for missing/extra commas messing up your syntax!",
+    );
+    console.error();
+    missingKeys.forEach(k => {
+      console.log(`"${k}": ${JSON.stringify(defaultMessages[k], null, 2)},`);
+    });
+  }
+
+  if (outdatedKeys.length) {
+    if (missingKeys.length) {
+      console.error();
+      console.error(
+        "--------------------------------------------------------------------------------",
+      );
+      console.error();
+    }
+    console.error(
+      "Some translations are out of date! Please look for the following names and update",
+    );
+    console.error("them to match changes since they were originally written.");
+    console.error();
+    outdatedKeys.forEach(key => console.log(`- ${key}`));
+  }
 }
