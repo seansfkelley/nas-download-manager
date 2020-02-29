@@ -442,25 +442,30 @@
     "message": " für weitere Details.",
     "description": "Suffix for connection test status."
   },
-  "Connection_failure_missing_connection_configuration": {
+  "Connection_settings_are_not_configured": {
     "message": "Verbindungsfehler (fehlende Verbindungskonfiguration).",
-    "description": "Connection failure explanatory text."
+    "description": "Connection failure explanatory text.",
+    "needs_update": true
   },
-  "Connection_failure_likely_wrong_protocol": {
+  "Connection_failed_Likely_cause_wrong_protocol": {
     "message": "Verbindungsfehler (wahrscheinlich falsches Protokoll).",
-    "description": "Connection failure explanatory text."
+    "description": "Connection failure explanatory text.",
+    "needs_update": true
   },
-  "Connection_failure_likely_wrong_hostnameport_no_internet_connection_or_invalid_certificate": {
+  "Connection_failed_Likely_cause_wrong_hostnameport_no_internet_connection_or_invalid_certificate": {
     "message": "Verbindungsfehler (wahrscheinlich falscher Hostname/Port, keine Internetverbindung oder ungültiges Zertifikat).",
-    "description": "Connection failure explanatory text."
+    "description": "Connection failure explanatory text.",
+    "needs_update": true
   },
-  "Connection_failure_timeout_check_your_hostnameport_settings_and_internet_connection": {
+  "Connection_timed_out_Check_your_hostnameport_settings_and_internet_connection": {
     "message": "Verbindungsabbruch (Timeout; Einstellungen von Hostname/Port und Internetverbindung überprüfen).",
-    "description": "Connection failure explanatory text."
+    "description": "Connection failure explanatory text.",
+    "needs_update": true
   },
-  "Connection_failure_unknown_reason": {
+  "Connection_failed_for_an_unknown_reason": {
     "message": "Verbindungsfehler (unbekannte Ursache).",
-    "description": "Connection failure explanatory text."
+    "description": "Connection failure explanatory text.",
+    "needs_update": true
   },
   "Private_browsing_mode_is_not_currently_supported": {
     "message": "Der private Browsermodus wird derzeit nicht unterstützt.",
@@ -576,9 +581,10 @@
     "message": "Ungültige Task-Aktion.",
     "description": "Error message on Synology API call failure."
   },
-  "No_default_destination": {
+  "No_default_destination_is_set_in_Download_Station_for_this_Synology_user": {
     "message": "Kein Standardziel.",
-    "description": "Error message on Synology API call failure."
+    "description": "Error message on Synology API call failure.",
+    "needs_update": true
   },
   "Set_destination_failed": {
     "message": "Ziel setzen fehlgeschlagen.",
