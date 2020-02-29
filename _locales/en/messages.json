@@ -442,24 +442,24 @@
     "message": " for more details.",
     "description": "Suffix for connection test status."
   },
-  "Connection_failure_missing_connection_configuration": {
-    "message": "Connection failure (missing connection configuration).",
+  "Connection_settings_are_not_configured": {
+    "message": "Connection settings are not configured.",
     "description": "Connection failure explanatory text."
   },
-  "Connection_failure_likely_wrong_protocol": {
-    "message": "Connection failure (likely wrong protocol).",
+  "Connection_failed_Likely_cause_wrong_protocol": {
+    "message": "Connection failed. Likely cause: wrong protocol.",
     "description": "Connection failure explanatory text."
   },
-  "Connection_failure_likely_wrong_hostnameport_no_internet_connection_or_invalid_certificate": {
-    "message": "Connection failure (likely wrong hostname/port, no internet connection or invalid certificate).",
+  "Connection_failed_Likely_cause_wrong_hostnameport_no_internet_connection_or_invalid_certificate": {
+    "message": "Connection failed. Likely cause: wrong hostname/port, no internet connection or invalid certificate.",
     "description": "Connection failure explanatory text."
   },
-  "Connection_failure_timeout_check_your_hostnameport_settings_and_internet_connection": {
-    "message": "Connection failure (timeout; check your hostname/port settings and internet connection).",
+  "Connection_timed_out_Check_your_hostnameport_settings_and_internet_connection": {
+    "message": "Connection timed out. Check your hostname/port settings and internet connection.",
     "description": "Connection failure explanatory text."
   },
-  "Connection_failure_unknown_reason": {
-    "message": "Connection failure (unknown reason).",
+  "Connection_failed_for_an_unknown_reason": {
+    "message": "Connection failed for an unknown reason.",
     "description": "Connection failure explanatory text."
   },
   "Private_browsing_mode_is_not_currently_supported": {
@@ -576,8 +576,8 @@
     "message": "Invalid task action.",
     "description": "Error message on Synology API call failure."
   },
-  "No_default_destination": {
-    "message": "No default destination.",
+  "No_default_destination_is_set_in_Download_Station_for_this_Synology_user": {
+    "message": "No default destination is set in Download Station for this Synology user.",
     "description": "Error message on Synology API call failure."
   },
   "Set_destination_failed": {

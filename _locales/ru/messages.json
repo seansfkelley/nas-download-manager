@@ -422,25 +422,30 @@
     "message": " чтобы узнать подробности.",
     "description": "Суффикс для статуса проверки соединения."
   },
-  "Connection_failure_missing_connection_configuration": {
+  "Connection_settings_are_not_configured": {
     "message": "Ошибка соединения (отсутствует конфигурация соединения).",
-    "description": "Объяснительный текст сбоя подключения."
+    "description": "Объяснительный текст сбоя подключения.",
+    "needs_update": true
   },
-  "Connection_failure_likely_wrong_protocol": {
+  "Connection_failed_Likely_cause_wrong_protocol": {
     "message": "Ошибка подключения (вероятно, неверный протокол).",
-    "description": "Объяснительный текст сбоя подключения."
+    "description": "Объяснительный текст сбоя подключения.",
+    "needs_update": true
   },
-  "Connection_failure_likely_wrong_hostnameport_no_internet_connection_or_invalid_certificate": {
+  "Connection_failed_Likely_cause_wrong_hostnameport_no_internet_connection_or_invalid_certificate": {
     "message": "Ошибка подключения (вероятно, неверное имя хоста/порт, нет подключения к Интернету или неверный сертификат).",
-    "description": "Объяснительный текст сбоя подключения."
+    "description": "Объяснительный текст сбоя подключения.",
+    "needs_update": true
   },
-  "Connection_failure_timeout_check_your_hostnameport_settings_and_internet_connection": {
+  "Connection_timed_out_Check_your_hostnameport_settings_and_internet_connection": {
     "message": "Ошибка подключения (время вышло; проверьте настройки имени хоста/порта и подключение к интернету).",
-    "description": "Объяснительный текст сбоя подключения."
+    "description": "Объяснительный текст сбоя подключения.",
+    "needs_update": true
   },
-  "Connection_failure_unknown_reason": {
+  "Connection_failed_for_an_unknown_reason": {
     "message": "Ошибка подключения (неизвестная причина).",
-    "description": "Объяснительный текст сбоя подключения."
+    "description": "Объяснительный текст сбоя подключения.",
+    "needs_update": true
   },
   "Private_browsing_mode_is_not_currently_supported": {
     "message": "Режим приватного просмотра в настоящее время не поддерживается.",
@@ -556,9 +561,10 @@
     "message": "Недопустимое действие задачи.",
     "description": "Сообщение об ошибке при сбое вызова Synology API."
   },
-  "No_default_destination": {
+  "No_default_destination_is_set_in_Download_Station_for_this_Synology_user": {
     "message": "Нет места назначения по умолчанию.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Сообщение об ошибке при сбое вызова Synology API.",
+    "needs_update": true
   },
   "Set_destination_failed": {
     "message": "Не удалось установить места назначения.",

@@ -26,7 +26,9 @@ export const ERROR_CODES = {
     403: browser.i18n.getMessage("Destination_does_not_exist"),
     404: browser.i18n.getMessage("Invalid_task_ID"),
     405: browser.i18n.getMessage("Invalid_task_action"),
-    406: browser.i18n.getMessage("No_default_destination"),
+    406: browser.i18n.getMessage(
+      "No_default_destination_is_set_in_Download_Station_for_this_Synology_user",
+    ),
     407: browser.i18n.getMessage("Set_destination_failed"),
     408: browser.i18n.getMessage("File_does_not_exist"),
   } as Record<string, string>,
@@ -81,19 +83,19 @@ export function errorMessageFromCode(
 export function errorMessageFromConnectionFailure(failure: ConnectionFailure) {
   switch (failure.type) {
     case "missing-config":
-      return browser.i18n.getMessage("Connection_failure_missing_connection_configuration");
+      return browser.i18n.getMessage("Connection_settings_are_not_configured");
     case "probable-wrong-protocol":
-      return browser.i18n.getMessage("Connection_failure_likely_wrong_protocol");
+      return browser.i18n.getMessage("Connection_failed_Likely_cause_wrong_protocol");
     case "probable-wrong-url-or-no-connection-or-cert-error":
       return browser.i18n.getMessage(
-        "Connection_failure_likely_wrong_hostnameport_no_internet_connection_or_invalid_certificate",
+        "Connection_failed_Likely_cause_wrong_hostnameport_no_internet_connection_or_invalid_certificate",
       );
     case "timeout":
       return browser.i18n.getMessage(
-        "Connection_failure_timeout_check_your_hostnameport_settings_and_internet_connection",
+        "Connection_timed_out_Check_your_hostnameport_settings_and_internet_connection",
       );
     case "unknown":
-      return browser.i18n.getMessage("Connection_failure_unknown_reason");
+      return browser.i18n.getMessage("Connection_failed_for_an_unknown_reason");
     default:
       return assertNever(failure);
   }
