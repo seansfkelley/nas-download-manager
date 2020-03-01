@@ -749,7 +749,7 @@
     "description": "Notification body text."
   },
   "Please_be_patient_this_may_take_some_time": {
-    "message": "Please be patient; this may take some time",
+    "message": "Please be patient; this may take some time...",
     "description": "Notification body text."
   }
 }
