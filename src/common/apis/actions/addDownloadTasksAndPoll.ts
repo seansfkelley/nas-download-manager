@@ -159,7 +159,7 @@ async function addMultipleTasks(
   const notificationId = showNonErrorNotifications
     ? notify(
         browser.i18n.getMessage("Adding_ZcountZ_downloads", [urls.length]),
-        browser.i18n.getMessage("Please_be_patient_this_make_take_some_time"),
+        browser.i18n.getMessage("Please_be_patient_this_may_take_some_time"),
       )
     : undefined;
 
