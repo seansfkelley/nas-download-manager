@@ -12,7 +12,7 @@ export interface AddTasksMessage {
 export const AddTasksMessage = {
   send: (urls: string[], path?: string) => {
     const message: AddTasksMessage = {
-      type: MessageType.ADD_TASKS,,
+      type: MessageType.ADD_TASKS,
       urls,
       path,
     };
@@ -20,8 +20,8 @@ export const AddTasksMessage = {
   },
   is: (message: object | null | undefined): message is AddTasksMessage => {
     return message != null && (message as any).type === MessageType.ADD_TASKS;
-  }
-}
+  },
+};
 
 export interface PollTasksMessage {
   type: typeof MessageType.POLL_TASKS;
@@ -36,5 +36,5 @@ export const PollTasksMessage = {
   },
   is: (message: object | null | undefined): message is PollTasksMessage => {
     return message != null && (message as any).type === MessageType.POLL_TASKS;
-  }
-}
+  },
+};
