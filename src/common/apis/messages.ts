@@ -1,20 +1,40 @@
-export const ADD_TASKS_MESSAGE_TYPE = "add-task" as const;
+export enum MessageType {
+  ADD_TASKS,
+  POLL_TASKS,
+}
 
 export interface AddTasksMessage {
-  type: typeof ADD_TASKS_MESSAGE_TYPE;
+  type: typeof MessageType.ADD_TASKS;
   urls: string[];
   path?: string;
 }
 
-export function isAddTasksMessage(message: object | null | undefined): message is AddTasksMessage {
-  return message != null && (message as any).type === ADD_TASKS_MESSAGE_TYPE;
+export const AddTasksMessage = {
+  send: (urls: string[], path?: string) => {
+    const message: AddTasksMessage = {
+      type: MessageType.ADD_TASKS,,
+      urls,
+      path,
+    };
+    browser.runtime.sendMessage(message);
+  },
+  is: (message: object | null | undefined): message is AddTasksMessage => {
+    return message != null && (message as any).type === MessageType.ADD_TASKS;
+  }
 }
 
-export function sendAddTasksMessage(urls: string[], path?: string) {
-  const message: AddTasksMessage = {
-    type: ADD_TASKS_MESSAGE_TYPE,
-    urls,
-    path,
-  };
-  browser.runtime.sendMessage(message);
+export interface PollTasksMessage {
+  type: typeof MessageType.POLL_TASKS;
+}
+
+export const PollTasksMessage = {
+  send: () => {
+    const message: PollTasksMessage = {
+      type: MessageType.POLL_TASKS,
+    };
+    browser.runtime.sendMessage(message);
+  },
+  is: (message: object | null | undefined): message is PollTasksMessage => {
+    return message != null && (message as any).type === MessageType.POLL_TASKS;
+  }
 }

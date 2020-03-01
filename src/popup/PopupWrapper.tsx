@@ -13,7 +13,7 @@ import { pollTasks } from "../common/apis/actions";
 import { FatalErrorWrapper } from "./FatalErrorWrapper";
 import { Popup, Props as PopupProps } from "./Popup";
 import { CallbackResponse } from "./popupTypes";
-import { sendAddTasksMessage } from "../common/apis/messages";
+import { AddTasksMessage } from "../common/apis/messages";
 
 interface Props {
   api: ApiClient;
@@ -72,7 +72,7 @@ export class PopupWrapper extends React.PureComponent<Props> {
             active: true,
           });
         },
-        createTasks: (urls: string[], path?: string) => sendAddTasksMessage(urls, path),
+        createTasks: (urls: string[], path?: string) => AddTasksMessage.send(urls, path),
         pauseTask: async (taskId: string) =>
           this.reloadOnSuccess(
             CallbackResponse.from(

@@ -9,7 +9,7 @@ import {
 } from "../common/state";
 import { notify } from "../common/apis/browserUtils";
 import { setSharedObjects } from "../common/apis/sharedObjects";
-import { isAddTasksMessage } from "../common/apis/messages";
+import { AddTasksMessage, PollTasksMessage } from "../common/apis/messages";
 import { addDownloadTasksAndPoll, pollTasks, clearCachedTasks } from "../common/apis/actions";
 import { onUnhandledError } from "../common/errorHandlers";
 import { ALL_DOWNLOADABLE_PROTOCOLS, startsWithAnyProtocol } from "../common/apis/protocols";
@@ -65,8 +65,10 @@ browser.contextMenus.create({
 });
 
 browser.runtime.onMessage.addListener(message => {
-  if (isAddTasksMessage(message)) {
+  if (AddTasksMessage.is(message)) {
     return addDownloadTasksAndPoll(api, showNonErrorNotifications, message.urls, message.path);
+  } else if (PollTasksMessage.is(message)) {
+    return pollTasks(api);
   } else {
     console.error("received a message of unknown type", message);
     return undefined;

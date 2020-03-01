@@ -8,10 +8,10 @@ import * as ReactDOM from "react-dom";
 import { onStoredStateChange, Settings, State } from "../common/state";
 import { onUnhandledError } from "../common/errorHandlers";
 import { getSharedObjects } from "../common/apis/sharedObjects";
-import { pollTasks } from "../common/apis/actions";
 import { FatalError } from "./FatalError";
 import { PrivateBrowsingUnsupported } from "./PrivateBrowsingUnsupported";
 import { PopupWrapper } from "./PopupWrapper";
+import { PollTasksMessage } from "../common/apis/messages";
 
 const ELEMENT = document.getElementById("body")!;
 
@@ -19,16 +19,15 @@ function updateSettings(settings: Settings) {
   browser.storage.local.set<Partial<State>>({ settings });
 }
 
+PollTasksMessage.send();
+setInterval(() => {
+  PollTasksMessage.send();
+}, 10000);
+
 getSharedObjects()
   .then(objects => {
     if (objects) {
       const { api } = objects;
-
-      pollTasks(api);
-      setInterval(() => {
-        pollTasks(api);
-      }, 10000);
-
       onStoredStateChange(storedState => {
         ReactDOM.render(
           <PopupWrapper api={api} state={storedState} updateSettings={updateSettings} />,
