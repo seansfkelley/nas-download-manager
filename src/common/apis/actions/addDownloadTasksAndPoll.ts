@@ -267,6 +267,8 @@ async function addMultipleTasks(
       notificationId,
     );
   }
+
+  pollTasks(api);
 }
 
 export async function addDownloadTasksAndPoll(
