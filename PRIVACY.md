@@ -4,6 +4,17 @@ Synology Download Manager asks for your login credentials for your Synology NAS 
 
 **Synology Download Manager does not collect, store or transmit any other personal information, or use your credentials except to communicate with your NAS.** In particular, Synology Download Manager does not collect any usage information and does not sync any information between browsers.
 
+## Permission Explanations
+
+This section explains what each permission requested by Synology Download Manager is used for. You can find the list of requested permissions in [`manifest.json`](https://github.com/seansfkelley/synology-download-manager/blob/master/manifest.json), under the `permissions` section.
+
+human-readable name               | source code name                | explanation
+----------------------------------|---------------------------------|----------------------------------------
+Access your data for all websites | `http://*/*` and `https://*/*"` | Used to support the feature where left-clicking on supported link types automatically adds a download, rather than opening it in a browser tab. See [issue #45](https://github.com/seansfkelley/synology-download-manager/issues/45) for more on replacing this implementation with something better.
+Display notifications to you      | `notifications`                 | Used to display addition/completion notifications.
+_n/a_                             | `contextMenus`                  | Used for registering itself with the right-click menu to add downloads from inside a tab.
+_n/a_                             | `storage`                       | Used to allow storing credentials and settings in a place where only Synology Download Manager can access them.
+
 ## Verifying Your Installation
 
 If you are concerned that open-source extensions may not show you the same code that they actually publish to the browser add-on stores, you can follow these steps.
