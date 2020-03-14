@@ -1,4 +1,4 @@
-import { State, StateVersion } from "./latest";
+import type { State, StateVersion } from "./latest";
 import { transition as state0to1 } from "./1";
 import { transition as state1to2 } from "./2";
 import { transition as state2to3 } from "./3";

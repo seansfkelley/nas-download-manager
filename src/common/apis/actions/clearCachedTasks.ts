@@ -1,4 +1,4 @@
-import { CachedTasks, State } from "../../state";
+import type { CachedTasks, State } from "../../state";
 
 export function clearCachedTasks() {
   const emptyState: CachedTasks = {

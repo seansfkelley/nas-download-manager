@@ -1,5 +1,5 @@
 import * as React from "react";
-import { State as ExtensionState } from "../common/state";
+import type { State as ExtensionState } from "../common/state";
 import { FatalError } from "./FatalError";
 
 export interface Props {

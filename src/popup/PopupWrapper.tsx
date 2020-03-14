@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ApiClient } from "synology-typescript-api";
+import type { ApiClient } from "synology-typescript-api";
 
 import {
   Settings,

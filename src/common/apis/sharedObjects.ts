@@ -1,4 +1,4 @@
-import { ApiClient } from "synology-typescript-api";
+import type { ApiClient } from "synology-typescript-api";
 
 export interface SharedObjects {
   api: ApiClient;

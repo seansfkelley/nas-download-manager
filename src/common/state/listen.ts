@@ -1,4 +1,4 @@
-import { Settings, State } from "./latest";
+import type { Settings, State } from "./latest";
 import { typesafeUnionMembers } from "../lang";
 
 export const SETTING_NAMES = typesafeUnionMembers<keyof Settings>({

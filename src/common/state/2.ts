@@ -1,4 +1,4 @@
-import { DownloadStationTask } from "synology-typescript-api";
+import type { DownloadStationTask } from "synology-typescript-api";
 
 import {
   transition as transition_1,

@@ -1,6 +1,6 @@
 import * as React from "react";
 import last from "lodash-es/last";
-import { ApiClient } from "synology-typescript-api";
+import type { ApiClient } from "synology-typescript-api";
 import classNames from "classnames";
 import TextareaAutosize from "react-textarea-autosize";
 

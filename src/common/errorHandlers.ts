@@ -1,4 +1,4 @@
-import { Logging, State } from "./state";
+import type { Logging, State } from "./state";
 
 export function onUnhandledError(e: any | undefined, message?: string) {
   console.error(message || "unhandled error", e);

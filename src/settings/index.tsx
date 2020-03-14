@@ -4,7 +4,7 @@ import "../../scss/non-ideal-state.scss";
 import "../common/init/extensionContext";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { ApiClient } from "synology-typescript-api";
+import type { ApiClient } from "synology-typescript-api";
 
 import {
   State as ExtensionState,

@@ -1,8 +1,8 @@
 import mapValues from "lodash-es/mapValues";
 
-import { Protocol, VisibleTaskSettings, TaskSortType, ConnectionSettings, State } from "./latest";
+import type { Protocol, VisibleTaskSettings, TaskSortType, ConnectionSettings, State } from "./latest";
 import { updateStateToLatest } from "./update";
-import { BadgeDisplayType } from "./4";
+import type { BadgeDisplayType } from "./4";
 import { typesafeUnionMembers } from "../lang";
 export * from "./listen";
 export * from "./latest";

@@ -6,7 +6,7 @@ import {
   ALL_TASK_ERROR_STATUSES,
   ALL_TASK_NORMAL_STATUSES,
 } from "synology-typescript-api";
-import { VisibleTaskSettings, TaskSortType } from "./state";
+import type { VisibleTaskSettings, TaskSortType } from "./state";
 import { assertNever } from "./lang";
 
 const EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES: {
