@@ -8,7 +8,7 @@ import {
   BadgeDisplayType,
   ORDERED_BADGE_DISPLAY_TYPE_NAMES,
 } from "../state";
-
+import { recordKeys } from "../lang";
 import { SettingsList } from "./SettingsList";
 import { SettingsListCheckbox } from "./SettingsListCheckbox";
 
@@ -26,7 +26,7 @@ export class TaskFilterSettingsForm extends React.PureComponent<Props> {
     return (
       <div className="task-filter-settings-form">
         <SettingsList>
-          {Object.keys(ORDERED_VISIBLE_TASK_TYPE_NAMES).map((type: keyof VisibleTaskSettings) => (
+          {recordKeys(ORDERED_VISIBLE_TASK_TYPE_NAMES).map(type => (
             <SettingsListCheckbox
               key={type}
               checked={this.props.visibleTasks[type]}
@@ -45,7 +45,7 @@ export class TaskFilterSettingsForm extends React.PureComponent<Props> {
               this.props.updateTaskSortType(e.currentTarget.value as TaskSortType);
             }}
           >
-            {Object.keys(ORDERED_TASK_SORT_TYPE_NAMES).map((type: TaskSortType) => (
+            {recordKeys(ORDERED_TASK_SORT_TYPE_NAMES).map(type => (
               <option key={type} value={type}>
                 {ORDERED_TASK_SORT_TYPE_NAMES[type]}
               </option>
@@ -60,7 +60,7 @@ export class TaskFilterSettingsForm extends React.PureComponent<Props> {
               this.props.updateBadgeDisplayType(e.currentTarget.value as BadgeDisplayType);
             }}
           >
-            {Object.keys(ORDERED_BADGE_DISPLAY_TYPE_NAMES).map((type: BadgeDisplayType) => (
+            {recordKeys(ORDERED_BADGE_DISPLAY_TYPE_NAMES).map(type => (
               <option key={type} value={type}>
                 {ORDERED_BADGE_DISPLAY_TYPE_NAMES[type]}
               </option>

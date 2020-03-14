@@ -83,7 +83,7 @@ export class AdvancedAddDownloadForm extends React.PureComponent<Props, State> {
     this.props.onAddDownload(urls, this.state.selectedPath);
   };
 
-  private setSelectedPath = (selectedPath: string) => {
+  private setSelectedPath = (selectedPath: string | undefined) => {
     this.setState({ selectedPath });
   };
 }
