@@ -1,4 +1,4 @@
-import {
+import type {
   State as State_3,
   CachedTasks as CachedTasks_3,
   Settings as Settings_3,

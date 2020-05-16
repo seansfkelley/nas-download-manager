@@ -47,7 +47,7 @@ ${
           <textarea
             value={formattedDebugLogs}
             readOnly={true}
-            onClick={e => {
+            onClick={(e) => {
               e.currentTarget.select();
             }}
           />

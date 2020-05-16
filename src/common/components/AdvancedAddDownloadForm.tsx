@@ -1,6 +1,6 @@
 import * as React from "react";
 import last from "lodash-es/last";
-import { ApiClient } from "synology-typescript-api";
+import type { ApiClient } from "synology-typescript-api";
 import classNames from "classnames";
 import TextareaAutosize from "react-textarea-autosize";
 
@@ -34,7 +34,7 @@ export class AdvancedAddDownloadForm extends React.PureComponent<Props, State> {
           minRows={1}
           maxRows={5}
           value={this.state.downloadUrl}
-          onChange={e => {
+          onChange={(e) => {
             this.setState({ downloadUrl: e.currentTarget.value });
           }}
           placeholder={browser.i18n.getMessage("URLs_to_download_one_per_line")}
@@ -77,9 +77,9 @@ export class AdvancedAddDownloadForm extends React.PureComponent<Props, State> {
   private addDownload = () => {
     let urls = this.state.downloadUrl
       .split("\n")
-      .map(url => url.trim())
+      .map((url) => url.trim())
       // The cheapest of checks. Actual invalid URLs will be caught later.
-      .filter(url => startsWithAnyProtocol(url, ALL_DOWNLOADABLE_PROTOCOLS));
+      .filter((url) => startsWithAnyProtocol(url, ALL_DOWNLOADABLE_PROTOCOLS));
     this.props.onAddDownload(urls, this.state.selectedPath);
   };
 

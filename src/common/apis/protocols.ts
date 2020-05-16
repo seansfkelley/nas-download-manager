@@ -19,6 +19,6 @@ export function startsWithAnyProtocol(url: string, protocols: string | string[])
   if (typeof protocols === "string") {
     return url.startsWith(`${protocols}:`);
   } else {
-    return protocols.some(protocol => url.startsWith(`${protocol}:`));
+    return protocols.some((protocol) => url.startsWith(`${protocol}:`));
   }
 }

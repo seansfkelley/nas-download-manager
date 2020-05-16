@@ -1,14 +1,14 @@
 import * as React from "react";
 import classNames from "classnames";
 import debounce from "lodash-es/debounce";
-import { DownloadStationTask, ApiClient } from "synology-typescript-api";
+import type { DownloadStationTask, ApiClient } from "synology-typescript-api";
 
 import { moment } from "../common/moment";
-import { VisibleTaskSettings, TaskSortType, BadgeDisplayType } from "../common/state";
+import type { VisibleTaskSettings, TaskSortType, BadgeDisplayType } from "../common/state";
 import { sortTasks, filterTasks } from "../common/filtering";
 import { AdvancedAddDownloadForm } from "../common/components/AdvancedAddDownloadForm";
 import { TaskFilterSettingsForm } from "../common/components/TaskFilterSettingsForm";
-import { CallbackResponse } from "./popupTypes";
+import type { CallbackResponse } from "./popupTypes";
 import { Task } from "./Task";
 import { NonIdealState } from "../common/components/NonIdealState";
 
@@ -164,7 +164,9 @@ export class Popup extends React.PureComponent<Props, State> {
   }
 
   private renderDisplaySettings() {
-    const completedTaskIds = this.props.tasks.filter(t => t.status === "finished").map(t => t.id);
+    const completedTaskIds = this.props.tasks
+      .filter((t) => t.status === "finished")
+      .map((t) => t.id);
     const deleteTasks = this.props.deleteTasks
       ? async () => {
           this.setState({ isClearingCompletedTasks: true });
@@ -247,11 +249,11 @@ export class Popup extends React.PureComponent<Props, State> {
           <div className="download-tasks">
             <ul
               onScroll={this.onBodyScroll}
-              ref={e => {
+              ref={(e) => {
                 this.bodyRef = e || undefined;
               }}
             >
-              {sortTasks(filteredTasks, this.props.taskSort).map(task => (
+              {sortTasks(filteredTasks, this.props.taskSort).map((task) => (
                 <Task
                   key={task.id}
                   task={task}

@@ -1,7 +1,7 @@
 import uniqueId from "lodash-es/uniqueId";
 import { ApiClient, isConnectionFailure } from "synology-typescript-api";
 import { errorMessageFromCode, errorMessageFromConnectionFailure } from "../errors";
-import { CachedTasks, State } from "../../state";
+import type { CachedTasks, State } from "../../state";
 import { onUnhandledError } from "../../errorHandlers";
 
 type WithoutPromise<T> = T extends Promise<infer U> ? U : T;

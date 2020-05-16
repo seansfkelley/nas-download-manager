@@ -23,7 +23,7 @@ type MapDiscriminatedUnion<T extends Record<K, string>, K extends keyof T> = {
 type ResolvedUrlByType = MapDiscriminatedUnion<ResolvedUrl, "type">;
 
 async function checkIfEMuleShouldBeEnabled(api: ApiClient, urls: string[]) {
-  if (urls.some(url => startsWithAnyProtocol(url, EMULE_PROTOCOL))) {
+  if (urls.some((url) => startsWithAnyProtocol(url, EMULE_PROTOCOL))) {
     const result = await api.DownloadStation.Info.GetConfig();
     if (isConnectionFailure(result)) {
       return false;
@@ -163,7 +163,7 @@ async function addMultipleTasks(
       )
     : undefined;
 
-  const resolvedUrls = await Promise.all(urls.map(url => resolveUrl(url)));
+  const resolvedUrls = await Promise.all(urls.map((url) => resolveUrl(url)));
 
   const groupedUrls: ResolvedUrlByType = {
     "direct-download": [],
@@ -172,7 +172,7 @@ async function addMultipleTasks(
     "unexpected-error": [],
   };
 
-  resolvedUrls.forEach(url => {
+  resolvedUrls.forEach((url) => {
     (groupedUrls[url.type] as typeof url[]).push(url);
   });
 
@@ -230,7 +230,7 @@ async function addMultipleTasks(
     );
 
     await Promise.all(
-      results.map(async r => {
+      results.map(async (r) => {
         try {
           countResults(await r, 1);
         } catch (e) {

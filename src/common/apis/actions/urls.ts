@@ -69,7 +69,7 @@ async function getMetadataFileType(url: string) {
   const contentType = (headResponse.headers["content-type"] || "").toLowerCase();
   const contentLength = headResponse.headers["content-length"];
   const metadataFileType = METADATA_FILE_TYPES.find(
-    fileType =>
+    (fileType) =>
       contentType.includes(fileType.mediaType) ||
       stripQueryString(url).endsWith(fileType.extension),
   );

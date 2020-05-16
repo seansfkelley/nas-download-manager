@@ -6,7 +6,7 @@ import {
   ALL_TASK_ERROR_STATUSES,
   ALL_TASK_NORMAL_STATUSES,
 } from "synology-typescript-api";
-import { VisibleTaskSettings, TaskSortType } from "./state";
+import type { VisibleTaskSettings, TaskSortType } from "./state";
 import { assertNever } from "./lang";
 
 const EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES: {
@@ -30,7 +30,7 @@ const ERRORED_TYPES = (ALL_TASK_ERROR_STATUSES as (
 )[]).concat(["error"]);
 
 const OTHER_STATUSES = ALL_TASK_NORMAL_STATUSES.filter(
-  status =>
+  (status) =>
     EXPLICITLY_SPECIFIED_TYPES.indexOf(status) === -1 && ERRORED_TYPES.indexOf(status) === -1,
 );
 
@@ -52,7 +52,7 @@ export function matchesFilter(task: DownloadStationTask, filterName: keyof Visib
 
 export function filterTasks(tasks: DownloadStationTask[], visibleTasks: VisibleTaskSettings) {
   return tasks.filter(
-    t =>
+    (t) =>
       (visibleTasks.downloading && matchesFilter(t, "downloading")) ||
       (visibleTasks.uploading && matchesFilter(t, "uploading")) ||
       (visibleTasks.completed && matchesFilter(t, "completed")) ||
@@ -71,13 +71,13 @@ export function sortTasks(
 ): DownloadStationTask[] {
   switch (taskSortType) {
     case "name-asc":
-      return sortBy(tasks, t => t.title.toLocaleLowerCase());
+      return sortBy(tasks, (t) => t.title.toLocaleLowerCase());
 
     case "name-desc":
-      return sortBy(tasks, t => t.title.toLocaleLowerCase()).reverse();
+      return sortBy(tasks, (t) => t.title.toLocaleLowerCase()).reverse();
 
     case "timestamp-completed-asc":
-      return sortBy(tasks, t => {
+      return sortBy(tasks, (t) => {
         if (matchesFilter(t, "completed")) {
           return t.additional!.detail!.completed_time;
         } else {
@@ -86,7 +86,7 @@ export function sortTasks(
       });
 
     case "timestamp-completed-desc":
-      return sortBy(tasks, t => {
+      return sortBy(tasks, (t) => {
         if (matchesFilter(t, "completed")) {
           return -t.additional!.detail!.completed_time;
         } else {
@@ -95,10 +95,10 @@ export function sortTasks(
       }).reverse();
 
     case "timestamp-added-asc":
-      return sortBy(tasks, t => t.additional!.detail!.create_time);
+      return sortBy(tasks, (t) => t.additional!.detail!.create_time);
 
     case "timestamp-added-desc":
-      return sortBy(tasks, t => t.additional!.detail!.create_time).reverse();
+      return sortBy(tasks, (t) => t.additional!.detail!.create_time).reverse();
 
     case "completed-percent-asc":
       return sortBy(sortTasks(tasks, "name-asc"), fractionComplete);

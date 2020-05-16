@@ -33,7 +33,7 @@ browser.contextMenus.create({
   enabled: true,
   title: browser.i18n.getMessage("Download_with_DownloadStation"),
   contexts: ["link", "audio", "video", "selection"],
-  onclick: data => {
+  onclick: (data) => {
     if (data.linkUrl) {
       addDownloadTasksAndPoll(api, showNonErrorNotifications, [data.linkUrl]);
     } else if (data.srcUrl) {
@@ -41,9 +41,9 @@ browser.contextMenus.create({
     } else if (data.selectionText) {
       let urls = data.selectionText
         .split("\n")
-        .map(url => url.trim())
+        .map((url) => url.trim())
         // The cheapest of checks. Actual invalid URLs will be caught later.
-        .filter(url => startsWithAnyProtocol(url, ALL_DOWNLOADABLE_PROTOCOLS));
+        .filter((url) => startsWithAnyProtocol(url, ALL_DOWNLOADABLE_PROTOCOLS));
 
       if (urls.length == 0) {
         notify(
@@ -64,7 +64,7 @@ browser.contextMenus.create({
   },
 });
 
-browser.runtime.onMessage.addListener(message => {
+browser.runtime.onMessage.addListener((message) => {
   if (AddTasksMessage.is(message)) {
     return addDownloadTasksAndPoll(api, showNonErrorNotifications, message.urls, message.path);
   } else if (PollTasksMessage.is(message)) {
@@ -77,7 +77,7 @@ browser.runtime.onMessage.addListener(message => {
 
 updateStateShapeIfNecessary()
   .then(() => {
-    onStoredStateChange(storedState => {
+    onStoredStateChange((storedState) => {
       const didUpdateSettings = api.updateSettings({
         baseUrl: getHostUrl(storedState.settings.connection),
         account: storedState.settings.connection.username,
@@ -166,21 +166,21 @@ updateStateShapeIfNecessary()
         storedState.taskFetchFailureReason == null
       ) {
         const updatedFinishedTaskIds = storedState.tasks
-          .filter(t => t.status === "finished" || t.status === "seeding")
-          .map(t => t.id);
+          .filter((t) => t.status === "finished" || t.status === "seeding")
+          .map((t) => t.id);
         if (finishedTaskIds != null) {
           const newlyFinishedTaskIds = updatedFinishedTaskIds.filter(
-            id => finishedTaskIds!.indexOf(id) === -1,
+            (id) => finishedTaskIds!.indexOf(id) === -1,
           );
-          newlyFinishedTaskIds.forEach(id => {
-            const task = storedState.tasks.filter(t => t.id === id)[0];
+          newlyFinishedTaskIds.forEach((id) => {
+            const task = storedState.tasks.filter((t) => t.id === id)[0];
             if (storedState.settings.notifications.enableCompletionNotifications) {
               notify(`${task.title}`, browser.i18n.getMessage("Download_finished"));
             }
           });
         }
         finishedTaskIds = (finishedTaskIds || []).concat(
-          updatedFinishedTaskIds.filter(taskId => {
+          updatedFinishedTaskIds.filter((taskId) => {
             return !finishedTaskIds || finishedTaskIds.indexOf(taskId) === -1;
           }),
         );

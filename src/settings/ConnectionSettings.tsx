@@ -38,7 +38,7 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
 
     return (
       <form
-        onSubmit={e => {
+        onSubmit={(e) => {
           e.preventDefault();
           this.testConnectionAndSave();
         }}
@@ -51,12 +51,12 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
               <select
                 {...connectionDisabledProps}
                 value={mergedSettings.protocol}
-                onChange={e => {
+                onChange={(e) => {
                   this.setSetting("protocol", e.currentTarget.value as Protocol);
                 }}
                 ref={kludgeRefSetClassname("protocol-setting")}
               >
-                {PROTOCOLS.map(protocol => (
+                {PROTOCOLS.map((protocol) => (
                   <option key={protocol} value={protocol}>
                     {protocol}
                   </option>
@@ -68,7 +68,7 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
                 {...connectionDisabledProps}
                 placeholder={browser.i18n.getMessage("hostname_or_IP_address")}
                 value={mergedSettings.hostname}
-                onChange={e => {
+                onChange={(e) => {
                   this.setSetting("hostname", e.currentTarget.value.trim());
                 }}
                 ref={kludgeRefSetClassname("host-setting")}
@@ -78,7 +78,7 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
                 {...connectionDisabledProps}
                 type="number"
                 value={mergedSettings.port === 0 ? "" : mergedSettings.port}
-                onChange={e => {
+                onChange={(e) => {
                   const port = +(e.currentTarget.value.replace(/[^0-9]/g, "") || 0);
                   this.setSetting("port", port);
                 }}
@@ -94,7 +94,7 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
                 type="text"
                 {...connectionDisabledProps}
                 value={mergedSettings.username}
-                onChange={e => {
+                onChange={(e) => {
                   this.setSetting("username", e.currentTarget.value);
                 }}
               />
@@ -108,7 +108,7 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
                 type="password"
                 {...connectionDisabledProps}
                 value={mergedSettings.password}
-                onChange={e => {
+                onChange={(e) => {
                   this.setSetting("password", e.currentTarget.value);
                 }}
               />

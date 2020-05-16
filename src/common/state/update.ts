@@ -1,4 +1,4 @@
-import { State, StateVersion } from "./latest";
+import type { State, StateVersion } from "./latest";
 import { transition as state0to1 } from "./1";
 import { transition as state1to2 } from "./2";
 import { transition as state2to3 } from "./3";
@@ -45,7 +45,7 @@ export function updateStateToLatest(state: any | null): State {
     throw new Error(`cannot downgrade state shape from ${version} to ${LATEST_STATE_VERSION}`);
   }
 
-  STATE_TRANSFORMS.slice(version).forEach(transform => {
+  STATE_TRANSFORMS.slice(version).forEach((transform) => {
     state = transform(state);
   });
 

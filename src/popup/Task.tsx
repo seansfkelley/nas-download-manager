@@ -1,12 +1,12 @@
 import * as React from "react";
 import startCase from "lodash-es/startCase";
 import upperCase from "lodash-es/upperCase";
-import { DownloadStationTask } from "synology-typescript-api";
+import type { DownloadStationTask } from "synology-typescript-api";
 import classNames from "classnames";
 
 import { formatMetric1024, formatTime, formatPercentage } from "../common/format";
 import { matchesFilter } from "../common/filtering";
-import { CallbackResponse } from "./popupTypes";
+import type { CallbackResponse } from "./popupTypes";
 
 export interface Props {
   task: DownloadStationTask;
