@@ -21,7 +21,8 @@ const START_TIME = Date.now();
 
 setSharedObjects({ api });
 
-let finishedTaskIds: string[] | undefined;
+// This starts undefined, which means we haven't fetched the list of tasks yet.
+let finishedTaskIds: Set<string> | undefined;
 
 let lastNotificationSettings: NotificationSettings | undefined;
 let notificationInterval: number | undefined;
@@ -168,22 +169,18 @@ updateStateShapeIfNecessary()
         const updatedFinishedTaskIds = storedState.tasks
           .filter((t) => t.status === "finished" || t.status === "seeding")
           .map((t) => t.id);
-        if (finishedTaskIds != null) {
-          const newlyFinishedTaskIds = updatedFinishedTaskIds.filter(
-            (id) => finishedTaskIds!.indexOf(id) === -1,
-          );
-          newlyFinishedTaskIds.forEach((id) => {
-            const task = storedState.tasks.filter((t) => t.id === id)[0];
-            if (storedState.settings.notifications.enableCompletionNotifications) {
+        if (
+          finishedTaskIds != null &&
+          storedState.settings.notifications.enableCompletionNotifications
+        ) {
+          updatedFinishedTaskIds
+            .filter((id) => !finishedTaskIds!.has(id))
+            .forEach((id) => {
+              const task = storedState.tasks.find((t) => t.id === id)!;
               notify(`${task.title}`, browser.i18n.getMessage("Download_finished"));
-            }
-          });
+            });
         }
-        finishedTaskIds = (finishedTaskIds || []).concat(
-          updatedFinishedTaskIds.filter((taskId) => {
-            return !finishedTaskIds || finishedTaskIds.indexOf(taskId) === -1;
-          }),
-        );
+        finishedTaskIds = new Set(updatedFinishedTaskIds);
       }
     });
   })
