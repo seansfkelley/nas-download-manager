@@ -44,7 +44,7 @@ export async function testConnection(settings: ConnectionSettings): Promise<Conn
     return { code: loginResponse.error.code };
   } else {
     // Note that this is fire-and-forget.
-    api.Auth.Logout({ timeout: 10000 }).then(logoutResponse => {
+    api.Auth.Logout({ timeout: 10000 }).then((logoutResponse) => {
       if (logoutResponse === "not-logged-in") {
         // Typescript demands we handle this case, which is correct, but also, it's pretty wat
         console.error(`wtf: not logged in immediately after successfully logging in`);

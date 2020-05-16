@@ -12,7 +12,7 @@ export function typesafeUnionMembers<T extends string>(keys: Record<T, any>): T[
 
 export function typesafePick<T extends object, K extends keyof T>(o: T, ...keys: K[]): Pick<T, K> {
   const copy: T = {} as any;
-  keys.forEach(k => {
+  keys.forEach((k) => {
     copy[k] = o[k];
   });
   return copy;
@@ -20,7 +20,7 @@ export function typesafePick<T extends object, K extends keyof T>(o: T, ...keys:
 
 export function typesafeOmit<T extends object, K extends keyof T>(o: T, ...keys: K[]): Omit<T, K> {
   const copy = { ...o };
-  keys.forEach(k => {
+  keys.forEach((k) => {
     delete copy[k];
   });
   return copy;

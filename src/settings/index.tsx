@@ -140,7 +140,7 @@ class SettingsForm extends React.PureComponent<Props, State> {
               step={POLL_STEP}
               value={this.state.rawPollingInterval}
               ref={kludgeRefSetClassname("polling-interval")}
-              onChange={e => {
+              onChange={(e) => {
                 const rawPollingInterval = e.currentTarget.value;
                 this.setState({ rawPollingInterval });
                 if (isValidPollingInterval(rawPollingInterval)) {
@@ -149,9 +149,7 @@ class SettingsForm extends React.PureComponent<Props, State> {
               }}
             />
             {browser.i18n.getMessage("seconds")}
-            {isValidPollingInterval(this.state.rawPollingInterval) ? (
-              undefined
-            ) : (
+            {isValidPollingInterval(this.state.rawPollingInterval) ? undefined : (
               <span className="intent-error wrong-polling-interval">
                 {browser.i18n.getMessage("at_least_15")}
               </span>
@@ -205,7 +203,7 @@ ${this.props.lastSevereError}`;
                 className="debugging-output"
                 value={formattedDebugLogs}
                 readOnly={true}
-                onClick={e => {
+                onClick={(e) => {
                   e.currentTarget.select();
                 }}
               />
@@ -285,7 +283,7 @@ function clearError() {
 
 const ELEMENT = document.getElementById("body")!;
 
-getSharedObjects().then(objects => {
+getSharedObjects().then((objects) => {
   if (objects == null) {
     ReactDOM.render(
       <NonIdealState
@@ -295,7 +293,7 @@ getSharedObjects().then(objects => {
       ELEMENT,
     );
   } else {
-    onStoredStateChange(state => {
+    onStoredStateChange((state) => {
       ReactDOM.render(
         <SettingsForm
           api={objects.api}

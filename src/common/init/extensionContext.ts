@@ -8,7 +8,7 @@ import { onUnhandledError } from "../errorHandlers";
 //   onUnhandledError(e && e.detail && e.detail.reason);
 // });
 
-window.addEventListener("error", e => {
+window.addEventListener("error", (e) => {
   e.preventDefault();
   onUnhandledError(e.error);
 });

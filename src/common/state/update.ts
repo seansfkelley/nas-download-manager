@@ -45,7 +45,7 @@ export function updateStateToLatest(state: any | null): State {
     throw new Error(`cannot downgrade state shape from ${version} to ${LATEST_STATE_VERSION}`);
   }
 
-  STATE_TRANSFORMS.slice(version).forEach(transform => {
+  STATE_TRANSFORMS.slice(version).forEach((transform) => {
     state = transform(state);
   });
 

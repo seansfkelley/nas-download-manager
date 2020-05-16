@@ -7,7 +7,7 @@ const LEFT_MOUSE_BUTTON = 0;
 
 let enabled = true;
 
-onStoredStateChange(state => {
+onStoredStateChange((state) => {
   enabled = state.settings.shouldHandleDownloadLinks;
 });
 

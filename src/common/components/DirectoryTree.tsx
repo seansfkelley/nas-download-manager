@@ -47,7 +47,7 @@ export function recursivelyUpdateDirectoryTree(
   } else {
     return {
       ...currentNode,
-      children: currentNode.children.map(child => {
+      children: currentNode.children.map((child) => {
         if (path.startsWith(child.path)) {
           return recursivelyUpdateDirectoryTree(child, path, newChildren);
         } else {
@@ -153,7 +153,7 @@ export class DirectoryTree extends React.PureComponent<Props, State> {
       } else {
         return (
           <ul className="children loaded">
-            {this.props.file.children.map(child => (
+            {this.props.file.children.map((child) => (
               <DirectoryTree
                 key={child.path}
                 file={child}

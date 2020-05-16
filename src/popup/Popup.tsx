@@ -164,7 +164,9 @@ export class Popup extends React.PureComponent<Props, State> {
   }
 
   private renderDisplaySettings() {
-    const completedTaskIds = this.props.tasks.filter(t => t.status === "finished").map(t => t.id);
+    const completedTaskIds = this.props.tasks
+      .filter((t) => t.status === "finished")
+      .map((t) => t.id);
     const deleteTasks = this.props.deleteTasks
       ? async () => {
           this.setState({ isClearingCompletedTasks: true });
@@ -247,11 +249,11 @@ export class Popup extends React.PureComponent<Props, State> {
           <div className="download-tasks">
             <ul
               onScroll={this.onBodyScroll}
-              ref={e => {
+              ref={(e) => {
                 this.bodyRef = e || undefined;
               }}
             >
-              {sortTasks(filteredTasks, this.props.taskSort).map(task => (
+              {sortTasks(filteredTasks, this.props.taskSort).map((task) => (
                 <Task
                   key={task.id}
                   task={task}

@@ -25,10 +25,10 @@ setInterval(() => {
 }, 10000);
 
 getSharedObjects()
-  .then(objects => {
+  .then((objects) => {
     if (objects) {
       const { api } = objects;
-      onStoredStateChange(storedState => {
+      onStoredStateChange((storedState) => {
         ReactDOM.render(
           <PopupWrapper api={api} state={storedState} updateSettings={updateSettings} />,
           ELEMENT,
@@ -38,7 +38,7 @@ getSharedObjects()
       ReactDOM.render(<PrivateBrowsingUnsupported />, ELEMENT);
     }
   })
-  .catch(e => {
+  .catch((e) => {
     onUnhandledError(e);
     ReactDOM.render(<FatalError error={e} />, ELEMENT);
   });

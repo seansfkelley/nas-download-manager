@@ -22,7 +22,7 @@ const ALL_STORED_STATE_NAMES = typesafeUnionMembers<keyof State>({
 
 async function fetchStateAndNotify(listeners: ((state: State) => void)[]) {
   const state = await browser.storage.local.get<State>(ALL_STORED_STATE_NAMES);
-  listeners.forEach(l => l(state));
+  listeners.forEach((l) => l(state));
 }
 
 let stateListeners: ((state: State) => void)[] = [];

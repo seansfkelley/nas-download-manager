@@ -58,7 +58,7 @@ export class PathSelector extends React.PureComponent<Props, State> {
     } else {
       return (
         <div>
-          {this.state.directoryTree.children.map(directory => (
+          {this.state.directoryTree.children.map((directory) => (
             <DirectoryTree
               key={directory.path}
               file={directory}
@@ -117,8 +117,8 @@ export class PathSelector extends React.PureComponent<Props, State> {
       });
 
       if (stashedRequestVersion === this.requestVersionByPath[path]) {
-        this.updateTreeWithResponse(path, response, data =>
-          data.files.map(f => ({
+        this.updateTreeWithResponse(path, response, (data) =>
+          data.files.map((f) => ({
             path: f.path,
             name: f.name,
             children: "unloaded" as const,
@@ -141,8 +141,8 @@ export class PathSelector extends React.PureComponent<Props, State> {
     const response = await this.props.client.FileStation.List.list_share({ sort_by: "name" });
 
     if (stashedRequestVersion === this.requestVersionByPath[ROOT_PATH]) {
-      this.updateTreeWithResponse(ROOT_PATH, response, data =>
-        data.shares.map(d => ({
+      this.updateTreeWithResponse(ROOT_PATH, response, (data) =>
+        data.shares.map((d) => ({
           name: d.name,
           path: d.path,
           children: "unloaded" as const,
