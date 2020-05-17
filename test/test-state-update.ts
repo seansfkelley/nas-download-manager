@@ -1,14 +1,14 @@
 import "mocha";
 import { expect } from "chai";
 import { cloneDeep } from "lodash";
-import { DownloadStationTask } from "synology-typescript-api";
+import type { DownloadStationTask } from "synology-typescript-api";
 
 import { updateStateToLatest } from "../src/common/state/update";
-import { State as State_1 } from "../src/common/state/1";
-import { State as State_2 } from "../src/common/state/2";
-import { State as State_3 } from "../src/common/state/3";
-import { State as State_4 } from "../src/common/state/4";
-import { State as State_5 } from "../src/common/state/5";
+import type { State as State_1 } from "../src/common/state/1";
+import type { State as State_2 } from "../src/common/state/2";
+import type { State as State_3 } from "../src/common/state/3";
+import type { State as State_4 } from "../src/common/state/4";
+import type { State as State_5 } from "../src/common/state/5";
 
 interface PreVersioningState_0 {
   connection: {
