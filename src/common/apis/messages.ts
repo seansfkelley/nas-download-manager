@@ -1,90 +1,73 @@
-export enum MessageType {
-  ADD_TASKS,
-  POLL_TASKS,
-  PAUSE_TASK,
-  RESUME_TASK,
-  DELETE_TASK,
-}
-
-interface Message<T extends MessageType> {
-  type: T;
-}
-
-function makeTypeGuard<T extends Message<MessageType>>(type: T["type"]) {
-  return (m: object | null | undefined): m is T => {
-    return m != null && (m as any).type == type;
-  };
-}
-
-function sendMessage<T extends Message<MessageType>>(m: T) {
-  browser.runtime.sendMessage(m);
-}
-
-export interface AddTasksMessage extends Message<MessageType.ADD_TASKS> {
+export interface AddTasksMessage {
+  type: "add-tasks";
   urls: string[];
   path?: string;
 }
 
-export const AddTasksMessage = {
-  send: (urls: string[], path?: string) => {
-    sendMessage<AddTasksMessage>({
-      type: MessageType.ADD_TASKS,
-      urls,
-      path,
-    });
-  },
-  is: makeTypeGuard<AddTasksMessage>(MessageType.ADD_TASKS),
-};
+export interface PollTasksMessage {
+  type: "poll-tasks";
+}
 
-export interface PollTasksMessage extends Message<MessageType.POLL_TASKS> {}
-
-export const PollTasksMessage = {
-  send: () => {
-    sendMessage<PollTasksMessage>({
-      type: MessageType.POLL_TASKS,
-    });
-  },
-  is: makeTypeGuard<PollTasksMessage>(MessageType.POLL_TASKS),
-};
-
-export interface PauseTaskMessage extends Message<MessageType.PAUSE_TASK> {
+export interface PauseTaskMessage {
+  type: "pause-task";
   taskId: string;
 }
 
-export const PauseTaskMessage = {
-  send: (taskId: string) => {
-    sendMessage<PauseTaskMessage>({
-      type: MessageType.PAUSE_TASK,
-      taskId,
-    });
-  },
-  is: makeTypeGuard<PauseTaskMessage>(MessageType.PAUSE_TASK),
-};
-
-export interface ResumeTaskMessage extends Message<MessageType.RESUME_TASK> {
+export interface ResumeTaskMessage {
+  type: "resume-task";
   taskId: string;
 }
 
-export const ResumeTaskMessage = {
-  send: (taskId: string) => {
-    sendMessage<ResumeTaskMessage>({
-      type: MessageType.RESUME_TASK,
-      taskId,
-    });
-  },
-  is: makeTypeGuard<ResumeTaskMessage>(MessageType.RESUME_TASK),
-};
-
-export interface DeleteTaskMessage extends Message<MessageType.DELETE_TASK> {
+export interface DeleteTaskMessage {
+  type: "delete-task";
   taskId: string;
 }
 
-export const DeleteTaskMessage = {
-  send: (taskId: string) => {
-    sendMessage<DeleteTaskMessage>({
-      type: MessageType.DELETE_TASK,
-      taskId,
-    });
-  },
-  is: makeTypeGuard<DeleteTaskMessage>(MessageType.DELETE_TASK),
-};
+export type Message =
+  | AddTasksMessage
+  | PollTasksMessage
+  | PauseTaskMessage
+  | ResumeTaskMessage
+  | DeleteTaskMessage;
+
+export type MessageType = Message["type"];
+
+// Pick the union member that matches the given discriminant.
+// from: https://stackoverflow.com/questions/48750647/get-type-of-union-by-discriminant
+type DiscriminateUnion<T, K extends keyof T, V extends T[K]> = T extends Record<K, V> ? T : never;
+
+function makeMessageOperations<T extends MessageType, U extends any[]>(
+  type: T,
+  payload: (...args: U) => Omit<DiscriminateUnion<Message, "type", T>, "type">,
+) {
+  return {
+    send: (...args: U) => {
+      browser.runtime.sendMessage({
+        type,
+        ...payload(...args),
+      });
+    },
+    is: (m: object | null | undefined): m is DiscriminateUnion<Message, "type", T> => {
+      return m != null && (m as any).type == type;
+    },
+  };
+}
+
+export const AddTasksMessage = makeMessageOperations(
+  "add-tasks",
+  (urls: string[], path?: string) => ({ urls, path }),
+);
+
+export const PollTasksMessage = makeMessageOperations("poll-tasks", () => ({}));
+
+export const PauseTaskMessage = makeMessageOperations("pause-task", (taskId: string) => ({
+  taskId,
+}));
+
+export const ResumeTaskMessage = makeMessageOperations("resume-task", (taskId: string) => ({
+  taskId,
+}));
+
+export const DeleteTaskMessage = makeMessageOperations("delete-task", (taskId: string) => ({
+  taskId,
+}));
