@@ -5,7 +5,7 @@
   "scripts": {
     "test": "TS_NODE_PROJECT=test/tsconfig-test.json mocha --require ts-node/register 'test/**/*.{ts,tsx}'",
     "lint": "prettier --check src/**/* && tsc -p src --noemit",
-    "watch": "parcel watch src/content/index.ts src/background/index.ts src/settings/index.tsx src/popup/index.tsx",
+    "watch": "parcel watch --no-hmr src/content/index.ts src/background/index.ts src/settings/index.tsx src/popup/index.tsx",
     "build": "rm -rf dist && parcel build src/content/index.ts src/background/index.ts src/settings/index.tsx src/popup/index.tsx",
     "zip": "rm -rf addon.zip && zip -r addon.zip . -i 'dist/*' -i 'html/*' -i 'icons/*' -i 'vendor/*' -i '_locales/*' -i 'manifest.json' -x '**/*.map' -x '**/.DS_Store'",
     "zip-sources": "rm -rf sources.zip && zip -r sources.zip . -x '*.zip' -x 'dist/*' -x 'node_modules/*' -x '**/.DS_Store' -x '.git/*' -x '.cache/*'"
