@@ -97,4 +97,7 @@ export const DeleteTasks = makeMessageOperations("delete-tasks", (taskIds: strin
   // Compile-time check to make sure that these two different types that have to match, do.
   let _message: Message["type"] = (null as unknown) as keyof Result;
   let _result: keyof Result = (null as unknown) as Message["type"];
+  // Get the compiler to shutup.
+  _message = _result;
+  _result = _message;
 }

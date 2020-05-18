@@ -11,7 +11,7 @@ import { getSharedObjects } from "../common/apis/sharedObjects";
 import { FatalError } from "./FatalError";
 import { PrivateBrowsingUnsupported } from "./PrivateBrowsingUnsupported";
 import { PopupWrapper } from "./PopupWrapper";
-import { PollTasksMessage } from "../common/apis/messages";
+import { PollTasks } from "../common/apis/messages";
 
 const ELEMENT = document.getElementById("body")!;
 
@@ -19,9 +19,9 @@ function updateSettings(settings: Settings) {
   browser.storage.local.set<Partial<State>>({ settings });
 }
 
-PollTasksMessage.send();
+PollTasks.send();
 setInterval(() => {
-  PollTasksMessage.send();
+  PollTasks.send();
 }, 10000);
 
 getSharedObjects()
