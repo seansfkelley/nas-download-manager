@@ -65,11 +65,13 @@ const MESSAGE_HANDLERS: MessageHandlers = {
   },
 };
 
-browser.runtime.onMessage.addListener((m) => {
-  if (Message.is(m)) {
-    return MESSAGE_HANDLERS[m.type](m as any, getMutableStateSingleton());
-  } else {
-    console.error("received unhandleable message", m);
-    return undefined;
-  }
-});
+export function initializeMessageHandler() {
+  browser.runtime.onMessage.addListener((m) => {
+    if (Message.is(m)) {
+      return MESSAGE_HANDLERS[m.type](m as any, getMutableStateSingleton());
+    } else {
+      console.error("received unhandleable message", m);
+      return undefined;
+    }
+  });
+}
