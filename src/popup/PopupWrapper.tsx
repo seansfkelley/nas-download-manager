@@ -9,11 +9,9 @@ import {
   getHostUrl,
   BadgeDisplayType,
 } from "../common/state";
-import { pollTasks } from "../common/apis/actions";
 import { FatalErrorWrapper } from "./FatalErrorWrapper";
 import { Popup, Props as PopupProps } from "./Popup";
-import { CallbackResponse } from "./popupTypes";
-import { AddTasksMessage } from "../common/apis/messages";
+import { AddTasks, PauseTask, ResumeTask, DeleteTasks } from "../common/apis/messages";
 
 interface Props {
   api: ApiClient;
@@ -43,12 +41,6 @@ export class PopupWrapper extends React.PureComponent<Props> {
     );
   }
 
-  private async reloadOnSuccess(response: CallbackResponse): Promise<CallbackResponse> {
-    if (response === "success") {
-      await pollTasks(this.props.api);
-    }
-    return response;
-  }
 
   private changeVisibleTasks = (visibleTasks: VisibleTaskSettings) => {
     this.props.updateSettings({ ...this.props.state.settings, visibleTasks });
@@ -72,28 +64,10 @@ export class PopupWrapper extends React.PureComponent<Props> {
             active: true,
           });
         },
-        createTasks: (urls: string[], path?: string) => AddTasksMessage.send(urls, path),
-        pauseTask: async (taskId: string) =>
-          this.reloadOnSuccess(
-            CallbackResponse.from(
-              await this.props.api.DownloadStation.Task.Pause({ id: [taskId] }),
-            ),
-          ),
-        resumeTask: async (taskId: string) =>
-          this.reloadOnSuccess(
-            CallbackResponse.from(
-              await this.props.api.DownloadStation.Task.Resume({ id: [taskId] }),
-            ),
-          ),
-        deleteTasks: async (taskIds: string[]) =>
-          this.reloadOnSuccess(
-            CallbackResponse.from(
-              await this.props.api.DownloadStation.Task.Delete({
-                id: taskIds,
-                force_complete: false,
-              }),
-            ),
-          ),
+        createTasks: AddTasks.send,
+        pauseTask: PauseTask.send,
+        resumeTask: ResumeTask.send,
+        deleteTasks: DeleteTasks.send
       };
     } else {
       return {};

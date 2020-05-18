@@ -6,7 +6,7 @@ import classNames from "classnames";
 
 import { formatMetric1024, formatTime, formatPercentage } from "../common/format";
 import { matchesFilter } from "../common/filtering";
-import type { CallbackResponse } from "./popupTypes";
+import type { CallbackResponse } from "../common/apis/messages";
 
 export interface Props {
   task: DownloadStationTask;

@@ -9,7 +9,9 @@ import {
 } from "../common/state";
 import { notify } from "../common/apis/browserUtils";
 import { setSharedObjects } from "../common/apis/sharedObjects";
-import { AddTasksMessage, PollTasksMessage } from "../common/apis/messages";
+import { SynologyResponse, ConnectionFailure, isConnectionFailure } from "synology-typescript-api";
+import { errorMessageFromCode, errorMessageFromConnectionFailure } from "../common/apis/errors";
+import { maybeIsMessage, MessageHandlers, CallbackResponse } from "../common/apis/messages";
 import { addDownloadTasksAndPoll, pollTasks, clearCachedTasks } from "../common/apis/actions";
 import { onUnhandledError } from "../common/errorHandlers";
 import { ALL_DOWNLOADABLE_PROTOCOLS, startsWithAnyProtocol } from "../common/apis/protocols";
@@ -65,15 +67,65 @@ browser.contextMenus.create({
   },
 });
 
-browser.runtime.onMessage.addListener((message) => {
-  if (AddTasksMessage.is(message)) {
-    return addDownloadTasksAndPoll(api, showNonErrorNotifications, message.urls, message.path);
-  } else if (PollTasksMessage.is(message)) {
-    return pollTasks(api);
+function callbackResponseFrom(
+  response: SynologyResponse<any> | ConnectionFailure,
+): CallbackResponse {
+  if (isConnectionFailure(response)) {
+    return {
+      failMessage: errorMessageFromConnectionFailure(response),
+    };
+  } else if (!response.success) {
+    return {
+      failMessage: errorMessageFromCode(response.error.code, "DownloadStation.Task"),
+    };
   } else {
-    console.error("received a message of unknown type", message);
-    return undefined;
+    return "success";
   }
+}
+
+const MESSAGE_HANDLERS: MessageHandlers = {
+  "add-tasks": (m) => {
+    return addDownloadTasksAndPoll(api, showNonErrorNotifications, m.urls, m.path);
+  },
+  "poll-tasks": (_m) => {
+    return pollTasks(api);
+  },
+  "pause-task": async (m) => {
+    const response = callbackResponseFrom(await api.DownloadStation.Task.Pause({ id: [m.taskId] }));
+    if (response === "success") {
+      await pollTasks(api);
+    }
+    return response;
+  },
+  "resume-task": async (m) => {
+    const response = callbackResponseFrom(
+      await api.DownloadStation.Task.Resume({ id: [m.taskId] }),
+    );
+    if (response === "success") {
+      await pollTasks(api);
+    }
+    return response;
+  },
+  "delete-tasks": async (m) => {
+    const response = callbackResponseFrom(
+      await api.DownloadStation.Task.Delete({ id: m.taskIds, force_complete: false }),
+    );
+    if (response === "success") {
+      await pollTasks(api);
+    }
+    return response;
+  },
+};
+
+browser.runtime.onMessage.addListener((m) => {
+  if (maybeIsMessage(m)) {
+    const handler = (MESSAGE_HANDLERS as any)[m.type];
+    if (handler != null) {
+      return handler(m);
+    }
+  }
+  console.error("received unhandleable message", m);
+  return undefined;
 });
 
 updateStateShapeIfNecessary()

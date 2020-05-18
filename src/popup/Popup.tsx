@@ -8,7 +8,7 @@ import type { VisibleTaskSettings, TaskSortType, BadgeDisplayType } from "../com
 import { sortTasks, filterTasks } from "../common/filtering";
 import { AdvancedAddDownloadForm } from "../common/components/AdvancedAddDownloadForm";
 import { TaskFilterSettingsForm } from "../common/components/TaskFilterSettingsForm";
-import type { CallbackResponse } from "./popupTypes";
+import type { CallbackResponse } from "../common/apis/messages";
 import { Task } from "./Task";
 import { NonIdealState } from "../common/components/NonIdealState";
 
