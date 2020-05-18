@@ -6,7 +6,7 @@ import {
   EMULE_PROTOCOL,
   MAGNET_PROTOCOL,
   startsWithAnyProtocol,
-} from "../protocols";
+} from "../../common/apis/protocols";
 
 interface MetadataFileType {
   mediaType: string;

@@ -1,7 +1,7 @@
 import { getMutableStateSingleton } from "./backgroundState";
 import { notify } from "../common/apis/browserUtils";
 
-import { addDownloadTasksAndPoll } from "../common/apis/actions";
+import { addDownloadTasksAndPoll } from "./actions";
 import { ALL_DOWNLOADABLE_PROTOCOLS, startsWithAnyProtocol } from "../common/apis/protocols";
 
 export function initializeContextMenus() {

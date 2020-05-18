@@ -4,11 +4,15 @@ import {
   isConnectionFailure,
   SynologyResponse,
 } from "synology-typescript-api";
-import { errorMessageFromCode } from "../errors";
-import { onUnhandledError } from "../../errorHandlers";
-import { assertNever } from "../../lang";
-import { notify } from "../browserUtils";
-import { ALL_DOWNLOADABLE_PROTOCOLS, EMULE_PROTOCOL, startsWithAnyProtocol } from "../protocols";
+import { errorMessageFromCode } from "../../common/apis/errors";
+import { onUnhandledError } from "../../common/errorHandlers";
+import { assertNever } from "../../common/lang";
+import { notify } from "../../common/apis/browserUtils";
+import {
+  ALL_DOWNLOADABLE_PROTOCOLS,
+  EMULE_PROTOCOL,
+  startsWithAnyProtocol,
+} from "../../common/apis/protocols";
 import { resolveUrl, ResolvedUrl, sanitizeUrlForSynology, guessFileNameFromUrl } from "./urls";
 // TODO: Fix this import by splitting files.
 import { pollTasks } from "./pollTasks";

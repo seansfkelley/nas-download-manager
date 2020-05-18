@@ -1,7 +1,7 @@
 import { SynologyResponse, ConnectionFailure, isConnectionFailure } from "synology-typescript-api";
 import { errorMessageFromCode, errorMessageFromConnectionFailure } from "../common/apis/errors";
 import { CallbackResponse, Message, Result, DiscriminateUnion } from "../common/apis/messages";
-import { addDownloadTasksAndPoll, pollTasks } from "../common/apis/actions";
+import { addDownloadTasksAndPoll, pollTasks } from "./actions";
 import { BackgroundState, getMutableStateSingleton } from "./backgroundState";
 
 type MessageHandler<T extends Message, U extends Result[keyof Result]> = (
