@@ -1,5 +1,3 @@
-import mapValues from "lodash-es/mapValues";
-
 import type {
   Protocol,
   VisibleTaskSettings,
@@ -9,7 +7,7 @@ import type {
 } from "./latest";
 import { updateStateToLatest } from "./update";
 import type { BadgeDisplayType } from "./4";
-import { typesafeUnionMembers } from "../lang";
+import { typesafeUnionMembers, typesafeMapValues } from "../lang";
 export * from "./listen";
 export * from "./latest";
 
@@ -58,10 +56,7 @@ export async function updateStateShapeIfNecessary() {
 
 export function redactState(state: State): object {
   const sanitizedConnection: Record<keyof ConnectionSettings, boolean | Protocol> = {
-    ...(mapValues(state.settings.connection, Boolean) as Record<
-      keyof typeof state.settings.connection,
-      boolean
-    >),
+    ...typesafeMapValues(state.settings.connection, Boolean),
     protocol: state.settings.connection.protocol,
   };
 

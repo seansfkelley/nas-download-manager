@@ -14,7 +14,6 @@ import {
   startsWithAnyProtocol,
 } from "../../common/apis/protocols";
 import { resolveUrl, ResolvedUrl, sanitizeUrlForSynology, guessFileNameFromUrl } from "./urls";
-// TODO: Fix this import by splitting files.
 import { pollTasks } from "./pollTasks";
 
 // https://stackoverflow.com/questions/50125893/typescript-derive-map-from-discriminated-union

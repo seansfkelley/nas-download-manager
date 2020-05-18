@@ -25,3 +25,14 @@ export function typesafeOmit<T extends object, K extends keyof T>(o: T, ...keys:
   });
   return copy;
 }
+
+export function typesafeMapValues<K extends string, V, U>(
+  o: Record<K, V>,
+  mapper: (value: V, key: K) => U,
+): Record<K, U> {
+  const result: Record<K, U> = {} as any;
+  recordKeys(o).forEach((k) => {
+    result[k] = mapper(o[k], k);
+  });
+  return result;
+}
