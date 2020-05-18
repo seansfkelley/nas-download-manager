@@ -1,5 +1,5 @@
 import { getMutableStateSingleton } from "./backgroundState";
-import { notify } from "../common/apis/browserUtils";
+import { notify } from "../common/notify";
 
 import { addDownloadTasksAndPoll } from "./actions";
 import { ALL_DOWNLOADABLE_PROTOCOLS, startsWithAnyProtocol } from "../common/apis/protocols";

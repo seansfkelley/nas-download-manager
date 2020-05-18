@@ -7,7 +7,7 @@ import {
 import { errorMessageFromCode } from "../../common/apis/errors";
 import { onUnhandledError } from "../../common/errorHandlers";
 import { assertNever } from "../../common/lang";
-import { notify } from "../../common/apis/browserUtils";
+import { notify } from "../../common/notify";
 import {
   ALL_DOWNLOADABLE_PROTOCOLS,
   EMULE_PROTOCOL,

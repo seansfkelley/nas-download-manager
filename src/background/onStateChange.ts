@@ -2,7 +2,7 @@ import isEqual from "lodash-es/isEqual";
 import { SessionName } from "synology-typescript-api";
 import { getMutableStateSingleton } from "./backgroundState";
 import { getHostUrl, State } from "../common/state";
-import { notify } from "../common/apis/browserUtils";
+import { notify } from "../common/notify";
 import { pollTasks, clearCachedTasks } from "./actions";
 import { assertNever } from "../common/lang";
 import { filterTasks } from "../common/filtering";
