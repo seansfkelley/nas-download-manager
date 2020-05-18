@@ -25,13 +25,25 @@ export interface DeleteTasks {
   taskIds: string[];
 }
 
-export function maybeIsMessage(m: object | null | undefined): m is { type: string } {
-  return m != null && typeof (m as any).type === "string";
-}
+export type Message = AddTasks | PollTasks | PauseTask | ResumeTask | DeleteTasks;
 
-type Message = AddTasks | PollTasks | PauseTask | ResumeTask | DeleteTasks;
+const MESSAGE_TYPES: Record<Message["type"], true> = {
+  "add-tasks": true,
+  "delete-tasks": true,
+  "pause-task": true,
+  "poll-tasks": true,
+  "resume-task": true,
+};
 
-type Result = {
+export const Message = {
+  is: (m: object | null | undefined): m is Message => {
+    return (
+      m != null && (m as any).type != null && MESSAGE_TYPES[(m as any).type as Message["type"]]
+    );
+  },
+};
+
+export type Result = {
   "add-tasks": void;
   "poll-tasks": void;
   "pause-task": CallbackResponse;
@@ -39,13 +51,11 @@ type Result = {
   "delete-tasks": CallbackResponse;
 };
 
-export type MessageHandlers = {
-  [T in Message["type"]]: (m: DiscriminateUnion<Message, "type", T>) => Promise<Result[T]>;
-};
-
 // Pick the union member that matches the given discriminant.
 // from: https://stackoverflow.com/questions/48750647/get-type-of-union-by-discriminant
-type DiscriminateUnion<T, K extends keyof T, V extends T[K]> = T extends Record<K, V> ? T : never;
+export type DiscriminateUnion<T, K extends keyof T, V extends T[K]> = T extends Record<K, V>
+  ? T
+  : never;
 
 function makeMessageOperations<T extends Message["type"], U extends any[]>(
   type: T,

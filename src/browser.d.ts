@@ -127,7 +127,7 @@ type OnMessageListener = (
   message: object | null | undefined,
   sender: MessageSender,
   sendResponse: (response: object) => void,
-) => Promise<object | void> | boolean | void;
+) => Promise<object | string | void> | boolean | void;
 
 declare const browser: {
   extension: {
