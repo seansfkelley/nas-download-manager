@@ -17,8 +17,8 @@ const state: BackgroundState = {
   lastNotificationSettings: undefined,
   notificationInterval: undefined,
   didInitializeSettings: false,
-  showNonErrorNotifications: true
-}
+  showNonErrorNotifications: true,
+};
 
 export function getMutableStateSingleton() {
   return state;

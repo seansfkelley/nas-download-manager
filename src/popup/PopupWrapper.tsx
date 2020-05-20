@@ -41,7 +41,6 @@ export class PopupWrapper extends React.PureComponent<Props> {
     );
   }
 
-
   private changeVisibleTasks = (visibleTasks: VisibleTaskSettings) => {
     this.props.updateSettings({ ...this.props.state.settings, visibleTasks });
   };
@@ -67,7 +66,7 @@ export class PopupWrapper extends React.PureComponent<Props> {
         createTasks: AddTasks.send,
         pauseTask: PauseTask.send,
         resumeTask: ResumeTask.send,
-        deleteTasks: DeleteTasks.send
+        deleteTasks: DeleteTasks.send,
       };
     } else {
       return {};
