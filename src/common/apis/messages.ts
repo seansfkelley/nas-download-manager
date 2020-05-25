@@ -1,3 +1,5 @@
+import type { DiscriminateUnion } from "../types";
+
 export type CallbackResponse = "success" | { failMessage: string };
 
 export interface AddTasks {
@@ -51,12 +53,6 @@ export type Result = {
   "delete-tasks": CallbackResponse;
 };
 
-// Pick the union member that matches the given discriminant.
-// from: https://stackoverflow.com/questions/48750647/get-type-of-union-by-discriminant
-export type DiscriminateUnion<T, K extends keyof T, V extends T[K]> = T extends Record<K, V>
-  ? T
-  : never;
-
 function makeMessageOperations<T extends Message["type"], U extends any[]>(
   type: T,
   payload: (...args: U) => Omit<DiscriminateUnion<Message, "type", T>, "type">,
@@ -97,7 +93,8 @@ export const DeleteTasks = makeMessageOperations("delete-tasks", (taskIds: strin
   // Compile-time check to make sure that these two different types that have to match, do.
   let _message: Message["type"] = (null as unknown) as keyof Result;
   let _result: keyof Result = (null as unknown) as Message["type"];
-  // Get the compiler to shutup.
+
+  // Get the compiler to shut up. These lines don't necessarily catch type errors.
   _message = _result;
   _result = _message;
 }

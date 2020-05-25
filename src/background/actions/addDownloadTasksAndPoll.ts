@@ -15,15 +15,13 @@ import {
 } from "../../common/apis/protocols";
 import { resolveUrl, ResolvedUrl, sanitizeUrlForSynology, guessFileNameFromUrl } from "./urls";
 import { pollTasks } from "./pollTasks";
+import type { UnionByDiscriminant } from "../../common/types";
 
-// https://stackoverflow.com/questions/50125893/typescript-derive-map-from-discriminated-union
-type DiscriminateUnion<T, K extends keyof T, V extends T[K]> = T extends Record<K, V> ? T : never;
-
-type MapDiscriminatedUnion<T extends Record<K, string>, K extends keyof T> = {
-  [V in T[K]]: DiscriminateUnion<T, K, V>[];
+type ArrayifyValues<T extends Record<string, any>> = {
+  [K in keyof T]: T[K][];
 };
 
-type ResolvedUrlByType = MapDiscriminatedUnion<ResolvedUrl, "type">;
+type ResolvedUrlByType = ArrayifyValues<UnionByDiscriminant<ResolvedUrl, "type">>;
 
 async function checkIfEMuleShouldBeEnabled(api: ApiClient, urls: string[]) {
   if (urls.some((url) => startsWithAnyProtocol(url, EMULE_PROTOCOL))) {
