@@ -691,5 +691,65 @@
   "Cannot_configure_settings_in_private_browsing": {
     "message": "Impossible de configurer les réglages en mode de navigation privée.",
     "description": "Error message that replaces the settings page when the user is in private mode."
+  },
+  "Adding_download": {
+    "message": "Ajout du téléchargement...",
+    "description": "Notification title."
+  },
+  "Adding_ZcountZ_downloads": {
+    "message": "Ajout de $COUNT$ téléchargements...",
+    "description": "Notification title.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "ZcountZ_downloads_added": {
+    "message": "$COUNT$ téléchargements ajoutés",
+    "description": "Notification body text.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "Failed_to_add_ZcountZ_downloads": {
+    "message": "L'ajout de $COUNT$ téléchargements a échoué",
+    "description": "Notification body text.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "ZsuccessZ_downloads_added_ZfailedZ_failed": {
+    "message": "$SUCCESS$ téléchargements ajoutés; $FAILED$ échoués",
+    "description": "Notification body text.",
+    "placeholders": {
+      "success": {
+        "content": "$1",
+        "example": "2"
+      },
+      "failed": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "Try_adding_downloads_individually_andor_checking_your_URLs_or_settings": {
+    "message": "Essayez d'ajouter les téléchargements séparément et/ou vérifiez vos URLs ou réglages",
+    "description": "Notification body text."
+  },
+  "No_downloadable_URLs_provided": {
+    "message": "Pas d'URLs téléchargeables fournies",
+    "description": "Notification body text."
+  },
+  "Please_be_patient_this_may_take_some_time": {
+    "message": "Veuillez patienter, cela peut prendre quelques instants...",
+    "description": "Notification body text."
   }
 }
