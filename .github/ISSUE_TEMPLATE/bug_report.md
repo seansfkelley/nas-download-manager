@@ -8,10 +8,9 @@ assignees: ''
 ---
 
 <!--
-
 Thanks for filing an issue! I appreciate you taking the time to help improve Synology Download Manager. Please fill out the following information for a faster and more effective response/fix.
-
 -->
+
 ### Description
 
 A brief description of the issue.
@@ -32,8 +31,6 @@ Check the bottom of the extension's setting page for a "Debugging Output" sectio
 
 **Extension version**: (visible in Synology Download Manager's settings (Firefox) or in the extension list (Chrome))
 
-**Browser and version**: (usually found in the browser's "About")
+**Browser version**: (usually found in the browser's "About")
 
 **DSM version**: (DSM > Control Panel > Info Center > General > DSM version)
-
-**Download Station version**: (DSM > Package Center > Installed > Download Station > Installed version)
