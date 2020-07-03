@@ -49,7 +49,7 @@ export function getHostUrl(settings: ConnectionSettings) {
 }
 
 export async function updateStateShapeIfNecessary() {
-  const updated = await updateStateToLatest(await browser.storage.local.get<any>(null));
+  const updated = updateStateToLatest(await browser.storage.local.get<any>(null));
   await browser.storage.local.clear();
   return browser.storage.local.set<State>(updated);
 }
