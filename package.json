@@ -31,7 +31,7 @@
     "@types/react-textarea-autosize": "^4.3.5",
     "chai": "^4.1.2",
     "glob": "^7.1.2",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "mocha": "^4.0.1",
     "parcel-bundler": "^1.12.3",
     "prettier": "^2.0.5",
