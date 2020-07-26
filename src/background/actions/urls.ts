@@ -26,7 +26,7 @@ function stripQueryString(url: string) {
   return url.indexOf("?") !== -1 ? url.slice(0, url.indexOf("?")) : url;
 }
 
-function guessTorrentFileName(
+function guessDownloadFileName(
   url: string,
   headers: Record<string, string>,
   metadataFileType: MetadataFileType,
@@ -57,7 +57,7 @@ async function getMetadataFileType(url: string) {
   try {
     headResponse = await Axios.head(url, { timeout: 10000 });
   } catch (e) {
-    if (e && e.response && e.response.status != null) {
+    if (e?.response?.status != null) {
       // If we got a response at all, then it wasn't a severe error, just something
       // that the remote server likely can't handle or disallows.
       return undefined;
@@ -183,7 +183,7 @@ export async function resolveUrl(url: string): Promise<ResolvedUrl> {
         type: "metadata-file",
         url,
         content: new Blob([response.data], { type: metadataFileType.mediaType }),
-        filename: guessTorrentFileName(url, response.headers, metadataFileType),
+        filename: guessDownloadFileName(url, response.headers, metadataFileType),
       };
     } else {
       return {

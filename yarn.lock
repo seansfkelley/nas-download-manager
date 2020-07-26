@@ -5182,10 +5182,10 @@ symbol-tree@^3.2.2:
   resolved "https://registry.yarnpkg.com/symbol-tree/-/symbol-tree-3.2.4.tgz#430637d248ba77e078883951fb9aa0eed7c63fa2"
   integrity sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw==
 
-synology-typescript-api@^0.6.0:
-  version "0.6.0"
-  resolved "https://registry.yarnpkg.com/synology-typescript-api/-/synology-typescript-api-0.6.0.tgz#4fab5c885a9a763bb10eed0a8b4a153beff00759"
-  integrity sha512-D3bCSyG9CvRL73qNuKE6+g55wNSLGUGgPidATa1DCsOtYBT54yTWEjK3Dxfh8GqzlQbHac+qVDHGMXX3GJvImQ==
+synology-typescript-api@^0.6.1:
+  version "0.6.1"
+  resolved "https://registry.yarnpkg.com/synology-typescript-api/-/synology-typescript-api-0.6.1.tgz#dc54f8317efcdc2c322b1e156a360d69a4bdd830"
+  integrity sha512-/w2AfhSCb/qxcF7ZwDk2KPtF6JbXe+2lA7v3btB5fg6BLGewlnL7n7C7kz66KC2SXwlDaCBUuTeyIWTuNQZpXg==
   dependencies:
     axios "^0.19.0"
     query-string "^6.8.2"

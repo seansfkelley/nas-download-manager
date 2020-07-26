@@ -1,6 +1,6 @@
 import * as React from "react";
 import last from "lodash-es/last";
-import type { ApiClient } from "synology-typescript-api";
+import { ApiClient, isConnectionFailure } from "synology-typescript-api";
 import classNames from "classnames";
 import TextareaAutosize from "react-textarea-autosize";
 
@@ -20,6 +20,7 @@ export interface State {
   ftpUsername: string;
   ftpPassword: string;
   unzipPassword: string;
+  unzipEnabled: boolean;
 }
 
 export class AdvancedAddDownloadForm extends React.PureComponent<Props, State> {
@@ -29,7 +30,21 @@ export class AdvancedAddDownloadForm extends React.PureComponent<Props, State> {
     ftpUsername: "",
     ftpPassword: "",
     unzipPassword: "",
+    unzipEnabled: true,
   };
+
+  async componentDidMount() {
+    try {
+      const config = await this.props.client.DownloadStation.Info.GetConfig();
+      if (isConnectionFailure(config) || !config.success) {
+        this.setState({ unzipEnabled: false });
+      } else {
+        this.setState({ unzipEnabled: config.data.unzip_service_enabled });
+      }
+    } catch (e) {
+      this.setState({ unzipEnabled: false });
+    }
+  }
 
   render() {
     const hasDownloadUrl = this.state.downloadUrl.length > 0;
@@ -73,6 +88,12 @@ export class AdvancedAddDownloadForm extends React.PureComponent<Props, State> {
           onChange={(e) => {
             this.setState({ unzipPassword: e.currentTarget.value });
           }}
+          disabled={!this.state.unzipEnabled}
+          title={
+            this.state.unzipEnabled
+              ? undefined
+              : browser.i18n.getMessage("Auto_Extract_service_is_disabled_in_Download_Station")
+          }
           placeholder={browser.i18n.getMessage("Unzip_password")}
         />
         <div className="download-path card">

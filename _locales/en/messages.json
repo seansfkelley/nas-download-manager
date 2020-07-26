@@ -754,14 +754,18 @@
   },
   "FTP_username": {
     "message": "FTP username...",
-    "description": "Placeholder for input field."
+    "description": "Placeholder for input field in add-download form."
   },
   "FTP_password": {
     "message": "FTP password...",
-    "description": "Placeholder for input field."
+    "description": "Placeholder for input field in add-download form."
   },
   "Unzip_password": {
     "message": "Unzip password...",
-    "description": "Placeholder for input field."
+    "description": "Placeholder for input field in add-download form."
+  },
+  "Auto_Extract_service_is_disabled_in_Download_Station": {
+    "message": "Auto Extract service is disabled in Download Station.",
+    "description": "Explanatory text for disabled input field in add-download form."
   }
 }
