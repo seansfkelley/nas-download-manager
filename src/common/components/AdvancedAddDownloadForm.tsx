@@ -72,7 +72,7 @@ export class AdvancedAddDownloadForm extends React.PureComponent<Props, State> {
             placeholder={browser.i18n.getMessage("FTP_username")}
           />
           <input
-            type="text"
+            type="password"
             className="input-field"
             value={this.state.ftpPassword}
             onChange={(e) => {
@@ -82,7 +82,7 @@ export class AdvancedAddDownloadForm extends React.PureComponent<Props, State> {
           />
         </div>
         <input
-          type="text"
+          type="password"
           className="input-field"
           value={this.state.unzipPassword}
           onChange={(e) => {
