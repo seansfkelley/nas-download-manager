@@ -68,6 +68,10 @@ export interface Directory {
   path: string;
 }
 
+export interface ResetClientSession {
+  type: "reset-client-session";
+}
+
 export type Message =
   | AddTasks
   | PollTasks
@@ -75,7 +79,8 @@ export type Message =
   | ResumeTask
   | DeleteTasks
   | GetConfig
-  | ListDirectories;
+  | ListDirectories
+  | ResetClientSession;
 
 const MESSAGE_TYPES: Record<Message["type"], true> = {
   "add-tasks": true,
@@ -85,6 +90,7 @@ const MESSAGE_TYPES: Record<Message["type"], true> = {
   "resume-task": true,
   "get-config": true,
   "list-directories": true,
+  "reset-client-session": true,
 };
 
 export const Message = {
@@ -103,6 +109,7 @@ export type Result = {
   "delete-tasks": MessageResponse;
   "get-config": MessageResponse<DownloadStationInfoConfig>;
   "list-directories": MessageResponse<Directory[]>;
+  "reset-client-session": void;
 };
 
 function makeMessageOperations<T extends Message["type"], U extends any[]>(
@@ -149,6 +156,8 @@ export const GetConfig = makeMessageOperations("get-config", () => ({}));
 export const ListDirectories = makeMessageOperations("list-directories", (path?: string) => ({
   path,
 }));
+
+export const ResetClientSession = makeMessageOperations("reset-client-session", () => ({}));
 
 {
   // Compile-time check to make sure that these two different types that have to match, do.

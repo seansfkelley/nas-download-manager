@@ -115,6 +115,9 @@ const MESSAGE_HANDLERS: MessageHandlers = {
       );
     }
   },
+  "reset-client-session": (_m, state) => {
+    return state.api.Auth.Logout().then(() => undefined);
+  },
 };
 
 export function initializeMessageHandler() {

@@ -4,7 +4,6 @@ import "../../scss/non-ideal-state.scss";
 import "../common/init/extensionContext";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import type { ApiClient } from "synology-typescript-api";
 
 import {
   State as ExtensionState,
@@ -20,6 +19,7 @@ import {
   ConnectionSettings,
 } from "../common/state";
 import { BUG_REPORT_URL } from "../common/constants";
+import { ResetClientSession } from "../common/apis/messages";
 import { DOWNLOAD_ONLY_PROTOCOLS } from "../common/apis/protocols";
 import { TaskFilterSettingsForm } from "../common/components/TaskFilterSettingsForm";
 import { SettingsList } from "../common/components/SettingsList";
@@ -27,12 +27,9 @@ import { SettingsListCheckbox } from "../common/components/SettingsListCheckbox"
 import { saveSettings } from "./settingsUtils";
 import { ConnectionSettings as ConnectionSettingsComponent } from "./ConnectionSettings";
 import { disabledPropAndClassName, kludgeRefSetClassname } from "./classnameUtil";
-import { getSharedObjects } from "../common/apis/sharedObjects";
-import { NonIdealState } from "../common/components/NonIdealState";
 import { typesafePick } from "../common/lang";
 
 interface Props {
-  api: ApiClient;
   extensionState: ExtensionState;
   saveSettings: (settings: Settings) => Promise<boolean>;
   lastSevereError?: any;
@@ -241,7 +238,7 @@ ${this.props.lastSevereError}`;
 
   private updateConnectionSettings = async (connection: ConnectionSettings) => {
     this.saveSettings({ connection });
-    this.props.api.Auth.Logout();
+    ResetClientSession.send();
   };
 
   private setNotificationSetting<K extends keyof NotificationSettings>(
@@ -283,27 +280,14 @@ function clearError() {
 
 const ELEMENT = document.getElementById("body")!;
 
-getSharedObjects().then((objects) => {
-  if (objects == null) {
-    ReactDOM.render(
-      <NonIdealState
-        icon="fa-user-secret"
-        text={browser.i18n.getMessage("Cannot_configure_settings_in_private_browsing")}
-      />,
-      ELEMENT,
-    );
-  } else {
-    onStoredStateChange((state) => {
-      ReactDOM.render(
-        <SettingsForm
-          api={objects.api}
-          extensionState={state}
-          saveSettings={saveSettings}
-          lastSevereError={state.lastSevereError}
-          clearError={clearError}
-        />,
-        ELEMENT,
-      );
-    });
-  }
+onStoredStateChange((state) => {
+  ReactDOM.render(
+    <SettingsForm
+      extensionState={state}
+      saveSettings={saveSettings}
+      lastSevereError={state.lastSevereError}
+      clearError={clearError}
+    />,
+    ELEMENT,
+  );
 });
