@@ -463,10 +463,6 @@
     "description": "Connection failure explanatory text.",
     "needs_update": true
   },
-  "Private_browsing_mode_is_not_currently_supported": {
-    "message": "Der private Browsermodus wird derzeit nicht unterstützt.",
-    "description": "Apologetic text that is the entire popup when the user tries to open it in private browsing mode."
-  },
   "Unknown_error_displaying_tasks": {
     "message": "Unbekannter Fehler bei der Anzeige von Aufgaben.",
     "description": "Main explanatory text for the popup when we have a fatal rendering error."
@@ -689,9 +685,5 @@
   "No_directories": {
     "message": "Keine Verzeichnisse.",
     "description": "Message in advanced add form if there are no root directories."
-  },
-  "Cannot_configure_settings_in_private_browsing": {
-    "message": "Einstellungen können im privaten Browsen nicht konfiguriert werden.",
-    "description": "Error message that replaces the settings page when the user is in private mode."
   }
 }
