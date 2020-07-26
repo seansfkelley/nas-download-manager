@@ -1,6 +1,6 @@
 import { SynologyResponse, ConnectionFailure, isConnectionFailure } from "synology-typescript-api";
 import { errorMessageFromCode, errorMessageFromConnectionFailure } from "../common/apis/errors";
-import { CallbackResponse, Message, Result } from "../common/apis/messages";
+import { MessageResponse, Message, Result } from "../common/apis/messages";
 import { addDownloadTasksAndPoll, pollTasks } from "./actions";
 import { BackgroundState, getMutableStateSingleton } from "./backgroundState";
 import type { DiscriminateUnion } from "../common/types";
@@ -14,19 +14,21 @@ type MessageHandlers = {
   [T in Message["type"]]: MessageHandler<DiscriminateUnion<Message, "type", T>, Result[T]>;
 };
 
-function callbackResponseFrom(
-  response: SynologyResponse<any> | ConnectionFailure,
-): CallbackResponse {
+function toMessageResponse(response: SynologyResponse<any> | ConnectionFailure): MessageResponse {
   if (isConnectionFailure(response)) {
     return {
-      failMessage: errorMessageFromConnectionFailure(response),
+      success: false,
+      reason: errorMessageFromConnectionFailure(response),
     };
   } else if (!response.success) {
     return {
-      failMessage: errorMessageFromCode(response.error.code, "DownloadStation.Task"),
+      success: false,
+      reason: errorMessageFromCode(response.error.code, "DownloadStation.Task"),
     };
   } else {
-    return "success";
+    return {
+      success: true,
+    };
   }
 }
 
@@ -38,28 +40,28 @@ const MESSAGE_HANDLERS: MessageHandlers = {
     return pollTasks(state.api);
   },
   "pause-task": async (m, state) => {
-    const response = callbackResponseFrom(
+    const response = toMessageResponse(
       await state.api.DownloadStation.Task.Pause({ id: [m.taskId] }),
     );
-    if (response === "success") {
+    if (response.success) {
       await pollTasks(state.api);
     }
     return response;
   },
   "resume-task": async (m, state) => {
-    const response = callbackResponseFrom(
+    const response = toMessageResponse(
       await state.api.DownloadStation.Task.Resume({ id: [m.taskId] }),
     );
-    if (response === "success") {
+    if (response.success) {
       await pollTasks(state.api);
     }
     return response;
   },
   "delete-tasks": async (m, state) => {
-    const response = callbackResponseFrom(
+    const response = toMessageResponse(
       await state.api.DownloadStation.Task.Delete({ id: m.taskIds, force_complete: false }),
     );
-    if (response === "success") {
+    if (response.success) {
       await pollTasks(state.api);
     }
     return response;

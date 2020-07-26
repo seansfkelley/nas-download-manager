@@ -1,6 +1,22 @@
 import type { DiscriminateUnion } from "../types";
 
-export type CallbackResponse = "success" | { failMessage: string };
+export interface SuccessMessageResponse<T> {
+  success: true;
+  result?: T;
+}
+export interface FailureMessageResponse {
+  success: false;
+  reason: string;
+}
+
+export type MessageResponse<T = undefined> = SuccessMessageResponse<T> | FailureMessageResponse;
+
+export const MessageResponse = {
+  is: (r: unknown | null | undefined): r is MessageResponse => {
+    const m = r as MessageResponse | null | undefined;
+    return m != null && (m.success === true || (m.success === false && m.reason != null));
+  },
+};
 
 export interface AddTasks {
   type: "add-tasks";
@@ -55,9 +71,9 @@ export const Message = {
 export type Result = {
   "add-tasks": void;
   "poll-tasks": void;
-  "pause-task": CallbackResponse;
-  "resume-task": CallbackResponse;
-  "delete-tasks": CallbackResponse;
+  "pause-task": MessageResponse;
+  "resume-task": MessageResponse;
+  "delete-tasks": MessageResponse;
 };
 
 function makeMessageOperations<T extends Message["type"], U extends any[]>(

@@ -9,7 +9,7 @@ import { sortTasks, filterTasks } from "../common/filtering";
 import { formatMetric1024 } from "../common/format";
 import { AdvancedAddDownloadForm } from "./AdvancedAddDownloadForm";
 import { TaskFilterSettingsForm } from "../common/components/TaskFilterSettingsForm";
-import type { CallbackResponse, AddTaskOptions } from "../common/apis/messages";
+import type { MessageResponse, AddTaskOptions } from "../common/apis/messages";
 import { Task } from "./Task";
 import { NonIdealState } from "../common/components/NonIdealState";
 
@@ -34,9 +34,9 @@ export interface Props {
   changeBadgeDisplay: (display: BadgeDisplayType) => void;
   openDownloadStationUi?: () => void;
   createTasks?: (urls: string[], options?: AddTaskOptions) => void;
-  pauseTask?: (taskId: string) => Promise<CallbackResponse>;
-  resumeTask?: (taskId: string) => Promise<CallbackResponse>;
-  deleteTasks?: (taskIds: string[]) => Promise<CallbackResponse>;
+  pauseTask?: (taskId: string) => Promise<MessageResponse>;
+  resumeTask?: (taskId: string) => Promise<MessageResponse>;
+  deleteTasks?: (taskIds: string[]) => Promise<MessageResponse>;
 }
 
 interface State {

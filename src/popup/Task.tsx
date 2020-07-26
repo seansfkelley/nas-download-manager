@@ -6,18 +6,18 @@ import classNames from "classnames";
 
 import { formatMetric1024, formatTime, formatPercentage } from "../common/format";
 import { matchesFilter } from "../common/filtering";
-import type { CallbackResponse } from "../common/apis/messages";
+import { MessageResponse, FailureMessageResponse } from "../common/apis/messages";
 
 export interface Props {
   task: DownloadStationTask;
-  onDelete?: (taskId: string) => Promise<CallbackResponse>;
-  onPause?: (taskId: string) => Promise<CallbackResponse>;
-  onResume?: (taskId: string) => Promise<CallbackResponse>;
+  onDelete?: (taskId: string) => Promise<MessageResponse>;
+  onPause?: (taskId: string) => Promise<MessageResponse>;
+  onResume?: (taskId: string) => Promise<MessageResponse>;
 }
 
 export interface State {
-  pauseResumeState: "none" | "in-progress" | { failMessage: string };
-  deleteState: "none" | "in-progress" | CallbackResponse;
+  pauseResumeState: "none" | "in-progress" | FailureMessageResponse;
+  deleteState: "none" | "in-progress" | MessageResponse;
 }
 
 export class Task extends React.PureComponent<Props, State> {
@@ -27,7 +27,7 @@ export class Task extends React.PureComponent<Props, State> {
   };
 
   render() {
-    if (this.state.deleteState === "success") {
+    if (MessageResponse.is(this.state.deleteState) && this.state.deleteState.success) {
       return null;
     } else {
       const isErrored = matchesFilter(this.props.task, "errored");
@@ -155,7 +155,8 @@ export class Task extends React.PureComponent<Props, State> {
         this.props.onResume == null ||
         this.state.deleteState === "in-progress" ||
         this.state.pauseResumeState === "in-progress" ||
-        (this.state.deleteState !== "success" && this.state.pauseResumeState !== "none");
+        ((!MessageResponse.is(this.state.deleteState) || !this.state.deleteState.success) &&
+          this.state.pauseResumeState !== "none");
       return (
         <button
           onClick={this.makePauseResume(state === "resumable" ? "resume" : "pause")}
@@ -186,7 +187,7 @@ export class Task extends React.PureComponent<Props, State> {
         return renderButton(browser.i18n.getMessage("Pause"), "pausable");
       }
     } else {
-      return renderButton(this.state.pauseResumeState.failMessage, "failed");
+      return renderButton(this.state.pauseResumeState.reason, "failed");
     }
   }
 
@@ -198,8 +199,8 @@ export class Task extends React.PureComponent<Props, State> {
       disabled = true;
     } else if (this.state.deleteState === "none") {
       title = browser.i18n.getMessage("Remove_download");
-    } else if (this.state.deleteState !== "success") {
-      title = this.state.deleteState.failMessage;
+    } else if (!this.state.deleteState.success) {
+      title = this.state.deleteState.reason;
       disabled = true;
     }
     return (
@@ -231,7 +232,7 @@ export class Task extends React.PureComponent<Props, State> {
 
       this.setState({
         // This is a little gross, but here we just unset the state and fall back onto whatever this.props.task states.
-        pauseResumeState: response === "success" ? "none" : response,
+        pauseResumeState: response.success ? "none" : response,
       });
     };
   }
