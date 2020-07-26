@@ -152,7 +152,7 @@
     "message": "Download-Aufgaben existieren, aber keine entsprechen den Filtern.",
     "description": "Body text for popup when no tasks are shown because they're all filtered out."
   },
-  "and_ZcountZ_more_hidden_tasks": {
+  "and_ZcountZ_more_tasks_hidden_by_filters": {
     "message": "...und $COUNT$ weitere versteckte Aufgabe(n).",
     "description": "Trailing text after task list when some tasks are hidden by filters.",
     "placeholders": {

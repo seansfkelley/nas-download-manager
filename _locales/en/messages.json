@@ -156,8 +156,8 @@
     "message": "Download tasks exist, but none match your filters.",
     "description": "Body text for popup when no tasks are shown because they're all filtered out."
   },
-  "and_ZcountZ_more_hidden_tasks": {
-    "message": "...and $COUNT$ more hidden task(s).",
+  "and_ZcountZ_more_tasks_hidden_by_filters": {
+    "message": "...and $COUNT$ more task(s) hidden by filters.",
     "description": "Trailing text after task list when some tasks are hidden by filters.",
     "placeholders": {
       "count": {

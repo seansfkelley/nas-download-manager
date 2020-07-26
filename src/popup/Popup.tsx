@@ -270,7 +270,9 @@ export class Popup extends React.PureComponent<Props, State> {
                   this.setState({ isShowingDisplaySettings: true });
                 }}
               >
-                {browser.i18n.getMessage("and_ZcountZ_more_hidden_tasks", [hiddenTaskCount])}
+                {browser.i18n.getMessage("and_ZcountZ_more_tasks_hidden_by_filters", [
+                  hiddenTaskCount,
+                ])}
               </div>
             )}
           </div>
