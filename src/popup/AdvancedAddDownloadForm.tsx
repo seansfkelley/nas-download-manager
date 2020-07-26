@@ -1,12 +1,12 @@
 import * as React from "react";
 import last from "lodash-es/last";
-import { ApiClient, isConnectionFailure } from "synology-typescript-api";
+import type { ApiClient } from "synology-typescript-api";
 import classNames from "classnames";
 import TextareaAutosize from "react-textarea-autosize";
 
 import { PathSelector } from "./PathSelector";
 import { startsWithAnyProtocol, ALL_DOWNLOADABLE_PROTOCOLS } from "../common/apis/protocols";
-import type { AddTaskOptions } from "../common/apis/messages";
+import { AddTaskOptions, GetConfig } from "../common/apis/messages";
 
 export interface Props {
   client: ApiClient;
@@ -37,11 +37,11 @@ export class AdvancedAddDownloadForm extends React.PureComponent<Props, State> {
     let unzipEnabled: boolean;
 
     try {
-      const config = await this.props.client.DownloadStation.Info.GetConfig();
-      if (isConnectionFailure(config) || !config.success) {
+      const response = await GetConfig.send();
+      if (!response.success) {
         unzipEnabled = false;
       } else {
-        unzipEnabled = config.data.unzip_service_enabled;
+        unzipEnabled = response.result.unzip_service_enabled;
       }
     } catch (e) {
       unzipEnabled = false;

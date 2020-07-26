@@ -1,8 +1,12 @@
 import type { DiscriminateUnion } from "../types";
+import type { DownloadStationInfoConfig } from "synology-typescript-api";
 
 export interface SuccessMessageResponse<T> {
   success: true;
-  result?: T;
+  // This field must be mandatory; if it isn't, type inference at usage sites can be unsafe because
+  // it is too lenient with structural matching. The generic constraint does nothing if you can always
+  // just leave all (or in this case, only) constrained values out entirely.
+  result: T;
 }
 export interface FailureMessageResponse {
   success: false;
@@ -50,7 +54,11 @@ export interface DeleteTasks {
   taskIds: string[];
 }
 
-export type Message = AddTasks | PollTasks | PauseTask | ResumeTask | DeleteTasks;
+export interface GetConfig {
+  type: "get-config";
+}
+
+export type Message = AddTasks | PollTasks | PauseTask | ResumeTask | DeleteTasks | GetConfig;
 
 const MESSAGE_TYPES: Record<Message["type"], true> = {
   "add-tasks": true,
@@ -58,6 +66,7 @@ const MESSAGE_TYPES: Record<Message["type"], true> = {
   "pause-task": true,
   "poll-tasks": true,
   "resume-task": true,
+  "get-config": true,
 };
 
 export const Message = {
@@ -74,6 +83,7 @@ export type Result = {
   "pause-task": MessageResponse;
   "resume-task": MessageResponse;
   "delete-tasks": MessageResponse;
+  "get-config": MessageResponse<DownloadStationInfoConfig>;
 };
 
 function makeMessageOperations<T extends Message["type"], U extends any[]>(
@@ -114,6 +124,8 @@ export const ResumeTask = makeMessageOperations("resume-task", (taskId: string) 
 export const DeleteTasks = makeMessageOperations("delete-tasks", (taskIds: string[]) => ({
   taskIds,
 }));
+
+export const GetConfig = makeMessageOperations("get-config", () => ({}));
 
 {
   // Compile-time check to make sure that these two different types that have to match, do.

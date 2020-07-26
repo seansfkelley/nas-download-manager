@@ -14,7 +14,17 @@ type MessageHandlers = {
   [T in Message["type"]]: MessageHandler<DiscriminateUnion<Message, "type", T>, Result[T]>;
 };
 
-function toMessageResponse(response: SynologyResponse<any> | ConnectionFailure): MessageResponse {
+function toMessageResponse(
+  response: SynologyResponse<unknown> | ConnectionFailure,
+): MessageResponse;
+function toMessageResponse<T, U>(
+  response: SynologyResponse<T> | ConnectionFailure,
+  extract: (result: T) => U,
+): MessageResponse<U>;
+function toMessageResponse<T, U>(
+  response: SynologyResponse<T> | ConnectionFailure,
+  extract?: (result: T) => U,
+): MessageResponse<U> {
   if (isConnectionFailure(response)) {
     return {
       success: false,
@@ -28,6 +38,8 @@ function toMessageResponse(response: SynologyResponse<any> | ConnectionFailure):
   } else {
     return {
       success: true,
+      // Non-null assert: extract exists iff we are type-parameterized to something other than undefined.
+      result: extract?.(response.data)!,
     };
   }
 }
@@ -65,6 +77,9 @@ const MESSAGE_HANDLERS: MessageHandlers = {
       await pollTasks(state.api);
     }
     return response;
+  },
+  "get-config": async (_m, state) => {
+    return toMessageResponse(await state.api.DownloadStation.Info.GetConfig(), (config) => config);
   },
 };
 
