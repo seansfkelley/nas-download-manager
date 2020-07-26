@@ -70,7 +70,7 @@ class SettingsForm extends React.PureComponent<Props, State> {
           <h3>{browser.i18n.getMessage("Connection")}</h3>
           <p>
             {browser.i18n.getMessage(
-              "Please_note_that_QuickConnect_IDs_are_not_currently_supported",
+              "Please_note_that_QuickConnect_IDs_and_twofactor_authentication_are_not_currently_supported",
             )}
           </p>
         </header>

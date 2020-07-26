@@ -328,10 +328,6 @@
     "message": "Соединение",
     "description": "Заголовок для раздела настроек."
   },
-  "Please_note_that_QuickConnect_IDs_are_not_currently_supported": {
-    "message": "Обратите внимание, что ID QuickConnect в настоящее время не поддерживается.",
-    "description": "Подзаголовок для раздела настроек соединения."
-  },
   "hostname_or_IP_address": {
     "message": "имя хоста или IP-адрес",
     "description": "Заполнитель для поля ввода настроек."

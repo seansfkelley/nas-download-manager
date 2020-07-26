@@ -344,8 +344,8 @@
     "message": "Connection",
     "description": "Header for settings section."
   },
-  "Please_note_that_QuickConnect_IDs_are_not_currently_supported": {
-    "message": "Please note that QuickConnect IDs are not currently supported.",
+  "Please_note_that_QuickConnect_IDs_and_twofactor_authentication_are_not_currently_supported": {
+    "message": "Please note that QuickConnect IDs and two-factor authentication are not currently supported.",
     "description": "Subheader for Connection settings section."
   },
   "hostname_or_IP_address": {

@@ -340,10 +340,6 @@
     "message": "Verbindung",
     "description": "Header for settings section."
   },
-  "Please_note_that_QuickConnect_IDs_are_not_currently_supported": {
-    "message": "Hinweis: QuickConnect IDs werden derzeit nicht unterstützt.",
-    "description": "Subheader for Connection settings section."
-  },
   "hostname_or_IP_address": {
     "message": "Hostname oder IP-Adresse",
     "description": "Placeholder for settings input field."
