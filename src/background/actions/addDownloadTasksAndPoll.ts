@@ -16,6 +16,7 @@ import {
 import { resolveUrl, ResolvedUrl, sanitizeUrlForSynology, guessFileNameFromUrl } from "./urls";
 import { pollTasks } from "./pollTasks";
 import type { UnionByDiscriminant } from "../../common/types";
+import type { AddTaskOptions } from "../../common/apis/messages";
 
 type ArrayifyValues<T extends Record<string, any>> = {
   [K in keyof T]: T[K][];
@@ -56,7 +57,7 @@ async function addOneTask(
   api: ApiClient,
   showNonErrorNotifications: boolean,
   url: string,
-  destination: string | undefined,
+  { path, ftpUsername, ftpPassword, unzipPassword }: AddTaskOptions,
 ) {
   async function reportTaskAddResult(
     result: ConnectionFailure | SynologyResponse<{}>,
@@ -113,11 +114,18 @@ async function addOneTask(
 
   const resolvedUrl = await resolveUrl(url);
 
+  const commonCreateOptions = {
+    destination: path,
+    username: ftpUsername,
+    password: ftpPassword,
+    unzip_password: unzipPassword,
+  };
+
   if (resolvedUrl.type === "direct-download") {
     try {
       const result = await api.DownloadStation.Task.Create({
         uri: [sanitizeUrlForSynology(resolvedUrl.url)],
-        destination,
+        ...commonCreateOptions,
       });
       await reportTaskAddResult(result, guessFileNameFromUrl(url));
       await pollTasks(api);
@@ -128,7 +136,7 @@ async function addOneTask(
     try {
       const result = await api.DownloadStation.Task.Create({
         file: { content: resolvedUrl.content, filename: resolvedUrl.filename },
-        destination,
+        ...commonCreateOptions,
       });
       await reportTaskAddResult(result, resolvedUrl.filename);
       await pollTasks(api);
@@ -155,7 +163,7 @@ async function addMultipleTasks(
   api: ApiClient,
   showNonErrorNotifications: boolean,
   urls: string[],
-  destination: string | undefined,
+  { path, ftpUsername, ftpPassword, unzipPassword }: AddTaskOptions,
 ) {
   const notificationId = showNonErrorNotifications
     ? notify(
@@ -208,12 +216,19 @@ async function addMultipleTasks(
 
   failures += groupedUrls["missing-or-illegal"].length;
 
+  const commonCreateOptions = {
+    destination: path,
+    username: ftpUsername,
+    password: ftpPassword,
+    unzip_password: unzipPassword,
+  };
+
   if (groupedUrls["direct-download"].length > 0) {
     const urls = groupedUrls["direct-download"].map(({ url }) => sanitizeUrlForSynology(url));
     try {
       const result = await api.DownloadStation.Task.Create({
         uri: urls,
-        destination,
+        ...commonCreateOptions,
       });
       countResults(result, urls.length);
     } catch (e) {
@@ -226,7 +241,7 @@ async function addMultipleTasks(
     const results = groupedUrls["metadata-file"].map(({ content, filename }) =>
       api.DownloadStation.Task.Create({
         file: { content, filename },
-        destination,
+        ...commonCreateOptions,
       }),
     );
 
@@ -276,9 +291,13 @@ export async function addDownloadTasksAndPoll(
   api: ApiClient,
   showNonErrorNotifications: boolean,
   urls: string[],
-  path?: string,
+  options?: AddTaskOptions,
 ): Promise<void> {
-  const destination = path && path.startsWith("/") ? path.slice(1) : undefined;
+  const normalizedOptions = {
+    ...options,
+    // TODO: This seems wrong. Shouldn't this be ... ? path.slice(1) : path?
+    path: options?.path?.startsWith("/") ? options?.path.slice(1) : undefined,
+  };
 
   if (urls.length === 0) {
     notify(
@@ -287,8 +306,8 @@ export async function addDownloadTasksAndPoll(
       "failure",
     );
   } else if (urls.length === 1) {
-    await addOneTask(api, showNonErrorNotifications, urls[0], destination);
+    await addOneTask(api, showNonErrorNotifications, urls[0], normalizedOptions);
   } else {
-    await addMultipleTasks(api, showNonErrorNotifications, urls, destination);
+    await addMultipleTasks(api, showNonErrorNotifications, urls, normalizedOptions);
   }
 }

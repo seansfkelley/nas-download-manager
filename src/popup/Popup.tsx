@@ -8,7 +8,7 @@ import type { VisibleTaskSettings, TaskSortType, BadgeDisplayType } from "../com
 import { sortTasks, filterTasks } from "../common/filtering";
 import { AdvancedAddDownloadForm } from "../common/components/AdvancedAddDownloadForm";
 import { TaskFilterSettingsForm } from "../common/components/TaskFilterSettingsForm";
-import type { CallbackResponse } from "../common/apis/messages";
+import type { CallbackResponse, AddTaskOptions } from "../common/apis/messages";
 import { Task } from "./Task";
 import { NonIdealState } from "../common/components/NonIdealState";
 
@@ -32,7 +32,7 @@ export interface Props {
   badgeDisplay: BadgeDisplayType;
   changeBadgeDisplay: (display: BadgeDisplayType) => void;
   openDownloadStationUi?: () => void;
-  createTasks?: (urls: string[], path?: string) => void;
+  createTasks?: (urls: string[], options?: AddTaskOptions) => void;
   pauseTask?: (taskId: string) => Promise<CallbackResponse>;
   resumeTask?: (taskId: string) => Promise<CallbackResponse>;
   deleteTasks?: (taskIds: string[]) => Promise<CallbackResponse>;
@@ -290,8 +290,8 @@ export class Popup extends React.PureComponent<Props, State> {
               onCancel={() => {
                 this.setState({ isAddingDownload: false });
               }}
-              onAddDownload={(urls, path) => {
-                this.props.createTasks!(urls, path);
+              onAddDownload={(urls, options) => {
+                this.props.createTasks!(urls, options);
                 this.setState({ isAddingDownload: false });
               }}
             />

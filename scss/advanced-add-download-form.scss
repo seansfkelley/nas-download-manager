@@ -13,13 +13,29 @@
 
   .url-input {
     width: 100%;
-    padding-top: 5px;
-    padding-bottom: 5px;
     min-height: 30px;
-    max-height: 240px;
-    margin-bottom: 5px;
+    max-height: 180px;
     flex-shrink: 0;
     resize: vertical;
+  }
+
+  .input-field {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+  }
+
+  .sibling-inputs {
+    display: flex;
+    justify-content: space-between;
+
+    input {
+      flex: 1;
+
+      &:not(:last-child) {
+        margin-right: 5px;
+      }
+    }
   }
 
   .download-path {
@@ -54,11 +70,11 @@
 
   .buttons {
     text-align: right;
-    padding: 4px;
+    padding: 4px 4px 0;
     flex-shrink: 0;
 
     button {
-      margin: 5px;
+      margin: 5px 5px 0;
     }
   }
 }

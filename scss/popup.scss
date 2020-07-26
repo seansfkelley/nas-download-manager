@@ -134,7 +134,7 @@ body,
       min-height: 400px;
 
       > :not(.add-download-overlay) {
-        filter: blur(1px);
+        filter: blur(3px);
       }
     }
   }

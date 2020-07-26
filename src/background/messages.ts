@@ -32,7 +32,7 @@ function callbackResponseFrom(
 
 const MESSAGE_HANDLERS: MessageHandlers = {
   "add-tasks": (m, state) => {
-    return addDownloadTasksAndPoll(state.api, state.showNonErrorNotifications, m.urls, m.path);
+    return addDownloadTasksAndPoll(state.api, state.showNonErrorNotifications, m.urls, m.options);
   },
   "poll-tasks": (_m, state) => {
     return pollTasks(state.api);

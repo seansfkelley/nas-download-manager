@@ -751,5 +751,17 @@
   "Please_be_patient_this_may_take_some_time": {
     "message": "Please be patient; this may take some time...",
     "description": "Notification body text."
+  },
+  "FTP_username": {
+    "message": "FTP username...",
+    "description": "Placeholder for input field."
+  },
+  "FTP_password": {
+    "message": "FTP password...",
+    "description": "Placeholder for input field."
+  },
+  "Unzip_password": {
+    "message": "Unzip password...",
+    "description": "Placeholder for input field."
   }
 }

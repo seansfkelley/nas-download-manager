@@ -6,22 +6,29 @@ import TextareaAutosize from "react-textarea-autosize";
 
 import { PathSelector } from "./PathSelector";
 import { startsWithAnyProtocol, ALL_DOWNLOADABLE_PROTOCOLS } from "../apis/protocols";
+import type { AddTaskOptions } from "../apis/messages";
 
 export interface Props {
   client: ApiClient;
-  onAddDownload: (urls: string[], path: string | undefined) => void;
+  onAddDownload: (urls: string[], options: AddTaskOptions) => void;
   onCancel: () => void;
 }
 
 export interface State {
   selectedPath: string | undefined;
   downloadUrl: string;
+  ftpUsername: string;
+  ftpPassword: string;
+  unzipPassword: string;
 }
 
 export class AdvancedAddDownloadForm extends React.PureComponent<Props, State> {
   state: State = {
     selectedPath: undefined,
     downloadUrl: "",
+    ftpUsername: "",
+    ftpPassword: "",
+    unzipPassword: "",
   };
 
   render() {
@@ -30,14 +37,43 @@ export class AdvancedAddDownloadForm extends React.PureComponent<Props, State> {
     return (
       <div className="advanced-add-download-form">
         <TextareaAutosize
-          className="url-input card"
-          minRows={1}
+          className="url-input input-field card"
+          minRows={2}
           maxRows={5}
           value={this.state.downloadUrl}
           onChange={(e) => {
             this.setState({ downloadUrl: e.currentTarget.value });
           }}
           placeholder={browser.i18n.getMessage("URLs_to_download_one_per_line")}
+        />
+        <div className="sibling-inputs">
+          <input
+            type="text"
+            className="input-field"
+            value={this.state.ftpUsername}
+            onChange={(e) => {
+              this.setState({ ftpUsername: e.currentTarget.value });
+            }}
+            placeholder={browser.i18n.getMessage("FTP_username")}
+          />
+          <input
+            type="text"
+            className="input-field"
+            value={this.state.ftpPassword}
+            onChange={(e) => {
+              this.setState({ ftpPassword: e.currentTarget.value });
+            }}
+            placeholder={browser.i18n.getMessage("FTP_password")}
+          />
+        </div>
+        <input
+          type="text"
+          className="input-field"
+          value={this.state.unzipPassword}
+          onChange={(e) => {
+            this.setState({ unzipPassword: e.currentTarget.value });
+          }}
+          placeholder={browser.i18n.getMessage("Unzip_password")}
         />
         <div className="download-path card">
           <div className="path-display" title={this.state.selectedPath}>
@@ -80,7 +116,12 @@ export class AdvancedAddDownloadForm extends React.PureComponent<Props, State> {
       .map((url) => url.trim())
       // The cheapest of checks. Actual invalid URLs will be caught later.
       .filter((url) => startsWithAnyProtocol(url, ALL_DOWNLOADABLE_PROTOCOLS));
-    this.props.onAddDownload(urls, this.state.selectedPath);
+    this.props.onAddDownload(urls, {
+      path: this.state.selectedPath,
+      ftpPassword: this.state.ftpPassword.trim() || undefined,
+      ftpUsername: this.state.ftpUsername.trim() || undefined,
+      unzipPassword: this.state.unzipPassword.trim() || undefined,
+    });
   };
 
   private setSelectedPath = (selectedPath: string | undefined) => {
