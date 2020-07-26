@@ -7,7 +7,7 @@ import { moment } from "../common/moment";
 import type { VisibleTaskSettings, TaskSortType, BadgeDisplayType } from "../common/state";
 import { sortTasks, filterTasks } from "../common/filtering";
 import { formatMetric1024 } from "../common/format";
-import { AdvancedAddDownloadForm } from "../common/components/AdvancedAddDownloadForm";
+import { AdvancedAddDownloadForm } from "./AdvancedAddDownloadForm";
 import { TaskFilterSettingsForm } from "../common/components/TaskFilterSettingsForm";
 import type { CallbackResponse, AddTaskOptions } from "../common/apis/messages";
 import { Task } from "./Task";

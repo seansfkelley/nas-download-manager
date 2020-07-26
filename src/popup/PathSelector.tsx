@@ -5,7 +5,7 @@ import {
   ConnectionFailure,
   isConnectionFailure,
 } from "synology-typescript-api";
-import { errorMessageFromConnectionFailure, errorMessageFromCode } from "../apis/errors";
+import { errorMessageFromConnectionFailure, errorMessageFromCode } from "../common/apis/errors";
 import {
   DirectoryTree,
   DirectoryTreeFile,

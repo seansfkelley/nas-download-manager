@@ -5,8 +5,8 @@ import classNames from "classnames";
 import TextareaAutosize from "react-textarea-autosize";
 
 import { PathSelector } from "./PathSelector";
-import { startsWithAnyProtocol, ALL_DOWNLOADABLE_PROTOCOLS } from "../apis/protocols";
-import type { AddTaskOptions } from "../apis/messages";
+import { startsWithAnyProtocol, ALL_DOWNLOADABLE_PROTOCOLS } from "../common/apis/protocols";
+import type { AddTaskOptions } from "../common/apis/messages";
 
 export interface Props {
   client: ApiClient;
