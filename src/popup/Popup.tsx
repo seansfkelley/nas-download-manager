@@ -308,22 +308,26 @@ export class Popup extends React.PureComponent<Props, State> {
   }
 
   private renderFooter() {
-    const totalDownloadSpeed = this.props.tasks.reduce(
-      (acc, t) => acc + t.additional!.transfer!.speed_download,
-      0,
-    );
-    const totalUploadSpeed = this.props.tasks.reduce(
-      (acc, t) => acc + t.additional!.transfer!.speed_upload,
-      0,
-    );
+    if (this.props.tasks.length === 0) {
+      return null;
+    } else {
+      const totalDownloadSpeed = this.props.tasks.reduce(
+        (acc, t) => acc + t.additional!.transfer!.speed_download,
+        0,
+      );
+      const totalUploadSpeed = this.props.tasks.reduce(
+        (acc, t) => acc + t.additional!.transfer!.speed_upload,
+        0,
+      );
 
-    return (
-      <footer>
-        <span className="fa fa-arrow-down" /> {formatMetric1024(totalDownloadSpeed)}B/s
-        <span className="spacer" />
-        <span className="fa fa-arrow-up" /> {formatMetric1024(totalUploadSpeed)}B/s
-      </footer>
-    );
+      return (
+        <footer>
+          <span className="fa fa-arrow-down" /> {formatMetric1024(totalDownloadSpeed)}B/s
+          <span className="spacer" />
+          <span className="fa fa-arrow-up" /> {formatMetric1024(totalUploadSpeed)}B/s
+        </footer>
+      );
+    }
   }
 
   private onBodyScroll = debounce(() => {
