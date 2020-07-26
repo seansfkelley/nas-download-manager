@@ -34,15 +34,22 @@ export class AdvancedAddDownloadForm extends React.PureComponent<Props, State> {
   };
 
   async componentDidMount() {
+    let unzipEnabled: boolean;
+
     try {
       const config = await this.props.client.DownloadStation.Info.GetConfig();
       if (isConnectionFailure(config) || !config.success) {
-        this.setState({ unzipEnabled: false });
+        unzipEnabled = false;
       } else {
-        this.setState({ unzipEnabled: config.data.unzip_service_enabled });
+        unzipEnabled = config.data.unzip_service_enabled;
       }
     } catch (e) {
-      this.setState({ unzipEnabled: false });
+      unzipEnabled = false;
+    }
+
+    this.setState({ unzipEnabled });
+    if (!unzipEnabled) {
+      this.setState({ unzipPassword: "" });
     }
   }
 
