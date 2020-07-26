@@ -230,9 +230,7 @@ export class Popup extends React.PureComponent<Props, State> {
     } else if (this.props.tasksLastCompletedFetchTimestamp == null) {
       return <NonIdealState icon="fa-sync fa-spin" />;
     } else if (this.props.tasks.length === 0) {
-      return (
-        <NonIdealState icon="fa-circle-o" text={browser.i18n.getMessage("No_download_tasks")} />
-      );
+      return <NonIdealState text={browser.i18n.getMessage("No_download_tasks")} />;
     } else {
       const filteredTasks = filterTasks(this.props.tasks, this.props.visibleTasks);
       if (filteredTasks.length === 0) {
