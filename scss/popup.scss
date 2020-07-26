@@ -138,6 +138,23 @@ body,
       }
     }
   }
+
+  footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border-top: 1px solid rgba(0, 0, 0, 0.2);
+
+    .fa {
+      font-size: 1em;
+      margin-right: 5px;
+    }
+
+    .spacer {
+      margin-right: 12px;
+    }
+  }
 }
 
 .fatal-error {

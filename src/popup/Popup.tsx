@@ -6,6 +6,7 @@ import type { DownloadStationTask, ApiClient } from "synology-typescript-api";
 import { moment } from "../common/moment";
 import type { VisibleTaskSettings, TaskSortType, BadgeDisplayType } from "../common/state";
 import { sortTasks, filterTasks } from "../common/filtering";
+import { formatMetric1024 } from "../common/format";
 import { AdvancedAddDownloadForm } from "../common/components/AdvancedAddDownloadForm";
 import { TaskFilterSettingsForm } from "../common/components/TaskFilterSettingsForm";
 import type { CallbackResponse, AddTaskOptions } from "../common/apis/messages";
@@ -72,6 +73,7 @@ export class Popup extends React.PureComponent<Props, State> {
           {this.renderTaskList()}
           {this.maybeRenderAddDownloadOverlay()}
         </div>
+        {this.renderFooter()}
         <div style={{ display: "none" }}>{this.state.firefoxRerenderNonce}</div>
       </div>
     );
@@ -303,6 +305,25 @@ export class Popup extends React.PureComponent<Props, State> {
     } else {
       return null;
     }
+  }
+
+  private renderFooter() {
+    const totalDownloadSpeed = this.props.tasks.reduce(
+      (acc, t) => acc + t.additional!.transfer!.speed_download,
+      0,
+    );
+    const totalUploadSpeed = this.props.tasks.reduce(
+      (acc, t) => acc + t.additional!.transfer!.speed_upload,
+      0,
+    );
+
+    return (
+      <footer>
+        <span className="fa fa-arrow-down" /> {formatMetric1024(totalDownloadSpeed)}B/s
+        <span className="spacer" />
+        <span className="fa fa-arrow-up" /> {formatMetric1024(totalUploadSpeed)}B/s
+      </footer>
+    );
   }
 
   private onBodyScroll = debounce(() => {
