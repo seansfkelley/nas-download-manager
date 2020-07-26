@@ -5,11 +5,11 @@ import TextareaAutosize from "react-textarea-autosize";
 
 import { PathSelector } from "./PathSelector";
 import { startsWithAnyProtocol, ALL_DOWNLOADABLE_PROTOCOLS } from "../common/apis/protocols";
-import { AddTaskOptions, GetConfig } from "../common/apis/messages";
+import type { PopupClient } from "./popupClient";
 
 export interface Props {
-  onAddDownload: (urls: string[], options: AddTaskOptions) => void;
-  onCancel: () => void;
+  onClose: () => void;
+  client: PopupClient;
 }
 
 export interface State {
@@ -31,11 +31,11 @@ export class AdvancedAddDownloadForm extends React.PureComponent<Props, State> {
     unzipEnabled: true,
   };
 
-  async componentDidMount() {
+  private async updateIsUnzipEnabled() {
     let unzipEnabled: boolean;
 
     try {
-      const response = await GetConfig.send();
+      const response = await this.props.client.getConfig();
       if (!response.success) {
         unzipEnabled = false;
       } else {
@@ -48,6 +48,16 @@ export class AdvancedAddDownloadForm extends React.PureComponent<Props, State> {
     this.setState({ unzipEnabled });
     if (!unzipEnabled) {
       this.setState({ unzipPassword: "" });
+    }
+  }
+
+  componentDidMount() {
+    this.updateIsUnzipEnabled();
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    if (this.props.client !== prevProps.client) {
+      this.updateIsUnzipEnabled();
     }
   }
 
@@ -113,11 +123,12 @@ export class AdvancedAddDownloadForm extends React.PureComponent<Props, State> {
           <PathSelector
             onSelectPath={this.setSelectedPath}
             selectedPath={this.state.selectedPath}
+            client={this.props.client}
           />
         </div>
         <div className="buttons">
           <button
-            onClick={this.props.onCancel}
+            onClick={this.props.onClose}
             title={browser.i18n.getMessage("Dont_add_a_new_task")}
           >
             <span className="fa fa-lg fa-times" /> {browser.i18n.getMessage("Cancel")}
@@ -141,12 +152,13 @@ export class AdvancedAddDownloadForm extends React.PureComponent<Props, State> {
       .map((url) => url.trim())
       // The cheapest of checks. Actual invalid URLs will be caught later.
       .filter((url) => startsWithAnyProtocol(url, ALL_DOWNLOADABLE_PROTOCOLS));
-    this.props.onAddDownload(urls, {
+    this.props.client.createTasks(urls, {
       path: this.state.selectedPath,
       ftpPassword: this.state.ftpPassword.trim() || undefined,
       ftpUsername: this.state.ftpUsername.trim() || undefined,
       unzipPassword: this.state.unzipPassword.trim() || undefined,
     });
+    this.props.onClose();
   };
 
   private setSelectedPath = (selectedPath: string | undefined) => {

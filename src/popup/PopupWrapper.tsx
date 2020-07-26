@@ -1,23 +1,30 @@
 import * as React from "react";
-
-import {
+import isEqual from "lodash-es/isEqual";
+import type {
   Settings,
   VisibleTaskSettings,
   TaskSortType,
   State as ExtensionState,
-  getHostUrl,
   BadgeDisplayType,
 } from "../common/state";
 import { FatalErrorWrapper } from "./FatalErrorWrapper";
-import { Popup, Props as PopupProps } from "./Popup";
-import { AddTasks, PauseTask, ResumeTask, DeleteTasks } from "../common/apis/messages";
+import { Popup } from "./Popup";
+import { getClient, PopupClient } from "./popupClient";
 
 interface Props {
   state: ExtensionState;
   updateSettings: (settings: Settings) => void;
 }
 
+interface State {
+  client: PopupClient | undefined;
+}
+
 export class PopupWrapper extends React.PureComponent<Props> {
+  state: State = {
+    client: getClient(this.props.state.settings.connection),
+  };
+
   render() {
     return (
       <FatalErrorWrapper state={this.props.state}>
@@ -32,7 +39,7 @@ export class PopupWrapper extends React.PureComponent<Props> {
           changeTaskSort={this.changeSortType}
           badgeDisplay={this.props.state.settings.badgeDisplayType}
           changeBadgeDisplay={this.changeBadgeDisplay}
-          {...this.makeCallbacks()}
+          client={this.state.client}
         />
       </FatalErrorWrapper>
     );
@@ -50,23 +57,9 @@ export class PopupWrapper extends React.PureComponent<Props> {
     this.props.updateSettings({ ...this.props.state.settings, badgeDisplayType });
   };
 
-  private makeCallbacks(): Partial<PopupProps> {
-    const hostUrl = getHostUrl(this.props.state.settings.connection);
-    if (hostUrl) {
-      return {
-        openDownloadStationUi: () => {
-          browser.tabs.create({
-            url: hostUrl + "/index.cgi?launchApp=SYNO.SDS.DownloadStation.Application",
-            active: true,
-          });
-        },
-        createTasks: AddTasks.send,
-        pauseTask: PauseTask.send,
-        resumeTask: ResumeTask.send,
-        deleteTasks: DeleteTasks.send,
-      };
-    } else {
-      return {};
+  componentWillReceiveProps(nextProps: Props) {
+    if (!isEqual(this.props.state.settings.connection, nextProps.state.settings.connection)) {
+      this.setState({ client: getClient(nextProps.state.settings.connection) });
     }
   }
 }

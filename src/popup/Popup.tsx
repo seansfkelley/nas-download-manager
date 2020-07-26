@@ -9,7 +9,8 @@ import { sortTasks, filterTasks } from "../common/filtering";
 import { formatMetric1024 } from "../common/format";
 import { AdvancedAddDownloadForm } from "./AdvancedAddDownloadForm";
 import { TaskFilterSettingsForm } from "../common/components/TaskFilterSettingsForm";
-import type { MessageResponse, AddTaskOptions } from "../common/apis/messages";
+import type { PopupClient } from "./popupClient";
+
 import { Task } from "./Task";
 import { NonIdealState } from "../common/components/NonIdealState";
 
@@ -31,11 +32,7 @@ export interface Props {
   changeTaskSort: (sort: TaskSortType) => void;
   badgeDisplay: BadgeDisplayType;
   changeBadgeDisplay: (display: BadgeDisplayType) => void;
-  openDownloadStationUi?: () => void;
-  createTasks?: (urls: string[], options?: AddTaskOptions) => void;
-  pauseTask?: (taskId: string) => Promise<MessageResponse>;
-  resumeTask?: (taskId: string) => Promise<MessageResponse>;
-  deleteTasks?: (taskIds: string[]) => Promise<MessageResponse>;
+  client?: PopupClient;
 }
 
 interface State {
@@ -129,14 +126,14 @@ export class Popup extends React.PureComponent<Props, State> {
             this.setState({ isAddingDownload: !this.state.isAddingDownload });
           }}
           title={browser.i18n.getMessage("Add_download")}
-          {...disabledPropAndClassName(this.props.createTasks == null)}
+          {...disabledPropAndClassName(this.props.client == null)}
         >
           <div className="fa fa-lg fa-plus" />
         </button>
         <button
-          onClick={this.props.openDownloadStationUi}
+          onClick={this.props.client?.openDownloadStationUi}
           title={browser.i18n.getMessage("Open_DownloadStation_UI")}
-          {...disabledPropAndClassName(this.props.openDownloadStationUi == null)}
+          {...disabledPropAndClassName(this.props.client == null)}
         >
           <div className="fa fa-lg fa-external-link-alt" />
         </button>
@@ -168,10 +165,10 @@ export class Popup extends React.PureComponent<Props, State> {
     const completedTaskIds = this.props.tasks
       .filter((t) => t.status === "finished")
       .map((t) => t.id);
-    const deleteTasks = this.props.deleteTasks
+    const deleteTasks = this.props.client
       ? async () => {
           this.setState({ isClearingCompletedTasks: true });
-          await this.props.deleteTasks!(completedTaskIds);
+          await this.props.client!.deleteTasks(completedTaskIds);
           this.setState({ isClearingCompletedTasks: false });
         }
       : undefined;
@@ -241,8 +238,8 @@ export class Popup extends React.PureComponent<Props, State> {
         );
       } else {
         const hiddenTaskCount = this.props.tasks.length - filteredTasks.length;
-        const deleteTask = this.props.deleteTasks
-          ? (taskId: string) => this.props.deleteTasks!([taskId])
+        const deleteTask = this.props.client
+          ? (taskId: string) => this.props.client!.deleteTasks([taskId])
           : undefined;
         return (
           <div className="download-tasks">
@@ -257,8 +254,8 @@ export class Popup extends React.PureComponent<Props, State> {
                   key={task.id}
                   task={task}
                   onDelete={deleteTask}
-                  onPause={this.props.pauseTask}
-                  onResume={this.props.resumeTask}
+                  onPause={this.props.client?.pauseTask}
+                  onResume={this.props.client?.resumeTask}
                 />
               ))}
             </ul>
@@ -281,19 +278,16 @@ export class Popup extends React.PureComponent<Props, State> {
   }
 
   private maybeRenderAddDownloadOverlay() {
-    if (this.state.isAddingDownload) {
+    if (this.state.isAddingDownload && this.props.client) {
       return (
         <div className="add-download-overlay">
           <div className="backdrop" />
           <div className="overlay-content">
             <AdvancedAddDownloadForm
-              onCancel={() => {
+              onClose={() => {
                 this.setState({ isAddingDownload: false });
               }}
-              onAddDownload={(urls, options) => {
-                this.props.createTasks!(urls, options);
-                this.setState({ isAddingDownload: false });
-              }}
+              client={this.props.client}
             />
           </div>
         </div>

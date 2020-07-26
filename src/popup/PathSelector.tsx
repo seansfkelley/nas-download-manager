@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ListDirectories, MessageResponse, Directory } from "../common/apis/messages";
+import type { MessageResponse, Directory } from "../common/apis/messages";
 import {
   DirectoryTree,
   DirectoryTreeFile,
@@ -8,12 +8,14 @@ import {
   isErrorChild,
   recursivelyUpdateDirectoryTree,
 } from "./DirectoryTree";
+import type { PopupClient } from "./popupClient";
 
 const ROOT_PATH = "/";
 
 export interface Props {
   selectedPath: string | undefined;
   onSelectPath: (path: string | undefined) => void;
+  client: PopupClient;
 }
 
 export interface State {
@@ -29,7 +31,6 @@ export class PathSelector extends React.PureComponent<Props, State> {
     },
   };
 
-  private unsubscribeCallback: (() => void) | undefined;
   private requestVersionByPath: Record<string, number> = {};
 
   render() {
@@ -65,33 +66,15 @@ export class PathSelector extends React.PureComponent<Props, State> {
     }
   }
 
-  private unsubscribeFromClient() {
-    if (this.unsubscribeCallback) {
-      this.unsubscribeCallback();
-      this.unsubscribeCallback = undefined;
-    }
-  }
-
-  // private subscribeToClient(client: ApiClient) {
-  //   this.unsubscribeFromClient();
-  //   this.unsubscribeCallback = client.onSettingsChange(this.loadTopLevelDirectories);
-  // }
-
   componentDidMount() {
-    // this.subscribeToClient(this.props.client);
     this.loadTopLevelDirectories();
   }
 
-  componentWillUnmount() {
-    this.unsubscribeFromClient();
-  }
-
-  componentWillReceiveProps(nextProps: Props) {
-    // if (this.props.client !== nextProps.client) {
-    //   this.unsubscribeFromClient();
-    //   this.subscribeToClient(this.props.client);
-    //   this.loadTopLevelDirectories();
-    // }
+  componentDidUpdate(prevProps: Props) {
+    if (this.props.client !== prevProps.client) {
+      this.props.onSelectPath(undefined);
+      this.loadTopLevelDirectories();
+    }
   }
 
   private loadNestedDirectory = async (path: string) => {
@@ -103,7 +86,7 @@ export class PathSelector extends React.PureComponent<Props, State> {
       const stashedRequestVersion = (this.requestVersionByPath[path] =
         (this.requestVersionByPath[path] || 0) + 1);
 
-      const response = await ListDirectories.send(path);
+      const response = await this.props.client.listDirectories(path);
 
       if (stashedRequestVersion === this.requestVersionByPath[path]) {
         this.updateTreeWithResponse(path, response);
@@ -121,7 +104,7 @@ export class PathSelector extends React.PureComponent<Props, State> {
     });
     const stashedRequestVersion = (this.requestVersionByPath[ROOT_PATH] =
       (this.requestVersionByPath[ROOT_PATH] || 0) + 1);
-    const response = await ListDirectories.send();
+    const response = await this.props.client.listDirectories();
 
     if (stashedRequestVersion === this.requestVersionByPath[ROOT_PATH]) {
       this.updateTreeWithResponse(ROOT_PATH, response);
