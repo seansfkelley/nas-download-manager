@@ -1,5 +1,4 @@
 import * as React from "react";
-import type { ApiClient } from "synology-typescript-api";
 
 import {
   Settings,
@@ -14,7 +13,6 @@ import { Popup, Props as PopupProps } from "./Popup";
 import { AddTasks, PauseTask, ResumeTask, DeleteTasks } from "../common/apis/messages";
 
 interface Props {
-  api: ApiClient;
   state: ExtensionState;
   updateSettings: (settings: Settings) => void;
 }
@@ -24,7 +22,6 @@ export class PopupWrapper extends React.PureComponent<Props> {
     return (
       <FatalErrorWrapper state={this.props.state}>
         <Popup
-          api={this.props.api}
           tasks={this.props.state.tasks}
           taskFetchFailureReason={this.props.state.taskFetchFailureReason}
           tasksLastInitiatedFetchTimestamp={this.props.state.tasksLastInitiatedFetchTimestamp}

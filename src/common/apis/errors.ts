@@ -61,19 +61,18 @@ export const ERROR_CODES = {
   } as Record<string, string>,
 };
 
+export type ErrorNamespace = keyof typeof ERROR_CODES;
+
+export function errorMessageFromCode(code: number, secondaryType: null | ErrorNamespace): string;
 export function errorMessageFromCode(
   code: number,
-  secondaryType: null | keyof typeof ERROR_CODES,
-): string;
-export function errorMessageFromCode(
-  code: number,
-  secondaryType: null | keyof typeof ERROR_CODES,
+  secondaryType: null | ErrorNamespace,
   defaultMessage: string | null,
 ): string | undefined;
 
 export function errorMessageFromCode(
   code: number,
-  secondaryType: null | keyof typeof ERROR_CODES,
+  secondaryType: null | ErrorNamespace,
   defaultMessage: string | null = "Unknown error.",
 ) {
   const secondaryValue = secondaryType != null ? ERROR_CODES[secondaryType][code] : undefined;

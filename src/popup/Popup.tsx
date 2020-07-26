@@ -1,7 +1,7 @@
 import * as React from "react";
 import classNames from "classnames";
 import debounce from "lodash-es/debounce";
-import type { DownloadStationTask, ApiClient } from "synology-typescript-api";
+import type { DownloadStationTask } from "synology-typescript-api";
 
 import { moment } from "../common/moment";
 import type { VisibleTaskSettings, TaskSortType, BadgeDisplayType } from "../common/state";
@@ -21,7 +21,6 @@ function disabledPropAndClassName(disabled: boolean, className?: string) {
 }
 
 export interface Props {
-  api: ApiClient;
   tasks: DownloadStationTask[];
   taskFetchFailureReason: "missing-config" | { failureMessage: string } | null;
   tasksLastInitiatedFetchTimestamp: number | null;
@@ -288,7 +287,6 @@ export class Popup extends React.PureComponent<Props, State> {
           <div className="backdrop" />
           <div className="overlay-content">
             <AdvancedAddDownloadForm
-              client={this.props.api}
               onCancel={() => {
                 this.setState({ isAddingDownload: false });
               }}

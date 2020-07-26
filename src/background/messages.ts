@@ -1,5 +1,9 @@
 import { SynologyResponse, ConnectionFailure, isConnectionFailure } from "synology-typescript-api";
-import { errorMessageFromCode, errorMessageFromConnectionFailure } from "../common/apis/errors";
+import {
+  errorMessageFromCode,
+  errorMessageFromConnectionFailure,
+  ErrorNamespace,
+} from "../common/apis/errors";
 import { MessageResponse, Message, Result } from "../common/apis/messages";
 import { addDownloadTasksAndPoll, pollTasks } from "./actions";
 import { BackgroundState, getMutableStateSingleton } from "./backgroundState";
@@ -16,13 +20,16 @@ type MessageHandlers = {
 
 function toMessageResponse(
   response: SynologyResponse<unknown> | ConnectionFailure,
+  errorNamespace: ErrorNamespace,
 ): MessageResponse;
 function toMessageResponse<T, U>(
   response: SynologyResponse<T> | ConnectionFailure,
+  errorNamespace: ErrorNamespace,
   extract: (result: T) => U,
 ): MessageResponse<U>;
 function toMessageResponse<T, U>(
   response: SynologyResponse<T> | ConnectionFailure,
+  errorNamespace: ErrorNamespace,
   extract?: (result: T) => U,
 ): MessageResponse<U> {
   if (isConnectionFailure(response)) {
@@ -33,7 +40,7 @@ function toMessageResponse<T, U>(
   } else if (!response.success) {
     return {
       success: false,
-      reason: errorMessageFromCode(response.error.code, "DownloadStation.Task"),
+      reason: errorMessageFromCode(response.error.code, errorNamespace),
     };
   } else {
     return {
@@ -54,6 +61,7 @@ const MESSAGE_HANDLERS: MessageHandlers = {
   "pause-task": async (m, state) => {
     const response = toMessageResponse(
       await state.api.DownloadStation.Task.Pause({ id: [m.taskId] }),
+      "DownloadStation.Task",
     );
     if (response.success) {
       await pollTasks(state.api);
@@ -63,6 +71,7 @@ const MESSAGE_HANDLERS: MessageHandlers = {
   "resume-task": async (m, state) => {
     const response = toMessageResponse(
       await state.api.DownloadStation.Task.Resume({ id: [m.taskId] }),
+      "DownloadStation.Task",
     );
     if (response.success) {
       await pollTasks(state.api);
@@ -72,6 +81,7 @@ const MESSAGE_HANDLERS: MessageHandlers = {
   "delete-tasks": async (m, state) => {
     const response = toMessageResponse(
       await state.api.DownloadStation.Task.Delete({ id: m.taskIds, force_complete: false }),
+      "DownloadStation.Task",
     );
     if (response.success) {
       await pollTasks(state.api);
@@ -79,7 +89,31 @@ const MESSAGE_HANDLERS: MessageHandlers = {
     return response;
   },
   "get-config": async (_m, state) => {
-    return toMessageResponse(await state.api.DownloadStation.Info.GetConfig(), (config) => config);
+    return toMessageResponse(
+      await state.api.DownloadStation.Info.GetConfig(),
+      "DownloadStation.Task",
+      (data) => data,
+    );
+  },
+  "list-directories": async (m, state) => {
+    const { path } = m;
+    if (path) {
+      return toMessageResponse(
+        await state.api.FileStation.List.list({
+          folder_path: path,
+          sort_by: "name",
+          filetype: "dir",
+        }),
+        "FileStation",
+        (data) => data.files,
+      );
+    } else {
+      return toMessageResponse(
+        await state.api.FileStation.List.list_share({ sort_by: "name" }),
+        "FileStation",
+        (data) => data.shares,
+      );
+    }
   },
 };
 

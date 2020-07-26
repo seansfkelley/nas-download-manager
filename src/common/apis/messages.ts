@@ -58,7 +58,24 @@ export interface GetConfig {
   type: "get-config";
 }
 
-export type Message = AddTasks | PollTasks | PauseTask | ResumeTask | DeleteTasks | GetConfig;
+export interface ListDirectories {
+  type: "list-directories";
+  path?: string;
+}
+
+export interface Directory {
+  name: string;
+  path: string;
+}
+
+export type Message =
+  | AddTasks
+  | PollTasks
+  | PauseTask
+  | ResumeTask
+  | DeleteTasks
+  | GetConfig
+  | ListDirectories;
 
 const MESSAGE_TYPES: Record<Message["type"], true> = {
   "add-tasks": true,
@@ -67,6 +84,7 @@ const MESSAGE_TYPES: Record<Message["type"], true> = {
   "poll-tasks": true,
   "resume-task": true,
   "get-config": true,
+  "list-directories": true,
 };
 
 export const Message = {
@@ -84,6 +102,7 @@ export type Result = {
   "resume-task": MessageResponse;
   "delete-tasks": MessageResponse;
   "get-config": MessageResponse<DownloadStationInfoConfig>;
+  "list-directories": MessageResponse<Directory[]>;
 };
 
 function makeMessageOperations<T extends Message["type"], U extends any[]>(
@@ -126,6 +145,10 @@ export const DeleteTasks = makeMessageOperations("delete-tasks", (taskIds: strin
 }));
 
 export const GetConfig = makeMessageOperations("get-config", () => ({}));
+
+export const ListDirectories = makeMessageOperations("list-directories", (path?: string) => ({
+  path,
+}));
 
 {
   // Compile-time check to make sure that these two different types that have to match, do.
