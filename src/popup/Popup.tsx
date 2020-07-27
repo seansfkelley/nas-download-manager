@@ -123,10 +123,16 @@ export class Popup extends React.PureComponent<Props, State> {
         </div>
         <button
           onClick={() => {
-            this.setState({ isAddingDownload: !this.state.isAddingDownload });
+            this.setState({
+              isAddingDownload: !this.state.isAddingDownload,
+              isShowingDisplaySettings: false,
+            });
           }}
           title={browser.i18n.getMessage("Add_download")}
-          {...disabledPropAndClassName(this.props.client == null)}
+          {...disabledPropAndClassName(
+            this.props.client == null,
+            classNames({ active: this.state.isAddingDownload }),
+          )}
         >
           <div className="fa fa-lg fa-plus" />
         </button>
@@ -139,7 +145,10 @@ export class Popup extends React.PureComponent<Props, State> {
         </button>
         <button
           onClick={() => {
-            this.setState({ isShowingDisplaySettings: !this.state.isShowingDisplaySettings });
+            this.setState({
+              isShowingDisplaySettings: !this.state.isShowingDisplaySettings,
+              isAddingDownload: false,
+            });
           }}
           title={browser.i18n.getMessage("Show_task_display_settings")}
           className={classNames({ active: this.state.isShowingDisplaySettings })}
