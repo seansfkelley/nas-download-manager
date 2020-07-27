@@ -17,6 +17,7 @@ select {
   border: 1px solid #b1b1b1;
   box-shadow: 0 0 0 0 rgba(97, 181, 255, 0);
   font: caption;
+  font-size: 1em;
   padding: 0 6px 0;
   transition-duration: 250ms;
   transition-property: box-shadow;
@@ -28,7 +29,7 @@ select {
   &.disabled,
   &:disabled {
     color: #999;
-    opacity: 0.5;
+    background-color: #eee;
   }
 
   &.focused,
