@@ -74,7 +74,7 @@ export class DirectoryTree extends React.PureComponent<Props, State> {
     isExpanded: false,
   };
 
-  componentWillReceiveProps(nextProps: Props) {
+  UNSAFE_componentWillReceiveProps(nextProps: Props) {
     if (isErrorChild(nextProps.file.children)) {
       this.setState({ isExpanded: false });
     }

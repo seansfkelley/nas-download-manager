@@ -57,7 +57,7 @@ export class PopupWrapper extends React.PureComponent<Props> {
     this.props.updateSettings({ ...this.props.state.settings, badgeDisplayType });
   };
 
-  componentWillReceiveProps(nextProps: Props) {
+  UNSAFE_componentWillReceiveProps(nextProps: Props) {
     if (!isEqual(this.props.state.settings.connection, nextProps.state.settings.connection)) {
       this.setState({ client: getClient(nextProps.state.settings.connection) });
     }
