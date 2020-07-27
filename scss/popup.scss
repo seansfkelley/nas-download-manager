@@ -136,6 +136,11 @@ body,
       > :not(.add-download-overlay) {
         filter: blur(3px);
       }
+
+      .download-tasks {
+        overflow-y: hidden;
+        height: 100%;
+      }
     }
   }
 
