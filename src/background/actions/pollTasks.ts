@@ -1,10 +1,8 @@
-import uniqueId from "lodash-es/uniqueId";
 import { ApiClient, isConnectionFailure } from "synology-typescript-api";
+import type { RequestManager } from "../requestManager";
 import { errorMessageFromCode, errorMessageFromConnectionFailure } from "../../common/apis/errors";
 import type { CachedTasks, State } from "../../common/state";
 import { onUnhandledError } from "../../common/errorHandlers";
-
-type WithoutPromise<T> = T extends Promise<infer U> ? U : T;
 
 function setCachedTasks(cachedTasks: Partial<CachedTasks>) {
   return browser.storage.local.set<Partial<State>>({
@@ -13,20 +11,19 @@ function setCachedTasks(cachedTasks: Partial<CachedTasks>) {
   });
 }
 
-export async function pollTasks(api: ApiClient): Promise<void> {
+export async function pollTasks(api: ApiClient, manager: RequestManager): Promise<void> {
+  const token = manager.startNewRequest();
+
   const cachedTasksInit: Partial<CachedTasks> = {
     tasksLastInitiatedFetchTimestamp: Date.now(),
   };
 
-  const pollId = uniqueId("poll-");
-  console.log(`(${pollId}) polling for tasks...`);
+  console.log(`(${token}) polling for tasks...`);
 
   try {
     await browser.storage.local.set<Partial<State>>(cachedTasksInit);
 
-    // This type declaration shouldn't be necessary, but without it this bug happens:
-    // https://github.com/microsoft/TypeScript/issues/33666
-    let response: WithoutPromise<ReturnType<typeof api.DownloadStation.Task.List>>;
+    let response;
 
     try {
       // HELLO THERE
@@ -43,7 +40,12 @@ export async function pollTasks(api: ApiClient): Promise<void> {
       return;
     }
 
-    console.log(`(${pollId}) poll completed with response`, response);
+    if (!manager.isRequestLatest(token)) {
+      console.log(`(${token}) poll result outdated; ignoring`, response);
+      return;
+    } else {
+      console.log(`(${token}) poll result still relevant; continuing...`, response);
+    }
 
     if (isConnectionFailure(response)) {
       if (response.type === "missing-config") {

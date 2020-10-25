@@ -53,10 +53,16 @@ function toMessageResponse<T, U>(
 
 const MESSAGE_HANDLERS: MessageHandlers = {
   "add-tasks": (m, state) => {
-    return addDownloadTasksAndPoll(state.api, state.showNonErrorNotifications, m.urls, m.options);
+    return addDownloadTasksAndPoll(
+      state.api,
+      state.pollRequestManager,
+      state.showNonErrorNotifications,
+      m.urls,
+      m.options,
+    );
   },
   "poll-tasks": (_m, state) => {
-    return pollTasks(state.api);
+    return pollTasks(state.api, state.pollRequestManager);
   },
   "pause-task": async (m, state) => {
     const response = toMessageResponse(
@@ -64,7 +70,7 @@ const MESSAGE_HANDLERS: MessageHandlers = {
       "DownloadStation.Task",
     );
     if (response.success) {
-      await pollTasks(state.api);
+      await pollTasks(state.api, state.pollRequestManager);
     }
     return response;
   },
@@ -74,7 +80,7 @@ const MESSAGE_HANDLERS: MessageHandlers = {
       "DownloadStation.Task",
     );
     if (response.success) {
-      await pollTasks(state.api);
+      await pollTasks(state.api, state.pollRequestManager);
     }
     return response;
   },
@@ -84,7 +90,7 @@ const MESSAGE_HANDLERS: MessageHandlers = {
       "DownloadStation.Task",
     );
     if (response.success) {
-      await pollTasks(state.api);
+      await pollTasks(state.api, state.pollRequestManager);
     }
     return response;
   },
