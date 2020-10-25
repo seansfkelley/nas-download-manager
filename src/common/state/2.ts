@@ -46,7 +46,8 @@ export function transition(state: State_1): State {
     ...transition_1(null),
     ...state,
   };
-  delete state.cachedTasksVersion;
+  delete (state as Omit<State_1, "cachedTasksVersion"> & { cachedTasksVersion?: unknown })
+    .cachedTasksVersion;
   return {
     ...(state as Omit<State_1, "cachedTasksVersion">),
     // Clear tasks as we changed the shape of the request.
