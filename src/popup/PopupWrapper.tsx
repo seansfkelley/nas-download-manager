@@ -7,7 +7,6 @@ import type {
   State as ExtensionState,
   BadgeDisplayType,
 } from "../common/state";
-import { FatalErrorWrapper } from "./FatalErrorWrapper";
 import { Popup } from "./Popup";
 import { getClient, PopupClient } from "./popupClient";
 
@@ -27,21 +26,19 @@ export class PopupWrapper extends React.PureComponent<Props> {
 
   render() {
     return (
-      <FatalErrorWrapper state={this.props.state}>
-        <Popup
-          tasks={this.props.state.tasks}
-          taskFetchFailureReason={this.props.state.taskFetchFailureReason}
-          tasksLastInitiatedFetchTimestamp={this.props.state.tasksLastInitiatedFetchTimestamp}
-          tasksLastCompletedFetchTimestamp={this.props.state.tasksLastCompletedFetchTimestamp}
-          visibleTasks={this.props.state.settings.visibleTasks}
-          changeVisibleTasks={this.changeVisibleTasks}
-          taskSort={this.props.state.settings.taskSortType}
-          changeTaskSort={this.changeSortType}
-          badgeDisplay={this.props.state.settings.badgeDisplayType}
-          changeBadgeDisplay={this.changeBadgeDisplay}
-          client={this.state.client}
-        />
-      </FatalErrorWrapper>
+      <Popup
+        tasks={this.props.state.tasks}
+        taskFetchFailureReason={this.props.state.taskFetchFailureReason}
+        tasksLastInitiatedFetchTimestamp={this.props.state.tasksLastInitiatedFetchTimestamp}
+        tasksLastCompletedFetchTimestamp={this.props.state.tasksLastCompletedFetchTimestamp}
+        visibleTasks={this.props.state.settings.visibleTasks}
+        changeVisibleTasks={this.changeVisibleTasks}
+        taskSort={this.props.state.settings.taskSortType}
+        changeTaskSort={this.changeSortType}
+        badgeDisplay={this.props.state.settings.badgeDisplayType}
+        changeBadgeDisplay={this.changeBadgeDisplay}
+        client={this.state.client}
+      />
     );
   }
 

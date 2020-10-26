@@ -6,8 +6,8 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 
 import { onStoredStateChange, Settings, State } from "../common/state";
-import { onUnhandledError } from "../common/errorHandlers";
 import { FatalError } from "./FatalError";
+import { FatalErrorWrapper } from "./FatalErrorWrapper";
 import { PopupWrapper } from "./PopupWrapper";
 import { PollTasks } from "../common/apis/messages";
 
@@ -24,9 +24,13 @@ setInterval(() => {
 
 onStoredStateChange((storedState) => {
   try {
-    ReactDOM.render(<PopupWrapper state={storedState} updateSettings={updateSettings} />, ELEMENT);
+    ReactDOM.render(
+      <FatalErrorWrapper state={storedState}>
+        <PopupWrapper state={storedState} updateSettings={updateSettings} />
+      </FatalErrorWrapper>,
+      ELEMENT,
+    );
   } catch (e) {
-    onUnhandledError(e);
     ReactDOM.render(<FatalError error={e} />, ELEMENT);
   }
 });

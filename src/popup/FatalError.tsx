@@ -12,9 +12,17 @@ export interface Props {
 
 export class FatalError extends React.PureComponent<Props, {}> {
   render() {
+    let redactedState;
+
+    try {
+      redactedState = this.props.state ? redactState(this.props.state) : undefined;
+    } catch (e) {
+      redactedState = undefined;
+    }
+
     const formattedDebugLogs = `${
-      this.props.state
-        ? "Redacted extension state: " + JSON.stringify(redactState(this.props.state), null, 2)
+      redactedState
+        ? "Redacted extension state: " + JSON.stringify(redactedState, null, 2)
         : "(no state provided)"
     }
 
