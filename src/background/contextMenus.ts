@@ -8,7 +8,7 @@ export function initializeContextMenus() {
   browser.contextMenus.create({
     enabled: true,
     title: browser.i18n.getMessage("Download_with_DownloadStation"),
-    contexts: ["link", "audio", "video", "selection"],
+    contexts: ["link", "audio", "video", "image", "selection"],
     onclick: (data) => {
       const state = getMutableStateSingleton();
 
