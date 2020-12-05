@@ -1,0 +1,763 @@
+{
+  "Add_and_manage_Download_Station_tasks_on_your_Synology_DiskStation": {
+    "message": "添加和管理群晖 Download Station 下载任务",
+    "description": "A description of the extension.",
+    "test_skip_reference_check": true
+  },
+  "Download_added": {
+    "message": "添加下载",
+    "description": "Notification body text."
+  },
+  "Download_finished": {
+    "message": "下载完成",
+    "description": "Notification body text."
+  },
+  "Download_with_DownloadStation": {
+    "message": "使用DownloadStation下载",
+    "description": "Context menu item title."
+  },
+  "Selected_text_is_not_a_valid_URL": {
+    "message": "选定的文本不是合法的URL",
+    "description": "Notification body text."
+  },
+  "Failed_to_connect_to_DiskStation": {
+    "message": "连接至群晖失败",
+    "description": "Notification title."
+  },
+  "Please_check_your_settings": {
+    "message": "请检查您的配置",
+    "description": "Notification body text."
+  },
+  "eMule_is_not_enabled": {
+    "message": "eMule功能未启用",
+    "description": "Notification title."
+  },
+  "Use_DSM_to_enable_eMule_downloads": {
+    "message": "在DownloadStation中设置eMule下载支持",
+    "description": "Notification body text."
+  },
+  "Failed_to_add_download": {
+    "message": "添加下载失败",
+    "description": "Notification title."
+  },
+  "URL_must_start_with_one_of_ZprotocolsZ": {
+    "message": "URL必须以这些字符开头 $PROTOCOLS$",
+    "description": "Notification body text.",
+    "placeholders": {
+      "protocols": {
+        "content": "$1",
+        "example": "http, https, ftp"
+      }
+    }
+  },
+  "URL_is_empty_or_missing": {
+    "message": "URL为空或不存在",
+    "description": "Notification body text."
+  },
+  "Unexpected_error_please_check_your_settings_and_try_again": {
+    "message": "未知错误，请检查设置后重试",
+    "description": "Notification body text."
+  },
+  "URLs_to_download_one_per_line": {
+    "message": "待添加的链接 (多个链接请保持每行一个)...",
+    "description": "Placeholder for advanced-add form."
+  },
+  "Download_to": {
+    "message": "下载至",
+    "description": "Lead-in for directory name in advanced-add form."
+  },
+  "default_location": {
+    "message": "默认目的地文件夹",
+    "description": "Default value for directory name in advanced-add form."
+  },
+  "Dont_add_a_new_task": {
+    "message": "放弃添加任务",
+    "description": "Tooltip for advanced-add form's Cancel button."
+  },
+  "Cancel": {
+    "message": "取消",
+    "description": "Text for advanced-add form's Cancel button."
+  },
+  "Download_the_above_URL_to_the_specified_location": {
+    "message": "下载以上链接至指定目的地",
+    "description": "Tooltop for advanced-add form's Add button."
+  },
+  "Add": {
+    "message": "新增",
+    "description": "Text for advanced-add form's Add button."
+  },
+  "Loading": {
+    "message": "加载中...",
+    "description": "Generic loading text."
+  },
+  "Expandcollapse_directory": {
+    "message": "展开/折叠文件夹",
+    "description": "Tooltip for expand/collapse button in directory tree view."
+  },
+  "Settings_unconfigured": {
+    "message": "未配置选项",
+    "description": "Task load failure reason."
+  },
+  "The_hostname_username_or_password_are_not_configured": {
+    "message": "主机名或登录信息未配置",
+    "description": "Tooltip for a type of task load failure."
+  },
+  "Updating": {
+    "message": "更新中...",
+    "description": "Generic updating text."
+  },
+  "Updating_download_tasks": {
+    "message": "下载任务更新中...",
+    "description": "Tooltip for updating-in-progress text in popup header."
+  },
+  "Error_updating_tasks": {
+    "message": "更新任务失败",
+    "description": "Text for popup header on load failure."
+  },
+  "Updated_ZtimeZ": {
+    "message": "更新于 $TIME$",
+    "description": "Text for popup header on load success.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "five minutes ago"
+      }
+    }
+  },
+  "updating_now": {
+    "message": "(立即更新)",
+    "description": "Aside for tooltip on popup header when an update is in progress."
+  },
+  "Add_download": {
+    "message": "添加任务...",
+    "description": "Tooltip for popup header button."
+  },
+  "Open_DownloadStation_UI": {
+    "message": "转到DownloadStation...",
+    "description": "Tooltip for popup header button."
+  },
+  "Show_task_display_settings": {
+    "message": "任务显示选项...",
+    "description": "Tooltip for popup header button."
+  },
+  "Open_settings": {
+    "message": "设置...",
+    "description": "Tooltip for popup header button."
+  },
+  "Configure_your_hostname_username_and_password_in_settings": {
+    "message": "请在设置中配置主机名和登录信息",
+    "description": "Body text for popup when no tasks are shown because nothing is configured."
+  },
+  "No_download_tasks": {
+    "message": "无下载任务",
+    "description": "Body text for popup when no tasks are shown because there are none."
+  },
+  "Download_tasks_exist_but_none_match_your_filters": {
+    "message": "有下载任务，但因显示设置被隐藏",
+    "description": "Body text for popup when no tasks are shown because they're all filtered out."
+  },
+  "and_ZcountZ_more_tasks_hidden_by_filters": {
+    "message": "...还有$COUNT$个被隐藏的任务",
+    "description": "Trailing text after task list when some tasks are hidden by filters.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "Remove_download": {
+    "message": "删除任务",
+    "description": "Tooltip for delete button on a task list item."
+  },
+  "Resume": {
+    "message": "恢复任务",
+    "description": "Tooltip for resume button on a task list item."
+  },
+  "Start_seeding": {
+    "message": "开始做种",
+    "description": "Tooltip for start-seeding button on a task list item."
+  },
+  "Pause": {
+    "message": "暂停任务",
+    "description": "Tooltip for pause button on a task list item."
+  },
+  "ZpercentZ_ZestimateZ_ZcurrentZ_of_ZtotalZ_at_ZspeedZ": {
+    "message": "$PERCENT$ \u2013 $ESTIMATE$ \u2013 $CURRENT$ 总计 $TOTAL$ 速度 $SPEED$",
+    "description": "Subtitle prefix for currently-downloading task showing stats.",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "65.5%"
+      },
+      "estimate": {
+        "content": "$2",
+        "example": "1:23 remaining"
+      },
+      "current": {
+        "content": "$3",
+        "example": "100KB"
+      },
+      "total": {
+        "content": "$4",
+        "example": "10MB"
+      },
+      "speed": {
+        "content": "$5",
+        "example": "50KB/s"
+      }
+    }
+  },
+  "ZetaZ_remaining": {
+    "message": "预计完成于 $ETA$",
+    "description": "Subtitle suffix for currently-downloading task.",
+    "placeholders": {
+      "eta": {
+        "content": "$1",
+        "example": "5:45"
+      }
+    }
+  },
+  "no_estimate": {
+    "message": "暂无完成时间",
+    "description": "Subtitle suffix for currently-downloading task."
+  },
+  "ZratioZ_ratio_ZtotalZ_uploaded_at_ZspeedZ": {
+    "message": "$RATIO$ 上传比 \u2013 $TOTAL$ 已上传，目前速度 $SPEED$",
+    "description": "Subtitle for currently-uploading task showing stats.",
+    "placeholders": {
+      "ratio": {
+        "content": "$1",
+        "example": "1.23"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10MB"
+      },
+      "speed": {
+        "content": "$3",
+        "example": "50KB/s"
+      }
+    }
+  },
+  "100_ZtotalZ_downloaded": {
+    "message": "100% \u2013 $TOTAL$ 已下载",
+    "description": "Subtitle for completed, not-uploading task showing stats.",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "10MB"
+      }
+    }
+  },
+  "ZstatusZ_ZpercentZ_ZcurrentZ_of_ZtotalZ_downloaded": {
+    "message": "$STATUS$ \u2013 $PERCENT$ \u2013 已下载  $TOTAL$ 中的 $CURRENT$",
+    "description": "Subtitle for status-unknown task showing stats (best effort).",
+    "placeholders": {
+      "status": {
+        "content": "$1",
+        "example": "Paused"
+      },
+      "percent": {
+        "content": "$2",
+        "example": "1.23%"
+      },
+      "current": {
+        "content": "$3",
+        "example": "100KB"
+      },
+      "total": {
+        "content": "$4",
+        "example": "10MB"
+      }
+    }
+  },
+  "Downloading": {
+    "message": "正在下载",
+    "description": "Task status filtering category."
+  },
+  "Completed_uploading": {
+    "message": "下载完成，正在上传",
+    "description": "Task status filtering category."
+  },
+  "Completed_not_uploading": {
+    "message": "下载完成，未上传",
+    "description": "Task status filtering category."
+  },
+  "Errored": {
+    "message": "错误状态",
+    "description": "Task status filtering category."
+  },
+  "Other": {
+    "message": "其他状态",
+    "description": "Task status filtering category."
+  },
+  "Order_tasks_by": {
+    "message": "任务排序规则",
+    "description": "Prefix text for task-sort-type dropdown."
+  },
+  "name_AZ": {
+    "message": "名称, A-Z",
+    "description": "Task sort order type."
+  },
+  "name_ZA": {
+    "message": "名称, Z-A",
+    "description": "Task sort order type."
+  },
+  "date_added_newest_first": {
+    "message": "添加时间，从新到旧",
+    "description": "Task sort order type."
+  },
+  "date_added_oldest_first": {
+    "message": "添加时间，从旧到新",
+    "description": "Task sort order type."
+  },
+  "date_completed_newest_first": {
+    "message": "完成时间，从新到旧",
+    "description": "Task sort order type."
+  },
+  "date_completed_oldest_first": {
+    "message": "完成时间，从旧到新",
+    "description": "Task sort order type."
+  },
+  "_complete_least_first": {
+    "message": "完成百分比，从少到多",
+    "description": "Task sort order type."
+  },
+  "_complete_most_first": {
+    "message": "完成百分比，从多到少",
+    "description": "Task sort order type."
+  },
+  "Badge_shows": {
+    "message": "在插件图标中的显示",
+    "description": "Prefix text for badge-display-type dropdown."
+  },
+  "total_task_count": {
+    "message": "总任务数量",
+    "description": "Badge display type."
+  },
+  "filtered_task_count": {
+    "message": "未隐藏的任务数量",
+    "description": "Badge display type."
+  },
+  "Connection": {
+    "message": "连接设置",
+    "description": "Header for settings section."
+  },
+  "Please_note_that_QuickConnect_IDs_and_twofactor_authentication_are_not_currently_supported": {
+    "message": "请注意：“QuickConnect ID”和“2步骤认证”目前尚未支持",
+    "description": "Subheader for Connection settings section."
+  },
+  "hostname_or_IP_address": {
+    "message": "DSM域名或IP地址",
+    "description": "Placeholder for settings input field."
+  },
+  "Username": {
+    "message": "用户名",
+    "description": "Label for field on settings page."
+  },
+  "Password": {
+    "message": "密码",
+    "description": "Label for field on settings page."
+  },
+  "Test_Connection_and_Save": {
+    "message": "测试连接并保存",
+    "description": "Label for button on settings page."
+  },
+  "Task_Display_Settings": {
+    "message": "任务显示选项",
+    "description": "Header for settings section."
+  },
+  "Display_these_task_types_in_the_popup_menu": {
+    "message": "在弹出菜单中显示以下任务类型",
+    "description": "Subheader for Downloads List settings section."
+  },
+  "Miscellaneous": {
+    "message": "其他选项",
+    "description": "Header for settings section."
+  },
+  "Notify_when_adding_downloads": {
+    "message": "添加新任务时显示通知",
+    "description": "Label for option on settings page."
+  },
+  "Notify_when_downloads_complete": {
+    "message": "下载完成时显示通知",
+    "description": "Label for option on settings page."
+  },
+  "Check_for_completed_downloads_every": {
+    "message": "定期检查任务状态于",
+    "description": "Prefix for inlined notification interval setting field."
+  },
+  "seconds": {
+    "message": "秒",
+    "description": "Suffix for inlined notification interval setting field."
+  },
+  "at_least_15": {
+    "message": "（最小间隔15秒）",
+    "description": "Error message when notification interval is too short."
+  },
+  "Handle_opening_downloadable_link_types_ZprotocolsZ": {
+    "message": "响应支持的浏览器下载协议（$PROTOCOLS$）",
+    "description": "Label for option on settings page.",
+    "placeholders": {
+      "protocols": {
+        "content": "$1",
+        "example": "http, https"
+      }
+    }
+  },
+  "Debugging_Output": {
+    "message": "调试输出",
+    "description": "Header for settings section."
+  },
+  "Clear_output": {
+    "message": "清除输出...",
+    "description": "Button text for clearing debugging output."
+  },
+  "Cannot_save_settings_This_is_a_bug_please_file_an_issue": {
+    "message": "无法保存设置，请在Github中创建Issue来提交此Bug",
+    "description": "Message shown in settings page when something is very wrong."
+  },
+  "Testing_connection": {
+    "message": "测试连接中...",
+    "description": "Message for connection test status."
+  },
+  "Testing_connection_this_is_unusually_slow_is_your_NAS_asleep": {
+    "message": "测试连接中...（等待超过了正常时间，NAS是否休眠了？）",
+    "description": "Message for connection test status."
+  },
+  "Connection_successful": {
+    "message": "连接成功！",
+    "description": "Message for connection test status."
+  },
+  "Connection_successful_but_may_interfere_with_existing_DSM_sessions_See_": {
+    "message": "连接成功，但是可能会与已经连接的Session冲突。请参考 ",
+    "description": "Prefix for connection test status."
+  },
+  "issue_32": {
+    "message": "Github issue #32",
+    "description": "Link text for connection test status."
+  },
+  "_for_more_details": {
+    "message": " 以获得详细信息",
+    "description": "Suffix for connection test status."
+  },
+  "Connection_settings_are_not_configured": {
+    "message": "未配置连接选项",
+    "description": "Connection failure explanatory text."
+  },
+  "Connection_failed_Likely_cause_wrong_protocol": {
+    "message": "连接失败。可能是协议错误",
+    "description": "Connection failure explanatory text."
+  },
+  "Connection_failed_Likely_cause_wrong_hostnameport_no_internet_connection_or_invalid_certificate": {
+    "message": "连接失败。可能是以下原因: 错误的主机名或端口；网络无法连接；NAS证书错误",
+    "description": "Connection failure explanatory text."
+  },
+  "Connection_timed_out_Check_your_hostnameport_settings_and_internet_connection": {
+    "message": "连接超时。请检查主机名端口是否正确，网络连接是否正常",
+    "description": "Connection failure explanatory text."
+  },
+  "Connection_failed_for_an_unknown_reason": {
+    "message": "连接失败。未知原因",
+    "description": "Connection failure explanatory text."
+  },
+  "Unknown_error_displaying_tasks": {
+    "message": "显示任务出错 ",
+    "description": "Main explanatory text for the popup when we have a fatal rendering error."
+  },
+  "Your_download_tasks_are_not_affected": {
+    "message": "您NAS上的下载并未受到影响 ",
+    "description": "Reassuring explanatory text for when we have a fatal rendering error."
+  },
+  "Please_": {
+    "message": "请 ",
+    "description": "Prefix for action text for the popup when asking the user to file a bug when we have a fatal rendering error."
+  },
+  "file_a_bug": {
+    "message": "提交一个bug",
+    "description": "Live link text for action text for the popup when asking the user to file a bug when we have a fatal rendering error."
+  },
+  "_and_include_the_information_below": {
+    "message": " 并附带以下信息",
+    "description": "Suffix for action text for the popup when asking the user to file a bug when we have a fatal rendering error."
+  },
+  "Clear_ZcountZ_Completed_Tasks": {
+    "message": "清除 $COUNT$ 个已完成的下载",
+    "description": "Label for button to clear completed download tasks.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "Clear_tasks_that_are_completed_and_not_currently_uploading": {
+    "message": "清除已完成并且未上传的下载",
+    "description": "Tooltip for button to clear completed download tasks."
+  },
+  "Unknown_error": {
+    "message": "未知错误",
+    "description": "Error message on Synology API call failure."
+  },
+  "Invalid_parameter": {
+    "message": "非法参数",
+    "description": "Error message on Synology API call failure."
+  },
+  "The_requested_API_does_not_exist": {
+    "message": "请求的接口不存在",
+    "description": "Error message on Synology API call failure."
+  },
+  "The_requested_method_does_not_exist": {
+    "message": "请求的方法不存在",
+    "description": "Error message on Synology API call failure."
+  },
+  "The_requested_version_does_not_support_this_functionality": {
+    "message": "请求的版本不支持此功能",
+    "description": "Error message on Synology API call failure."
+  },
+  "The_logged_in_session_does_not_have_permission": {
+    "message": "登录的用户会话无操作权限",
+    "description": "Error message on Synology API call failure."
+  },
+  "Session_timeout": {
+    "message": "登录会话超时",
+    "description": "Error message on Synology API call failure."
+  },
+  "Session_interrupted_by_duplicate_login": {
+    "message": "登录会话被重复登录关闭",
+    "description": "Error message on Synology API call failure."
+  },
+  "No_such_username_or_incorrect_password": {
+    "message": "用户名或密码错误",
+    "description": "Error message on Synology API call failure."
+  },
+  "Account_disabled": {
+    "message": "账户已禁用",
+    "description": "Error message on Synology API call failure."
+  },
+  "Permission_denied": {
+    "message": "无权限",
+    "description": "Error message on Synology API call failure."
+  },
+  "Twostep_verification_needed": {
+    "message": "需要2步骤验证",
+    "description": "Error message on Synology API call failure."
+  },
+  "Twostep_verification_failed": {
+    "message": "2步骤验证失败",
+    "description": "Error message on Synology API call failure."
+  },
+  "File_upload_failed": {
+    "message": "文件上传出错",
+    "description": "Error message on Synology API call failure."
+  },
+  "Max_number_of_tasks_reached": {
+    "message": "已达到最大任务限制",
+    "description": "Error message on Synology API call failure."
+  },
+  "Destination_denied": {
+    "message": "目的地文件夹被拒绝",
+    "description": "Error message on Synology API call failure."
+  },
+  "Destination_does_not_exist": {
+    "message": "目的地文件夹不存在",
+    "description": "Error message on Synology API call failure."
+  },
+  "Invalid_task_ID": {
+    "message": "无效任务ID",
+    "description": "Error message on Synology API call failure."
+  },
+  "Invalid_task_action": {
+    "message": "无效任务操作",
+    "description": "Error message on Synology API call failure."
+  },
+  "No_default_destination_is_set_in_Download_Station_for_this_Synology_user": {
+    "message": "此用户尚未在DownloadStation中设置目的地文件夹",
+    "description": "Error message on Synology API call failure."
+  },
+  "Set_destination_failed": {
+    "message": "设置目的地文件夹失败",
+    "description": "Error message on Synology API call failure."
+  },
+  "File_does_not_exist": {
+    "message": "文件不存在",
+    "description": "Error message on Synology API call failure."
+  },
+  "Invalid_parameter_of_file_operation": {
+    "message": "参数或操作错误",
+    "description": "Error message on Synology API call failure."
+  },
+  "Unknown_error_of_file_operation": {
+    "message": "未知文件操作错误",
+    "description": "Error message on Synology API call failure."
+  },
+  "System_is_too_busy": {
+    "message": "系统繁忙",
+    "description": "Error message on Synology API call failure."
+  },
+  "Invalid_user_does_this_file_operation": {
+    "message": "当前用户无法完成此操作",
+    "description": "Error message on Synology API call failure."
+  },
+  "Invalid_group_does_this_file_operation": {
+    "message": "当前用户组无法完成此操作",
+    "description": "Error message on Synology API call failure."
+  },
+  "Invalid_user_and_group_does_this_file_operation": {
+    "message": "当前用户（组）无法完成此操作",
+    "description": "Error message on Synology API call failure."
+  },
+  "Cant_get_usergroup_information_from_the_account_server": {
+    "message": "无法获取用户（组）信息",
+    "description": "Error message on Synology API call failure."
+  },
+  "Operation_not_permitted": {
+    "message": "操作未被允许",
+    "description": "Error message on Synology API call failure."
+  },
+  "No_such_file_or_directory": {
+    "message": "文件（夹）不存在",
+    "description": "Error message on Synology API call failure."
+  },
+  "Nonsupported_file_system": {
+    "message": "不支持的文件系统",
+    "description": "Error message on Synology API call failure."
+  },
+  "Failed_to_connect_internetbased_file_system_ex_CIFS": {
+    "message": "无法连接基于Internet的文件系统（如：CIFS）",
+    "description": "Error message on Synology API call failure."
+  },
+  "Readonly_file_system": {
+    "message": "文件系统只读",
+    "description": "Error message on Synology API call failure."
+  },
+  "Filename_too_long_in_the_nonencrypted_file_system": {
+    "message": "在不加密的文件系统中文件名过长",
+    "description": "Error message on Synology API call failure."
+  },
+  "Filename_too_long_in_the_encrypted_file_system": {
+    "message": "在加密的文件系统中文件名过长",
+    "description": "Error message on Synology API call failure."
+  },
+  "File_already_exists": {
+    "message": "文件已存在",
+    "description": "Error message on Synology API call failure."
+  },
+  "Disk_quota_exceeded": {
+    "message": "已达最大磁盘配额",
+    "description": "Error message on Synology API call failure."
+  },
+  "No_space_left_on_device": {
+    "message": "磁盘空间不足",
+    "description": "Error message on Synology API call failure."
+  },
+  "Inputoutput_error": {
+    "message": "IO错误",
+    "description": "Error message on Synology API call failure."
+  },
+  "Illegal_name_or_path": {
+    "message": "非法文件路径",
+    "description": "Error message on Synology API call failure."
+  },
+  "Illegal_file_name": {
+    "message": "非法文件名",
+    "description": "Error message on Synology API call failure."
+  },
+  "Illegal_file_name_on_FAT_file_system": {
+    "message": "非法的FAT文件系统名称",
+    "description": "Error message on Synology API call failure."
+  },
+  "Device_or_resource_busy": {
+    "message": "设备或资源忙",
+    "description": "Error message on Synology API call failure."
+  },
+  "No_such_task_of_the_file_operation": {
+    "message": "无操作对应的任务",
+    "description": "Error message on Synology API call failure."
+  },
+  "Loading_directories": {
+    "message": "加载文件夹中...",
+    "description": "Message while waiting for directories to load in advanced add form."
+  },
+  "No_directories": {
+    "message": "无根文件夹",
+    "description": "Message in advanced add form if there are no root directories."
+  },
+  "Adding_download": {
+    "message": "添加任务...",
+    "description": "Notification title."
+  },
+  "Adding_ZcountZ_downloads": {
+    "message": "添加了 $COUNT$ 个任务...",
+    "description": "Notification title.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "ZcountZ_downloads_added": {
+    "message": "$COUNT$ 个任务已添加",
+    "description": "Notification body text.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "Failed_to_add_ZcountZ_downloads": {
+    "message": "$COUNT$ 个任务添加失败",
+    "description": "Notification body text.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "ZsuccessZ_downloads_added_ZfailedZ_failed": {
+    "message": "$SUCCESS$ 个任务添加成功；$FAILED$ 个错误",
+    "description": "Notification body text.",
+    "placeholders": {
+      "success": {
+        "content": "$1",
+        "example": "2"
+      },
+      "failed": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "Try_adding_downloads_individually_andor_checking_your_URLs_or_settings": {
+    "message": "请单独添加出错的任务或者检查连接与设置",
+    "description": "Notification body text."
+  },
+  "No_downloadable_URLs_provided": {
+    "message": "无URL",
+    "description": "Notification body text."
+  },
+  "Please_be_patient_this_may_take_some_time": {
+    "message": "此操作会持续一段时间，请耐心等待...",
+    "description": "Notification body text."
+  },
+  "FTP_username": {
+    "message": "FTP 用户名...",
+    "description": "Placeholder for input field in add-download form."
+  },
+  "FTP_password": {
+    "message": "FTP 密码...",
+    "description": "Placeholder for input field in add-download form."
+  },
+  "Unzip_password": {
+    "message": "Unzip 密码...",
+    "description": "Placeholder for input field in add-download form."
+  },
+  "Auto_Extract_service_is_disabled_in_Download_Station": {
+    "message": "DownloadStation未开启自动解压功能",
+    "description": "Explanatory text for disabled input field in add-download form."
+  }
+}
