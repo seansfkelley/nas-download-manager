@@ -348,6 +348,10 @@
     "message": "Hôte ou adresse IP",
     "description": "Placeholder for settings input field."
   },
+  "Host": {
+    "message": "Hôte",
+    "description": "Label for field on settings page."
+  },
   "Username": {
     "message": "Nom d'utilisateur",
     "description": "Label for field on settings page."

@@ -332,6 +332,10 @@
     "message": "имя хоста или IP-адрес",
     "description": "Заполнитель для поля ввода настроек."
   },
+  "Host": {
+    "message": "Хост",
+    "description": "Label for field on settings page."
+  },
   "Username": {
     "message": "Имя пользователя",
     "description": "Метка для поля на странице настроек."

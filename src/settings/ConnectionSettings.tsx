@@ -46,7 +46,7 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
       >
         <SettingsList>
           <li className="label-and-input host-settings">
-            <span className="label">Host</span>
+            <span className="label">{browser.i18n.getMessage("Host")}</span>
             <div className="input">
               <select
                 {...connectionDisabledProps}

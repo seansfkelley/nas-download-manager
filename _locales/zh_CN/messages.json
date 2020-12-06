@@ -5,19 +5,19 @@
     "test_skip_reference_check": true
   },
   "Download_added": {
-    "message": "添加下载",
+    "message": "下载已添加",
     "description": "Notification body text."
   },
   "Download_finished": {
-    "message": "下载完成",
+    "message": "下载已完成",
     "description": "Notification body text."
   },
   "Download_with_DownloadStation": {
-    "message": "使用DownloadStation下载",
+    "message": "使用 Download Station 下载",
     "description": "Context menu item title."
   },
   "Selected_text_is_not_a_valid_URL": {
-    "message": "选定的文本不是合法的URL",
+    "message": "选定的文本不是合法的 URL",
     "description": "Notification body text."
   },
   "Failed_to_connect_to_DiskStation": {
@@ -29,11 +29,11 @@
     "description": "Notification body text."
   },
   "eMule_is_not_enabled": {
-    "message": "eMule功能未启用",
+    "message": "eMule 功能未启用",
     "description": "Notification title."
   },
   "Use_DSM_to_enable_eMule_downloads": {
-    "message": "在DownloadStation中设置eMule下载支持",
+    "message": "在 Download Station 中开启 eMule 下载支持",
     "description": "Notification body text."
   },
   "Failed_to_add_download": {
@@ -115,7 +115,7 @@
     "description": "Text for popup header on load failure."
   },
   "Updated_ZtimeZ": {
-    "message": "更新于 $TIME$",
+    "message": "更新于$TIME$",
     "description": "Text for popup header on load success.",
     "placeholders": {
       "time": {
@@ -183,7 +183,7 @@
     "description": "Tooltip for pause button on a task list item."
   },
   "ZpercentZ_ZestimateZ_ZcurrentZ_of_ZtotalZ_at_ZspeedZ": {
-    "message": "$PERCENT$ \u2013 $ESTIMATE$ \u2013 $CURRENT$ 总计 $TOTAL$ 速度 $SPEED$",
+    "message": "$PERCENT$ \u2013 $ESTIMATE$ \u2013 已下载$CURRENT$ 总计$TOTAL$ 速度$SPEED$",
     "description": "Subtitle prefix for currently-downloading task showing stats.",
     "placeholders": {
       "percent": {
@@ -209,7 +209,7 @@
     }
   },
   "ZetaZ_remaining": {
-    "message": "预计完成于 $ETA$",
+    "message": "剩余$ETA$",
     "description": "Subtitle suffix for currently-downloading task.",
     "placeholders": {
       "eta": {
@@ -251,7 +251,7 @@
     }
   },
   "ZstatusZ_ZpercentZ_ZcurrentZ_of_ZtotalZ_downloaded": {
-    "message": "$STATUS$ \u2013 $PERCENT$ \u2013 已下载  $TOTAL$ 中的 $CURRENT$",
+    "message": "$STATUS$ \u2013 $PERCENT$ \u2013 已下载 $TOTAL$ 中的 $CURRENT$",
     "description": "Subtitle for status-unknown task showing stats (best effort).",
     "placeholders": {
       "status": {
@@ -297,11 +297,11 @@
     "description": "Prefix text for task-sort-type dropdown."
   },
   "name_AZ": {
-    "message": "名称, A-Z",
+    "message": "名称，A-Z",
     "description": "Task sort order type."
   },
   "name_ZA": {
-    "message": "名称, Z-A",
+    "message": "名称，Z-A",
     "description": "Task sort order type."
   },
   "date_added_newest_first": {
@@ -345,12 +345,16 @@
     "description": "Header for settings section."
   },
   "Please_note_that_QuickConnect_IDs_and_twofactor_authentication_are_not_currently_supported": {
-    "message": "请注意：“QuickConnect ID”和“2步骤认证”目前尚未支持",
+    "message": "请注意：“QuickConnect ID” 和 “2步骤认证” 目前尚未支持",
     "description": "Subheader for Connection settings section."
   },
   "hostname_or_IP_address": {
     "message": "DSM域名或IP地址",
     "description": "Placeholder for settings input field."
+  },
+  "Host": {
+    "message": "主机",
+    "description": "Label for field on settings page."
   },
   "Username": {
     "message": "用户名",
@@ -415,7 +419,7 @@
     "description": "Button text for clearing debugging output."
   },
   "Cannot_save_settings_This_is_a_bug_please_file_an_issue": {
-    "message": "无法保存设置，请在Github中创建Issue来提交此Bug",
+    "message": "无法保存设置，请在 Github 中创建 Issue 来提交此 Bug",
     "description": "Message shown in settings page when something is very wrong."
   },
   "Testing_connection": {
@@ -423,7 +427,7 @@
     "description": "Message for connection test status."
   },
   "Testing_connection_this_is_unusually_slow_is_your_NAS_asleep": {
-    "message": "测试连接中...（等待超过了正常时间，NAS是否休眠了？）",
+    "message": "测试连接中...（等待超过了正常时间，NAS 是否休眠了？）",
     "description": "Message for connection test status."
   },
   "Connection_successful": {
@@ -431,7 +435,7 @@
     "description": "Message for connection test status."
   },
   "Connection_successful_but_may_interfere_with_existing_DSM_sessions_See_": {
-    "message": "连接成功，但是可能会与已经连接的Session冲突。请参考 ",
+    "message": "连接成功，但是可能会与已经连接的 Session 冲突。请参考 ",
     "description": "Prefix for connection test status."
   },
   "issue_32": {
@@ -467,7 +471,7 @@
     "description": "Main explanatory text for the popup when we have a fatal rendering error."
   },
   "Your_download_tasks_are_not_affected": {
-    "message": "您NAS上的下载并未受到影响 ",
+    "message": "您 NAS 上的下载并未受到影响 ",
     "description": "Reassuring explanatory text for when we have a fatal rendering error."
   },
   "Please_": {
@@ -573,7 +577,7 @@
     "description": "Error message on Synology API call failure."
   },
   "No_default_destination_is_set_in_Download_Station_for_this_Synology_user": {
-    "message": "此用户尚未在DownloadStation中设置目的地文件夹",
+    "message": "此用户尚未在 Download Station 中设置目的地文件夹",
     "description": "Error message on Synology API call failure."
   },
   "Set_destination_failed": {
@@ -625,7 +629,7 @@
     "description": "Error message on Synology API call failure."
   },
   "Failed_to_connect_internetbased_file_system_ex_CIFS": {
-    "message": "无法连接基于Internet的文件系统（如：CIFS）",
+    "message": "无法连接基于 Internet 的文件系统（如：CIFS）",
     "description": "Error message on Synology API call failure."
   },
   "Readonly_file_system": {
@@ -753,11 +757,11 @@
     "description": "Placeholder for input field in add-download form."
   },
   "Unzip_password": {
-    "message": "Unzip 密码...",
+    "message": "Zip 压缩包密码...",
     "description": "Placeholder for input field in add-download form."
   },
   "Auto_Extract_service_is_disabled_in_Download_Station": {
-    "message": "DownloadStation未开启自动解压功能",
+    "message": "Download Station 未开启自动解压功能",
     "description": "Explanatory text for disabled input field in add-download form."
   }
 }
