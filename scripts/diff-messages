@@ -11,7 +11,7 @@ if (process.argv.length != 3) {
 }
 
 const knownLocales = fs.readdirSync(path.join(ROOT, "_locales"));
-const locale = process.argv[2].toLowerCase();
+const locale = process.argv[2];
 
 if (!knownLocales.includes(locale)) {
   console.error(`unknown locale '${locale}'`);

@@ -352,6 +352,10 @@
     "message": "hostname or IP address",
     "description": "Placeholder for settings input field."
   },
+  "Host": {
+    "message": "Host",
+    "description": "Label for field on settings page."
+  },
   "Username": {
     "message": "Username",
     "description": "Label for field on settings page."
