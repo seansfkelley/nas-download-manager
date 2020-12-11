@@ -28,7 +28,7 @@ Synology Download Manager allows you to add and manage your download tasks on yo
 - Chrome ([view listing](https://chrome.google.com/webstore/detail/synology-download-manager/iaijiochiiocodhamehbpmdlobhgghgi))
 - Edge (via [Chrome Web Store](https://chrome.google.com/webstore/detail/synology-download-manager/iaijiochiiocodhamehbpmdlobhgghgi); see [how to install from Chrome Web Store](https://support.microsoft.com/en-us/help/4538971/microsoft-edge-add-or-remove-extensions))
 
-
+Safari is not currently supported due to the cost and overhead of a developer account.
 
 ## Privacy
 
