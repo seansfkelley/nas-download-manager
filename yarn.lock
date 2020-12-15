@@ -1294,6 +1294,11 @@ bcrypt-pbkdf@^1.0.0:
   dependencies:
     tweetnacl "^0.14.3"
 
+bencodec@^2.4.0:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/bencodec/-/bencodec-2.4.0.tgz#3df8f8a966b100600ee5c53600d6b126bbb9de06"
+  integrity sha512-j6MWD2UJuh99E/6+2I95+dBuDLBxgXIk51lXzCX4oSKpid/y4GhR8dTU9fk42423muevROoi/hwmxmCMt4wN3w==
+
 binary-extensions@^1.0.0:
   version "1.13.1"
   resolved "https://registry.yarnpkg.com/binary-extensions/-/binary-extensions-1.13.1.tgz#598afe54755b2868a5330d2aff9d4ebb53209b65"

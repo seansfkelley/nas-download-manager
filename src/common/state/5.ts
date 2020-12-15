@@ -35,6 +35,7 @@ const SETTINGS_KEYS = typesafeUnionMembers<keyof Settings_4>({
   taskSortType: true,
   notifications: true,
   shouldHandleDownloadLinks: true,
+  torrentTrackers: true,
 });
 
 export function transition(state: State_4): State {

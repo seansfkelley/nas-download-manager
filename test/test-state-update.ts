@@ -115,6 +115,10 @@ describe("state versioning", () => {
             enableFeedbackNotifications: true,
             completionPollingInterval: 0,
           },
+          torrentTrackers: {
+            enablePublicTrackers: false,
+            publicTrackerURL: ""
+          },
           shouldHandleDownloadLinks: true,
           taskSortType: "name-asc",
           badgeDisplayType: "total",
@@ -180,6 +184,10 @@ describe("state versioning", () => {
             enableFeedbackNotifications: true,
             completionPollingInterval: 0,
           },
+          torrentTrackers: {
+            enablePublicTrackers: false,
+            publicTrackerURL: ""
+          },
           shouldHandleDownloadLinks: true,
           taskSortType: "name-asc",
           badgeDisplayType: "total",
@@ -219,6 +227,10 @@ describe("state versioning", () => {
             enableFeedbackNotifications: true,
             completionPollingInterval: 60,
           },
+          torrentTrackers: {
+            enablePublicTrackers: false,
+            publicTrackerURL: ""
+          },
           shouldHandleDownloadLinks: true,
           taskSortType: "name-asc",
           badgeDisplayType: "total",
@@ -255,6 +267,10 @@ describe("state versioning", () => {
           enableCompletionNotifications: false,
           enableFeedbackNotifications: true,
           completionPollingInterval: 60,
+        },
+        torrentTrackers: {
+          enablePublicTrackers: false,
+          publicTrackerURL: ""
         },
         shouldHandleDownloadLinks: true,
         taskSortType: "name-asc",
@@ -296,6 +312,10 @@ describe("state versioning", () => {
         taskFetchFailureReason: "missing-config",
         tasksLastCompletedFetchTimestamp: 0,
         tasksLastInitiatedFetchTimestamp: 0,
+        torrentTrackers: {
+          enablePublicTrackers: false,
+          publicTrackerURL: ""
+        },
         shouldHandleDownloadLinks: true,
         stateVersion: 1,
       },
@@ -319,6 +339,10 @@ describe("state versioning", () => {
             enableCompletionNotifications: true,
             enableFeedbackNotifications: true,
             completionPollingInterval: 0,
+          },
+          torrentTrackers: {
+            enablePublicTrackers: false,
+            publicTrackerURL: ""
           },
           shouldHandleDownloadLinks: true,
           taskSortType: "name-asc",
@@ -361,6 +385,10 @@ describe("state versioning", () => {
         taskFetchFailureReason: "missing-config",
         tasksLastCompletedFetchTimestamp: 0,
         tasksLastInitiatedFetchTimestamp: 0,
+        torrentTrackers: {
+          enablePublicTrackers: false,
+          publicTrackerURL: ""
+        },
         shouldHandleDownloadLinks: true,
         lastSevereError: new Error(),
         stateVersion: 2,
@@ -385,6 +413,10 @@ describe("state versioning", () => {
             enableCompletionNotifications: true,
             enableFeedbackNotifications: true,
             completionPollingInterval: 0,
+          },
+          torrentTrackers: {
+            enablePublicTrackers: false,
+            publicTrackerURL: ""
           },
           shouldHandleDownloadLinks: true,
           taskSortType: "name-asc",
@@ -426,6 +458,10 @@ describe("state versioning", () => {
         taskFetchFailureReason: "missing-config",
         tasksLastCompletedFetchTimestamp: 0,
         tasksLastInitiatedFetchTimestamp: 0,
+        torrentTrackers: {
+          enablePublicTrackers: false,
+          publicTrackerURL: ""
+        },
         lastSevereError: new Error(),
         stateVersion: 2,
       },
@@ -449,6 +485,10 @@ describe("state versioning", () => {
             enableCompletionNotifications: true,
             enableFeedbackNotifications: true,
             completionPollingInterval: 0,
+          },
+          torrentTrackers: {
+            enablePublicTrackers: false,
+            publicTrackerURL: ""
           },
           shouldHandleDownloadLinks: true,
           taskSortType: "name-asc",
@@ -486,6 +526,10 @@ describe("state versioning", () => {
           enableFeedbackNotifications: true,
           completionPollingInterval: 0,
         },
+        torrentTrackers: {
+          enablePublicTrackers: false,
+          publicTrackerURL: ""
+        },
         shouldHandleDownloadLinks: true,
         taskSortType: "name-asc",
         tasks: [DUMMY_TASK],
@@ -515,6 +559,10 @@ describe("state versioning", () => {
             enableCompletionNotifications: true,
             enableFeedbackNotifications: true,
             completionPollingInterval: 0,
+          },
+          torrentTrackers: {
+            enablePublicTrackers: false,
+            publicTrackerURL: ""
           },
           shouldHandleDownloadLinks: true,
           taskSortType: "name-asc",
@@ -552,6 +600,10 @@ describe("state versioning", () => {
           enableFeedbackNotifications: true,
           completionPollingInterval: 0,
         },
+        torrentTrackers: {
+          enablePublicTrackers: false,
+          publicTrackerURL: ""
+        },
         shouldHandleDownloadLinks: true,
         taskSortType: "name-asc",
         badgeDisplayType: "total",
@@ -585,6 +637,10 @@ describe("state versioning", () => {
           },
           taskSortType: "name-asc",
           badgeDisplayType: "total",
+          torrentTrackers: {
+            enablePublicTrackers: false,
+            publicTrackerURL: ""
+          },
           shouldHandleDownloadLinks: true,
         },
         tasks: [DUMMY_TASK],
@@ -621,6 +677,10 @@ describe("state versioning", () => {
         },
         taskSortType: "name-asc",
         badgeDisplayType: "total",
+        torrentTrackers: {
+          enablePublicTrackers: false,
+          publicTrackerURL: ""
+        },
         shouldHandleDownloadLinks: true,
       },
       tasks: [DUMMY_TASK],

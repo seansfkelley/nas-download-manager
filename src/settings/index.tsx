@@ -17,6 +17,7 @@ import {
   SETTING_NAMES,
   BadgeDisplayType,
   ConnectionSettings,
+  TorrentTrackerSettings,
 } from "../common/state";
 import { BUG_REPORT_URL } from "../common/constants";
 import { ResetClientSession } from "../common/apis/messages";
@@ -39,6 +40,7 @@ interface Props {
 interface State {
   savesFailed: boolean;
   rawPollingInterval: string;
+  publicTrackerURL: string;
 }
 
 const POLL_MIN_INTERVAL = 15;
@@ -52,6 +54,8 @@ function isValidPollingInterval(stringValue: string) {
 class SettingsForm extends React.PureComponent<Props, State> {
   state: State = {
     savesFailed: false,
+    publicTrackerURL:
+      this.props.extensionState.settings.torrentTrackers.publicTrackerURL || "",
     rawPollingInterval:
       this.props.extensionState.settings.notifications.completionPollingInterval.toString() ||
       POLL_DEFAULT_INTERVAL.toString(),
@@ -164,6 +168,41 @@ class SettingsForm extends React.PureComponent<Props, State> {
               DOWNLOAD_ONLY_PROTOCOLS.join(", "),
             ])}
           />
+
+          <SettingsListCheckbox
+            checked={this.props.extensionState.settings.torrentTrackers.enablePublicTrackers}
+            onChange={() => {
+              this.setTorrentTrackers("enablePublicTrackers",
+                !this.props.extensionState.settings.torrentTrackers.enablePublicTrackers,
+              );
+            }}
+            label={browser.i18n.getMessage("Automatically_add_trackers_to_new_tasks_form_a_trackslist_URL")}
+          />
+
+          <li>
+            <span className="indent" />
+            <input
+              type="text"
+              {...disabledPropAndClassName(
+                !this.props.extensionState.settings.torrentTrackers.enablePublicTrackers,
+              )}
+              style={{ flex: 1 }}
+              value={this.state.publicTrackerURL}
+              onChange={(e) => {
+                const publicTrackerURL = e.currentTarget.value;
+                this.setState({ publicTrackerURL });
+                if (publicTrackerURL !== "") {
+                  this.setTorrentTrackers("publicTrackerURL", publicTrackerURL);
+                }
+              }}
+            />
+            {(this.props.extensionState.settings.torrentTrackers.enablePublicTrackers && this.state.publicTrackerURL === "") ? (
+              <span className="intent-error wrong-polling-interval">
+                {browser.i18n.getMessage("URL_is_empty")}
+              </span>
+            ) : undefined}
+          </li>
+
         </SettingsList>
 
         {this.maybeRenderDebuggingOutputAndSeparator()}
@@ -256,6 +295,19 @@ ${this.props.lastSevereError}`;
   private setShouldHandleDownloadLinks(shouldHandleDownloadLinks: boolean) {
     this.saveSettings({
       shouldHandleDownloadLinks,
+    });
+  }
+
+  private setTorrentTrackers<K extends keyof TorrentTrackerSettings>(
+    key: K,
+    value: TorrentTrackerSettings[K],
+  ) {
+    console.log(key, value);
+    this.saveSettings({
+      torrentTrackers: {
+        ...this.props.extensionState.settings.torrentTrackers,
+        [key]: value,
+      },
     });
   }
 

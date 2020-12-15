@@ -7,6 +7,7 @@ import type {
 } from "./latest";
 import { updateStateToLatest } from "./update";
 import type { BadgeDisplayType } from "./4";
+export type { TorrentTrackerSettings } from "./1"
 import { typesafeUnionMembers, typesafeMapValues } from "../lang";
 export * from "./listen";
 export * from "./latest";

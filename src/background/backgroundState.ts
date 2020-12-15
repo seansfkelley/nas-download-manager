@@ -11,6 +11,7 @@ export interface BackgroundState {
   notificationInterval: number | undefined;
   didInitializeSettings: boolean;
   showNonErrorNotifications: boolean;
+  torrentTrackers: string[] | undefined;
 }
 
 const state: BackgroundState = {
@@ -21,6 +22,7 @@ const state: BackgroundState = {
   notificationInterval: undefined,
   didInitializeSettings: false,
   showNonErrorNotifications: true,
+  torrentTrackers: undefined,
 };
 
 export function getMutableStateSingleton() {

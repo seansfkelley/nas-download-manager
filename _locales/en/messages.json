@@ -410,6 +410,14 @@
       }
     }
   },
+  "Automatically_add_trackers_to_new_tasks_form_a_trackslist_URL": {
+    "message": "Automatically add trackers to new tasks form a trackslist URL",
+    "description": "Label for option on settings page."
+  },
+  "URL_is_empty": {
+    "message": "URL is empty",
+    "description": "Error message when public trackerslist url is empty."
+  },
   "Debugging_Output": {
     "message": "Debugging Output",
     "description": "Header for settings section."

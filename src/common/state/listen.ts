@@ -8,6 +8,7 @@ export const SETTING_NAMES = typesafeUnionMembers<keyof Settings>({
   notifications: true,
   shouldHandleDownloadLinks: true,
   badgeDisplayType: true,
+  torrentTrackers: true,
 });
 
 const ALL_STORED_STATE_NAMES = typesafeUnionMembers<keyof State>({

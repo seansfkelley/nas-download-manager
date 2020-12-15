@@ -3,13 +3,13 @@ import { SessionName } from "synology-typescript-api";
 import { getMutableStateSingleton } from "./backgroundState";
 import { getHostUrl, State } from "../common/state";
 import { notify } from "../common/notify";
-import { pollTasks, clearCachedTasks } from "./actions";
+import { pollTasks, clearCachedTasks, updateAndGetTorrentTrackers } from "./actions";
 import { assertNever } from "../common/lang";
 import { filterTasks } from "../common/filtering";
 
 const START_TIME = Date.now();
 
-export function onStoredStateChange(storedState: State) {
+export async function onStoredStateChange(storedState: State) {
   const backgroundState = getMutableStateSingleton();
 
   const didUpdateSettings = backgroundState.api.updateSettings({
@@ -50,6 +50,8 @@ export function onStoredStateChange(storedState: State) {
 
   backgroundState.showNonErrorNotifications =
     storedState.settings.notifications.enableFeedbackNotifications;
+
+  backgroundState.torrentTrackers = await updateAndGetTorrentTrackers(storedState);
 
   if (storedState.taskFetchFailureReason) {
     browser.browserAction.setIcon({

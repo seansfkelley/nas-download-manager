@@ -410,6 +410,14 @@
       }
     }
   },
+  "Automatically_add_trackers_to_new_tasks_form_a_trackslist_URL": {
+    "message": "添加BT磁力下载时自动添加以下订阅列表中的Trackers",
+    "description": "Label for option on settings page."
+  },
+  "URL_is_empty": {
+    "message": "URL 为空",
+    "description": "Error message when public trackerslist url is empty."
+  },
   "Debugging_Output": {
     "message": "调试输出",
     "description": "Header for settings section."
@@ -475,7 +483,7 @@
     "description": "Reassuring explanatory text for when we have a fatal rendering error."
   },
   "Please_": {
-    "message": "请 ",
+    "message": "请",
     "description": "Prefix for action text for the popup when asking the user to file a bug when we have a fatal rendering error."
   },
   "file_a_bug": {
@@ -483,7 +491,7 @@
     "description": "Live link text for action text for the popup when asking the user to file a bug when we have a fatal rendering error."
   },
   "_and_include_the_information_below": {
-    "message": " 并附带以下信息",
+    "message": "并附带以下信息",
     "description": "Suffix for action text for the popup when asking the user to file a bug when we have a fatal rendering error."
   },
   "Clear_ZcountZ_Completed_Tasks": {
