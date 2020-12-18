@@ -2,13 +2,13 @@
 
 ## How do I fix a connection failure?
 
-There are many ways your Synology Download Manager's connection to your NAS can fail that are out of its control. Synology Download Manager does its best to guess what might be wrong and tell you (such as when it says "likely cause: wrong protocol"), but sometimes, for security reasons, browsers don't tell is enough to make a good guess.
+There are many ways your Synology Download Manager's connection to your NAS can fail that are out of its control. Synology Download Manager does its best to guess what might be wrong and tell you (such as when it says "likely cause: wrong protocol"), but sometimes, for security reasons, browsers don't tell it enough to make a good guess.
 
 You can reset the login session that Synology Download Manager has by using the "Test Connection and Save" button in the settings.
 
 ## What is an "invalid certificate"?
 
-> Certificates are how servers prove to browsers they are who they claim. Browsers will, by default, prevent you from accessing sites with invalid certificates unless you explicitly tell them to ignore the issue.
+Certificates are how servers prove to browsers they are who they claim. Browsers will, by default, prevent you from accessing sites with invalid certificates unless you explicitly tell them to ignore the issue.
 
 Synology Download Manager is subject to the same security restrictions as regular browser tabs. However, unlike a tab, it is unable to show you the page where you can override the browser's protections. To fix this issue, visit the DSM page in a browser tab using the same hostname/port you use for Synology Download Manager, which should prompt you to override the browser's protections.
 
