@@ -1,0 +1,42 @@
+#!/bin/bash
+
+set -euo pipefail
+
+if [ "$#" -ne 1 ]; then
+  echo "usage: $0 <major|minor|patch>"
+  exit 1
+fi
+
+bump_kind="$1"
+
+if [[ "$bump_kind" != "major" && "$bump_kind" != "minor" && "$bump_kind" != "patch" ]]; then
+  echo "unknown bump kind '$bump_kind'"
+  exit 1
+fi
+
+cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1
+cd ..
+
+repo_status="$(git status --porcelain)"
+
+if [ -n "$repo_status" ]; then
+  echo "working directory dirty; refusing to continue"
+  echo "$repo_status"
+  exit 1
+fi
+
+current_version=$(jq -r .version manifest.json)
+next_version=$(yarn -s run semver -i "$bump_kind" "$current_version")
+
+temp_file=$(mktemp)
+
+jq --arg v "$next_version" '.version = $v' manifest.json > "$temp_file"
+mv "$temp_file" manifest.json
+
+git add manifest.json
+git commit -m "v$next_version"
+# For some reason I decided not to include the 'v' in the message body of the tag.
+# I'm also not sure why I decided to use annotated tags. In any case, continue to
+# do both of these things for consistency in case I ever write tooling around it
+# later
+git tag -a "v$next_version" -m "$next_version"
