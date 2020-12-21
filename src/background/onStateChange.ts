@@ -9,7 +9,7 @@ import { filterTasks } from "../common/filtering";
 
 const START_TIME = Date.now();
 
-export async function onStoredStateChange(storedState: State) {
+export function onStoredStateChange(storedState: State) {
   const backgroundState = getMutableStateSingleton();
 
   const didUpdateSettings = backgroundState.api.updateSettings({
@@ -51,7 +51,7 @@ export async function onStoredStateChange(storedState: State) {
   backgroundState.showNonErrorNotifications =
     storedState.settings.notifications.enableFeedbackNotifications;
 
-  backgroundState.torrentTrackers = await updateAndGetTorrentTrackers(storedState);
+  backgroundState.torrentTrackers = updateAndGetTorrentTrackers(storedState);
 
   if (storedState.taskFetchFailureReason) {
     browser.browserAction.setIcon({

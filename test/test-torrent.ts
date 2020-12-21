@@ -3,6 +3,7 @@ import bencodec from 'bencodec';
 import { expect } from 'chai';
 import * as fs from "fs";
 import * as path from "path"
+import {setTrackers, addTrackersToMetaData} from "../src/background/actions/torrentTracker"
 
 const tmpFile = path.join(__dirname, "./tmp.torrent")
 
@@ -11,7 +12,10 @@ const NEW_TRACKERS = [
     'udp://4.3.2.1:2710/announce',
 ];
 
-const torrent: any = bencodec.decode(fs.readFileSync(path.join(__dirname, "./test.torrent")));
+setTrackers(NEW_TRACKERS);
+
+const torrent_raw = fs.readFileSync(path.join(__dirname, "./test.torrent"));
+const torrent: any = bencodec.decode(torrent_raw);
 let oldTrackers = torrent['announce-list'].toString("utf8");
 //console.log(oldTrackers);
 
@@ -29,11 +33,7 @@ describe("other locale messages", () => {
 */
 
 //console.log('------------------------------------------')
-
-NEW_TRACKERS.forEach(t => torrent['announce-list'].push([Buffer.from(t, 'utf8')]));
-//console.log(torrent['announce-list'].toString("utf8"));
-
-fs.writeFileSync(tmpFile, bencodec.encode(torrent));
+fs.writeFileSync(tmpFile, addTrackersToMetaData(torrent_raw));
 
 
 describe("other locale messages", () => {
