@@ -85,7 +85,7 @@ export function transition(_state: null | undefined): State {
     shouldHandleDownloadLinks: true,
     torrentTrackers: {
       enablePublicTrackers: false,
-      publicTrackerURL: ""
+      publicTrackerURL: "",
     },
     cachedTasksVersion: 1,
     tasks: [],

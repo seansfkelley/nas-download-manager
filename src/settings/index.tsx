@@ -54,8 +54,7 @@ function isValidPollingInterval(stringValue: string) {
 class SettingsForm extends React.PureComponent<Props, State> {
   state: State = {
     savesFailed: false,
-    publicTrackerURL:
-      this.props.extensionState.settings.torrentTrackers.publicTrackerURL || "",
+    publicTrackerURL: this.props.extensionState.settings.torrentTrackers.publicTrackerURL || "",
     rawPollingInterval:
       this.props.extensionState.settings.notifications.completionPollingInterval.toString() ||
       POLL_DEFAULT_INTERVAL.toString(),
@@ -172,11 +171,14 @@ class SettingsForm extends React.PureComponent<Props, State> {
           <SettingsListCheckbox
             checked={this.props.extensionState.settings.torrentTrackers.enablePublicTrackers}
             onChange={() => {
-              this.setTorrentTrackers("enablePublicTrackers",
+              this.setTorrentTrackers(
+                "enablePublicTrackers",
                 !this.props.extensionState.settings.torrentTrackers.enablePublicTrackers,
               );
             }}
-            label={browser.i18n.getMessage("Automatically_add_trackers_to_new_tasks_form_a_trackslist_URL")}
+            label={browser.i18n.getMessage(
+              "Automatically_add_trackers_to_new_tasks_form_a_trackslist_URL",
+            )}
           />
 
           <li>
@@ -196,13 +198,13 @@ class SettingsForm extends React.PureComponent<Props, State> {
                 }
               }}
             />
-            {(this.props.extensionState.settings.torrentTrackers.enablePublicTrackers && this.state.publicTrackerURL === "") ? (
+            {this.props.extensionState.settings.torrentTrackers.enablePublicTrackers &&
+            this.state.publicTrackerURL === "" ? (
               <span className="intent-error wrong-polling-interval">
                 {browser.i18n.getMessage("URL_is_empty")}
               </span>
             ) : undefined}
           </li>
-
         </SettingsList>
 
         {this.maybeRenderDebuggingOutputAndSeparator()}

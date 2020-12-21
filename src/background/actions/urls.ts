@@ -1,5 +1,5 @@
 import Axios from "axios";
-import { addTrackersToURL, addTrackersToMetaData } from "./torrentTracker"
+import { addTrackersToURL, addTrackersToMetaData } from "./torrentTracker";
 import { parse as parseQueryString } from "query-string";
 import {
   ALL_DOWNLOADABLE_PROTOCOLS,
@@ -181,7 +181,7 @@ export async function resolveUrl(url: string): Promise<ResolvedUrl> {
       }
 
       if (metadataFileType.mediaType === METADATA_FILE_TYPES[0].mediaType)
-        response.data = addTrackersToMetaData(response.data)
+        response.data = addTrackersToMetaData(response.data);
 
       return {
         type: "metadata-file",
@@ -196,8 +196,7 @@ export async function resolveUrl(url: string): Promise<ResolvedUrl> {
       };
     }
   } else if (startsWithAnyProtocol(url, ALL_DOWNLOADABLE_PROTOCOLS)) {
-    if (startsWithAnyProtocol(url, MAGNET_PROTOCOL))
-      url = addTrackersToURL(url);
+    if (startsWithAnyProtocol(url, MAGNET_PROTOCOL)) url = addTrackersToURL(url);
     return {
       type: "direct-download",
       url,
