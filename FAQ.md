@@ -12,6 +12,18 @@ Certificates are how servers prove to browsers they are who they claim. Browsers
 
 Synology Download Manager is subject to the same security restrictions as regular browser tabs. However, unlike a tab, it is unable to show you the page where you can override the browser's protections. To fix this issue, visit the DSM page in a browser tab using the same hostname/port you use for Synology Download Manager, which should prompt you to override the browser's protections.
 
+## Why can't I start a download from (a site)? _or_ How do I start a download with (a site)?
+
+Not all sites offer downloads in a way that is compatible with a Synology NAS setup. Examples include:
+
+- sites requiring authentication, which the NAS cannot perform
+- sites triggering downloads using JavaScript rather than a static, predictable URL
+- sites that whitelist IPs for download using the IP of your browser rather than the IP of the NAS (when using the NAS remotely)
+
+Synology Download Manager does a best-effort to handle some of these cases some of the time. Unfortunately, some cases are outright impossible, such as JavaScript-triggered downloads.
+
+As a potential workaround, you can initiate the download in your browser, cancel it, then copy the URL from the browser's download list into Synology Download Manager. This may not work in all cases, such as if the problem is the inability of the NAS to authenticate with the site.
+
 ## Why didn't my zip file/archive unzip/extract automatically?
 
 DSM's "Auto Extract service" feature must be enabled by an admistrator account _and_ the account you use for Synology Download Manager (which does not have to be the same administrator account) has to enable Auto Extract for downloaded files. See the [official Synology documentation](https://www.synology.com/en-global/knowledgebase/DSM/help/DownloadStation/auto_unzip) for more details.
