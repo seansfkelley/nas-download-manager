@@ -16,8 +16,8 @@ Synology Download Manager is subject to the same security restrictions as regula
 
 Not all sites offer downloads in a way that is compatible with a Synology NAS setup. Examples include:
 
-- sites requiring authentication, which the NAS cannot perform
-- sites triggering downloads using JavaScript rather than a static, predictable URL
+- sites requiring authentication to download, which the NAS cannot perform
+- sites triggering downloads using JavaScript rather than a link with a URL
 - sites that whitelist IPs for download using the IP of your browser rather than the IP of the NAS (when using the NAS remotely)
 
 Synology Download Manager does a best-effort to handle some of these cases some of the time. Unfortunately, some cases are outright impossible, such as JavaScript-triggered downloads.
