@@ -1,0 +1,60 @@
+@import "colors";
+
+header {
+  flex-shrink: 0;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  padding: 5px;
+  transition: box-shadow 100ms;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 2px 2px rgba(0, 0, 0, 0);
+
+  .description {
+    white-space: initial;
+    margin-right: auto;
+    margin-left: 3px;
+    display: flex;
+    align-items: center;
+
+    .fa {
+      font-size: 21px;
+    }
+
+    .left-icon {
+      margin-left: 2px;
+      margin-right: 8px;
+    }
+
+    .right-icon {
+      margin-left: 8px;
+      margin-right: 2px;
+    }
+  }
+
+  button {
+    margin-left: 2px;
+
+    &.called-out {
+      animation-name: shadow-glow;
+      animation-duration: 1s;
+      animation-iteration-count: infinite;
+      animation-timing-function: ease-in-out;
+      animation-direction: alternate;
+    }
+  }
+
+  &.with-shadow {
+    box-shadow: 0 1px 2px 2px rgba(0, 0, 0, 0.2);
+  }
+}
+
+@keyframes shadow-glow {
+  0% {
+    box-shadow: 0 0 2px 2px fade-out($color-loading, 1);
+  }
+
+  100% {
+    box-shadow: 0 0 2px 2px fade-out($color-loading, 0.3);
+  }
+}

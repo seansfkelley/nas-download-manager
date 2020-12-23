@@ -8,6 +8,10 @@ import { formatMetric1024 } from "../common/format";
 export interface Props extends CachedTasks {}
 
 export function Footer(props: Props) {
+  if (props.taskFetchFailureReason === "missing-config") {
+    return null;
+  }
+
   const totalDownloadSpeed = props.tasks.reduce(
     (acc, t) => acc + t.additional!.transfer!.speed_download,
     0,
@@ -23,11 +27,7 @@ export function Footer(props: Props) {
   let leftIcon: string;
   let rightIcon: string | undefined = undefined;
 
-  if (props.taskFetchFailureReason === "missing-config") {
-    text = browser.i18n.getMessage("Settings_unconfigured");
-    tooltip = browser.i18n.getMessage("The_hostname_username_or_password_are_not_configured");
-    leftIcon = "fa-cog";
-  } else if (props.tasksLastCompletedFetchTimestamp == null) {
+  if (props.tasksLastCompletedFetchTimestamp == null) {
     text = browser.i18n.getMessage("Updating");
     tooltip = browser.i18n.getMessage("Updating_download_tasks");
     leftIcon = "fa-sync fa-spin";

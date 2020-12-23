@@ -6,21 +6,14 @@ import type { DownloadStationTask } from "synology-typescript-api";
 
 import type { VisibleTaskSettings, TaskSortType, BadgeDisplayType } from "../common/state";
 import { sortTasks, filterTasks } from "../common/filtering";
-
-import { AdvancedAddDownloadForm } from "./AdvancedAddDownloadForm";
 import { TaskFilterSettingsForm } from "../common/components/TaskFilterSettingsForm";
-import type { PopupClient } from "./popupClient";
-
-import { Task } from "./Task";
 import { NonIdealState } from "../common/components/NonIdealState";
+import type { PopupClient } from "./popupClient";
+import { disabledPropAndClassName } from "./util";
+import { AdvancedAddDownloadForm } from "./AdvancedAddDownloadForm";
+import { Header } from "./Header";
 import { Footer } from "./Footer";
-
-function disabledPropAndClassName(disabled: boolean, className?: string) {
-  return {
-    disabled,
-    className: classNames({ disabled: disabled }, className),
-  };
-}
+import { Task } from "./Task";
 
 export interface Props {
   tasks: DownloadStationTask[];
@@ -62,7 +55,25 @@ export class Popup extends React.PureComponent<Props, State> {
   render() {
     return (
       <div className="popup">
-        {this.renderHeader()}
+        <Header
+          isAddingDownload={this.state.isAddingDownload}
+          onClickAddDownload={() => {
+            this.setState({
+              isAddingDownload: !this.state.isAddingDownload,
+              isShowingDisplaySettings: false,
+            });
+          }}
+          onClickOpenDownloadStationUi={this.props.client?.openDownloadStationUi}
+          isShowingDisplaySettings={this.state.isShowingDisplaySettings}
+          onClickDisplaySettings={() => {
+            this.setState({
+              isShowingDisplaySettings: !this.state.isShowingDisplaySettings,
+              isAddingDownload: false,
+            });
+          }}
+          isMissingConfig={this.props.taskFetchFailureReason === "missing-config"}
+          showDropShadow={this.state.isShowingDropShadow}
+        />
         {this.renderDisplaySettings()}
         <div
           className={classNames("popup-body", { "with-foreground": this.state.isAddingDownload })}
@@ -78,64 +89,6 @@ export class Popup extends React.PureComponent<Props, State> {
         />
         <div style={{ display: "none" }}>{this.state.firefoxRerenderNonce}</div>
       </div>
-    );
-  }
-
-  private renderHeader() {
-    // TODO:
-    // - move spinner/up-to-date icon into footer
-    // - rearrange footer: centering? split left/right?
-    // - add button to toolbar for clearing downloads
-    // - put icon in place of header
-
-    return (
-      <header className={classNames({ "with-shadow": this.state.isShowingDropShadow })}>
-        <button
-          onClick={() => {
-            this.setState({
-              isAddingDownload: !this.state.isAddingDownload,
-              isShowingDisplaySettings: false,
-            });
-          }}
-          title={browser.i18n.getMessage("Add_download")}
-          {...disabledPropAndClassName(
-            this.props.client == null,
-            classNames({ active: this.state.isAddingDownload }),
-          )}
-        >
-          <div className="fa fa-lg fa-plus" />
-        </button>
-        <button
-          onClick={this.props.client?.openDownloadStationUi}
-          title={browser.i18n.getMessage("Open_DownloadStation_UI")}
-          {...disabledPropAndClassName(this.props.client == null)}
-        >
-          <div className="fa fa-lg fa-external-link-alt" />
-        </button>
-        <button
-          onClick={() => {
-            this.setState({
-              isShowingDisplaySettings: !this.state.isShowingDisplaySettings,
-              isAddingDownload: false,
-            });
-          }}
-          title={browser.i18n.getMessage("Show_task_display_settings")}
-          className={classNames({ active: this.state.isShowingDisplaySettings })}
-        >
-          <div className="fa fa-lg fa-filter" />
-        </button>
-        <button
-          onClick={() => {
-            browser.runtime.openOptionsPage();
-          }}
-          title={browser.i18n.getMessage("Open_settings")}
-          className={classNames({
-            "called-out": this.props.taskFetchFailureReason === "missing-config",
-          })}
-        >
-          <div className="fa fa-lg fa-cog" />
-        </button>
-      </header>
     );
   }
 
