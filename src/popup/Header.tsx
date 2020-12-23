@@ -17,6 +17,8 @@ export interface Props {
 export function Header(props: Props) {
   return (
     <header className={classNames({ "with-shadow": props.showDropShadow })}>
+      <img src="/icons/icon-64.png" />
+      <span className="extension-name">Synology Download Manager</span>
       <button
         onClick={props.onClickAddDownload}
         title={browser.i18n.getMessage("Add_download")}
