@@ -1,6 +1,7 @@
 import "../../scss/fields.scss";
 import "../../scss/popup.scss";
 import "../../scss/non-ideal-state.scss";
+import "../../scss/footer.scss";
 import "../common/init/extensionContext";
 import * as React from "react";
 import * as ReactDOM from "react-dom";

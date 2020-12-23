@@ -3,16 +3,16 @@ import classNames from "classnames";
 import debounce from "lodash-es/debounce";
 import type { DownloadStationTask } from "synology-typescript-api";
 
-import { moment } from "../common/moment";
 import type { VisibleTaskSettings, TaskSortType, BadgeDisplayType } from "../common/state";
 import { sortTasks, filterTasks } from "../common/filtering";
-import { formatMetric1024 } from "../common/format";
+
 import { AdvancedAddDownloadForm } from "./AdvancedAddDownloadForm";
 import { TaskFilterSettingsForm } from "../common/components/TaskFilterSettingsForm";
 import type { PopupClient } from "./popupClient";
 
 import { Task } from "./Task";
 import { NonIdealState } from "../common/components/NonIdealState";
+import { Footer } from "./Footer";
 
 function disabledPropAndClassName(disabled: boolean, className?: string) {
   return {
@@ -69,58 +69,26 @@ export class Popup extends React.PureComponent<Props, State> {
           {this.renderTaskList()}
           {this.maybeRenderAddDownloadOverlay()}
         </div>
-        {this.renderFooter()}
+        <Footer
+          tasks={this.props.tasks}
+          taskFetchFailureReason={this.props.taskFetchFailureReason}
+          tasksLastInitiatedFetchTimestamp={this.props.tasksLastInitiatedFetchTimestamp}
+          tasksLastCompletedFetchTimestamp={this.props.tasksLastCompletedFetchTimestamp}
+        />
         <div style={{ display: "none" }}>{this.state.firefoxRerenderNonce}</div>
       </div>
     );
   }
 
   private renderHeader() {
-    let text: string;
-    let tooltip: string;
-    let classes: string | undefined = undefined;
-    let leftIcon: string;
-    let rightIcon: string | undefined = undefined;
-
-    if (this.props.taskFetchFailureReason === "missing-config") {
-      text = browser.i18n.getMessage("Settings_unconfigured");
-      tooltip = browser.i18n.getMessage("The_hostname_username_or_password_are_not_configured");
-      leftIcon = "fa-cog";
-    } else if (this.props.tasksLastCompletedFetchTimestamp == null) {
-      text = browser.i18n.getMessage("Updating");
-      tooltip = browser.i18n.getMessage("Updating_download_tasks");
-      leftIcon = "fa-sync fa-spin";
-    } else if (this.props.taskFetchFailureReason != null) {
-      text = browser.i18n.getMessage("Error_updating_tasks");
-      tooltip = this.props.taskFetchFailureReason.failureMessage;
-      classes = "intent-error";
-      leftIcon = "fa-exclamation-triangle";
-      rightIcon = "fa-info-circle";
-    } else {
-      text = browser.i18n.getMessage("Updated_ZtimeZ", [
-        moment(this.props.tasksLastCompletedFetchTimestamp).fromNow(),
-      ]);
-      tooltip = moment(this.props.tasksLastCompletedFetchTimestamp).format("ll LTS");
-      classes = "intent-success";
-      leftIcon = "fa-check";
-    }
-
-    if (
-      this.props.tasksLastInitiatedFetchTimestamp != null &&
-      this.props.tasksLastCompletedFetchTimestamp != null &&
-      this.props.tasksLastInitiatedFetchTimestamp > this.props.tasksLastCompletedFetchTimestamp
-    ) {
-      leftIcon = "fa-sync fa-spin";
-      tooltip += " " + browser.i18n.getMessage("updating_now");
-    }
+    // TODO:
+    // - move spinner/up-to-date icon into footer
+    // - rearrange footer: centering? split left/right?
+    // - add button to toolbar for clearing downloads
+    // - put icon in place of header
 
     return (
       <header className={classNames({ "with-shadow": this.state.isShowingDropShadow })}>
-        <div className={classNames("description", classes)} title={tooltip}>
-          <span className={classNames("left-icon fa", leftIcon)} />
-          {text}
-          {rightIcon && <span className={classNames("right-icon fa", rightIcon)} />}
-        </div>
         <button
           onClick={() => {
             this.setState({
@@ -226,7 +194,7 @@ export class Popup extends React.PureComponent<Props, State> {
     if (this.props.taskFetchFailureReason === "missing-config") {
       return (
         <NonIdealState
-          icon="fa-gear"
+          icon="fa-cog"
           text={browser.i18n.getMessage(
             "Configure_your_hostname_username_and_password_in_settings",
           )}
@@ -303,29 +271,6 @@ export class Popup extends React.PureComponent<Props, State> {
       );
     } else {
       return null;
-    }
-  }
-
-  private renderFooter() {
-    if (this.props.tasks.length === 0) {
-      return null;
-    } else {
-      const totalDownloadSpeed = this.props.tasks.reduce(
-        (acc, t) => acc + t.additional!.transfer!.speed_download,
-        0,
-      );
-      const totalUploadSpeed = this.props.tasks.reduce(
-        (acc, t) => acc + t.additional!.transfer!.speed_upload,
-        0,
-      );
-
-      return (
-        <footer>
-          <span className="fa fa-arrow-down" /> {formatMetric1024(totalDownloadSpeed)}B/s
-          <span className="spacer" />
-          <span className="fa fa-arrow-up" /> {formatMetric1024(totalUploadSpeed)}B/s
-        </footer>
-      );
     }
   }
 
