@@ -1,3 +1,4 @@
+import "./popup.scss";
 import * as React from "react";
 import classNames from "classnames";
 import debounce from "lodash-es/debounce";

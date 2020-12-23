@@ -1,3 +1,4 @@
+import "./settings-list.scss";
 import * as React from "react";
 
 export class SettingsList extends React.PureComponent<{}, {}> {

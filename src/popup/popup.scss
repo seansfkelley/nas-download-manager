@@ -1,0 +1,172 @@
+@import "colors";
+@import "common";
+
+.popup {
+  display: flex;
+  flex-direction: column;
+
+  header {
+    flex-shrink: 0;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    transition: box-shadow 100ms;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    box-shadow: 0 1px 2px 2px rgba(0, 0, 0, 0);
+
+    .description {
+      white-space: initial;
+      margin-right: auto;
+      margin-left: 3px;
+      display: flex;
+      align-items: center;
+
+      .fa {
+        font-size: 21px;
+      }
+
+      .left-icon {
+        margin-left: 2px;
+        margin-right: 8px;
+      }
+
+      .right-icon {
+        margin-left: 8px;
+        margin-right: 2px;
+      }
+    }
+
+    button {
+      margin-left: 2px;
+
+      &.called-out {
+        animation-name: shadow-glow;
+        animation-duration: 1s;
+        animation-iteration-count: infinite;
+        animation-timing-function: ease-in-out;
+        animation-direction: alternate;
+      }
+    }
+
+    &.with-shadow {
+      box-shadow: 0 1px 2px 2px rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  .display-settings {
+    flex-shrink: 0;
+    max-height: 0px;
+    transition: max-height 300ms;
+    overflow: hidden;
+
+    &.is-visible {
+      max-height: 1000px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    }
+
+    h4 {
+      margin-left: 15px;
+    }
+
+    .task-filter-settings-form {
+      select {
+        margin-right: 15px;
+      }
+    }
+
+    .clear-completed-tasks-button {
+      margin-left: 15px;
+      margin-bottom: 10px;
+
+      .fa {
+        margin-left: 5px;
+        font-size: 14px;
+      }
+    }
+  }
+
+  .popup-body {
+    flex: 1;
+    overflow-y: auto;
+    position: relative;
+    min-height: 50px;
+
+    &.with-foreground {
+      min-height: 400px;
+
+      > :not(.add-download-overlay) {
+        filter: blur(3px);
+      }
+
+      .download-tasks {
+        overflow-y: hidden;
+        height: 100%;
+      }
+    }
+  }
+}
+
+.download-tasks {
+  .hidden-count {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 5px;
+    margin-bottom: 10px;
+
+    &:hover {
+      text-decoration: underline;
+      cursor: pointer;
+    }
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+.popup-body .add-download-overlay {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  .backdrop {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.2);
+    filter: blur 0.5px;
+  }
+
+  .overlay-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 10px;
+  }
+
+  .advanced-add-download-form {
+    height: 100%;
+
+    .download-path {
+      flex: 1;
+    }
+  }
+}
+
+@keyframes shadow-glow {
+  0% {
+    box-shadow: 0 0 2px 2px fade-out($color-loading, 1);
+  }
+
+  100% {
+    box-shadow: 0 0 2px 2px fade-out($color-loading, 0.3);
+  }
+}

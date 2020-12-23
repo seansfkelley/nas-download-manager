@@ -1,3 +1,4 @@
+import "./fatal-error.scss";
 import * as React from "react";
 
 import { NonIdealState } from "../common/components/NonIdealState";

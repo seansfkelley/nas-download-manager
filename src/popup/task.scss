@@ -1,0 +1,104 @@
+@import "colors";
+
+.task {
+  padding: 8px;
+
+  .header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+
+    .name-and-status {
+      padding-right: 5px;
+      margin-right: auto;
+      overflow: hidden;
+
+      .name,
+      .status {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .name {
+        font-weight: 500;
+      }
+
+      .status {
+        font-size: 0.8em;
+        color: $color-text-faded;
+
+        .error-icon {
+          margin-right: 3px;
+        }
+      }
+    }
+
+    .remove-button {
+      color: $color-error;
+    }
+
+    .remove-button,
+    .pause-resume-button {
+      .fa {
+        font-size: 14px;
+      }
+
+      &:not(:last-child) {
+        margin-right: 3px;
+      }
+    }
+  }
+
+  .status {
+    .status-icon {
+      margin-right: 4px;
+    }
+  }
+
+  .progress-bar {
+    height: 5px;
+    border-radius: 2px;
+    position: relative;
+
+    .bar-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      border-radius: inherit;
+
+      &.in-progress {
+        background-color: $color-loading;
+      }
+
+      &.completed {
+        background-color: $color-success;
+      }
+
+      &.errored {
+        background-color: $color-error;
+      }
+
+      &.unknown {
+        background-color: $color-indeterminate;
+      }
+    }
+
+    .bar-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      background-color: rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  &:not(:hover) .header {
+    .remove-button,
+    .pause-resume-button {
+      display: none;
+    }
+  }
+}

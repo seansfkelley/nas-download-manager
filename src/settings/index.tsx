@@ -1,6 +1,4 @@
-import "../../scss/fields.scss";
-import "../../scss/settings.scss";
-import "../../scss/non-ideal-state.scss";
+import "./index.scss";
 import "../common/init/extensionContext";
 import * as React from "react";
 import * as ReactDOM from "react-dom";

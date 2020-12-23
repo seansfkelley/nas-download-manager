@@ -1,3 +1,4 @@
+import "./path-selector.scss";
 import * as React from "react";
 import type { MessageResponse, Directory } from "../common/apis/messages";
 import {

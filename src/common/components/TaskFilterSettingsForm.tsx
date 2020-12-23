@@ -1,5 +1,5 @@
+import "./task-filter-settings-form.scss";
 import * as React from "react";
-
 import {
   VisibleTaskSettings,
   TaskSortType,

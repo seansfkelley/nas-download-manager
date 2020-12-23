@@ -1,3 +1,4 @@
+import "./task.scss";
 import * as React from "react";
 import startCase from "lodash-es/startCase";
 import upperCase from "lodash-es/upperCase";

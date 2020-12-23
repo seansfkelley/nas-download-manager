@@ -1,3 +1,4 @@
+import "./advanced-add-download-form.scss";
 import * as React from "react";
 import last from "lodash-es/last";
 import classNames from "classnames";

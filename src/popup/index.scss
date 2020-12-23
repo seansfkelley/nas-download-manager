@@ -1,0 +1,38 @@
+@import "fields";
+@import "colors";
+
+// Weird stuff happens when the contents of the popup change the size of the actual popup's container.
+// In particular, stuff gets extra weird over some internal arbitrary height limit that Chrome has, an
+// the popup might end up with two scroll bars, which is pretty sad. Experimentally, 500px is below
+// the cutoff. To experience the weirdness for yourself, raise this limit really high then add a bunch
+// of task list items until it's well over the limit for scrolling and then try to scroll.
+$mystery-chrome-height-limit: 500px;
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background-color: $color-background;
+  color: $color-text;
+}
+
+button:not(.disabled):not(:disabled) {
+  cursor: pointer;
+}
+
+body {
+  // Reset for Chrome.
+  margin: 0;
+}
+
+html,
+body,
+#body,
+.popup {
+  // Using 100% here should work, but it doesn't. The browser popup must do something weird
+  // such that it changes width depending on the contents, even when it's 100% of the <html>
+  // width (which is explicitly specified). :/
+  width: 400px;
+  max-height: $mystery-chrome-height-limit;
+}
