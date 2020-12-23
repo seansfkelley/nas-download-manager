@@ -1,7 +1,7 @@
 import "./popup.scss";
 import * as React from "react";
 import classNames from "classnames";
-import debounce from "lodash-es/debounce";
+import throttle from "lodash-es/throttle";
 import type { DownloadStationTask } from "synology-typescript-api";
 
 import type { VisibleTaskSettings, TaskSortType, BadgeDisplayType } from "../common/state";
@@ -9,7 +9,6 @@ import { sortTasks, filterTasks } from "../common/filtering";
 import { TaskFilterSettingsForm } from "../common/components/TaskFilterSettingsForm";
 import { NonIdealState } from "../common/components/NonIdealState";
 import type { PopupClient } from "./popupClient";
-import { disabledPropAndClassName } from "./util";
 import { AdvancedAddDownloadForm } from "./AdvancedAddDownloadForm";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
@@ -53,16 +52,33 @@ export class Popup extends React.PureComponent<Props, State> {
   };
 
   render() {
+    const completedTaskIds = this.props.tasks
+      .filter((t) => t.status === "finished")
+      .map((t) => t.id);
+    const onClickClearTasks = this.props.client
+      ? async () => {
+          this.setState({ isClearingCompletedTasks: true });
+          await this.props.client!.deleteTasks(completedTaskIds);
+          this.setState({ isClearingCompletedTasks: false });
+        }
+      : undefined;
+
     return (
       <div className="popup">
         <Header
           isAddingDownload={this.state.isAddingDownload}
-          onClickAddDownload={() => {
-            this.setState({
-              isAddingDownload: !this.state.isAddingDownload,
-              isShowingDisplaySettings: false,
-            });
-          }}
+          onClickAddDownload={
+            this.props.client != null
+              ? () => {
+                  this.setState({
+                    isAddingDownload: !this.state.isAddingDownload,
+                    isShowingDisplaySettings: false,
+                  });
+                }
+              : undefined
+          }
+          completedTaskCount={completedTaskIds.length}
+          onClickClearTasks={this.state.isClearingCompletedTasks ? "pending" : onClickClearTasks}
           onClickOpenDownloadStationUi={this.props.client?.openDownloadStationUi}
           isShowingDisplaySettings={this.state.isShowingDisplaySettings}
           onClickDisplaySettings={() => {
@@ -75,9 +91,27 @@ export class Popup extends React.PureComponent<Props, State> {
           showDropShadow={this.state.isShowingDropShadow}
           disabledLogo={this.props.taskFetchFailureReason != null}
         />
-        {this.renderDisplaySettings()}
+        <div
+          className={classNames("display-settings", {
+            "is-visible": this.state.isShowingDisplaySettings,
+          })}
+        >
+          <h4 className="title">{browser.i18n.getMessage("Task_Display_Settings")}</h4>
+          <TaskFilterSettingsForm
+            visibleTasks={this.props.visibleTasks}
+            taskSortType={this.props.taskSort}
+            badgeDisplayType={this.props.badgeDisplay}
+            updateTaskTypeVisibility={this.updateTaskTypeVisibility}
+            updateTaskSortType={this.props.changeTaskSort}
+            updateBadgeDisplayType={this.props.changeBadgeDisplay}
+          />
+        </div>
         <div
           className={classNames("popup-body", { "with-foreground": this.state.isAddingDownload })}
+          onScroll={this.onBodyScroll}
+          ref={(e) => {
+            this.bodyRef = e ?? undefined;
+          }}
         >
           {this.renderTaskList()}
           {this.maybeRenderAddDownloadOverlay()}
@@ -89,51 +123,6 @@ export class Popup extends React.PureComponent<Props, State> {
           tasksLastCompletedFetchTimestamp={this.props.tasksLastCompletedFetchTimestamp}
         />
         <div style={{ display: "none" }}>{this.state.firefoxRerenderNonce}</div>
-      </div>
-    );
-  }
-
-  private renderDisplaySettings() {
-    const completedTaskIds = this.props.tasks
-      .filter((t) => t.status === "finished")
-      .map((t) => t.id);
-    const deleteTasks = this.props.client
-      ? async () => {
-          this.setState({ isClearingCompletedTasks: true });
-          await this.props.client!.deleteTasks(completedTaskIds);
-          this.setState({ isClearingCompletedTasks: false });
-        }
-      : undefined;
-    return (
-      <div
-        className={classNames("display-settings", {
-          "is-visible": this.state.isShowingDisplaySettings,
-        })}
-      >
-        <h4 className="title">{browser.i18n.getMessage("Task_Display_Settings")}</h4>
-        <TaskFilterSettingsForm
-          visibleTasks={this.props.visibleTasks}
-          taskSortType={this.props.taskSort}
-          badgeDisplayType={this.props.badgeDisplay}
-          updateTaskTypeVisibility={this.updateTaskTypeVisibility}
-          updateTaskSortType={this.props.changeTaskSort}
-          updateBadgeDisplayType={this.props.changeBadgeDisplay}
-        />
-        <button
-          onClick={deleteTasks}
-          title={browser.i18n.getMessage(
-            "Clear_tasks_that_are_completed_and_not_currently_uploading",
-          )}
-          {...disabledPropAndClassName(
-            this.state.isClearingCompletedTasks ||
-              deleteTasks == null ||
-              completedTaskIds.length === 0,
-            "clear-completed-tasks-button",
-          )}
-        >
-          {browser.i18n.getMessage("Clear_ZcountZ_Completed_Tasks", [completedTaskIds.length])}
-          {this.state.isClearingCompletedTasks && <span className="fa fa-sync fa-spin" />}
-        </button>
       </div>
     );
   }
@@ -175,12 +164,7 @@ export class Popup extends React.PureComponent<Props, State> {
           : undefined;
         return (
           <div className="download-tasks">
-            <ul
-              onScroll={this.onBodyScroll}
-              ref={(e) => {
-                this.bodyRef = e || undefined;
-              }}
-            >
+            <ul>
               {sortTasks(filteredTasks, this.props.taskSort).map((task) => (
                 <Task
                   key={task.id}
@@ -229,13 +213,13 @@ export class Popup extends React.PureComponent<Props, State> {
     }
   }
 
-  private onBodyScroll = debounce(() => {
+  private onBodyScroll = throttle(() => {
     if (this.bodyRef) {
       this.setState({ isShowingDropShadow: this.bodyRef.scrollTop !== 0 });
     } else {
       this.setState({ isShowingDropShadow: false });
     }
-  }, 100);
+  }, 200);
 
   componentDidUpdate(_prevProps: Props, prevState: State) {
     if (prevState.isShowingDisplaySettings !== this.state.isShowingDisplaySettings) {

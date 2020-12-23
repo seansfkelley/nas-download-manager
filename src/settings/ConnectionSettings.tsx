@@ -8,7 +8,7 @@ import {
 import { SettingsList } from "../common/components/SettingsList";
 import { ConnectionTestResultDisplay } from "./ConnectionTestResultDisplay";
 import { ConnectionTestResult, testConnection } from "./settingsUtils";
-import { disabledPropAndClassName, kludgeRefSetClassname } from "./classnameUtil";
+import { disabledPropAndClassName, kludgeRefSetClassname } from "../common/classnameUtil";
 
 interface Props {
   connectionSettings: ConnectionSettingsObject;

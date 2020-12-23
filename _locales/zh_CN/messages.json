@@ -486,15 +486,16 @@
     "message": " 并附带以下信息",
     "description": "Suffix for action text for the popup when asking the user to file a bug when we have a fatal rendering error."
   },
-  "Clear_ZcountZ_Completed_Tasks": {
+  "Clear_ZcountZ_completed_and_not_uploading_tasks": {
     "message": "清除 $COUNT$ 个已完成的下载",
-    "description": "Label for button to clear completed download tasks.",
+    "description": "Tooltip for button to clear completed download tasks.",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "1"
       }
-    }
+    },
+    "needs_update": true
   },
   "Clear_tasks_that_are_completed_and_not_currently_uploading": {
     "message": "清除已完成并且未上传的下载",

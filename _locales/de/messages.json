@@ -483,7 +483,7 @@
     "message": " und füge die folgenden Informationen hinzu.",
     "description": "Suffix for action text for the popup when asking the user to file a bug when we have a fatal rendering error."
   },
-  "Clear_ZcountZ_Completed_Tasks": {
+  "Clear_ZcountZ_completed_and_not_uploading_tasks": {
     "message": "$COUNT$ erledigte Aufgabe(n) löschen",
     "description": "Label for button to clear completed download tasks.",
     "placeholders": {
@@ -491,7 +491,8 @@
         "content": "$1",
         "example": "1"
       }
-    }
+    },
+    "needs_update": true
   },
   "Clear_tasks_that_are_completed_and_not_currently_uploading": {
     "message": "Lösche Aufgaben, die abgeschlossen sind und derzeit nicht hochgeladen werden",

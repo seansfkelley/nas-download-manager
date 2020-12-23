@@ -486,8 +486,8 @@
     "message": " and include the information below.",
     "description": "Suffix for action text for the popup when asking the user to file a bug when we have a fatal rendering error."
   },
-  "Clear_ZcountZ_Completed_Tasks": {
-    "message": "Clear $COUNT$ Completed Task(s)",
+  "Clear_ZcountZ_completed_and_not_uploading_tasks": {
+    "message": "Clear $COUNT$ completed and not uploading task(s)",
     "description": "Label for button to clear completed download tasks.",
     "placeholders": {
       "count": {

@@ -463,7 +463,7 @@
     "message": " и включите информацию ниже.",
     "description": "Суффикс для текста действия для всплывающего окна, когда пользователь просит сообщить об ошибке, когда у нас возникает фатальная ошибка визуализации."
   },
-  "Clear_ZcountZ_Completed_Tasks": {
+  "Clear_ZcountZ_completed_and_not_uploading_tasks": {
     "message": "Очистить $COUNT$ выполненых задач",
     "description": "Метка для кнопки, чтобы очистить выполненные задачи загрузки.",
     "placeholders": {
@@ -471,7 +471,8 @@
         "content": "$1",
         "example": "1"
       }
-    }
+    },
+    "needs_update": true
   },
   "Clear_tasks_that_are_completed_and_not_currently_uploading": {
     "message": "Очистить задачи, которые завершены и не загружаются в данный момент",

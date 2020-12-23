@@ -482,7 +482,7 @@
     "message": " et inclure les informations ci-dessus.",
     "description": "Suffix for action text for the popup when asking the user to file a bug when we have a fatal rendering error."
   },
-  "Clear_ZcountZ_Completed_Tasks": {
+  "Clear_ZcountZ_completed_and_not_uploading_tasks": {
     "message": "Retirer la/les $COUNT$ tâche(s) terminée(s)",
     "description": "Label for button to clear completed download tasks.",
     "placeholders": {
@@ -490,7 +490,8 @@
         "content": "$1",
         "example": "1"
       }
-    }
+    },
+    "needs_update": true
   },
   "Clear_tasks_that_are_completed_and_not_currently_uploading": {
     "message": "Retirer les tâches terminées qui ne sont pas en cours d'envoi",

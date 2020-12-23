@@ -24,7 +24,7 @@ import { SettingsList } from "../common/components/SettingsList";
 import { SettingsListCheckbox } from "../common/components/SettingsListCheckbox";
 import { saveSettings } from "./settingsUtils";
 import { ConnectionSettings as ConnectionSettingsComponent } from "./ConnectionSettings";
-import { disabledPropAndClassName, kludgeRefSetClassname } from "./classnameUtil";
+import { disabledPropAndClassName, kludgeRefSetClassname } from "../common/classnameUtil";
 import { typesafePick } from "../common/lang";
 
 interface Props {

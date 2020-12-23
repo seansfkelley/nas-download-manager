@@ -2,11 +2,13 @@ import "./header.scss";
 import * as React from "react";
 import classNames from "classnames";
 
-import { disabledPropAndClassName } from "./util";
+import { disabledPropAndClassName } from "../common/classnameUtil";
 
 export interface Props {
   isAddingDownload: boolean;
   onClickAddDownload?: () => void;
+  completedTaskCount: number;
+  onClickClearTasks?: "pending" | (() => void);
   onClickOpenDownloadStationUi?: () => void;
   isShowingDisplaySettings: boolean;
   onClickDisplaySettings: () => void;
@@ -29,6 +31,23 @@ export function Header(props: Props) {
         )}
       >
         <div className="fa fa-lg fa-plus" />
+      </button>
+      <button
+        onClick={props.onClickClearTasks === "pending" ? undefined : props.onClickClearTasks}
+        title={browser.i18n.getMessage("Clear_ZcountZ_completed_and_not_uploading_tasks", [
+          props.completedTaskCount,
+        ])}
+        {...disabledPropAndClassName(
+          props.onClickClearTasks === "pending" ||
+            props.onClickClearTasks == null ||
+            props.completedTaskCount === 0,
+        )}
+      >
+        <div
+          className={
+            props.onClickClearTasks === "pending" ? "fa fa-lg fa-sync fa-spin" : "fa fa-lg fa-broom"
+          }
+        />
       </button>
       <button
         onClick={props.onClickOpenDownloadStationUi}
