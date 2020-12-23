@@ -73,6 +73,7 @@ export class Popup extends React.PureComponent<Props, State> {
           }}
           isMissingConfig={this.props.taskFetchFailureReason === "missing-config"}
           showDropShadow={this.state.isShowingDropShadow}
+          disabledLogo={this.props.taskFetchFailureReason != null}
         />
         {this.renderDisplaySettings()}
         <div

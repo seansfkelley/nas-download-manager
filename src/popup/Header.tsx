@@ -12,12 +12,13 @@ export interface Props {
   onClickDisplaySettings: () => void;
   isMissingConfig: boolean;
   showDropShadow: boolean;
+  disabledLogo: boolean;
 }
 
 export function Header(props: Props) {
   return (
     <header className={classNames({ "with-shadow": props.showDropShadow })}>
-      <img src="/icons/icon-64.png" />
+      <img src={props.disabledLogo ? "/icons/icon-64-disabled.png" : "/icons/icon-64.png"} />
       <span className="extension-name">Synology Download Manager</span>
       <button
         onClick={props.onClickAddDownload}

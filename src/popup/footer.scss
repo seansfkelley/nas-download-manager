@@ -10,11 +10,15 @@ footer {
     margin-right: 5px;
   }
 
-  .network-speed-spacer {
-    margin-right: 12px;
+  .spacer {
+    margin-right: 8px;
   }
 
   .status {
-    float: right;
+    margin-left: auto;
+
+    .fa {
+      margin-right: 4px;
+    }
   }
 }
