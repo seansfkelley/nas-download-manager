@@ -1,17 +1,17 @@
 import type { State, StateVersion } from "./latest";
-import { transition as state0to1 } from "./1";
-import { transition as state1to2 } from "./2";
-import { transition as state2to3 } from "./3";
-import { transition as state3to4 } from "./4";
-import { transition as state4to5 } from "./5";
+import { migrate as migrate0to1 } from "./1";
+import { migrate as migrate1to2 } from "./2";
+import { migrate as migrate2to3 } from "./3";
+import { migrate as migrate3to4 } from "./4";
+import { migrate as migrate4to5 } from "./5";
 
 const LATEST_STATE_VERSION: StateVersion["stateVersion"] = 5;
-const STATE_TRANSFORMS: ((state: any) => any)[] = [
-  state0to1,
-  state1to2,
-  state2to3,
-  state3to4,
-  state4to5,
+const MIGRATIONS: ((state: any) => any)[] = [
+  migrate0to1,
+  migrate1to2,
+  migrate2to3,
+  migrate3to4,
+  migrate4to5,
 ];
 
 interface AnyStateVersion {
@@ -38,15 +38,15 @@ function getStartingVersion(state: any) {
   }
 }
 
-export function updateStateToLatest(state: any | null): State {
+export function migrateState(state: any | null): State {
   const version = getStartingVersion(state);
 
   if (version > LATEST_STATE_VERSION) {
     throw new Error(`cannot downgrade state shape from ${version} to ${LATEST_STATE_VERSION}`);
   }
 
-  STATE_TRANSFORMS.slice(version).forEach((transform) => {
-    state = transform(state);
+  MIGRATIONS.slice(version).forEach((migration) => {
+    state = migration(state);
   });
 
   return state;

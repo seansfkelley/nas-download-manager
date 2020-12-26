@@ -3,12 +3,12 @@ import { expect } from "chai";
 import { cloneDeep } from "lodash";
 import type { DownloadStationTask } from "synology-typescript-api";
 
-import { updateStateToLatest } from "../src/common/state/update";
-import type { State as State_1 } from "../src/common/state/1";
-import type { State as State_2 } from "../src/common/state/2";
-import type { State as State_3 } from "../src/common/state/3";
-import type { State as State_4 } from "../src/common/state/4";
-import type { State as State_5 } from "../src/common/state/5";
+import { migrateState } from "../src/common/state/migrations/update";
+import type { State as State_1 } from "../src/common/state/migrations/1";
+import type { State as State_2 } from "../src/common/state/migrations/2";
+import type { State as State_3 } from "../src/common/state/migrations/3";
+import type { State as State_4 } from "../src/common/state/migrations/4";
+import type { State as State_5 } from "../src/common/state/migrations/5";
 
 interface PreVersioningState_0 {
   connection: {
@@ -60,7 +60,7 @@ const DUMMY_TASK: DownloadStationTask = {
 
 function testTranstion<T>(before: T, after: State_5) {
   const originalBefore = cloneDeep(before);
-  const transitioned = updateStateToLatest(before);
+  const transitioned = migrateState(before);
 
   expect(before).to.not.deep.equal(after);
   expect(before).to.deep.equal(originalBefore);
@@ -631,10 +631,10 @@ describe("state versioning", () => {
       stateVersion: 5,
     };
 
-    expect(updateStateToLatest(before)).to.equal(before);
+    expect(migrateState(before)).to.equal(before);
   });
 
   it("should throw an error if the state version is too new", () => {
-    expect(() => updateStateToLatest({ stateVersion: 999 })).to.throw("cannot downgrade");
+    expect(() => migrateState({ stateVersion: 999 })).to.throw("cannot downgrade");
   });
 });

@@ -27,7 +27,7 @@ export interface Settings extends Settings_3 {
 
 export interface State extends Settings, CachedTasks_3, Logging_3, StateVersion {}
 
-export function transition(state: State_3): State {
+export function migrate(state: State_3): State {
   return {
     ...state,
     badgeDisplayType: "total",

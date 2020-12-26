@@ -1,4 +1,4 @@
-import { typesafeUnionMembers, typesafeOmit, typesafePick } from "../lang";
+import { typesafeUnionMembers, typesafeOmit, typesafePick } from "../../lang";
 
 import type {
   State as State_4,
@@ -37,7 +37,7 @@ const SETTINGS_KEYS = typesafeUnionMembers<keyof Settings_4>({
   shouldHandleDownloadLinks: true,
 });
 
-export function transition(state: State_4): State {
+export function migrate(state: State_4): State {
   return {
     ...typesafeOmit(state, ...SETTINGS_KEYS),
     settings: typesafePick(state, ...SETTINGS_KEYS),
