@@ -94,18 +94,6 @@
     "message": "展开/折叠文件夹",
     "description": "Tooltip for expand/collapse button in directory tree view."
   },
-  "Settings_unconfigured": {
-    "message": "未配置选项",
-    "description": "Task load failure reason."
-  },
-  "The_hostname_username_or_password_are_not_configured": {
-    "message": "主机名或登录信息未配置",
-    "description": "Tooltip for a type of task load failure."
-  },
-  "Updating": {
-    "message": "更新中...",
-    "description": "Generic updating text."
-  },
   "Updating_download_tasks": {
     "message": "下载任务更新中...",
     "description": "Tooltip for updating-in-progress text in popup header."
@@ -496,10 +484,6 @@
       }
     },
     "needs_update": true
-  },
-  "Clear_tasks_that_are_completed_and_not_currently_uploading": {
-    "message": "清除已完成并且未上传的下载",
-    "description": "Tooltip for button to clear completed download tasks."
   },
   "Unknown_error": {
     "message": "未知错误",

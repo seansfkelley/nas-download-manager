@@ -90,18 +90,6 @@
     "message": "Развернуть/свернуть каталог",
     "description": "Подсказка для кнопки развернуть/свернуть в дереве каталогов."
   },
-  "Settings_unconfigured": {
-    "message": "Настройки несконфигурированы",
-    "description": "Причина сбоя загрузки задачи."
-  },
-  "The_hostname_username_or_password_are_not_configured": {
-    "message": "Имя хоста, имя пользователя или пароль не настроены",
-    "description": "Подсказка по типу сбоя при загрузке задачи."
-  },
-  "Updating": {
-    "message": "Обновление...",
-    "description": "Общий текст обновления."
-  },
   "Updating_download_tasks": {
     "message": "Обновление задач загрузки...",
     "description": "Подсказка для текста 'обновление-в-прогрессе' во всплывающем заголовке."
@@ -473,10 +461,6 @@
       }
     },
     "needs_update": true
-  },
-  "Clear_tasks_that_are_completed_and_not_currently_uploading": {
-    "message": "Очистить задачи, которые завершены и не загружаются в данный момент",
-    "description": "Подсказка для кнопки, чтобы очистить завершенные задачи загрузки."
   },
   "Unknown_error": {
     "message": "Неизвестная ошибка.",

@@ -94,18 +94,6 @@
     "message": "Développer/replier le dossier",
     "description": "Tooltip for expand/collapse button in directory tree view."
   },
-  "Settings_unconfigured": {
-    "message": "Réglages non configurés",
-    "description": "Task load failure reason."
-  },
-  "The_hostname_username_or_password_are_not_configured": {
-    "message": "Le nom d'hôte, le nom d'utilisateur ou le mot de passe ne sont pas configurés",
-    "description": "Tooltip for a type of task load failure."
-  },
-  "Updating": {
-    "message": "Mise à jour…",
-    "description": "Generic updating text."
-  },
   "Updating_download_tasks": {
     "message": "Mise à jour des tâches de téléchargement…",
     "description": "Tooltip for updating-in-progress text in popup header."
@@ -492,10 +480,6 @@
       }
     },
     "needs_update": true
-  },
-  "Clear_tasks_that_are_completed_and_not_currently_uploading": {
-    "message": "Retirer les tâches terminées qui ne sont pas en cours d'envoi",
-    "description": "Tooltip for button to clear completed download tasks."
   },
   "Unknown_error": {
     "message": "Erreur inconnue.",

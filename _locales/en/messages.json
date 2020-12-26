@@ -94,18 +94,6 @@
     "message": "Expand/collapse directory",
     "description": "Tooltip for expand/collapse button in directory tree view."
   },
-  "Settings_unconfigured": {
-    "message": "Settings unconfigured",
-    "description": "Task load failure reason."
-  },
-  "The_hostname_username_or_password_are_not_configured": {
-    "message": "The hostname, username or password are not configured",
-    "description": "Tooltip for a type of task load failure."
-  },
-  "Updating": {
-    "message": "Updating...",
-    "description": "Generic updating text."
-  },
   "Updating_download_tasks": {
     "message": "Updating download tasks...",
     "description": "Tooltip for updating-in-progress text in popup header."
@@ -495,10 +483,6 @@
         "example": "1"
       }
     }
-  },
-  "Clear_tasks_that_are_completed_and_not_currently_uploading": {
-    "message": "Clear tasks that are completed and not currently uploading",
-    "description": "Tooltip for button to clear completed download tasks."
   },
   "Unknown_error": {
     "message": "Unknown error.",
