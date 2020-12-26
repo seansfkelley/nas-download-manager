@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Synology Download Manager",
-  "version": "0.8.2",
+  "version": "0.9.0",
   "description": "__MSG_Add_and_manage_Download_Station_tasks_on_your_Synology_DiskStation__",
   "default_locale": "en",
   "background": {
