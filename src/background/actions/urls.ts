@@ -131,10 +131,11 @@ export interface MissingOrIllegalUrl {
 }
 
 export interface UnexpectedErrorForUrl {
-  type: "unexpected-error";
+  type: "error";
+  reason: "timeout" | "network-error" | "unknown";
   url: string;
   error: any;
-  description: string;
+  debugDescription: string;
 }
 
 export type ResolvedUrl =
@@ -144,12 +145,24 @@ export type ResolvedUrl =
   | UnexpectedErrorForUrl;
 
 export async function resolveUrl(url: string): Promise<ResolvedUrl> {
-  function createUnexpectedError(error: any, description: string): UnexpectedErrorForUrl {
+  function createUnexpectedError(error: any, debugDescription: string): UnexpectedErrorForUrl {
+    let subtype;
+
+    if (error?.message === "Network Error") {
+      subtype = "network-error" as const;
+    } else if (/timeout of \d+ms exceeded/.test(error?.message ?? "")) {
+      // This is a best-effort which I expect to start silently falling back onto 'unknown' at some point in the future.
+      subtype = "timeout" as const;
+    } else {
+      subtype = "unknown" as const;
+    }
+
     return {
-      type: "unexpected-error",
+      type: "error",
+      reason: subtype,
       url,
       error,
-      description,
+      debugDescription,
     };
   }
 

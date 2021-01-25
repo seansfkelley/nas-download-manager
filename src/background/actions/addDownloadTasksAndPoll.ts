@@ -13,7 +13,13 @@ import {
   EMULE_PROTOCOL,
   startsWithAnyProtocol,
 } from "../../common/apis/protocols";
-import { resolveUrl, ResolvedUrl, sanitizeUrlForSynology, guessFileNameFromUrl } from "./urls";
+import {
+  resolveUrl,
+  ResolvedUrl,
+  UnexpectedErrorForUrl,
+  sanitizeUrlForSynology,
+  guessFileNameFromUrl,
+} from "./urls";
 import { pollTasks } from "./pollTasks";
 import type { UnionByDiscriminant } from "../../common/types";
 import type { AddTaskOptions } from "../../common/apis/messages";
@@ -24,6 +30,14 @@ type ArrayifyValues<T extends Record<string, any>> = {
 };
 
 type ResolvedUrlByType = ArrayifyValues<UnionByDiscriminant<ResolvedUrl, "type">>;
+
+const UNEXPECTED_ERROR_REASON_TO_USER_MESSAGE: Record<UnexpectedErrorForUrl["reason"], string> = {
+  "network-error": browser.i18n.getMessage(
+    "Ensure_the_download_URL_is_valid_and_reachable_by_your_browser",
+  ),
+  timeout: browser.i18n.getMessage("The_download_URL_timed_out"),
+  unknown: browser.i18n.getMessage("The_download_URL_failed_with_an_unknown_error"),
+};
 
 async function checkIfEMuleShouldBeEnabled(api: ApiClient, urls: string[]) {
   if (urls.some((url) => startsWithAnyProtocol(url, EMULE_PROTOCOL))) {
@@ -43,9 +57,9 @@ async function checkIfEMuleShouldBeEnabled(api: ApiClient, urls: string[]) {
 function reportUnexpectedError(
   notificationId: string | undefined,
   e: any | undefined,
-  message?: string,
+  debugMessage?: string,
 ) {
-  onUnhandledError(e, message);
+  onUnhandledError(e, debugMessage);
   notify(
     browser.i18n.getMessage("Failed_to_add_download"),
     browser.i18n.getMessage("Unexpected_error_please_check_your_settings_and_try_again"),
@@ -88,7 +102,7 @@ async function addOneTask(
       try {
         shouldEMuleBeEnabled = await checkIfEMuleShouldBeEnabled(api, [url]);
       } catch (e) {
-        reportUnexpectedError(e, "error while checking emule settings");
+        reportUnexpectedError(notificationId, e, "error while checking emule settings");
         return;
       }
 
@@ -154,8 +168,13 @@ async function addOneTask(
       "failure",
       notificationId,
     );
-  } else if (resolvedUrl.type === "unexpected-error") {
-    reportUnexpectedError(notificationId, resolvedUrl.error, resolvedUrl.description);
+  } else if (resolvedUrl.type === "error") {
+    notify(
+      browser.i18n.getMessage("Failed_to_add_download"),
+      UNEXPECTED_ERROR_REASON_TO_USER_MESSAGE[resolvedUrl.reason],
+      "failure",
+      notificationId,
+    );
   } else {
     assertNever(resolvedUrl);
   }
@@ -181,7 +200,7 @@ async function addMultipleTasks(
     "direct-download": [],
     "metadata-file": [],
     "missing-or-illegal": [],
-    "unexpected-error": [],
+    error: [],
   };
 
   resolvedUrls.forEach((url) => {
@@ -208,13 +227,13 @@ async function addMultipleTasks(
     }
   }
 
-  if (groupedUrls["unexpected-error"].length > 0) {
-    const firstError = groupedUrls["unexpected-error"][0];
+  if (groupedUrls["error"].length > 0) {
+    const firstError = groupedUrls["error"][0];
     onUnhandledError(
       firstError.error,
-      `${groupedUrls["unexpected-error"].length} error(s) while resolving URLs; first message: ${firstError.description}`,
+      `${groupedUrls["error"].length} error(s) while resolving URLs; first message: ${firstError.debugDescription}`,
     );
-    failures += groupedUrls["unexpected-error"].length;
+    failures += groupedUrls["error"].length;
   }
 
   failures += groupedUrls["missing-or-illegal"].length;

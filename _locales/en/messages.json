@@ -54,6 +54,18 @@
     "message": "URL is empty or missing",
     "description": "Notification body text."
   },
+  "Ensure_the_download_URL_is_valid_and_reachable_by_your_browser": {
+    "message": "Ensure the download URL is valid and reachable by your browser",
+    "description": "Notification body text."
+  },
+  "The_download_URL_timed_out": {
+    "message": "The download URL timed out",
+    "description": "Notification body text."
+  },
+  "The_download_URL_failed_with_an_unknown_error": {
+    "message": "The download URL failed with an unknown error",
+    "description": "Notification body text."
+  },
   "Unexpected_error_please_check_your_settings_and_try_again": {
     "message": "Unexpected error; please check your settings and try again",
     "description": "Notification body text."
