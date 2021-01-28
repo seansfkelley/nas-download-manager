@@ -22,13 +22,23 @@ Synology Download Manager allows you to add and manage your download tasks on yo
 - System notifications for completed download tasks.
 - Open some types of links (e.g. `magnet:`) in the extension rather than a desktop application.
 
-### Supported Browsers
+### Officially Supported Browsers
 
 - Firefox ([view listing](https://addons.mozilla.org/en-US/firefox/addon/synology-download-manager/))
 - Chrome ([view listing](https://chrome.google.com/webstore/detail/synology-download-manager/iaijiochiiocodhamehbpmdlobhgghgi))
-- Edge (via [Chrome Web Store](https://chrome.google.com/webstore/detail/synology-download-manager/iaijiochiiocodhamehbpmdlobhgghgi); see [how to install from Chrome Web Store](https://support.microsoft.com/en-us/help/4538971/microsoft-edge-add-or-remove-extensions))
 
-Safari is not currently supported due to the cost and overhead of a developer account.
+### Browsers Reported to Work
+
+These browsers are not officially supported and the extension is untested with them, but there are ways to install it.
+
+- Edge (see [how to install from Chrome Web Store](https://support.microsoft.com/en-us/help/4538971/microsoft-edge-add-or-remove-extensions) and use the Chrome link above)
+- Opera (using the [Install Chrome Extensions](https://addons.opera.com/en/extensions/details/install-chrome-extensions/) extension to install from the Chrome link above)
+
+### Unsupported Browsers
+
+There are currently no plans to support the following browsers.
+
+- Safari
 
 ## Privacy
 
