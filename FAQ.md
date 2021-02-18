@@ -12,6 +12,14 @@ Certificates are how servers prove to browsers they are who they claim. Browsers
 
 Synology Download Manager is subject to the same security restrictions as regular browser tabs. However, unlike a tab, it is unable to show you the page where you can override the browser's protections. To fix this issue, visit the DSM page in a browser tab using the same hostname/port you use for Synology Download Manager, which should prompt you to override the browser's protections.
 
+## Why is it downloading the .torrent file itself instead of the content of the torrent?
+
+Before initiating a download, Synology Download Manager issues a request to the site to determine if the link you clicked on/URL you entered is referring to a .torrent file. If it is, Synology Download Manager itself downloads the .torrent first, then forwards that to your NAS. This is necessary to get the NAS to download the content of the torrent rather than the .torrent itself.
+
+Some sites intentionally do not respond to this request, called a "HEAD request", meaning that Synology Download Manager has no choice but to forward the URL as-is to the NAS. In the case where the URL points to a .torrent file, this will cause the NAS to erroneously download the .torrent itself.
+
+There is no practical way to fix this on the part of Synology Download Manager. If this is inconvenient for you, please ask the administrators of the site if they respond to HEAD requests for .torrent files properly.
+
 ## Why can't I start a download from (a site)? _or_ How do I start a download with (a site)?
 
 Not all sites offer downloads in a way that is compatible with a Synology NAS setup. Examples include:
