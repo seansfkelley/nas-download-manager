@@ -73,16 +73,18 @@ async function getMetadataFileType(url: string) {
     }
   }
 
-  const contentType = (headResponse.headers["content-type"] || "").toLowerCase();
-  const contentLength = headResponse.headers["content-length"];
+  const contentType: string = (headResponse.headers["content-type"] ?? "").toLowerCase();
   const strippedUrl = _stripQueryAndFragment(url);
   const metadataFileType = METADATA_FILE_TYPES.find(
     (fileType) =>
       contentType.includes(fileType.mediaType) || strippedUrl.endsWith(fileType.extension),
   );
+  const rawContentLength: string = headResponse.headers["content-length"];
+  const contentLength = isNaN(+rawContentLength) ? undefined : +rawContentLength;
+
   return metadataFileType &&
-    !isNaN(+contentLength) &&
-    +contentLength < ARBITRARY_FILE_FETCH_SIZE_CUTOFF
+    // Optimistically assume that metadata files aren't ridiculously huge if their size is not reported.
+    (contentLength == null || contentLength < ARBITRARY_FILE_FETCH_SIZE_CUTOFF)
     ? metadataFileType
     : undefined;
 }
