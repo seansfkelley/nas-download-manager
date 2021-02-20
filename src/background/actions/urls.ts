@@ -106,8 +106,7 @@ export function guessFileNameFromUrl(url: string): string | undefined {
       return undefined;
     }
   } else if (startsWithAnyProtocol(url, EMULE_PROTOCOL)) {
-    const match = url.match(EMULE_FILENAME_REGEX);
-    return match ? match[1] : undefined;
+    return url.match(EMULE_FILENAME_REGEX)?.[1] || undefined;
   } else {
     return undefined;
   }
