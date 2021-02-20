@@ -22,8 +22,15 @@ const ARBITRARY_FILE_FETCH_SIZE_CUTOFF = 1024 * 1024 * 5;
 
 const FILENAME_PROPERTY_REGEX = /filename=("([^"]+)"|([^"][^ ]+))/;
 
-function stripQueryString(url: string) {
-  return url.indexOf("?") !== -1 ? url.slice(0, url.indexOf("?")) : url;
+// Exported for testing.
+export function _stripQueryAndFragment(url: string): string {
+  let index = url.indexOf("?");
+  if (index === -1) {
+    // Well-formed URLs have the query before the hash, so it's safe to check for a
+    // query first and only check for the hash if there is no query.
+    index = url.indexOf("#");
+  }
+  return index !== -1 ? url.slice(0, index) : url;
 }
 
 function guessDownloadFileName(
@@ -31,7 +38,7 @@ function guessDownloadFileName(
   headers: Record<string, string>,
   metadataFileType: MetadataFileType,
 ) {
-  const urlWithoutQuery = stripQueryString(url);
+  const strippedUrl = _stripQueryAndFragment(url);
 
   let maybeFilename: string | undefined;
   const contentDisposition = headers["content-disposition"];
@@ -39,7 +46,7 @@ function guessDownloadFileName(
     const regexMatch = FILENAME_PROPERTY_REGEX.exec(contentDisposition);
     maybeFilename = (regexMatch && (regexMatch[2] || regexMatch[3])) || undefined;
   } else {
-    maybeFilename = urlWithoutQuery.slice(urlWithoutQuery.lastIndexOf("/") + 1);
+    maybeFilename = strippedUrl.slice(strippedUrl.lastIndexOf("/") + 1);
   }
 
   if (maybeFilename == null || maybeFilename.length === 0) {
@@ -68,10 +75,10 @@ async function getMetadataFileType(url: string) {
 
   const contentType = (headResponse.headers["content-type"] || "").toLowerCase();
   const contentLength = headResponse.headers["content-length"];
+  const strippedUrl = _stripQueryAndFragment(url);
   const metadataFileType = METADATA_FILE_TYPES.find(
     (fileType) =>
-      contentType.includes(fileType.mediaType) ||
-      stripQueryString(url).endsWith(fileType.extension),
+      contentType.includes(fileType.mediaType) || strippedUrl.endsWith(fileType.extension),
   );
   return metadataFileType &&
     !isNaN(+contentLength) &&
