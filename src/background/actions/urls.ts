@@ -1,4 +1,4 @@
-import Axios from "axios";
+import Axios, { AxiosBasicCredentials } from "axios";
 import { parse as parseQueryString } from "query-string";
 import {
   ALL_DOWNLOADABLE_PROTOCOLS,
@@ -58,11 +58,17 @@ function guessDownloadFileName(
     : maybeFilename + metadataFileType.extension;
 }
 
-async function getMetadataFileType(url: string) {
+async function getMetadataFileType(
+  url: string,
+  username: string | undefined,
+  password: string | undefined,
+) {
   let headResponse;
+  // Cast this type because the implementation of Axios supports undefined values for either or both.
+  const auth = username || password ? ({ username, password } as AxiosBasicCredentials) : undefined;
 
   try {
-    headResponse = await Axios.head(url, { timeout: 10000 });
+    headResponse = await Axios.head(url, { timeout: 10000, auth });
   } catch (e) {
     if (e?.response?.status != null) {
       // If we got a response at all, then it wasn't a severe error, just something
@@ -153,7 +159,11 @@ export type ResolvedUrl =
   | MissingOrIllegalUrl
   | UnexpectedErrorForUrl;
 
-export async function resolveUrl(url: string): Promise<ResolvedUrl> {
+export async function resolveUrl(
+  url: string,
+  username: string | undefined,
+  password: string | undefined,
+): Promise<ResolvedUrl> {
   function createUnexpectedError(error: any, debugDescription: string): UnexpectedErrorForUrl {
     let subtype;
 
@@ -184,7 +194,7 @@ export async function resolveUrl(url: string): Promise<ResolvedUrl> {
     let metadataFileType;
 
     try {
-      metadataFileType = await getMetadataFileType(url);
+      metadataFileType = await getMetadataFileType(url, username, password);
     } catch (e) {
       return createUnexpectedError(
         e,

@@ -128,7 +128,7 @@ async function addOneTask(
     ? notify(browser.i18n.getMessage("Adding_download"), guessFileNameFromUrl(url) ?? url)
     : undefined;
 
-  const resolvedUrl = await resolveUrl(url);
+  const resolvedUrl = await resolveUrl(url, ftpUsername, ftpPassword);
 
   const commonCreateOptions = {
     destination: path,
@@ -194,7 +194,9 @@ async function addMultipleTasks(
       )
     : undefined;
 
-  const resolvedUrls = await Promise.all(urls.map((url) => resolveUrl(url)));
+  const resolvedUrls = await Promise.all(
+    urls.map((url) => resolveUrl(url, ftpUsername, ftpPassword)),
+  );
 
   const groupedUrls: ResolvedUrlByType = {
     "direct-download": [],
