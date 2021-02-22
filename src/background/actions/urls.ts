@@ -1,4 +1,4 @@
-import Axios, { AxiosBasicCredentials } from "axios";
+import Axios from "axios";
 import { parse as parseQueryString } from "query-string";
 import {
   ALL_DOWNLOADABLE_PROTOCOLS,
@@ -68,8 +68,8 @@ async function getMetadataFileType(
   password: string | undefined,
 ) {
   let headResponse;
-  // Cast this type because the implementation of Axios supports undefined values for either or both.
-  const auth = username || password ? ({ username, password } as AxiosBasicCredentials) : undefined;
+  const auth =
+    username || password ? { username: username ?? "", password: password ?? "" } : undefined;
 
   try {
     headResponse = await Axios.head(url, { timeout: 10000, auth });
