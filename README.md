@@ -10,7 +10,9 @@ If you're here because of an issue with the extension, please check the [FAQ](./
 
 ## About
 
-Synology Download Manager allows you to add and manage your download tasks on your Synology DiskStation right from your browser. Synology Download Manager is implemented with a focus on stability and clarity in the UI.
+Synology Download Manager allows you to add and manage your download tasks on your Synology DiskStation right from your browser.
+
+Synology Download Manager requires a Synology NAS with DSM version 4 or higher and is [not yet compatible with DSM 7](https://github.com/seansfkelley/synology-download-manager/issues/166) (currently in beta).
 
 ### Features
 
