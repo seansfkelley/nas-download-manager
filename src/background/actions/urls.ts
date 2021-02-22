@@ -23,14 +23,18 @@ const ARBITRARY_FILE_FETCH_SIZE_CUTOFF = 1024 * 1024 * 5;
 const FILENAME_PROPERTY_REGEX = /filename=("([^"]+)"|([^"][^ ]+))/;
 
 // Exported for testing.
+/**
+ * Naively strip the query and fragment portions of a URL. This function does no validation or
+ * complex parsing, and will do strange things on non-URLs, malformed URLs, and probably valid
+ * URLs that do something unusual.
+ */
 export function _stripQueryAndFragment(url: string): string {
-  let index = url.indexOf("?");
-  if (index === -1) {
-    // Well-formed URLs have the query before the hash, so it's safe to check for a
-    // query first and only check for the hash if there is no query.
-    index = url.indexOf("#");
+  function indexOf(string: string, substring: string) {
+    const i = string.indexOf(substring);
+    return i === -1 ? undefined : i;
   }
-  return index !== -1 ? url.slice(0, index) : url;
+
+  return url.slice(0, Math.min(indexOf(url, "?") ?? Infinity, indexOf(url, "#") ?? Infinity));
 }
 
 function guessDownloadFileName(
