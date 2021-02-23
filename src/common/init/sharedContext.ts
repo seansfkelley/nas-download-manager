@@ -1,2 +1,1 @@
-import "chrome-extension-async";
-(window as any).browser = (window as any).browser || (window as any).chrome;
+(window as any).browser = require("webextension-polyfill");
