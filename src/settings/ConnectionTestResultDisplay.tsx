@@ -30,13 +30,13 @@ export class ConnectionTestResultDisplay extends React.PureComponent<Props, {}> 
       );
     } else if (testResult === "good-and-legacy") {
       return this.renderResult(
-        [
-          browser.i18n.getMessage(
+        <>
+          {browser.i18n.getMessage(
             "Connection_successful_but_may_interfere_with_existing_DSM_sessions_See_",
-          ),
-          <a href={ISSUE_32_URL}>{browser.i18n.getMessage("issue_32")}</a>,
-          browser.i18n.getMessage("_for_more_details"),
-        ],
+          )}
+          <a href={ISSUE_32_URL}>{browser.i18n.getMessage("issue_32")}</a>
+          {browser.i18n.getMessage("_for_more_details")}
+        </>,
         "fa-exclamation-triangle",
         "intent-warning",
       );
