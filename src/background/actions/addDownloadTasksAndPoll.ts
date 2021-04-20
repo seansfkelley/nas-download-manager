@@ -3,6 +3,8 @@ import {
   ConnectionFailure,
   isConnectionFailure,
   SynologyResponse,
+  DownloadStation2,
+  FormFile,
 } from "synology-typescript-api";
 import { errorMessageFromCode } from "../../common/apis/errors";
 import { onUnhandledError } from "../../common/errorHandlers";
@@ -130,18 +132,22 @@ async function addOneTask(
 
   const resolvedUrl = await resolveUrl(url, ftpUsername, ftpPassword);
 
-  const commonCreateOptions = {
+  const commonCreateOptionsV1 = {
     destination: path,
     username: ftpUsername,
     password: ftpPassword,
     unzip_password: unzipPassword,
+  };
+  const commonCreateOptionsV2 = {
+    destination: path,
+    extract_password: unzipPassword,
   };
 
   if (resolvedUrl.type === "direct-download") {
     try {
       const result = await api.DownloadStation.Task.Create({
         uri: [sanitizeUrlForSynology(resolvedUrl.url)],
-        ...commonCreateOptions,
+        ...commonCreateOptionsV1,
       });
       await reportTaskAddResult(result, guessFileNameFromUrl(url));
       await pollTasks(api, pollRequestManager);
@@ -150,12 +156,32 @@ async function addOneTask(
     }
   } else if (resolvedUrl.type === "metadata-file") {
     try {
-      const result = await api.DownloadStation.Task.Create({
-        file: { content: resolvedUrl.content, filename: resolvedUrl.filename },
-        ...commonCreateOptions,
+      const supportsNewApiQueryResult = await api.Info.Query({
+        query: [DownloadStation2.Task.API_NAME],
       });
-      await reportTaskAddResult(result, resolvedUrl.filename);
-      await pollTasks(api, pollRequestManager);
+      if (isConnectionFailure(supportsNewApiQueryResult)) {
+        await reportTaskAddResult(supportsNewApiQueryResult, resolvedUrl.filename);
+      } else {
+        const file: FormFile = { content: resolvedUrl.content, filename: resolvedUrl.filename };
+        let result;
+        if (
+          supportsNewApiQueryResult.success &&
+          supportsNewApiQueryResult.data[DownloadStation2.Task.API_NAME] != null
+        ) {
+          result = await api.DownloadStation2.Task.Create({
+            type: "file",
+            file,
+            ...commonCreateOptionsV2,
+          });
+        } else {
+          result = await api.DownloadStation.Task.Create({
+            file,
+            ...commonCreateOptionsV1,
+          });
+        }
+        await reportTaskAddResult(result, resolvedUrl.filename);
+        await pollTasks(api, pollRequestManager);
+      }
     } catch (e) {
       reportUnexpectedError(notificationId, e, "error while adding metadata-file task");
     }
@@ -240,11 +266,16 @@ async function addMultipleTasks(
 
   failures += groupedUrls["missing-or-illegal"].length;
 
-  const commonCreateOptions = {
+  const commonCreateOptionsV1 = {
     destination: path,
     username: ftpUsername,
     password: ftpPassword,
     unzip_password: unzipPassword,
+  };
+
+  const commonCreateOptionsV2 = {
+    destination: path,
+    extract_password: unzipPassword,
   };
 
   if (groupedUrls["direct-download"].length > 0) {
@@ -252,7 +283,7 @@ async function addMultipleTasks(
     try {
       const result = await api.DownloadStation.Task.Create({
         uri: urls,
-        ...commonCreateOptions,
+        ...commonCreateOptionsV1,
       });
       countResults(result, urls.length);
     } catch (e) {
@@ -262,12 +293,29 @@ async function addMultipleTasks(
   }
 
   if (groupedUrls["metadata-file"].length > 0) {
-    const results = groupedUrls["metadata-file"].map(({ content, filename }) =>
-      api.DownloadStation.Task.Create({
-        file: { content, filename },
-        ...commonCreateOptions,
-      }),
-    );
+    const supportsNewApiQueryResult = await api.Info.Query({
+      query: [DownloadStation2.Task.API_NAME],
+    });
+
+    const results = groupedUrls["metadata-file"].map((file) => {
+      if (isConnectionFailure(supportsNewApiQueryResult)) {
+        return Promise.resolve(supportsNewApiQueryResult);
+      } else if (
+        supportsNewApiQueryResult.success &&
+        supportsNewApiQueryResult.data[DownloadStation2.Task.API_NAME] != null
+      ) {
+        return api.DownloadStation2.Task.Create({
+          type: "file",
+          file,
+          ...commonCreateOptionsV2,
+        });
+      } else {
+        return api.DownloadStation.Task.Create({
+          file,
+          ...commonCreateOptionsV1,
+        });
+      }
+    });
 
     await Promise.all(
       results.map(async (r) => {
