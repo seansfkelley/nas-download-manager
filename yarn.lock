@@ -1222,13 +1222,6 @@ aws4@^1.8.0:
   resolved "https://registry.yarnpkg.com/aws4/-/aws4-1.10.1.tgz#e1e82e4f3e999e2cfd61b161280d16a111f86428"
   integrity sha512-zg7Hz2k5lI8kb7U32998pRRFin7zJlkfezGJjUc2heaD4Pw2wObakCDVzkKztTm/Ln7eiVvYsjqak0Ed4LkMDA==
 
-axios@^0.21.1:
-  version "0.21.1"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.1.tgz#22563481962f4d6bde9a76d516ef0e5d3c09b2b8"
-  integrity sha512-dKQiRHxGD9PPRIUNIWvZhPTPpl1rf/OxTYKsqKUDjBwYylTvV7SjSHJb9ratfyzM6wCdLCOYLzs73qpg5c4iGA==
-  dependencies:
-    follow-redirects "^1.10.0"
-
 babel-plugin-dynamic-import-node@^2.3.3:
   version "2.3.3"
   resolved "https://registry.yarnpkg.com/babel-plugin-dynamic-import-node/-/babel-plugin-dynamic-import-node-2.3.3.tgz#84fda19c976ec5c6defef57f9427b3def66e17a3"
@@ -2541,11 +2534,6 @@ fill-range@^7.0.1:
   integrity sha512-qOo9F+dMUmC2Lcb4BbVvnKJxTPjCm+RRpe4gDuGrzkL7mEVl/djYSu2OdQ2Pa302N4oqkSg9ir6jaLWJ2USVpQ==
   dependencies:
     to-regex-range "^5.0.1"
-
-follow-redirects@^1.10.0:
-  version "1.13.2"
-  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.13.2.tgz#dd73c8effc12728ba5cf4259d760ea5fb83e3147"
-  integrity sha512-6mPTgLxYm3r6Bkkg0vNM0HTjfGrOEtsfbhagQvbxDEsEkpNhw582upBaoRZylzen6krEmxXJgt9Ju6HiI4O7BA==
 
 for-in@^1.0.2:
   version "1.0.2"
@@ -5244,12 +5232,11 @@ symbol-tree@^3.2.2:
   resolved "https://registry.yarnpkg.com/symbol-tree/-/symbol-tree-3.2.4.tgz#430637d248ba77e078883951fb9aa0eed7c63fa2"
   integrity sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw==
 
-synology-typescript-api@^0.6.4:
-  version "0.6.4"
-  resolved "https://registry.yarnpkg.com/synology-typescript-api/-/synology-typescript-api-0.6.4.tgz#797974c80caab257601432197b05710975acfd63"
-  integrity sha512-aRWVQURl/DAl2Y+bc8ojLatYLXUflGIqT9Zv3iTm0aZ39z3Dqw4xK9SATwRioDxoWbyaP6OMnCWW6iQ7dKMqmA==
+synology-typescript-api@^0.8.0:
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/synology-typescript-api/-/synology-typescript-api-0.8.0.tgz#3cc4988a5d7558f7a37b684f01a7656124e9eb0d"
+  integrity sha512-9IJvtHK4Pb2RUwrFWk9ZSkIOmy76cU5H8FnxmMgiUOqgQi+jn1oklGiSRgm18BwKVFq7qUIviCttFJYLxjjEYg==
   dependencies:
-    axios "^0.21.1"
     query-string "^6.8.2"
 
 terser@^3.7.3:
