@@ -434,18 +434,6 @@
     "message": "Connection successful!",
     "description": "Message for connection test status."
   },
-  "Connection_successful_but_may_interfere_with_existing_DSM_sessions_See_": {
-    "message": "Connection successful, but may interfere with existing DSM sessions. See ",
-    "description": "Prefix for connection test status."
-  },
-  "issue_32": {
-    "message": "issue #32",
-    "description": "Link text for connection test status."
-  },
-  "_for_more_details": {
-    "message": " for more details.",
-    "description": "Suffix for connection test status."
-  },
   "Connection_settings_are_not_configured": {
     "message": "Connection settings are not configured.",
     "description": "Connection failure explanatory text."

@@ -19,14 +19,10 @@ export async function saveSettings(settings: Settings): Promise<boolean> {
   }
 }
 
-export type ConnectionTestResult =
-  | ConnectionFailure
-  | { code: number }
-  | "good-and-modern"
-  | "good-and-legacy";
+export type ConnectionTestResult = ConnectionFailure | { failureCode: number } | "success";
 
-export function isErrorCodeResult(result: ConnectionTestResult): result is { code: number } {
-  return (result as { code: number }).code != null;
+export function isErrorCodeResult(result: ConnectionTestResult): result is { failureCode: number } {
+  return (result as { failureCode: number }).failureCode != null;
 }
 
 export async function testConnection(settings: ConnectionSettings): Promise<ConnectionTestResult> {
@@ -41,7 +37,7 @@ export async function testConnection(settings: ConnectionSettings): Promise<Conn
   if (isConnectionFailure(loginResponse)) {
     return loginResponse;
   } else if (!loginResponse.success) {
-    return { code: loginResponse.error.code };
+    return { failureCode: loginResponse.error.code };
   } else {
     // Note that this is fire-and-forget.
     api.Auth.Logout({ timeout: 10000 }).then((logoutResponse) => {
@@ -55,6 +51,6 @@ export async function testConnection(settings: ConnectionSettings): Promise<Conn
         );
       }
     });
-    return loginResponse.data.extra.isLegacyLogin ? "good-and-legacy" : "good-and-modern";
+    return "success";
   }
 }

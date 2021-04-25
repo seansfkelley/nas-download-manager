@@ -422,18 +422,6 @@
     "message": "连接成功！",
     "description": "Message for connection test status."
   },
-  "Connection_successful_but_may_interfere_with_existing_DSM_sessions_See_": {
-    "message": "连接成功，但是可能会与已经连接的 Session 冲突。请参考 ",
-    "description": "Prefix for connection test status."
-  },
-  "issue_32": {
-    "message": "Github issue #32",
-    "description": "Link text for connection test status."
-  },
-  "_for_more_details": {
-    "message": " 以获得详细信息",
-    "description": "Suffix for connection test status."
-  },
   "Connection_settings_are_not_configured": {
     "message": "未配置连接选项",
     "description": "Connection failure explanatory text."

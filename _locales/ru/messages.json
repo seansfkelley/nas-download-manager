@@ -394,18 +394,6 @@
     "message": "Соединение успешно выполнено!",
     "description": "Сообщение о состоянии проверки соединения."
   },
-  "Connection_successful_but_may_interfere_with_existing_DSM_sessions_See_": {
-    "message": "Соединение успешно, но может мешать существующим сессиям DSM. Смотрите ",
-    "description": "Приставка для проверки связи."
-  },
-  "issue_32": {
-    "message": "issue #32",
-    "description": "Текст ссылки для проверки статуса подключения."
-  },
-  "_for_more_details": {
-    "message": " чтобы узнать подробности.",
-    "description": "Суффикс для статуса проверки соединения."
-  },
   "Connection_settings_are_not_configured": {
     "message": "Ошибка соединения (отсутствует конфигурация соединения).",
     "description": "Объяснительный текст сбоя подключения.",

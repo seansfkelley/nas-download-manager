@@ -129,8 +129,7 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
                   !mergedSettings.username ||
                   !mergedSettings.password ||
                   this.state.connectionTest === "in-progress" ||
-                  this.state.connectionTest === "good-and-modern" ||
-                  this.state.connectionTest === "good-and-legacy",
+                  this.state.connectionTest === "success",
               )}
             >
               {browser.i18n.getMessage("Test_Connection_and_Save")}
@@ -185,7 +184,7 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
       isConnectionTestSlow: false,
     });
 
-    if (result === "good-and-modern" || result === "good-and-legacy") {
+    if (result === "success") {
       this.props.saveConnectionSettings(mergedSettings);
     }
   };

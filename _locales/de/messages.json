@@ -414,18 +414,6 @@
     "message": "Verbindung erfolgreich!",
     "description": "Message for connection test status."
   },
-  "Connection_successful_but_may_interfere_with_existing_DSM_sessions_See_": {
-    "message": "Verbindung erfolgreich, kann aber bestehende DSM-Sitzungen stören. Siehe ",
-    "description": "Prefix for connection test status."
-  },
-  "issue_32": {
-    "message": "issue #32",
-    "description": "Link text for connection test status."
-  },
-  "_for_more_details": {
-    "message": " für weitere Details.",
-    "description": "Suffix for connection test status."
-  },
   "Connection_settings_are_not_configured": {
     "message": "Verbindungsfehler (fehlende Verbindungskonfiguration).",
     "description": "Connection failure explanatory text.",
