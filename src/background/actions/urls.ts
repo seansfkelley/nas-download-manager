@@ -1,4 +1,3 @@
-import Axios from "axios";
 import { parse as parseQueryString } from "query-string";
 import {
   ALL_DOWNLOADABLE_PROTOCOLS,
@@ -37,16 +36,12 @@ export function _stripQueryAndFragment(url: string): string {
   return url.slice(0, Math.min(indexOf(url, "?") ?? Infinity, indexOf(url, "#") ?? Infinity));
 }
 
-function guessDownloadFileName(
-  url: string,
-  headers: Record<string, string>,
-  metadataFileType: MetadataFileType,
-) {
+function guessDownloadFileName(url: string, headers: Headers, metadataFileType: MetadataFileType) {
   const strippedUrl = _stripQueryAndFragment(url);
 
   let maybeFilename: string | undefined;
-  const contentDisposition = headers["content-disposition"];
-  if (contentDisposition && contentDisposition.indexOf("filename=") !== -1) {
+  const contentDisposition = headers.get("content-disposition");
+  if (contentDisposition != null && contentDisposition.indexOf("filename=") !== -1) {
     const regexMatch = FILENAME_PROPERTY_REGEX.exec(contentDisposition);
     maybeFilename = (regexMatch && (regexMatch[2] || regexMatch[3])) || undefined;
   } else {
@@ -62,35 +57,57 @@ function guessDownloadFileName(
     : maybeFilename + metadataFileType.extension;
 }
 
+async function fetchWithTimeout(
+  url: string,
+  init: RequestInit,
+  timeout: number,
+): Promise<Response> {
+  const abortController = new AbortController();
+  const timeoutTimer = setTimeout(() => {
+    abortController.abort();
+  }, timeout);
+
+  try {
+    return fetch(url, {
+      ...init,
+      credentials: "omit",
+      signal: abortController.signal,
+    });
+  } finally {
+    clearTimeout(timeoutTimer);
+  }
+}
+
 async function getMetadataFileType(
   url: string,
   username: string | undefined,
   password: string | undefined,
 ) {
-  let headResponse;
-  const auth =
-    username || password ? { username: username ?? "", password: password ?? "" } : undefined;
+  const headResponse = await fetchWithTimeout(
+    url,
+    {
+      method: "HEAD",
+      headers:
+        username || password
+          ? { Authorization: `Basic ${btoa((username || "") + ":" + (password || ""))}` }
+          : {},
+    },
+    10000,
+  );
 
-  try {
-    headResponse = await Axios.head(url, { timeout: 10000, auth });
-  } catch (e) {
-    if (e?.response?.status != null) {
-      // If we got a response at all, then it wasn't a severe error, just something
-      // that the remote server likely can't handle or disallows.
-      return undefined;
-    } else {
-      throw e;
-    }
+  if (!headResponse.ok) {
+    return undefined;
   }
 
-  const contentType: string = (headResponse.headers["content-type"] ?? "").toLowerCase();
+  const contentType = (headResponse.headers.get("content-type") ?? "").toLowerCase();
   const strippedUrl = _stripQueryAndFragment(url);
   const metadataFileType = METADATA_FILE_TYPES.find(
     (fileType) =>
       contentType.includes(fileType.mediaType) || strippedUrl.endsWith(fileType.extension),
   );
-  const rawContentLength: string = headResponse.headers["content-length"];
-  const contentLength = isNaN(+rawContentLength) ? undefined : +rawContentLength;
+  const rawContentLength = headResponse.headers.get("content-length");
+  const contentLength =
+    rawContentLength == null || isNaN(+rawContentLength) ? undefined : +rawContentLength;
 
   return metadataFileType &&
     // Optimistically assume that metadata files aren't ridiculously huge if their size is not reported.
@@ -170,11 +187,11 @@ export async function resolveUrl(
   function createUnexpectedError(error: any, debugDescription: string): UnexpectedErrorForUrl {
     let subtype;
 
-    if (error?.message === "Network Error") {
-      subtype = "network-error" as const;
-    } else if (/timeout of \d+ms exceeded/.test(error?.message ?? "")) {
-      // This is a best-effort which I expect to start silently falling back onto 'unknown' at some point in the future.
+    if (error instanceof DOMException && error.name === "AbortError") {
       subtype = "timeout" as const;
+    } else if (/networkerror/i.test(error?.message)) {
+      // This is a best-effort which I expect to start silently failing at some point in the future.
+      subtype = "network-error" as const;
     } else {
       subtype = "unknown" as const;
     }
@@ -209,15 +226,22 @@ export async function resolveUrl(
       let response;
 
       try {
-        response = await Axios.get(url, { responseType: "arraybuffer", timeout: 10000 });
+        response = await fetchWithTimeout(url, {}, 10000);
       } catch (e) {
         return createUnexpectedError(e, "error while trying to fetch metadata file");
+      }
+
+      let bytes;
+      try {
+        bytes = await response.arrayBuffer();
+      } catch (e) {
+        return createUnexpectedError(e, "error while trying to get bytes for metadata file");
       }
 
       return {
         type: "metadata-file",
         url,
-        content: new Blob([response.data], { type: metadataFileType.mediaType }),
+        content: new Blob([bytes], { type: metadataFileType.mediaType }),
         filename: guessDownloadFileName(url, response.headers, metadataFileType),
       };
     } else {
