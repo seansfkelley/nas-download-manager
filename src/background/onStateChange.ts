@@ -1,6 +1,6 @@
 import isEqual from "lodash-es/isEqual";
-import { SessionName } from "synology-typescript-api";
 import { getMutableStateSingleton } from "./backgroundState";
+import { SessionName } from "../common/apis/synology";
 import { getHostUrl, State } from "../common/state";
 import { notify } from "../common/notify";
 import { pollTasks, clearCachedTasks } from "./actions";

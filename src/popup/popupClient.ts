@@ -1,5 +1,5 @@
-import type { DownloadStationInfoConfig } from "synology-typescript-api";
 import { getHostUrl, ConnectionSettings } from "../common/state";
+import type { DownloadStationInfoConfig } from "../common/apis/synology";
 import type { MessageResponse, AddTaskOptions, Directory } from "../common/apis/messages";
 import {
   AddTasks,

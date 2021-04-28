@@ -1,4 +1,4 @@
-import { SynologyResponse, ConnectionFailure, isConnectionFailure } from "synology-typescript-api";
+import { SynologyResponse, ConnectionFailure, isConnectionFailure } from "../common/apis/synology";
 import {
   errorMessageFromCode,
   errorMessageFromConnectionFailure,

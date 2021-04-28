@@ -2,11 +2,11 @@ import "./task.scss";
 import * as React from "react";
 import startCase from "lodash-es/startCase";
 import upperCase from "lodash-es/upperCase";
-import type { DownloadStationTask } from "synology-typescript-api";
 import classNames from "classnames";
 
 import { formatMetric1024, formatTime, formatPercentage } from "../common/format";
 import { matchesFilter } from "../common/filtering";
+import type { DownloadStationTask } from "../common/apis/synology";
 import { MessageResponse, FailureMessageResponse } from "../common/apis/messages";
 
 export interface Props {

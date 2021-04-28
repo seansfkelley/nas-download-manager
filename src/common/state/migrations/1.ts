@@ -1,4 +1,6 @@
-import type { DownloadStationTask } from "synology-typescript-api";
+// TODO: This should re-define the properties that are interesting on the type, otherwise
+// this migration is not safe from changes made to the imported typed in the future.
+import type { DownloadStationTask } from "../../../common/apis/synology";
 
 export type Protocol = "http" | "https";
 

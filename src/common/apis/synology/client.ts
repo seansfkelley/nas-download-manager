@@ -1,15 +1,17 @@
+import { Auth, AuthLoginResponse } from "./Auth";
+import { DownloadStation } from "./DownloadStation";
+import { DownloadStation2 } from "./DownloadStation2";
+import { FileStation } from "./FileStation";
+import { Info } from "./Info";
 import {
-  Auth,
-  AuthLoginResponse,
-  DownloadStation,
-  DownloadStation2,
-  FileStation,
-  Info,
-  SynologyResponse,
   SessionName,
+  SynologyResponse,
   SynologyFailureResponse,
-} from "./rest";
-import { BaseRequest, BadResponseError, TimeoutError, NetworkError } from "./rest/shared";
+  BaseRequest,
+  BadResponseError,
+  TimeoutError,
+  NetworkError,
+} from "./shared";
 
 const NO_PERMISSIONS_ERROR_CODE = 105;
 const SESSION_TIMEOUT_ERROR_CODE = 106;

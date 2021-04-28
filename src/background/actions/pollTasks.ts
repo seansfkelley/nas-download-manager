@@ -1,5 +1,5 @@
-import { ApiClient, isConnectionFailure } from "synology-typescript-api";
 import type { RequestManager } from "../requestManager";
+import { ApiClient, isConnectionFailure } from "../../common/apis/synology";
 import { errorMessageFromCode, errorMessageFromConnectionFailure } from "../../common/apis/errors";
 import type { CachedTasks, State } from "../../common/state";
 import { onUnhandledError } from "../../common/errorHandlers";

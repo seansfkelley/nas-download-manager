@@ -1,4 +1,4 @@
-import { ApiClient } from "synology-typescript-api";
+import { ApiClient } from "../common/apis/synology";
 import type { NotificationSettings } from "../common/state";
 import { RequestManager } from "./requestManager";
 

@@ -5,7 +5,7 @@ import {
   SynologyResponse,
   DownloadStation2,
   FormFile,
-} from "synology-typescript-api";
+} from "../../common/apis/synology";
 import { errorMessageFromCode } from "../../common/apis/errors";
 import { onUnhandledError } from "../../common/errorHandlers";
 import { assertNever } from "../../common/lang";

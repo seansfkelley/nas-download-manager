@@ -1,4 +1,4 @@
-import type { ConnectionFailure } from "synology-typescript-api";
+import type { ConnectionFailure } from "./synology";
 import { assertNever } from "../lang";
 
 export const ERROR_CODES = {

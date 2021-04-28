@@ -1,15 +1,4 @@
-import {
-  ApiBuilder,
-  BaseRequest,
-  SynologyFailureResponse,
-  SynologySuccessResponse,
-} from "./shared";
-
-{
-  // Typescript wants these types for declarations, but also claims they're unused. Thanks.
-  let _: SynologySuccessResponse<any> | SynologyFailureResponse = null as any;
-  _ = _;
-}
+import { ApiBuilder, BaseRequest } from "./shared";
 
 // ------------------------------------------------------------------------- //
 //                                   Info                                    //

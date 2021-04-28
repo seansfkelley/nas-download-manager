@@ -3,7 +3,7 @@ import {
   ApiClient,
   ConnectionFailure,
   isConnectionFailure,
-} from "synology-typescript-api";
+} from "../common/apis/synology";
 import { Settings, getHostUrl, ConnectionSettings, State } from "../common/state";
 import { onUnhandledError } from "../common/errorHandlers";
 

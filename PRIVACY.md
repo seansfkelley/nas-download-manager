@@ -36,4 +36,4 @@ If you are concerned that open-source extensions may not show you the same code 
 
     I suggest using a simple `diff -r <path-to-source>/dist/js <path-to-downloaded-addon>/dist/js` which will either output nothing or note that the from-source version has extra `.map` files (these are called "source maps" and are for development purposes, which is why they aren't in the version installed from the add-on store).
 
-The last step is to verify that you trust the source of this extension and its dependencies. You can of course read the source here and note that it doesn't do anything other than what it advertises. Furthermore, the dependencies are also all open-source, and they are all either written by me (`synology-typescript-api`, also open source) or extremely popular, de-facto standard libraries that are thoroughly vetted (e.g. Lodash, React).
+The last step is to verify that you trust the source of this extension and its dependencies. You can of course read the source here and note that it doesn't do anything other than what it advertises. Furthermore, the dependencies are also all open-source popular libraries that are thoroughly vetted (e.g. Lodash, React).

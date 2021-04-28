@@ -2,8 +2,8 @@ import "./popup.scss";
 import * as React from "react";
 import classNames from "classnames";
 import throttle from "lodash-es/throttle";
-import type { DownloadStationTask } from "synology-typescript-api";
 
+import type { DownloadStationTask } from "../common/apis/synology";
 import type { VisibleTaskSettings, TaskSortType, BadgeDisplayType } from "../common/state";
 import { sortTasks, filterTasks } from "../common/filtering";
 import { TaskFilterSettingsForm } from "../common/components/TaskFilterSettingsForm";

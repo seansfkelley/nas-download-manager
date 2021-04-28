@@ -1,8 +1,8 @@
 import "mocha";
 import { expect } from "chai";
 import { cloneDeep } from "lodash";
-import type { DownloadStationTask } from "synology-typescript-api";
 
+import type { DownloadStationTask } from "../src/common/apis/synology";
 import { migrateState } from "../src/common/state/migrations/update";
 import type { State as State_1 } from "../src/common/state/migrations/1";
 import type { State as State_2 } from "../src/common/state/migrations/2";

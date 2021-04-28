@@ -5,7 +5,7 @@ import {
   DownloadStationTaskErrorStatus,
   ALL_TASK_ERROR_STATUSES,
   ALL_TASK_NORMAL_STATUSES,
-} from "synology-typescript-api";
+} from "../common/apis/synology";
 import type { VisibleTaskSettings, TaskSortType } from "./state";
 import { assertNever } from "./lang";
 
