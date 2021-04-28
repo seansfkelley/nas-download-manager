@@ -13,6 +13,7 @@ import {
   NetworkError,
 } from "./shared";
 
+const NO_SUCH_METHOD_ERROR_CODE = 103;
 const NO_PERMISSIONS_ERROR_CODE = 105;
 const SESSION_TIMEOUT_ERROR_CODE = 106;
 
@@ -124,6 +125,22 @@ export class SynologyClient {
       this.loginPromise = Auth.Login(baseUrl, {
         ...request,
         ...restSettings,
+        // First try with the lowest version that we can that supports sid, in an attempt to
+        // support the oldest DSMs we can.
+        version: 2,
+      }).then((response) => {
+        // We guess we're on DSM 7, which does not support earlier versions of the API.
+        // We'd like to do this with an Info.Query, but DSM 7 erroneously reports that it
+        // supports version 2, which it definitely does not.
+        if (!response.success && response.error.code === NO_SUCH_METHOD_ERROR_CODE) {
+          return Auth.Login(baseUrl, {
+            ...request,
+            ...restSettings,
+            version: 3,
+          });
+        } else {
+          return response;
+        }
       });
     }
 

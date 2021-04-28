@@ -7,6 +7,9 @@ export interface AuthLoginRequest extends BaseRequest {
   account: string;
   passwd: string;
   session: SessionName;
+  // 2 is the lowest version that actually provides an sid.
+  // 3 is the lowest version that DSM 7 supports.
+  version: 2 | 3;
 }
 
 export interface AuthLoginResponse {
@@ -26,7 +29,6 @@ function Login(
     ...options,
     api: API_NAME,
     method: "login",
-    version: 2,
     format: "sid",
   });
 }
