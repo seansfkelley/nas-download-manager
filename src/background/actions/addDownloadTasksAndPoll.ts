@@ -1,5 +1,5 @@
 import {
-  ApiClient,
+  SynologyClient,
   ConnectionFailure,
   isConnectionFailure,
   SynologyResponse,
@@ -41,7 +41,7 @@ const UNEXPECTED_ERROR_REASON_TO_USER_MESSAGE: Record<UnexpectedErrorForUrl["rea
   unknown: browser.i18n.getMessage("The_download_URL_failed_with_an_unknown_error"),
 };
 
-async function checkIfEMuleShouldBeEnabled(api: ApiClient, urls: string[]) {
+async function checkIfEMuleShouldBeEnabled(api: SynologyClient, urls: string[]) {
   if (urls.some((url) => startsWithAnyProtocol(url, EMULE_PROTOCOL))) {
     const result = await api.DownloadStation.Info.GetConfig();
     if (isConnectionFailure(result)) {
@@ -71,7 +71,7 @@ function reportUnexpectedError(
 }
 
 async function addOneTask(
-  api: ApiClient,
+  api: SynologyClient,
   pollRequestManager: RequestManager,
   showNonErrorNotifications: boolean,
   url: string,
@@ -207,7 +207,7 @@ async function addOneTask(
 }
 
 async function addMultipleTasks(
-  api: ApiClient,
+  api: SynologyClient,
   pollRequestManager: RequestManager,
   showNonErrorNotifications: boolean,
   urls: string[],
@@ -360,7 +360,7 @@ async function addMultipleTasks(
 }
 
 export async function addDownloadTasksAndPoll(
-  api: ApiClient,
+  api: SynologyClient,
   pollRequestManager: RequestManager,
   showNonErrorNotifications: boolean,
   urls: string[],

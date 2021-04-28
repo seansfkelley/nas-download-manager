@@ -1,6 +1,6 @@
 import {
   SessionName,
-  ApiClient,
+  SynologyClient,
   ConnectionFailure,
   isConnectionFailure,
 } from "../common/apis/synology";
@@ -26,7 +26,7 @@ export function isErrorCodeResult(result: ConnectionTestResult): result is { fai
 }
 
 export async function testConnection(settings: ConnectionSettings): Promise<ConnectionTestResult> {
-  const api = new ApiClient({
+  const api = new SynologyClient({
     baseUrl: getHostUrl(settings),
     account: settings.username,
     passwd: settings.password,

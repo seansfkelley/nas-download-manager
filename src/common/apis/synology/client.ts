@@ -16,7 +16,7 @@ import {
 const NO_PERMISSIONS_ERROR_CODE = 105;
 const SESSION_TIMEOUT_ERROR_CODE = 106;
 
-export interface ApiClientSettings {
+export interface SynologyClientSettings {
   baseUrl: string;
   account: string;
   passwd: string;
@@ -24,13 +24,13 @@ export interface ApiClientSettings {
 }
 
 const SETTING_NAME_KEYS = (function () {
-  const _settingNames: Record<keyof ApiClientSettings, true> = {
+  const _settingNames: Record<keyof SynologyClientSettings, true> = {
     baseUrl: true,
     account: true,
     passwd: true,
     session: true,
   };
-  return Object.keys(_settingNames) as (keyof ApiClientSettings)[];
+  return Object.keys(_settingNames) as (keyof SynologyClientSettings)[];
 })();
 
 export type ConnectionFailure =
@@ -68,14 +68,14 @@ export function isConnectionFailure(
   );
 }
 
-export class ApiClient {
+export class SynologyClient {
   private loginPromise: Promise<SynologyResponse<AuthLoginResponse>> | undefined;
   private settingsVersion: number = 0;
   private onSettingsChangeListeners: (() => void)[] = [];
 
-  constructor(private settings: Partial<ApiClientSettings>) {}
+  constructor(private settings: Partial<SynologyClientSettings>) {}
 
-  public updateSettings(settings: Partial<ApiClientSettings>) {
+  public updateSettings(settings: Partial<SynologyClientSettings>) {
     if (SETTING_NAME_KEYS.some((k) => settings[k] !== this.settings[k])) {
       this.settingsVersion++;
       this.settings = settings;
@@ -106,7 +106,7 @@ export class ApiClient {
         return v != null && v.length > 0;
       })
     ) {
-      return this.settings as ApiClientSettings;
+      return this.settings as SynologyClientSettings;
     } else {
       return undefined;
     }

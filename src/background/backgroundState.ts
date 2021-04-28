@@ -1,9 +1,9 @@
-import { ApiClient } from "../common/apis/synology";
+import { SynologyClient } from "../common/apis/synology";
 import type { NotificationSettings } from "../common/state";
 import { RequestManager } from "./requestManager";
 
 export interface BackgroundState {
-  api: ApiClient;
+  api: SynologyClient;
   // This starts undefined, which means we haven't fetched the list of tasks yet.
   finishedTaskIds: Set<string> | undefined;
   pollRequestManager: RequestManager;
@@ -14,7 +14,7 @@ export interface BackgroundState {
 }
 
 const state: BackgroundState = {
-  api: new ApiClient({}),
+  api: new SynologyClient({}),
   finishedTaskIds: undefined,
   pollRequestManager: new RequestManager(),
   lastNotificationSettings: undefined,

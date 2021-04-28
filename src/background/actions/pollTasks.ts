@@ -1,5 +1,5 @@
 import type { RequestManager } from "../requestManager";
-import { ApiClient, isConnectionFailure } from "../../common/apis/synology";
+import { SynologyClient, isConnectionFailure } from "../../common/apis/synology";
 import { errorMessageFromCode, errorMessageFromConnectionFailure } from "../../common/apis/errors";
 import type { CachedTasks, State } from "../../common/state";
 import { onUnhandledError } from "../../common/errorHandlers";
@@ -11,7 +11,7 @@ function setCachedTasks(cachedTasks: Partial<CachedTasks>) {
   });
 }
 
-export async function pollTasks(api: ApiClient, manager: RequestManager): Promise<void> {
+export async function pollTasks(api: SynologyClient, manager: RequestManager): Promise<void> {
   const token = manager.startNewRequest();
 
   const cachedTasksInit: Partial<CachedTasks> = {
