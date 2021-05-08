@@ -29,7 +29,7 @@
     "@types/react-dom": "^17.0.0",
     "chai": "^4.1.2",
     "glob": "^7.1.2",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.21",
     "mocha": "^4.0.1",
     "parcel-bundler": "^1.12.4",
     "prettier": "^2.2.1",
