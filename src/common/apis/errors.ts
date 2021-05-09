@@ -72,10 +72,10 @@ export function getErrorForFailedResponse(
   defaultMessage: string = "Unknown error.",
 ): string {
   return (
-    ERROR_CODES[response.meta.apiGroup]?.[response.error.code] ||
     (response.meta.apiSubgroup
       ? ERROR_CODES[response.meta.apiSubgroup]?.[response.error.code]
       : null) ||
+    ERROR_CODES[response.meta.apiGroup]?.[response.error.code] ||
     ERROR_CODES.common[response.error.code] ||
     defaultMessage
   );
