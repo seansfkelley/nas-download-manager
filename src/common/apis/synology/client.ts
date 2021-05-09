@@ -6,6 +6,7 @@ import { Info } from "./Info";
 import {
   SessionName,
   RestApiResponse,
+  RestApiSuccessResponse,
   RestApiFailureResponse,
   BaseRequest,
   BadResponseError,
@@ -34,6 +35,12 @@ const SETTING_NAME_KEYS = (function () {
   return Object.keys(_settingNames) as (keyof SynologyClientSettings)[];
 })();
 
+export interface ClientFailureResponse extends RestApiFailureResponse {
+  apiGroup: string;
+}
+
+export type ClientResponse<T> = RestApiSuccessResponse<T> | ClientFailureResponse;
+
 export type ConnectionFailure =
   | {
       type: "missing-config";
@@ -61,13 +68,13 @@ const ConnectionFailure = {
   },
 };
 
-export type ClientRequestResult<T> = RestApiResponse<T> | ConnectionFailure;
+export type ClientRequestResult<T> = ClientResponse<T> | ConnectionFailure;
 
 export const ClientRequestResult = {
   isConnectionFailure: (result: ClientRequestResult<unknown>): result is ConnectionFailure => {
     return (
       (result as ConnectionFailure).type != null &&
-      (result as RestApiResponse<unknown>).success == null
+      (result as ClientResponse<unknown>).success == null
     );
   },
 };
