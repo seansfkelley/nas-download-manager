@@ -1,4 +1,4 @@
-import { ApiBuilder, BaseRequest, FormFile, SynologyResponse, get, post } from "./shared";
+import { ApiBuilder, BaseRequest, FormFile, RestApiResponse, get, post } from "./shared";
 
 // ------------------------------------------------------------------------- //
 //                                   Info                                    //
@@ -285,7 +285,7 @@ function Task_Create(
   baseUrl: string,
   sid: string,
   options: DownloadStationTaskCreateRequest,
-): Promise<SynologyResponse<{}>> {
+): Promise<RestApiResponse<{}>> {
   if (options.file && options.uri) {
     throw new Error("cannot specify both a file and a uri argument to Create");
   }

@@ -24,12 +24,12 @@ export function isFormFile(f?: any): f is FormFile {
   return f && (f as FormFile).content != null && (f as FormFile).filename != null;
 }
 
-export interface SynologySuccessResponse<S> {
+export interface RestApiSuccessResponse<S> {
   success: true;
   data: S;
 }
 
-export interface SynologyFailureResponse {
+export interface RestApiFailureResponse {
   success: false;
   error: {
     code: number;
@@ -37,13 +37,13 @@ export interface SynologyFailureResponse {
   };
 }
 
-export type SynologyResponse<S> = SynologySuccessResponse<S> | SynologyFailureResponse;
+export type RestApiResponse<S> = RestApiSuccessResponse<S> | RestApiFailureResponse;
 
 export interface BaseRequest {
   timeout?: number;
 }
 
-export interface SynologyApiRequest {
+export interface ApiRequest {
   api: string;
   version: number;
   method: string;
@@ -91,8 +91,8 @@ async function fetchWithErrorHandling(
 export async function get<O extends object>(
   baseUrl: string,
   cgi: string,
-  request: SynologyApiRequest,
-): Promise<SynologyResponse<O>> {
+  request: ApiRequest,
+): Promise<RestApiResponse<O>> {
   const url = `${baseUrl}/webapi/${cgi}.cgi?${stringify({
     ...request,
     _sid: request.sid,
@@ -100,15 +100,15 @@ export async function get<O extends object>(
   })}`;
 
   return fetchWithErrorHandling(url, { method: "GET" }, request.timeout) as Promise<
-    SynologyResponse<O>
+    RestApiResponse<O>
   >;
 }
 
 export async function post<O extends object>(
   baseUrl: string,
   cgi: string,
-  request: SynologyApiRequest,
-): Promise<SynologyResponse<O>> {
+  request: ApiRequest,
+): Promise<RestApiResponse<O>> {
   const formData = new FormData();
 
   Object.keys(request).forEach((k) => {
@@ -136,7 +136,7 @@ export async function post<O extends object>(
     url,
     { method: "POST", body: formData },
     request.timeout,
-  ) as Promise<SynologyResponse<O>>;
+  ) as Promise<RestApiResponse<O>>;
 }
 
 export class ApiBuilder {
@@ -146,13 +146,13 @@ export class ApiBuilder {
     methodName: string,
     preprocess?: (options: I) => object,
     postprocess?: (response: O) => O,
-  ): (baseUrl: string, sid: string, options: I) => Promise<SynologyResponse<O>>;
+  ): (baseUrl: string, sid: string, options: I) => Promise<RestApiResponse<O>>;
   makeGet<I extends BaseRequest, O>(
     methodName: string,
     preprocess: ((options?: I) => object) | undefined,
     postprocess: ((response: O) => O) | undefined,
     optional: true,
-  ): (baseUrl: string, sid: string, options?: I) => Promise<SynologyResponse<O>>;
+  ): (baseUrl: string, sid: string, options?: I) => Promise<RestApiResponse<O>>;
 
   makeGet(
     methodName: string,
@@ -167,13 +167,13 @@ export class ApiBuilder {
     methodName: string,
     preprocess?: (options: I) => object,
     postprocess?: (response: O) => O,
-  ): (baseUrl: string, sid: string, options: I) => Promise<SynologyResponse<O>>;
+  ): (baseUrl: string, sid: string, options: I) => Promise<RestApiResponse<O>>;
   makePost<I extends BaseRequest, O>(
     methodName: string,
     preprocess: ((options?: I) => object) | undefined,
     postprocess: ((response: O) => O) | undefined,
     optional: true,
-  ): (baseUrl: string, sid: string, options?: I) => Promise<SynologyResponse<O>>;
+  ): (baseUrl: string, sid: string, options?: I) => Promise<RestApiResponse<O>>;
 
   makePost(
     methodName: string,

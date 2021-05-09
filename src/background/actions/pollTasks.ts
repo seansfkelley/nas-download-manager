@@ -2,7 +2,7 @@ import type { RequestManager } from "../requestManager";
 import { SynologyClient, isConnectionFailure } from "../../common/apis/synology";
 import { errorMessageFromCode, errorMessageFromConnectionFailure } from "../../common/apis/errors";
 import type { CachedTasks, State } from "../../common/state";
-import { onUnhandledError } from "../../common/errorHandlers";
+import { saveLastSevereError } from "../../common/errorHandlers";
 
 function setCachedTasks(cachedTasks: Partial<CachedTasks>) {
   return browser.storage.local.set<Partial<State>>({
@@ -36,7 +36,7 @@ export async function pollTasks(api: SynologyClient, manager: RequestManager): P
         timeout: 20000,
       });
     } catch (e) {
-      onUnhandledError(e, "error while fetching list of tasks");
+      saveLastSevereError(e, "error while fetching list of tasks");
       return;
     }
 
@@ -72,6 +72,6 @@ export async function pollTasks(api: SynologyClient, manager: RequestManager): P
       });
     }
   } catch (e) {
-    onUnhandledError(e);
+    saveLastSevereError(e);
   }
 }

@@ -164,21 +164,21 @@ const List = {
     "list_share",
     (o) => ({
       ...o,
-      additional: o && o.additional && o.additional.length ? o.additional.join(",") : undefined,
+      additional: o?.additional?.length ? o.additional.join(",") : undefined,
     }),
     undefined,
     true,
   ),
   list: listBuilder.makeGet<FileStationListListRequest, FileStationFileList>("list", (o) => ({
     ...o,
-    additional: o && o.additional && o.additional.length ? o.additional.join(",") : undefined,
+    additional: o?.additional?.length ? o.additional.join(",") : undefined,
   })),
   getinfo: listBuilder.makeGet<FileStationListGetInfoRequest, FileStationListGetInfoResponse>(
     "getinfo",
     (o) => ({
       ...o,
       path: o.path.join(","),
-      additional: o && o.additional && o.additional.length ? o.additional.join(",") : undefined,
+      additional: o?.additional?.length ? o.additional.join(",") : undefined,
     }),
   ),
 };

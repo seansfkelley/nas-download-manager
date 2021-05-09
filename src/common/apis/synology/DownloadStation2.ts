@@ -1,4 +1,4 @@
-import { BaseRequest, FormFile, SynologyResponse, get, post } from "./shared";
+import { BaseRequest, FormFile, RestApiResponse, get, post } from "./shared";
 
 const TASK_API_NAME = "SYNO.DownloadStation2.Task" as const;
 const TASK_CGI_NAME = "entry";
@@ -41,7 +41,7 @@ function Task_Create(
   baseUrl: string,
   sid: string,
   options: DownloadStation2TaskCreateRequest,
-): Promise<SynologyResponse<DownloadStation2TaskCreateResponse>> {
+): Promise<RestApiResponse<DownloadStation2TaskCreateResponse>> {
   const commonOptions = {
     // These three must come first. I believe they also must be in this order.
     api: TASK_API_NAME,

@@ -1,5 +1,5 @@
 import "./index.scss";
-import "../common/init/extensionContext";
+import "../common/init/nonContentContext";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 

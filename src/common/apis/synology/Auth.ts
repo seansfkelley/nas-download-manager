@@ -1,4 +1,4 @@
-import { SynologyResponse, BaseRequest, get, SessionName } from "./shared";
+import { RestApiResponse, BaseRequest, get, SessionName } from "./shared";
 
 const CGI_NAME = "auth" as const;
 const API_NAME = "SYNO.API.Auth" as const;
@@ -24,7 +24,7 @@ export interface AuthLogoutRequest extends BaseRequest {
 function Login(
   baseUrl: string,
   options: AuthLoginRequest,
-): Promise<SynologyResponse<AuthLoginResponse>> {
+): Promise<RestApiResponse<AuthLoginResponse>> {
   return get(baseUrl, CGI_NAME, {
     ...options,
     api: API_NAME,
@@ -33,7 +33,7 @@ function Login(
   });
 }
 
-function Logout(baseUrl: string, options: AuthLogoutRequest): Promise<SynologyResponse<{}>> {
+function Logout(baseUrl: string, options: AuthLogoutRequest): Promise<RestApiResponse<{}>> {
   return get(baseUrl, CGI_NAME, {
     ...options,
     api: API_NAME,

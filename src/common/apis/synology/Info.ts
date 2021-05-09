@@ -1,4 +1,4 @@
-import { SynologyResponse, BaseRequest, get } from "./shared";
+import { RestApiResponse, BaseRequest, get } from "./shared";
 
 export interface InfoQueryRequest extends BaseRequest {
   query: "ALL" | string[];
@@ -20,7 +20,7 @@ const API_NAME = "SYNO.API.Info" as const;
 function Query(
   baseUrl: string,
   options: InfoQueryRequest,
-): Promise<SynologyResponse<InfoQueryResponse>> {
+): Promise<RestApiResponse<InfoQueryResponse>> {
   return get(baseUrl, CGI_NAME, {
     ...options,
     api: API_NAME,

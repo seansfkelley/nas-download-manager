@@ -5,8 +5,8 @@ import { FileStation } from "./FileStation";
 import { Info } from "./Info";
 import {
   SessionName,
-  SynologyResponse,
-  SynologyFailureResponse,
+  RestApiResponse,
+  RestApiFailureResponse,
   BaseRequest,
   BadResponseError,
   TimeoutError,
@@ -62,15 +62,15 @@ const ConnectionFailure = {
 };
 
 export function isConnectionFailure(
-  result: SynologyResponse<{}> | ConnectionFailure,
+  result: RestApiResponse<{}> | ConnectionFailure,
 ): result is ConnectionFailure {
   return (
-    (result as ConnectionFailure).type != null && (result as SynologyResponse<{}>).success == null
+    (result as ConnectionFailure).type != null && (result as RestApiResponse<{}>).success == null
   );
 }
 
 export class SynologyClient {
-  private loginPromise: Promise<SynologyResponse<AuthLoginResponse>> | undefined;
+  private loginPromise: Promise<RestApiResponse<AuthLoginResponse>> | undefined;
   private settingsVersion: number = 0;
   private onSettingsChangeListeners: (() => void)[] = [];
 
@@ -160,7 +160,7 @@ export class SynologyClient {
   //     client or session at the time the promise is resolved.
   private maybeLogout = async (
     request?: BaseRequest,
-  ): Promise<SynologyResponse<{}> | ConnectionFailure | "not-logged-in"> => {
+  ): Promise<RestApiResponse<{}> | ConnectionFailure | "not-logged-in"> => {
     const stashedLoginPromise = this.loginPromise;
     const settings = this.getValidatedSettings();
     this.loginPromise = undefined;
@@ -173,7 +173,7 @@ export class SynologyClient {
       };
       return failure;
     } else {
-      let response: SynologyResponse<AuthLoginResponse>;
+      let response: RestApiResponse<AuthLoginResponse>;
       const { baseUrl, session } = settings;
 
       try {
@@ -199,15 +199,15 @@ export class SynologyClient {
   };
 
   private proxy<T, U>(
-    fn: (baseUrl: string, sid: string, options: T) => Promise<SynologyResponse<U>>,
-  ): (options: T) => Promise<SynologyResponse<U> | ConnectionFailure> {
+    fn: (baseUrl: string, sid: string, options: T) => Promise<RestApiResponse<U>>,
+  ): (options: T) => Promise<RestApiResponse<U> | ConnectionFailure> {
     const wrappedFunction = async (
       options: T,
       shouldRetryRoutineFailures: boolean = true,
-    ): Promise<SynologyResponse<U> | ConnectionFailure> => {
+    ): Promise<RestApiResponse<U> | ConnectionFailure> => {
       const versionAtInit = this.settingsVersion;
 
-      const maybeLogoutAndRetry = (response: ConnectionFailure | SynologyFailureResponse) => {
+      const maybeLogoutAndRetry = (response: ConnectionFailure | RestApiFailureResponse) => {
         if (
           shouldRetryRoutineFailures &&
           (isConnectionFailure(response) ||
@@ -252,14 +252,14 @@ export class SynologyClient {
   }
 
   private proxyOptionalArgs<T, U>(
-    fn: (baseUrl: string, sid: string, options?: T) => Promise<SynologyResponse<U>>,
-  ): (options?: T) => Promise<SynologyResponse<U> | ConnectionFailure> {
+    fn: (baseUrl: string, sid: string, options?: T) => Promise<RestApiResponse<U>>,
+  ): (options?: T) => Promise<RestApiResponse<U> | ConnectionFailure> {
     return this.proxy(fn);
   }
 
   private proxyWithoutAuth<T, U>(
-    fn: (baseUrl: string, options: T) => Promise<SynologyResponse<U>>,
-  ): (options: T) => Promise<SynologyResponse<U> | ConnectionFailure> {
+    fn: (baseUrl: string, options: T) => Promise<RestApiResponse<U>>,
+  ): (options: T) => Promise<RestApiResponse<U> | ConnectionFailure> {
     return async (options: T) => {
       const settings = this.getValidatedSettings();
       if (settings == null) {

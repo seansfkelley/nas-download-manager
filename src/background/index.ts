@@ -1,6 +1,6 @@
-import "../common/init/extensionContext";
+import "../common/init/nonContentContext";
 import { onStoredStateChange, maybeMigrateState } from "../common/state";
-import { onUnhandledError } from "../common/errorHandlers";
+import { saveLastSevereError } from "../common/errorHandlers";
 import { onStoredStateChange as onStoredStateChangeListener } from "./onStateChange";
 import { initializeContextMenus } from "./contextMenus";
 import { initializeMessageHandler } from "./messages";
@@ -12,4 +12,4 @@ maybeMigrateState()
   .then(() => {
     onStoredStateChange(onStoredStateChangeListener);
   })
-  .catch(onUnhandledError);
+  .catch(saveLastSevereError);

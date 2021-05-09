@@ -1,6 +1,6 @@
-import "./sharedContext";
+import "./commonContext";
 
-import { onUnhandledError } from "../errorHandlers";
+import { saveLastSevereError } from "../errorHandlers";
 
 // TODO: When browser support this natively or Bluebird starts working again.
 // window.addEventListener('unhandledrejection', (e: any) => {
@@ -10,5 +10,5 @@ import { onUnhandledError } from "../errorHandlers";
 
 window.addEventListener("error", (e) => {
   e.preventDefault();
-  onUnhandledError(e.error);
+  saveLastSevereError(e.error);
 });

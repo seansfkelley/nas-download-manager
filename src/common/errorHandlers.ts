@@ -1,6 +1,6 @@
 import type { Logging, State } from "./state";
 
-export function onUnhandledError(e: any | undefined, message?: string) {
+export function saveLastSevereError(e: any | undefined, message?: string) {
   console.error(message || "unhandled error", e);
   let formattedError =
     e != null

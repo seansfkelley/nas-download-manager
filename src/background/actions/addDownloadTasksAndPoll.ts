@@ -7,7 +7,7 @@ import {
   FormFile,
 } from "../../common/apis/synology";
 import { errorMessageFromCode } from "../../common/apis/errors";
-import { onUnhandledError } from "../../common/errorHandlers";
+import { saveLastSevereError } from "../../common/errorHandlers";
 import { assertNever } from "../../common/lang";
 import { notify } from "../../common/notify";
 import {
@@ -61,7 +61,7 @@ function reportUnexpectedError(
   e: any | undefined,
   debugMessage?: string,
 ) {
-  onUnhandledError(e, debugMessage);
+  saveLastSevereError(e, debugMessage);
   notify(
     browser.i18n.getMessage("Failed_to_add_download"),
     browser.i18n.getMessage("Unexpected_error_please_check_your_settings_and_try_again"),
@@ -257,7 +257,7 @@ async function addMultipleTasks(
 
   if (groupedUrls["error"].length > 0) {
     const firstError = groupedUrls["error"][0];
-    onUnhandledError(
+    saveLastSevereError(
       firstError.error,
       `${groupedUrls["error"].length} error(s) while resolving URLs; first message: ${firstError.debugDescription}`,
     );
@@ -288,7 +288,7 @@ async function addMultipleTasks(
       countResults(result, urls.length);
     } catch (e) {
       failures += urls.length;
-      onUnhandledError(e, "error while adding multiple direct-download URLs");
+      saveLastSevereError(e, "error while adding multiple direct-download URLs");
     }
   }
 
@@ -323,7 +323,7 @@ async function addMultipleTasks(
           countResults(await r, 1);
         } catch (e) {
           failures += 1;
-          onUnhandledError(e, "error while a adding a metadata-file URL");
+          saveLastSevereError(e, "error while a adding a metadata-file URL");
         }
       }),
     );

@@ -5,7 +5,7 @@ import {
   isConnectionFailure,
 } from "../common/apis/synology";
 import { Settings, getHostUrl, ConnectionSettings, State } from "../common/state";
-import { onUnhandledError } from "../common/errorHandlers";
+import { saveLastSevereError } from "../common/errorHandlers";
 
 export async function saveSettings(settings: Settings): Promise<boolean> {
   console.log("persisting settings...");
@@ -14,7 +14,7 @@ export async function saveSettings(settings: Settings): Promise<boolean> {
     console.log("done persisting settings");
     return true;
   } catch (e) {
-    onUnhandledError(e);
+    saveLastSevereError(e);
     return false;
   }
 }
