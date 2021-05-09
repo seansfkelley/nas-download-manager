@@ -1,9 +1,4 @@
-import {
-  SessionName,
-  SynologyClient,
-  ConnectionFailure,
-  ClientRequestResult,
-} from "../common/apis/synology";
+import { SessionName, SynologyClient, ClientRequestResult } from "../common/apis/synology";
 import { Settings, getHostUrl, ConnectionSettings, State } from "../common/state";
 import { saveLastSevereError } from "../common/errorHandlers";
 
@@ -19,13 +14,9 @@ export async function saveSettings(settings: Settings): Promise<boolean> {
   }
 }
 
-export type ConnectionTestResult = ConnectionFailure | { failureCode: number } | "success";
-
-export function isErrorCodeResult(result: ConnectionTestResult): result is { failureCode: number } {
-  return (result as { failureCode: number }).failureCode != null;
-}
-
-export async function testConnection(settings: ConnectionSettings): Promise<ConnectionTestResult> {
+export async function testConnection(
+  settings: ConnectionSettings,
+): Promise<ClientRequestResult<{}>> {
   const api = new SynologyClient({
     baseUrl: getHostUrl(settings),
     account: settings.username,
@@ -34,11 +25,7 @@ export async function testConnection(settings: ConnectionSettings): Promise<Conn
   });
 
   const loginResult = await api.Auth.Login({ timeout: 30000 });
-  if (ClientRequestResult.isConnectionFailure(loginResult)) {
-    return loginResult;
-  } else if (!loginResult.success) {
-    return { failureCode: loginResult.error.code };
-  } else {
+  if (!ClientRequestResult.isConnectionFailure(loginResult) && loginResult.success) {
     // Note that this is fire-and-forget.
     api.Auth.Logout({ timeout: 10000 }).then((logoutResponse) => {
       if (logoutResponse === "not-logged-in") {
@@ -54,6 +41,7 @@ export async function testConnection(settings: ConnectionSettings): Promise<Conn
         );
       }
     });
-    return "success";
   }
+
+  return loginResult;
 }

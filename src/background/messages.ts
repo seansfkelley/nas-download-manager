@@ -1,8 +1,7 @@
 import { ClientRequestResult } from "../common/apis/synology";
 import {
-  errorMessageFromCode,
+  getErrorForFailedResponse,
   errorMessageFromConnectionFailure,
-  ErrorNamespace,
 } from "../common/apis/errors";
 import { MessageResponse, Message, Result } from "../common/apis/messages";
 import { addDownloadTasksAndPoll, pollTasks } from "./actions";
@@ -18,18 +17,13 @@ type MessageHandlers = {
   [T in Message["type"]]: MessageHandler<DiscriminateUnion<Message, "type", T>, Result[T]>;
 };
 
-function toMessageResponse(
-  response: ClientRequestResult<unknown>,
-  errorNamespace: ErrorNamespace,
-): MessageResponse;
+function toMessageResponse(response: ClientRequestResult<unknown>): MessageResponse;
 function toMessageResponse<T, U>(
   response: ClientRequestResult<T>,
-  errorNamespace: ErrorNamespace,
   extract: (result: T) => U,
 ): MessageResponse<U>;
 function toMessageResponse<T, U>(
   response: ClientRequestResult<T>,
-  errorNamespace: ErrorNamespace,
   extract?: (result: T) => U,
 ): MessageResponse<U> {
   if (ClientRequestResult.isConnectionFailure(response)) {
@@ -40,7 +34,7 @@ function toMessageResponse<T, U>(
   } else if (!response.success) {
     return {
       success: false,
-      reason: errorMessageFromCode(response.error.code, errorNamespace),
+      reason: getErrorForFailedResponse(response),
     };
   } else {
     return {
@@ -67,7 +61,6 @@ const MESSAGE_HANDLERS: MessageHandlers = {
   "pause-task": async (m, state) => {
     const response = toMessageResponse(
       await state.api.DownloadStation.Task.Pause({ id: [m.taskId] }),
-      "DownloadStation.Task",
     );
     if (response.success) {
       await pollTasks(state.api, state.pollRequestManager);
@@ -77,7 +70,6 @@ const MESSAGE_HANDLERS: MessageHandlers = {
   "resume-task": async (m, state) => {
     const response = toMessageResponse(
       await state.api.DownloadStation.Task.Resume({ id: [m.taskId] }),
-      "DownloadStation.Task",
     );
     if (response.success) {
       await pollTasks(state.api, state.pollRequestManager);
@@ -87,7 +79,6 @@ const MESSAGE_HANDLERS: MessageHandlers = {
   "delete-tasks": async (m, state) => {
     const response = toMessageResponse(
       await state.api.DownloadStation.Task.Delete({ id: m.taskIds, force_complete: false }),
-      "DownloadStation.Task",
     );
     if (response.success) {
       await pollTasks(state.api, state.pollRequestManager);
@@ -95,11 +86,7 @@ const MESSAGE_HANDLERS: MessageHandlers = {
     return response;
   },
   "get-config": async (_m, state) => {
-    return toMessageResponse(
-      await state.api.DownloadStation.Info.GetConfig(),
-      "DownloadStation.Task",
-      (data) => data,
-    );
+    return toMessageResponse(await state.api.DownloadStation.Info.GetConfig(), (data) => data);
   },
   "list-directories": async (m, state) => {
     const { path } = m;
@@ -110,13 +97,11 @@ const MESSAGE_HANDLERS: MessageHandlers = {
           sort_by: "name",
           filetype: "dir",
         }),
-        "FileStation",
         (data) => data.files,
       );
     } else {
       return toMessageResponse(
         await state.api.FileStation.List.list_share({ sort_by: "name" }),
-        "FileStation",
         (data) => data.shares,
       );
     }

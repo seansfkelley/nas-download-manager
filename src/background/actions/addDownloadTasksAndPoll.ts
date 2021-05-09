@@ -4,7 +4,7 @@ import {
   DownloadStation2,
   FormFile,
 } from "../../common/apis/synology";
-import { errorMessageFromCode } from "../../common/apis/errors";
+import { getErrorForFailedResponse } from "../../common/apis/errors";
 import { saveLastSevereError } from "../../common/errorHandlers";
 import { assertNever } from "../../common/lang";
 import { notify } from "../../common/notify";
@@ -116,7 +116,7 @@ async function addOneTask(
       } else {
         notify(
           browser.i18n.getMessage("Failed_to_add_download"),
-          errorMessageFromCode(result.error.code, "DownloadStation.Task"),
+          getErrorForFailedResponse(result),
           "failure",
           notificationId,
         );

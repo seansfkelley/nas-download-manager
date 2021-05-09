@@ -5,9 +5,10 @@ import {
   PROTOCOLS,
   ConnectionSettings as ConnectionSettingsObject,
 } from "../common/state";
+import { ClientRequestResult } from "../common/apis/synology";
 import { SettingsList } from "../common/components/SettingsList";
 import { ConnectionTestResultDisplay } from "./ConnectionTestResultDisplay";
-import { ConnectionTestResult, testConnection } from "./settingsUtils";
+import { testConnection } from "./settingsUtils";
 import { disabledPropAndClassName, kludgeRefSetClassname } from "../common/classnameUtil";
 
 interface Props {
@@ -17,7 +18,7 @@ interface Props {
 
 interface State {
   changedSettings: Partial<ConnectionSettingsObject>;
-  connectionTest: "none" | "in-progress" | ConnectionTestResult;
+  connectionTest: "none" | "in-progress" | ClientRequestResult<unknown>;
   isConnectionTestSlow: boolean;
 }
 
@@ -129,7 +130,9 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
                   !mergedSettings.username ||
                   !mergedSettings.password ||
                   this.state.connectionTest === "in-progress" ||
-                  this.state.connectionTest === "success",
+                  (this.state.connectionTest !== "none" &&
+                    !ClientRequestResult.isConnectionFailure(this.state.connectionTest) &&
+                    this.state.connectionTest.success),
               )}
             >
               {browser.i18n.getMessage("Test_Connection_and_Save")}
@@ -184,7 +187,7 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
       isConnectionTestSlow: false,
     });
 
-    if (result === "success") {
+    if (!ClientRequestResult.isConnectionFailure(result) && result.success) {
       this.props.saveConnectionSettings(mergedSettings);
     }
   };
