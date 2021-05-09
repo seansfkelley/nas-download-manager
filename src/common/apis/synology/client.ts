@@ -71,6 +71,13 @@ const ConnectionFailure = {
 export type ClientRequestResult<T> = ClientResponse<T> | ConnectionFailure;
 
 export const ClientRequestResult = {
+  from: <T>(response: RestApiResponse<T>, apiGroup: string): ClientRequestResult<T> => {
+    if (response.success) {
+      return response;
+    } else {
+      return { ...response, apiGroup };
+    }
+  },
   isConnectionFailure: (result: ClientRequestResult<unknown>): result is ConnectionFailure => {
     return (
       (result as ConnectionFailure).type != null &&
@@ -80,7 +87,7 @@ export const ClientRequestResult = {
 };
 
 export class SynologyClient {
-  private loginPromise: Promise<RestApiResponse<AuthLoginResponse>> | undefined;
+  private loginPromise: Promise<ClientRequestResult<AuthLoginResponse>> | undefined;
   private settingsVersion: number = 0;
   private onSettingsChangeListeners: (() => void)[] = [];
 
@@ -138,27 +145,26 @@ export class SynologyClient {
         // First try with the lowest version that we can that supports sid, in an attempt to
         // support the oldest DSMs we can.
         version: 2,
-      }).then((response) => {
-        // We guess we're on DSM 7, which does not support earlier versions of the API.
-        // We'd like to do this with an Info.Query, but DSM 7 erroneously reports that it
-        // supports version 2, which it definitely does not.
-        if (!response.success && response.error.code === NO_SUCH_METHOD_ERROR_CODE) {
-          return Auth.Login(baseUrl, {
-            ...request,
-            ...restSettings,
-            version: 3,
-          });
-        } else {
-          return response;
-        }
-      });
+      })
+        .then((response) => {
+          // We guess we're on DSM 7, which does not support earlier versions of the API.
+          // We'd like to do this with an Info.Query, but DSM 7 erroneously reports that it
+          // supports version 2, which it definitely does not.
+          if (!response.success && response.error.code === NO_SUCH_METHOD_ERROR_CODE) {
+            return Auth.Login(baseUrl, {
+              ...request,
+              ...restSettings,
+              version: 3,
+            });
+          } else {
+            return response;
+          }
+        })
+        .then((response) => ClientRequestResult.from(response, Auth.API_NAME))
+        .catch((e) => ConnectionFailure.from(e));
     }
 
-    try {
-      return await this.loginPromise;
-    } catch (e) {
-      return ConnectionFailure.from(e);
-    }
+    return this.loginPromise;
   };
 
   // Note that this method is a BEST EFFORT.
@@ -183,22 +189,20 @@ export class SynologyClient {
       };
       return failure;
     } else {
-      let response: RestApiResponse<AuthLoginResponse>;
-      const { baseUrl, session } = settings;
-
-      try {
-        response = await stashedLoginPromise;
-      } catch (e) {
-        return ConnectionFailure.from(e);
-      }
-
-      if (response.success) {
+      const response = await stashedLoginPromise;
+      if (ClientRequestResult.isConnectionFailure(response)) {
+        return response;
+      } else if (response.success) {
+        const { baseUrl, session } = settings;
         try {
-          return await Auth.Logout(baseUrl, {
-            ...request,
-            sid: response.data.sid,
-            session: session,
-          });
+          return ClientRequestResult.from(
+            await Auth.Logout(baseUrl, {
+              ...request,
+              sid: response.data.sid,
+              session: session,
+            }),
+            Auth.API_NAME,
+          );
         } catch (e) {
           return ConnectionFailure.from(e);
         }
@@ -210,6 +214,7 @@ export class SynologyClient {
 
   private proxy<T, U>(
     fn: (baseUrl: string, sid: string, options: T) => Promise<RestApiResponse<U>>,
+    apiGroup: string,
   ): (options: T) => Promise<ClientRequestResult<U>> {
     const wrappedFunction = async (
       options: T,
@@ -217,7 +222,9 @@ export class SynologyClient {
     ): Promise<ClientRequestResult<U>> => {
       const versionAtInit = this.settingsVersion;
 
-      const maybeLogoutAndRetry = (result: ConnectionFailure | RestApiFailureResponse) => {
+      const maybeLogoutAndRetry = async (
+        result: ConnectionFailure | RestApiFailureResponse,
+      ): Promise<ClientRequestResult<U>> => {
         if (
           shouldRetryRoutineFailures &&
           (ClientRequestResult.isConnectionFailure(result) ||
@@ -226,15 +233,17 @@ export class SynologyClient {
         ) {
           this.loginPromise = undefined;
           return wrappedFunction(options, false);
-        } else {
+        } else if (ClientRequestResult.isConnectionFailure(result)) {
           return result;
+        } else {
+          return { ...result, apiGroup };
         }
       };
 
       try {
         // `await`s in this block aren't necessary to adhere to the type signature, but it changes
         // who's responsible for handling the errors. Currently, errors unhandled by lower levels
-        // are bubbled up to the outermost `catch`.
+        // are bubbled up to this outermost `catch`.
 
         const loginResult = await this.maybeLogin();
 
@@ -263,12 +272,14 @@ export class SynologyClient {
 
   private proxyOptionalArgs<T, U>(
     fn: (baseUrl: string, sid: string, options?: T) => Promise<RestApiResponse<U>>,
+    apiGroup: string,
   ): (options?: T) => Promise<ClientRequestResult<U>> {
-    return this.proxy(fn);
+    return this.proxy(fn, apiGroup);
   }
 
   private proxyWithoutAuth<T, U>(
     fn: (baseUrl: string, options: T) => Promise<RestApiResponse<U>>,
+    apiGroup: string,
   ): (options: T) => Promise<ClientRequestResult<U>> {
     return async (options: T) => {
       const settings = this.getValidatedSettings();
@@ -278,7 +289,17 @@ export class SynologyClient {
         };
         return response;
       } else {
-        return fn(settings.baseUrl, options);
+        let response;
+        try {
+          response = await fn(settings.baseUrl, options);
+        } catch (e) {
+          return ConnectionFailure.from(e);
+        }
+        if (response.success) {
+          return response;
+        } else {
+          return { ...response, apiGroup };
+        }
       }
     };
   }
@@ -289,47 +310,59 @@ export class SynologyClient {
   };
 
   public Info = {
-    Query: this.proxyWithoutAuth(Info.Query),
+    Query: this.proxyWithoutAuth(Info.Query, Info.API_NAME),
   };
 
   public DownloadStation = {
     Info: {
-      GetInfo: this.proxyOptionalArgs(DownloadStation.Info.GetInfo),
-      GetConfig: this.proxyOptionalArgs(DownloadStation.Info.GetConfig),
-      SetServerConfig: this.proxy(DownloadStation.Info.SetServerConfig),
+      GetInfo: this.proxyOptionalArgs(DownloadStation.Info.GetInfo, DownloadStation.Info.API_NAME),
+      GetConfig: this.proxyOptionalArgs(
+        DownloadStation.Info.GetConfig,
+        DownloadStation.Info.API_NAME,
+      ),
+      SetServerConfig: this.proxy(
+        DownloadStation.Info.SetServerConfig,
+        DownloadStation.Info.API_NAME,
+      ),
     },
     Schedule: {
-      GetConfig: this.proxyOptionalArgs(DownloadStation.Schedule.GetConfig),
-      SetConfig: this.proxy(DownloadStation.Schedule.SetConfig),
+      GetConfig: this.proxyOptionalArgs(
+        DownloadStation.Schedule.GetConfig,
+        DownloadStation.Schedule.API_NAME,
+      ),
+      SetConfig: this.proxy(DownloadStation.Schedule.SetConfig, DownloadStation.Schedule.API_NAME),
     },
     Statistic: {
-      GetInfo: this.proxyOptionalArgs(DownloadStation.Statistic.GetInfo),
+      GetInfo: this.proxyOptionalArgs(
+        DownloadStation.Statistic.GetInfo,
+        DownloadStation.Statistic.API_NAME,
+      ),
     },
     Task: {
-      List: this.proxyOptionalArgs(DownloadStation.Task.List),
-      GetInfo: this.proxy(DownloadStation.Task.GetInfo),
-      Create: this.proxy(DownloadStation.Task.Create),
-      Delete: this.proxy(DownloadStation.Task.Delete),
-      Pause: this.proxy(DownloadStation.Task.Pause),
-      Resume: this.proxy(DownloadStation.Task.Resume),
-      Edit: this.proxy(DownloadStation.Task.Edit),
+      List: this.proxyOptionalArgs(DownloadStation.Task.List, DownloadStation.Task.API_NAME),
+      GetInfo: this.proxy(DownloadStation.Task.GetInfo, DownloadStation.Task.API_NAME),
+      Create: this.proxy(DownloadStation.Task.Create, DownloadStation.Task.API_NAME),
+      Delete: this.proxy(DownloadStation.Task.Delete, DownloadStation.Task.API_NAME),
+      Pause: this.proxy(DownloadStation.Task.Pause, DownloadStation.Task.API_NAME),
+      Resume: this.proxy(DownloadStation.Task.Resume, DownloadStation.Task.API_NAME),
+      Edit: this.proxy(DownloadStation.Task.Edit, DownloadStation.Task.API_NAME),
     },
   };
 
   public DownloadStation2 = {
     Task: {
-      Create: this.proxy(DownloadStation2.Task.Create),
+      Create: this.proxy(DownloadStation2.Task.Create, DownloadStation2.Task.API_NAME),
     },
   };
 
   public FileStation = {
     Info: {
-      get: this.proxy(FileStation.Info.get),
+      get: this.proxy(FileStation.Info.get, FileStation.Info.API_NAME),
     },
     List: {
-      list_share: this.proxyOptionalArgs(FileStation.List.list_share),
-      list: this.proxy(FileStation.List.list),
-      getinfo: this.proxy(FileStation.List.getinfo),
+      list_share: this.proxyOptionalArgs(FileStation.List.list_share, FileStation.List.API_NAME),
+      list: this.proxy(FileStation.List.list, FileStation.List.API_NAME),
+      getinfo: this.proxy(FileStation.List.getinfo, FileStation.List.API_NAME),
     },
   };
 }
