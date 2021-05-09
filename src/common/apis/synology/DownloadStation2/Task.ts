@@ -1,7 +1,7 @@
-import { BaseRequest, FormFile, RestApiResponse, get, post } from "./shared";
+import { BaseRequest, FormFile, RestApiResponse, get, post } from "../shared";
 
-const TASK_API_NAME = "SYNO.DownloadStation2.Task" as const;
-const TASK_CGI_NAME = "entry";
+const API_NAME = "SYNO.DownloadStation2.Task";
+const CGI_NAME = "entry";
 
 interface BaseDownloadStation2TaskCreateRequest extends BaseRequest {
   create_list?: boolean;
@@ -44,7 +44,7 @@ function Task_Create(
 ): Promise<RestApiResponse<DownloadStation2TaskCreateResponse>> {
   const commonOptions = {
     // These three must come first. I believe they also must be in this order.
-    api: TASK_API_NAME,
+    api: API_NAME,
     method: "create",
     version: 2,
     ...options,
@@ -63,18 +63,18 @@ function Task_Create(
   };
 
   if (options.type === "file") {
-    return post(baseUrl, TASK_CGI_NAME, {
+    return post(baseUrl, CGI_NAME, {
       ...commonOptions,
       file: '["torrent"]',
       torrent: options.file,
     });
   } else if (options.type === "url") {
-    return get(baseUrl, TASK_CGI_NAME, {
+    return get(baseUrl, CGI_NAME, {
       ...commonOptions,
       url: JSON.stringify(options.url),
     });
   } else if (options.type === "local") {
-    return get(baseUrl, TASK_CGI_NAME, {
+    return get(baseUrl, CGI_NAME, {
       ...commonOptions,
       // TODO: Unsure if this works. Documentation isn't clear on how it's intended to work.
       local_path: JSON.stringify(options.local_path),
@@ -84,15 +84,7 @@ function Task_Create(
   }
 }
 
-const Task = {
-  API_NAME: TASK_API_NAME,
+export const Task = {
+  API_NAME,
   Create: Task_Create,
-};
-
-// ------------------------------------------------------------------------- //
-//                                  exports                                  //
-// ------------------------------------------------------------------------- //
-
-export const DownloadStation2 = {
-  Task,
 };

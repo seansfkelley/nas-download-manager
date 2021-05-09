@@ -1,118 +1,4 @@
-import { ApiBuilder, BaseRequest, FormFile, RestApiResponse, get, post } from "./shared";
-
-// ------------------------------------------------------------------------- //
-//                                   Info                                    //
-// ------------------------------------------------------------------------- //
-
-export interface DownloadStationInfoGetInfoResponse {
-  is_manager: boolean;
-  version: number;
-  version_string: string;
-}
-
-export interface DownloadStationInfoConfig {
-  bt_max_download: number;
-  bt_max_upload: number;
-  emule_max_download: number;
-  emule_max_upload: number;
-  nzb_max_download: number;
-  http_max_download: number;
-  ftp_max_download: number;
-  emule_enabled: boolean;
-  unzip_service_enabled: boolean;
-  default_destination: string;
-  emule_default_destination: string;
-}
-
-const INFO_API_NAME = "SYNO.DownloadStation.Info" as const;
-const infoBuilder = new ApiBuilder(
-  "DownloadStation/info",
-  INFO_API_NAME,
-  "DownloadStation",
-  "DownloadStation.Info",
-);
-
-const Info = {
-  API_NAME: INFO_API_NAME,
-  GetInfo: infoBuilder.makeGet<BaseRequest, DownloadStationInfoGetInfoResponse>(
-    "getinfo",
-    undefined,
-    undefined,
-    true,
-  ),
-  GetConfig: infoBuilder.makeGet<BaseRequest, DownloadStationInfoConfig>(
-    "getconfig",
-    undefined,
-    undefined,
-    true,
-  ),
-  SetServerConfig: infoBuilder.makeGet<Partial<DownloadStationInfoConfig> & BaseRequest, {}>(
-    "setserverconfig",
-  ),
-};
-
-// ------------------------------------------------------------------------- //
-//                                 Schedule                                  //
-// ------------------------------------------------------------------------- //
-
-export interface DownloadStationScheduleConfig {
-  enabled: boolean;
-  emule_enabled: boolean;
-}
-
-const SCHEDULE_API_NAME = "SYNO.DownloadStation.Schedule" as const;
-const scheduleBuilder = new ApiBuilder(
-  "DownloadStation/schedule",
-  SCHEDULE_API_NAME,
-  "DownloadStation",
-  "DownloadStation.Schedule",
-);
-
-const Schedule = {
-  API_NAME: SCHEDULE_API_NAME,
-  GetConfig: scheduleBuilder.makeGet<BaseRequest, DownloadStationScheduleConfig>(
-    "getconfig",
-    undefined,
-    undefined,
-    true,
-  ),
-  SetConfig: scheduleBuilder.makeGet<Partial<DownloadStationScheduleConfig> & BaseRequest, {}>(
-    "setconfig",
-  ),
-};
-
-// ------------------------------------------------------------------------- //
-//                                Statistics                                 //
-// ------------------------------------------------------------------------- //
-
-export interface DownloadStationStatisticGetInfoResponse {
-  speed_download: number;
-  speed_upload: number;
-  emule_speed_download?: number;
-  emule_speed_upload?: number;
-}
-
-const STATISTIC_API_NAME = "SYNO.DownloadStation.Statistic" as const;
-const statisticsBuilder = new ApiBuilder(
-  "DownloadStation/statistic",
-  STATISTIC_API_NAME,
-  "DownloadStation",
-  "DownloadStation.Statistic",
-);
-
-const Statistic = {
-  API_NAME: STATISTIC_API_NAME,
-  GetInfo: statisticsBuilder.makeGet<BaseRequest, DownloadStationStatisticGetInfoResponse>(
-    "getinfo",
-    undefined,
-    undefined,
-    true,
-  ),
-};
-
-// ------------------------------------------------------------------------- //
-//                                   Tasks                                   //
-// ------------------------------------------------------------------------- //
+import { ApiBuilder, BaseRequest, FormFile, RestApiResponse, get, post } from "../shared";
 
 export type DownloadStationTaskAdditionalType = "detail" | "transfer" | "file" | "tracker" | "peer";
 
@@ -291,15 +177,13 @@ export interface DownloadStationTaskEditRequest extends BaseRequest {
   destination?: string;
 }
 
-const TASK_CGI_NAME = "DownloadStation/task" as const;
-const TASK_API_NAME = "SYNO.DownloadStation.Task" as const;
+const CGI_NAME = "DownloadStation/task";
+const API_NAME = "SYNO.DownloadStation.Task";
 
-const taskBuilder = new ApiBuilder(
-  TASK_CGI_NAME,
-  TASK_API_NAME,
-  "DownloadStation",
-  "DownloadStation.Task",
-);
+const taskBuilder = new ApiBuilder(CGI_NAME, API_NAME, {
+  apiGroup: "DownloadStation",
+  apiSubgroup: "DownloadStation.Task",
+});
 
 function Task_Create(
   baseUrl: string,
@@ -311,7 +195,7 @@ function Task_Create(
   }
   const commonOptions = {
     ...options,
-    api: TASK_API_NAME,
+    api: API_NAME,
     version: 1,
     method: "create",
     sid,
@@ -324,12 +208,12 @@ function Task_Create(
   };
 
   if (options.file) {
-    return post(baseUrl, TASK_CGI_NAME, {
+    return post(baseUrl, CGI_NAME, {
       ...commonOptions,
       file: options.file,
     });
   } else {
-    return get(baseUrl, TASK_CGI_NAME, {
+    return get(baseUrl, CGI_NAME, {
       ...commonOptions,
       uri: options.uri && options.uri.length ? options.uri.join(",") : undefined,
     });
@@ -393,8 +277,8 @@ function fixTaskNumericTypes(task: DownloadStationTask): DownloadStationTask {
   return output;
 }
 
-const Task = {
-  API_NAME: TASK_API_NAME,
+export const Task = {
+  API_NAME,
   List: taskBuilder.makeGet<DownloadStationTaskListRequest, DownloadStationTaskListResponse>(
     "list",
     (o) => ({
@@ -429,15 +313,4 @@ const Task = {
     "edit",
     (o) => ({ ...o, id: o.id.join(",") }),
   ),
-};
-
-// ------------------------------------------------------------------------- //
-//                                  exports                                  //
-// ------------------------------------------------------------------------- //
-
-export const DownloadStation = {
-  Info,
-  Schedule,
-  Statistic,
-  Task,
 };

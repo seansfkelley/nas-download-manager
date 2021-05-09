@@ -1,6 +1,6 @@
 // TODO: This should re-define the properties that are interesting on the type, otherwise
 // this migration is not safe from changes made to the imported typed in the future.
-import type { DownloadStationTask } from "../../../common/apis/synology";
+import type { DownloadStationTask } from "../../../common/apis/synology/DownloadStation/Task";
 
 import {
   migrate as migrate_1,

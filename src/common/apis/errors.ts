@@ -15,7 +15,9 @@ const DOWNLOADSTATION_TASK_ERRORS: Record<string, string> = {
   408: browser.i18n.getMessage("File_does_not_exist"),
 };
 
-const ERROR_CODES = {
+// Note that the keys of this must match the values in the API definitions, but there is no
+// compiler enforcement.
+const ERROR_CODES: Record<string, Record<string, string>> = {
   common: {
     100: browser.i18n.getMessage("Unknown_error"),
     101: browser.i18n.getMessage("Invalid_parameter"),
@@ -67,14 +69,15 @@ const ERROR_CODES = {
 
 export function getErrorForFailedResponse(
   response: RestApiFailureResponse,
-  defaultMessage: string | null = "Unknown error.",
+  defaultMessage: string = "Unknown error.",
 ): string {
   return (
     ERROR_CODES[response.meta.apiGroup]?.[response.error.code] ||
-    ERROR_CODES[response.meta.apiSubgroup]?.[response.error.code] ||
+    (response.meta.apiSubgroup
+      ? ERROR_CODES[response.meta.apiSubgroup]?.[response.error.code]
+      : null) ||
     ERROR_CODES.common[response.error.code] ||
-    defaultMessage ||
-    undefined
+    defaultMessage
   );
 }
 

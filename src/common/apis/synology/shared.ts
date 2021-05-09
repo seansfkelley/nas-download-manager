@@ -154,12 +154,7 @@ export async function post<O extends object>(
 }
 
 export class ApiBuilder {
-  constructor(
-    private cgiName: string,
-    private apiName: string,
-    private apiGroup: string,
-    private apiSubgroup?: string,
-  ) {}
+  constructor(private cgiName: string, private apiName: string, private meta: ApiMeta) {}
 
   makeGet<I extends BaseRequest, O>(
     methodName: string,
@@ -218,7 +213,7 @@ export class ApiBuilder {
         version: 1,
         method: methodName,
         sid,
-        meta: { apiGroup: this.apiGroup, apiSubgroup: this.apiSubgroup },
+        meta: this.meta,
       });
       if (response.success) {
         return { ...response, data: postprocess!(response.data) };

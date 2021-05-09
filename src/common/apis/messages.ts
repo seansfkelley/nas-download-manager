@@ -1,5 +1,5 @@
 import type { DiscriminateUnion } from "../types";
-import type { DownloadStationInfoConfig } from "../../common/apis/synology";
+import type { DownloadStationInfoConfig } from "./synology/DownloadStation/Info";
 
 export interface SuccessMessageResponse<T> {
   success: true;

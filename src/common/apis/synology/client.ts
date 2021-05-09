@@ -290,13 +290,6 @@ export class SynologyClient {
       GetConfig: this.proxyOptionalArgs(DownloadStation.Info.GetConfig),
       SetServerConfig: this.proxy(DownloadStation.Info.SetServerConfig),
     },
-    Schedule: {
-      GetConfig: this.proxyOptionalArgs(DownloadStation.Schedule.GetConfig),
-      SetConfig: this.proxy(DownloadStation.Schedule.SetConfig),
-    },
-    Statistic: {
-      GetInfo: this.proxyOptionalArgs(DownloadStation.Statistic.GetInfo),
-    },
     Task: {
       List: this.proxyOptionalArgs(DownloadStation.Task.List),
       GetInfo: this.proxy(DownloadStation.Task.GetInfo),

@@ -14,8 +14,8 @@ export type InfoQueryResponse = Record<
   }
 >;
 
-const CGI_NAME = "query" as const;
-const API_NAME = "SYNO.API.Info" as const;
+const CGI_NAME = "query";
+const API_NAME = "SYNO.API.Info";
 
 function Query(
   baseUrl: string,

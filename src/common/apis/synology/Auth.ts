@@ -1,7 +1,7 @@
 import { RestApiResponse, BaseRequest, get, SessionName } from "./shared";
 
-const CGI_NAME = "auth" as const;
-const API_NAME = "SYNO.API.Auth" as const;
+const CGI_NAME = "auth";
+const API_NAME = "SYNO.API.Auth";
 
 export interface AuthLoginRequest extends BaseRequest {
   account: string;

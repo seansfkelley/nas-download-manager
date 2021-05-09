@@ -6,7 +6,7 @@ import classNames from "classnames";
 
 import { formatMetric1024, formatTime, formatPercentage } from "../common/format";
 import { matchesFilter } from "../common/filtering";
-import type { DownloadStationTask } from "../common/apis/synology";
+import type { DownloadStationTask } from "../common/apis/synology/DownloadStation/Task";
 import { MessageResponse, FailureMessageResponse } from "../common/apis/messages";
 
 export interface Props {

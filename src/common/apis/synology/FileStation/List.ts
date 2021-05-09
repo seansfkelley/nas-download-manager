@@ -1,27 +1,4 @@
-import { ApiBuilder, BaseRequest } from "./shared";
-
-// ------------------------------------------------------------------------- //
-//                                   Info                                    //
-// ------------------------------------------------------------------------- //
-
-export interface FileStationInfoGetResponse {
-  is_manager: boolean;
-  support_virtual_protocol: number;
-  support_sharing: boolean;
-  hostname: string;
-}
-
-const INFO_API_NAME = "SYNO.FileStation.Info";
-const infoBuilder = new ApiBuilder("entry", INFO_API_NAME, "FileStation", "FileStation.Info");
-
-const Info = {
-  API_NAME: INFO_API_NAME as typeof INFO_API_NAME,
-  get: infoBuilder.makeGet<BaseRequest, FileStationInfoGetResponse>("get"),
-};
-
-// ------------------------------------------------------------------------- //
-//                                   List                                    //
-// ------------------------------------------------------------------------- //
+import { ApiBuilder, BaseRequest } from "../shared";
 
 export interface FileStationTime {
   atime: number;
@@ -152,10 +129,13 @@ export interface FileStationListGetInfoResponse {
   files: FileStationFile[];
 }
 
-const API_NAME = "SYNO.FileStation.List" as const;
-const listBuilder = new ApiBuilder("entry", API_NAME, "FileStation", "FileStation.List");
+const API_NAME = "SYNO.FileStation.List";
+const listBuilder = new ApiBuilder("entry", API_NAME, {
+  apiGroup: "FileStation",
+  apiSubgroup: "FileStation.List",
+});
 
-const List = {
+export const List = {
   API_NAME,
   list_share: listBuilder.makeGet<
     FileStationListListShareRequest,
@@ -181,13 +161,4 @@ const List = {
       additional: o?.additional?.length ? o.additional.join(",") : undefined,
     }),
   ),
-};
-
-// ------------------------------------------------------------------------- //
-//                                  exports                                  //
-// ------------------------------------------------------------------------- //
-
-export const FileStation = {
-  Info,
-  List,
 };
