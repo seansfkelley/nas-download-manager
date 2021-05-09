@@ -2,7 +2,7 @@ import {
   SessionName,
   SynologyClient,
   ConnectionFailure,
-  isConnectionFailure,
+  ClientRequestResult,
 } from "../common/apis/synology";
 import { Settings, getHostUrl, ConnectionSettings, State } from "../common/state";
 import { saveLastSevereError } from "../common/errorHandlers";
@@ -33,18 +33,21 @@ export async function testConnection(settings: ConnectionSettings): Promise<Conn
     session: SessionName.DownloadStation,
   });
 
-  const loginResponse = await api.Auth.Login({ timeout: 30000 });
-  if (isConnectionFailure(loginResponse)) {
-    return loginResponse;
-  } else if (!loginResponse.success) {
-    return { failureCode: loginResponse.error.code };
+  const loginResult = await api.Auth.Login({ timeout: 30000 });
+  if (ClientRequestResult.isConnectionFailure(loginResult)) {
+    return loginResult;
+  } else if (!loginResult.success) {
+    return { failureCode: loginResult.error.code };
   } else {
     // Note that this is fire-and-forget.
     api.Auth.Logout({ timeout: 10000 }).then((logoutResponse) => {
       if (logoutResponse === "not-logged-in") {
         // Typescript demands we handle this case, which is correct, but also, it's pretty wat
         console.error(`wtf: not logged in immediately after successfully logging in`);
-      } else if (isConnectionFailure(logoutResponse) || !logoutResponse.success) {
+      } else if (
+        ClientRequestResult.isConnectionFailure(logoutResponse) ||
+        !logoutResponse.success
+      ) {
         console.error(
           "ignoring unexpected failure while logging out after successful connection test",
           logoutResponse,

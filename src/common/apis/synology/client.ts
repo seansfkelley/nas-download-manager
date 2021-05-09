@@ -61,13 +61,16 @@ const ConnectionFailure = {
   },
 };
 
-export function isConnectionFailure(
-  result: RestApiResponse<{}> | ConnectionFailure,
-): result is ConnectionFailure {
-  return (
-    (result as ConnectionFailure).type != null && (result as RestApiResponse<{}>).success == null
-  );
-}
+export type ClientRequestResult<T> = RestApiResponse<T> | ConnectionFailure;
+
+export const ClientRequestResult = {
+  isConnectionFailure: (result: ClientRequestResult<unknown>): result is ConnectionFailure => {
+    return (
+      (result as ConnectionFailure).type != null &&
+      (result as RestApiResponse<unknown>).success == null
+    );
+  },
+};
 
 export class SynologyClient {
   private loginPromise: Promise<RestApiResponse<AuthLoginResponse>> | undefined;
@@ -160,7 +163,7 @@ export class SynologyClient {
   //     client or session at the time the promise is resolved.
   private maybeLogout = async (
     request?: BaseRequest,
-  ): Promise<RestApiResponse<{}> | ConnectionFailure | "not-logged-in"> => {
+  ): Promise<ClientRequestResult<{}> | "not-logged-in"> => {
     const stashedLoginPromise = this.loginPromise;
     const settings = this.getValidatedSettings();
     this.loginPromise = undefined;
@@ -200,24 +203,24 @@ export class SynologyClient {
 
   private proxy<T, U>(
     fn: (baseUrl: string, sid: string, options: T) => Promise<RestApiResponse<U>>,
-  ): (options: T) => Promise<RestApiResponse<U> | ConnectionFailure> {
+  ): (options: T) => Promise<ClientRequestResult<U>> {
     const wrappedFunction = async (
       options: T,
       shouldRetryRoutineFailures: boolean = true,
-    ): Promise<RestApiResponse<U> | ConnectionFailure> => {
+    ): Promise<ClientRequestResult<U>> => {
       const versionAtInit = this.settingsVersion;
 
-      const maybeLogoutAndRetry = (response: ConnectionFailure | RestApiFailureResponse) => {
+      const maybeLogoutAndRetry = (result: ConnectionFailure | RestApiFailureResponse) => {
         if (
           shouldRetryRoutineFailures &&
-          (isConnectionFailure(response) ||
-            response.error.code === SESSION_TIMEOUT_ERROR_CODE ||
-            response.error.code === NO_PERMISSIONS_ERROR_CODE)
+          (ClientRequestResult.isConnectionFailure(result) ||
+            result.error.code === SESSION_TIMEOUT_ERROR_CODE ||
+            result.error.code === NO_PERMISSIONS_ERROR_CODE)
         ) {
           this.loginPromise = undefined;
           return wrappedFunction(options, false);
         } else {
-          return response;
+          return result;
         }
       };
 
@@ -226,14 +229,14 @@ export class SynologyClient {
         // who's responsible for handling the errors. Currently, errors unhandled by lower levels
         // are bubbled up to the outermost `catch`.
 
-        const loginResponse = await this.maybeLogin();
+        const loginResult = await this.maybeLogin();
 
         if (this.settingsVersion !== versionAtInit) {
           return await wrappedFunction(options);
-        } else if (isConnectionFailure(loginResponse) || !loginResponse.success) {
-          return await maybeLogoutAndRetry(loginResponse);
+        } else if (ClientRequestResult.isConnectionFailure(loginResult) || !loginResult.success) {
+          return await maybeLogoutAndRetry(loginResult);
         } else {
-          const response = await fn(this.settings.baseUrl!, loginResponse.data.sid, options);
+          const response = await fn(this.settings.baseUrl!, loginResult.data.sid, options);
 
           if (this.settingsVersion !== versionAtInit) {
             return await wrappedFunction(options);
@@ -253,13 +256,13 @@ export class SynologyClient {
 
   private proxyOptionalArgs<T, U>(
     fn: (baseUrl: string, sid: string, options?: T) => Promise<RestApiResponse<U>>,
-  ): (options?: T) => Promise<RestApiResponse<U> | ConnectionFailure> {
+  ): (options?: T) => Promise<ClientRequestResult<U>> {
     return this.proxy(fn);
   }
 
   private proxyWithoutAuth<T, U>(
     fn: (baseUrl: string, options: T) => Promise<RestApiResponse<U>>,
-  ): (options: T) => Promise<RestApiResponse<U> | ConnectionFailure> {
+  ): (options: T) => Promise<ClientRequestResult<U>> {
     return async (options: T) => {
       const settings = this.getValidatedSettings();
       if (settings == null) {

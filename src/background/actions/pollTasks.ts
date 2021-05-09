@@ -1,5 +1,5 @@
 import type { RequestManager } from "../requestManager";
-import { SynologyClient, isConnectionFailure } from "../../common/apis/synology";
+import { SynologyClient, ClientRequestResult } from "../../common/apis/synology";
 import { errorMessageFromCode, errorMessageFromConnectionFailure } from "../../common/apis/errors";
 import type { CachedTasks, State } from "../../common/state";
 import { saveLastSevereError } from "../../common/errorHandlers";
@@ -47,7 +47,7 @@ export async function pollTasks(api: SynologyClient, manager: RequestManager): P
       console.log(`(${token}) poll result still relevant; continuing...`, response);
     }
 
-    if (isConnectionFailure(response)) {
+    if (ClientRequestResult.isConnectionFailure(response)) {
       if (response.type === "missing-config") {
         await setCachedTasks({
           taskFetchFailureReason: "missing-config",

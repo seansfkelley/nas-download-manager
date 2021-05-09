@@ -1,8 +1,6 @@
 import {
   SynologyClient,
-  ConnectionFailure,
-  isConnectionFailure,
-  SynologyResponse,
+  ClientRequestResult,
   DownloadStation2,
   FormFile,
 } from "../../common/apis/synology";
@@ -44,7 +42,7 @@ const UNEXPECTED_ERROR_REASON_TO_USER_MESSAGE: Record<UnexpectedErrorForUrl["rea
 async function checkIfEMuleShouldBeEnabled(api: SynologyClient, urls: string[]) {
   if (urls.some((url) => startsWithAnyProtocol(url, EMULE_PROTOCOL))) {
     const result = await api.DownloadStation.Info.GetConfig();
-    if (isConnectionFailure(result)) {
+    if (ClientRequestResult.isConnectionFailure(result)) {
       return false;
     } else if (result.success) {
       return !result.data.emule_enabled;
@@ -78,12 +76,12 @@ async function addOneTask(
   { path, ftpUsername, ftpPassword, unzipPassword }: AddTaskOptions,
 ) {
   async function reportTaskAddResult(
-    result: ConnectionFailure | SynologyResponse<{}>,
+    result: ClientRequestResult<unknown>,
     filename: string | undefined,
   ) {
     console.log("task add result", result);
 
-    if (isConnectionFailure(result)) {
+    if (ClientRequestResult.isConnectionFailure(result)) {
       notify(
         browser.i18n.getMessage("Failed_to_connect_to_DiskStation"),
         browser.i18n.getMessage("Please_check_your_settings"),
@@ -159,7 +157,7 @@ async function addOneTask(
       const supportsNewApiQueryResult = await api.Info.Query({
         query: [DownloadStation2.Task.API_NAME],
       });
-      if (isConnectionFailure(supportsNewApiQueryResult)) {
+      if (ClientRequestResult.isConnectionFailure(supportsNewApiQueryResult)) {
         await reportTaskAddResult(supportsNewApiQueryResult, resolvedUrl.filename);
       } else {
         const file: FormFile = { content: resolvedUrl.content, filename: resolvedUrl.filename };
@@ -238,10 +236,10 @@ async function addMultipleTasks(
   let successes = 0;
   let failures = 0;
 
-  function countResults(result: SynologyResponse<{}> | ConnectionFailure, count: number) {
+  function countResults(result: ClientRequestResult<unknown>, count: number) {
     console.log("task add result", result);
 
-    if (isConnectionFailure(result)) {
+    if (ClientRequestResult.isConnectionFailure(result)) {
       failures += count;
     } else if (result.success) {
       // "success" doesn't mean the torrents are valid and downloading, it just means that the
@@ -298,7 +296,7 @@ async function addMultipleTasks(
     });
 
     const results = groupedUrls["metadata-file"].map((file) => {
-      if (isConnectionFailure(supportsNewApiQueryResult)) {
+      if (ClientRequestResult.isConnectionFailure(supportsNewApiQueryResult)) {
         return Promise.resolve(supportsNewApiQueryResult);
       } else if (
         supportsNewApiQueryResult.success &&

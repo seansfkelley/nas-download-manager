@@ -4,9 +4,9 @@ export * from "./DownloadStation";
 export * from "./DownloadStation2";
 export * from "./FileStation";
 export {
-  RestApiResponse as SynologyResponse,
-  RestApiResponseSuccess as SynologySuccessResponse,
-  RestApiFailureResponse as SynologyFailureResponse,
+  RestApiResponse,
+  RestApiSuccessResponse,
+  RestApiFailureResponse,
   SessionName,
   FormFile,
   isFormFile,

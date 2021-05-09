@@ -1,4 +1,4 @@
-import { SynologyResponse, ConnectionFailure, isConnectionFailure } from "../common/apis/synology";
+import { ClientRequestResult } from "../common/apis/synology";
 import {
   errorMessageFromCode,
   errorMessageFromConnectionFailure,
@@ -19,20 +19,20 @@ type MessageHandlers = {
 };
 
 function toMessageResponse(
-  response: SynologyResponse<unknown> | ConnectionFailure,
+  response: ClientRequestResult<unknown>,
   errorNamespace: ErrorNamespace,
 ): MessageResponse;
 function toMessageResponse<T, U>(
-  response: SynologyResponse<T> | ConnectionFailure,
+  response: ClientRequestResult<T>,
   errorNamespace: ErrorNamespace,
   extract: (result: T) => U,
 ): MessageResponse<U>;
 function toMessageResponse<T, U>(
-  response: SynologyResponse<T> | ConnectionFailure,
+  response: ClientRequestResult<T>,
   errorNamespace: ErrorNamespace,
   extract?: (result: T) => U,
 ): MessageResponse<U> {
-  if (isConnectionFailure(response)) {
+  if (ClientRequestResult.isConnectionFailure(response)) {
     return {
       success: false,
       reason: errorMessageFromConnectionFailure(response),
