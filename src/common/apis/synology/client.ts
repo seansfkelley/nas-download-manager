@@ -6,7 +6,6 @@ import { Info } from "./Info";
 import {
   SessionName,
   RestApiResponse,
-  RestApiSuccessResponse,
   RestApiFailureResponse,
   BaseRequest,
   BadResponseError,
@@ -35,12 +34,6 @@ const SETTING_NAME_KEYS = (function () {
   return Object.keys(_settingNames) as (keyof SynologyClientSettings)[];
 })();
 
-export interface ClientFailureResponse extends RestApiFailureResponse {
-  apiGroup: string;
-}
-
-export type ClientResponse<T> = RestApiSuccessResponse<T> | ClientFailureResponse;
-
 export type ConnectionFailure =
   | {
       type: "missing-config";
@@ -68,20 +61,13 @@ const ConnectionFailure = {
   },
 };
 
-export type ClientRequestResult<T> = ClientResponse<T> | ConnectionFailure;
+export type ClientRequestResult<T> = RestApiResponse<T> | ConnectionFailure;
 
 export const ClientRequestResult = {
-  from: <T>(response: RestApiResponse<T>, apiGroup: string): ClientRequestResult<T> => {
-    if (response.success) {
-      return response;
-    } else {
-      return { ...response, apiGroup };
-    }
-  },
   isConnectionFailure: (result: ClientRequestResult<unknown>): result is ConnectionFailure => {
     return (
       (result as ConnectionFailure).type != null &&
-      (result as ClientResponse<unknown>).success == null
+      (result as RestApiResponse<unknown>).success == null
     );
   },
 };
@@ -160,7 +146,6 @@ export class SynologyClient {
             return response;
           }
         })
-        .then((response) => ClientRequestResult.from(response, Auth.API_NAME))
         .catch((e) => ConnectionFailure.from(e));
     }
 
@@ -195,14 +180,11 @@ export class SynologyClient {
       } else if (response.success) {
         const { baseUrl, session } = settings;
         try {
-          return ClientRequestResult.from(
-            await Auth.Logout(baseUrl, {
-              ...request,
-              sid: response.data.sid,
-              session: session,
-            }),
-            Auth.API_NAME,
-          );
+          return await Auth.Logout(baseUrl, {
+            ...request,
+            sid: response.data.sid,
+            session: session,
+          });
         } catch (e) {
           return ConnectionFailure.from(e);
         }
@@ -214,7 +196,6 @@ export class SynologyClient {
 
   private proxy<T, U>(
     fn: (baseUrl: string, sid: string, options: T) => Promise<RestApiResponse<U>>,
-    apiGroup: string,
   ): (options: T) => Promise<ClientRequestResult<U>> {
     const wrappedFunction = async (
       options: T,
@@ -233,10 +214,8 @@ export class SynologyClient {
         ) {
           this.loginPromise = undefined;
           return wrappedFunction(options, false);
-        } else if (ClientRequestResult.isConnectionFailure(result)) {
-          return result;
         } else {
-          return { ...result, apiGroup };
+          return result;
         }
       };
 
@@ -272,14 +251,12 @@ export class SynologyClient {
 
   private proxyOptionalArgs<T, U>(
     fn: (baseUrl: string, sid: string, options?: T) => Promise<RestApiResponse<U>>,
-    apiGroup: string,
   ): (options?: T) => Promise<ClientRequestResult<U>> {
-    return this.proxy(fn, apiGroup);
+    return this.proxy(fn);
   }
 
   private proxyWithoutAuth<T, U>(
     fn: (baseUrl: string, options: T) => Promise<RestApiResponse<U>>,
-    apiGroup: string,
   ): (options: T) => Promise<ClientRequestResult<U>> {
     return async (options: T) => {
       const settings = this.getValidatedSettings();
@@ -289,16 +266,10 @@ export class SynologyClient {
         };
         return response;
       } else {
-        let response;
         try {
-          response = await fn(settings.baseUrl, options);
+          return await fn(settings.baseUrl, options);
         } catch (e) {
           return ConnectionFailure.from(e);
-        }
-        if (response.success) {
-          return response;
-        } else {
-          return { ...response, apiGroup };
         }
       }
     };
@@ -310,59 +281,47 @@ export class SynologyClient {
   };
 
   public Info = {
-    Query: this.proxyWithoutAuth(Info.Query, Info.API_NAME),
+    Query: this.proxyWithoutAuth(Info.Query),
   };
 
   public DownloadStation = {
     Info: {
-      GetInfo: this.proxyOptionalArgs(DownloadStation.Info.GetInfo, DownloadStation.Info.API_NAME),
-      GetConfig: this.proxyOptionalArgs(
-        DownloadStation.Info.GetConfig,
-        DownloadStation.Info.API_NAME,
-      ),
-      SetServerConfig: this.proxy(
-        DownloadStation.Info.SetServerConfig,
-        DownloadStation.Info.API_NAME,
-      ),
+      GetInfo: this.proxyOptionalArgs(DownloadStation.Info.GetInfo),
+      GetConfig: this.proxyOptionalArgs(DownloadStation.Info.GetConfig),
+      SetServerConfig: this.proxy(DownloadStation.Info.SetServerConfig),
     },
     Schedule: {
-      GetConfig: this.proxyOptionalArgs(
-        DownloadStation.Schedule.GetConfig,
-        DownloadStation.Schedule.API_NAME,
-      ),
-      SetConfig: this.proxy(DownloadStation.Schedule.SetConfig, DownloadStation.Schedule.API_NAME),
+      GetConfig: this.proxyOptionalArgs(DownloadStation.Schedule.GetConfig),
+      SetConfig: this.proxy(DownloadStation.Schedule.SetConfig),
     },
     Statistic: {
-      GetInfo: this.proxyOptionalArgs(
-        DownloadStation.Statistic.GetInfo,
-        DownloadStation.Statistic.API_NAME,
-      ),
+      GetInfo: this.proxyOptionalArgs(DownloadStation.Statistic.GetInfo),
     },
     Task: {
-      List: this.proxyOptionalArgs(DownloadStation.Task.List, DownloadStation.Task.API_NAME),
-      GetInfo: this.proxy(DownloadStation.Task.GetInfo, DownloadStation.Task.API_NAME),
-      Create: this.proxy(DownloadStation.Task.Create, DownloadStation.Task.API_NAME),
-      Delete: this.proxy(DownloadStation.Task.Delete, DownloadStation.Task.API_NAME),
-      Pause: this.proxy(DownloadStation.Task.Pause, DownloadStation.Task.API_NAME),
-      Resume: this.proxy(DownloadStation.Task.Resume, DownloadStation.Task.API_NAME),
-      Edit: this.proxy(DownloadStation.Task.Edit, DownloadStation.Task.API_NAME),
+      List: this.proxyOptionalArgs(DownloadStation.Task.List),
+      GetInfo: this.proxy(DownloadStation.Task.GetInfo),
+      Create: this.proxy(DownloadStation.Task.Create),
+      Delete: this.proxy(DownloadStation.Task.Delete),
+      Pause: this.proxy(DownloadStation.Task.Pause),
+      Resume: this.proxy(DownloadStation.Task.Resume),
+      Edit: this.proxy(DownloadStation.Task.Edit),
     },
   };
 
   public DownloadStation2 = {
     Task: {
-      Create: this.proxy(DownloadStation2.Task.Create, DownloadStation2.Task.API_NAME),
+      Create: this.proxy(DownloadStation2.Task.Create),
     },
   };
 
   public FileStation = {
     Info: {
-      get: this.proxy(FileStation.Info.get, FileStation.Info.API_NAME),
+      get: this.proxy(FileStation.Info.get),
     },
     List: {
-      list_share: this.proxyOptionalArgs(FileStation.List.list_share, FileStation.List.API_NAME),
-      list: this.proxy(FileStation.List.list, FileStation.List.API_NAME),
-      getinfo: this.proxy(FileStation.List.getinfo, FileStation.List.API_NAME),
+      list_share: this.proxyOptionalArgs(FileStation.List.list_share),
+      list: this.proxy(FileStation.List.list),
+      getinfo: this.proxy(FileStation.List.getinfo),
     },
   };
 }

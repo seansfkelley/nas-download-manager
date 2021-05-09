@@ -27,6 +27,9 @@ function Query(
     version: 1,
     method: "query",
     query: options.query === "ALL" ? options.query : options.query.join(","),
+    meta: {
+      apiGroup: "Info",
+    },
   });
 }
 

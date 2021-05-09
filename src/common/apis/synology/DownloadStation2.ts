@@ -53,6 +53,10 @@ function Task_Create(
     destination: JSON.stringify(options.destination ?? ""),
     create_list: JSON.stringify(options.create_list ?? false),
     sid,
+    meta: {
+      apiGroup: "DownloadStation2",
+      apiSubgroup: "DownloadStation2.Task",
+    },
     file: undefined,
     url: undefined,
     local_path: undefined,

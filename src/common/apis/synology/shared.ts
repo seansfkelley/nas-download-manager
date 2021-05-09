@@ -24,13 +24,20 @@ export function isFormFile(f?: any): f is FormFile {
   return f && (f as FormFile).content != null && (f as FormFile).filename != null;
 }
 
+export interface ApiMeta {
+  apiGroup: string;
+  apiSubgroup?: string;
+}
+
 export interface RestApiSuccessResponse<S> {
   success: true;
   data: S;
+  meta: ApiMeta;
 }
 
 export interface RestApiFailureResponse {
   success: false;
+  meta: ApiMeta;
   error: {
     code: number;
     errors?: any[];
@@ -47,9 +54,10 @@ export interface ApiRequest {
   api: string;
   version: number;
   method: string;
+  meta: ApiMeta;
   sid?: string;
   timeout?: number;
-  [key: string]: string | number | boolean | FormFile | undefined;
+  [key: string]: string | number | boolean | FormFile | ApiMeta | undefined;
 }
 
 const DEFAULT_TIMEOUT = 60000;
@@ -58,6 +66,7 @@ async function fetchWithErrorHandling(
   url: string,
   init: RequestInit,
   timeout: number | undefined,
+  meta: ApiMeta,
 ): Promise<unknown> {
   const abortController = new AbortController();
   const timeoutTimer = setTimeout(() => {
@@ -73,7 +82,10 @@ async function fetchWithErrorHandling(
     if (!response.ok) {
       throw new BadResponseError(response);
     } else {
-      return response.json();
+      return {
+        ...(await response.json()),
+        meta,
+      };
     }
   } catch (e) {
     if (e instanceof DOMException && e.name === "AbortError") {
@@ -97,9 +109,10 @@ export async function get<O extends object>(
     ...request,
     _sid: request.sid,
     timeout: undefined,
+    meta: undefined,
   })}`;
 
-  return fetchWithErrorHandling(url, { method: "GET" }, request.timeout) as Promise<
+  return fetchWithErrorHandling(url, { method: "GET" }, request.timeout, request.meta) as Promise<
     RestApiResponse<O>
   >;
 }
@@ -113,7 +126,7 @@ export async function post<O extends object>(
 
   Object.keys(request).forEach((k) => {
     const v = request[k];
-    if (k !== "timeout" && v !== undefined && !isFormFile(v)) {
+    if (k !== "timeout" && k !== "meta" && v !== undefined && !isFormFile(v)) {
       // String() !== new String(). This produces lowercase-s strings, not capital-S Strings.
       formData.append(k, String(v));
     }
@@ -125,7 +138,7 @@ export async function post<O extends object>(
 
   Object.keys(request).forEach((k) => {
     const v = request[k];
-    if (k !== "timeout" && v !== undefined && isFormFile(v)) {
+    if (k !== "timeout" && k !== "meta" && v !== undefined && isFormFile(v)) {
       formData.append(k, v.content, v.filename);
     }
   });
@@ -136,11 +149,17 @@ export async function post<O extends object>(
     url,
     { method: "POST", body: formData },
     request.timeout,
+    request.meta,
   ) as Promise<RestApiResponse<O>>;
 }
 
 export class ApiBuilder {
-  constructor(private cgiName: string, private apiName: string) {}
+  constructor(
+    private cgiName: string,
+    private apiName: string,
+    private apiGroup: string,
+    private apiSubgroup?: string,
+  ) {}
 
   makeGet<I extends BaseRequest, O>(
     methodName: string,
@@ -199,6 +218,7 @@ export class ApiBuilder {
         version: 1,
         method: methodName,
         sid,
+        meta: { apiGroup: this.apiGroup, apiSubgroup: this.apiSubgroup },
       });
       if (response.success) {
         return { ...response, data: postprocess!(response.data) };

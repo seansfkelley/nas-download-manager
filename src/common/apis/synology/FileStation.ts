@@ -12,7 +12,7 @@ export interface FileStationInfoGetResponse {
 }
 
 const INFO_API_NAME = "SYNO.FileStation.Info";
-const infoBuilder = new ApiBuilder("entry", INFO_API_NAME);
+const infoBuilder = new ApiBuilder("entry", INFO_API_NAME, "FileStation", "FileStation.Info");
 
 const Info = {
   API_NAME: INFO_API_NAME as typeof INFO_API_NAME,
@@ -153,7 +153,7 @@ export interface FileStationListGetInfoResponse {
 }
 
 const API_NAME = "SYNO.FileStation.List" as const;
-const listBuilder = new ApiBuilder("entry", API_NAME);
+const listBuilder = new ApiBuilder("entry", API_NAME, "FileStation", "FileStation.List");
 
 const List = {
   API_NAME,

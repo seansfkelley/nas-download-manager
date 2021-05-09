@@ -516,6 +516,10 @@
     "message": "Session interrupted by duplicate login.",
     "description": "Error message on Synology API call failure."
   },
+  "SID_not_found": {
+    "message": "SID not found.",
+    "description": "Error message on Synology API call failure."
+  },
   "No_such_username_or_incorrect_password": {
     "message": "No such username or incorrect password.",
     "description": "Error message on Synology API call failure."

@@ -25,7 +25,12 @@ export interface DownloadStationInfoConfig {
 }
 
 const INFO_API_NAME = "SYNO.DownloadStation.Info" as const;
-const infoBuilder = new ApiBuilder("DownloadStation/info", INFO_API_NAME);
+const infoBuilder = new ApiBuilder(
+  "DownloadStation/info",
+  INFO_API_NAME,
+  "DownloadStation",
+  "DownloadStation.Info",
+);
 
 const Info = {
   API_NAME: INFO_API_NAME,
@@ -56,7 +61,12 @@ export interface DownloadStationScheduleConfig {
 }
 
 const SCHEDULE_API_NAME = "SYNO.DownloadStation.Schedule" as const;
-const scheduleBuilder = new ApiBuilder("DownloadStation/schedule", SCHEDULE_API_NAME);
+const scheduleBuilder = new ApiBuilder(
+  "DownloadStation/schedule",
+  SCHEDULE_API_NAME,
+  "DownloadStation",
+  "DownloadStation.Schedule",
+);
 
 const Schedule = {
   API_NAME: SCHEDULE_API_NAME,
@@ -83,7 +93,12 @@ export interface DownloadStationStatisticGetInfoResponse {
 }
 
 const STATISTIC_API_NAME = "SYNO.DownloadStation.Statistic" as const;
-const statisticsBuilder = new ApiBuilder("DownloadStation/statistic", STATISTIC_API_NAME);
+const statisticsBuilder = new ApiBuilder(
+  "DownloadStation/statistic",
+  STATISTIC_API_NAME,
+  "DownloadStation",
+  "DownloadStation.Statistic",
+);
 
 const Statistic = {
   API_NAME: STATISTIC_API_NAME,
@@ -279,7 +294,12 @@ export interface DownloadStationTaskEditRequest extends BaseRequest {
 const TASK_CGI_NAME = "DownloadStation/task" as const;
 const TASK_API_NAME = "SYNO.DownloadStation.Task" as const;
 
-const taskBuilder = new ApiBuilder(TASK_CGI_NAME, TASK_API_NAME);
+const taskBuilder = new ApiBuilder(
+  TASK_CGI_NAME,
+  TASK_API_NAME,
+  "DownloadStation",
+  "DownloadStation.Task",
+);
 
 function Task_Create(
   baseUrl: string,
@@ -295,6 +315,10 @@ function Task_Create(
     version: 1,
     method: "create",
     sid,
+    meta: {
+      apiGroup: "DownloadStation",
+      apiSubgroup: "DownloadStation.Task",
+    },
     file: undefined,
     uri: undefined,
   };
@@ -375,7 +399,7 @@ const Task = {
     "list",
     (o) => ({
       ...o,
-      additional: o && o.additional && o.additional.length ? o.additional.join(",") : undefined,
+      additional: o?.additional?.length ? o.additional.join(",") : undefined,
     }),
     (r) => ({ ...r, tasks: (r.tasks || []).map(fixTaskNumericTypes) }),
     true,
@@ -386,7 +410,7 @@ const Task = {
   >("getinfo", (o) => ({
     ...o,
     id: o.id.join(","),
-    additional: o && o.additional && o.additional.length ? o.additional.join(",") : undefined,
+    additional: o?.additional?.length ? o.additional.join(",") : undefined,
   })),
   Create: Task_Create,
   Delete: taskBuilder.makeGet<DownloadStationTaskDeleteRequest, DownloadStationTaskActionResponse>(

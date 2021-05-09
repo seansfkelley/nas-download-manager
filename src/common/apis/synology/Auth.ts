@@ -30,6 +30,9 @@ function Login(
     api: API_NAME,
     method: "login",
     format: "sid",
+    meta: {
+      apiGroup: "Auth",
+    },
   });
 }
 
@@ -39,6 +42,9 @@ function Logout(baseUrl: string, options: AuthLogoutRequest): Promise<RestApiRes
     api: API_NAME,
     version: 1,
     method: "logout",
+    meta: {
+      apiGroup: "Auth",
+    },
   });
 }
 
