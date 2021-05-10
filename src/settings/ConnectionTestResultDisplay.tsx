@@ -2,10 +2,7 @@ import * as React from "react";
 import classNames from "classnames";
 
 import { ClientRequestResult } from "../common/apis/synology";
-import {
-  getErrorForFailedResponse,
-  errorMessageFromConnectionFailure,
-} from "../common/apis/errors";
+import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../common/apis/errors";
 import { assertNever } from "../common/lang";
 
 export interface Props {
@@ -26,7 +23,7 @@ export class ConnectionTestResultDisplay extends React.PureComponent<Props, {}> 
       return this.renderResult(text, "fa-sync fa-spin");
     } else if (ClientRequestResult.isConnectionFailure(testResult)) {
       return this.renderResult(
-        errorMessageFromConnectionFailure(testResult),
+        getErrorForConnectionFailure(testResult),
         "fa-times",
         "intent-error",
       );

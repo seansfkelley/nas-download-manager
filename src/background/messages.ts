@@ -1,8 +1,5 @@
 import { ClientRequestResult } from "../common/apis/synology";
-import {
-  getErrorForFailedResponse,
-  errorMessageFromConnectionFailure,
-} from "../common/apis/errors";
+import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../common/apis/errors";
 import { MessageResponse, Message, Result } from "../common/apis/messages";
 import { addDownloadTasksAndPoll, pollTasks } from "./actions";
 import { BackgroundState, getMutableStateSingleton } from "./backgroundState";
@@ -29,7 +26,7 @@ function toMessageResponse<T, U>(
   if (ClientRequestResult.isConnectionFailure(response)) {
     return {
       success: false,
-      reason: errorMessageFromConnectionFailure(response),
+      reason: getErrorForConnectionFailure(response),
     };
   } else if (!response.success) {
     return {

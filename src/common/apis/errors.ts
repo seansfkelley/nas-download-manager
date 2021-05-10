@@ -81,7 +81,7 @@ export function getErrorForFailedResponse(
   );
 }
 
-export function errorMessageFromConnectionFailure(failure: ConnectionFailure) {
+export function getErrorForConnectionFailure(failure: ConnectionFailure) {
   switch (failure.type) {
     case "missing-config":
       return browser.i18n.getMessage("Connection_settings_are_not_configured");

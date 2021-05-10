@@ -1,9 +1,6 @@
 import type { RequestManager } from "../requestManager";
 import { SynologyClient, ClientRequestResult } from "../../common/apis/synology";
-import {
-  getErrorForFailedResponse,
-  errorMessageFromConnectionFailure,
-} from "../../common/apis/errors";
+import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../../common/apis/errors";
 import type { CachedTasks, State } from "../../common/state";
 import { saveLastSevereError } from "../../common/errorHandlers";
 
@@ -58,7 +55,7 @@ export async function pollTasks(api: SynologyClient, manager: RequestManager): P
       } else {
         await setCachedTasks({
           taskFetchFailureReason: {
-            failureMessage: errorMessageFromConnectionFailure(response),
+            failureMessage: getErrorForConnectionFailure(response),
           },
         });
       }

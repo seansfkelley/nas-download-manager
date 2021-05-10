@@ -1,4 +1,5 @@
 import { stringify } from "query-string";
+import { typesafePick } from "../../lang";
 
 export class BadResponseError extends Error {
   constructor(public response: Response) {
@@ -24,20 +25,25 @@ export function isFormFile(f?: any): f is FormFile {
   return f && (f as FormFile).content != null && (f as FormFile).filename != null;
 }
 
-export interface ApiMeta {
+export interface ApiGroupMeta {
   apiGroup: string;
   apiSubgroup?: string;
+}
+
+export interface ResponseMeta extends ApiGroupMeta {
+  method: string;
+  version: number;
 }
 
 export interface RestApiSuccessResponse<S> {
   success: true;
   data: S;
-  meta: ApiMeta;
+  meta: ResponseMeta;
 }
 
 export interface RestApiFailureResponse {
   success: false;
-  meta: ApiMeta;
+  meta: ResponseMeta;
   error: {
     code: number;
     errors?: any[];
@@ -54,10 +60,10 @@ export interface ApiRequest {
   api: string;
   version: number;
   method: string;
-  meta: ApiMeta;
+  meta: ApiGroupMeta;
   sid?: string;
   timeout?: number;
-  [key: string]: string | number | boolean | FormFile | ApiMeta | undefined;
+  [key: string]: string | number | boolean | FormFile | ApiGroupMeta | undefined;
 }
 
 const DEFAULT_TIMEOUT = 60000;
@@ -66,7 +72,7 @@ async function fetchWithErrorHandling(
   url: string,
   init: RequestInit,
   timeout: number | undefined,
-  meta: ApiMeta,
+  meta: ResponseMeta,
 ): Promise<unknown> {
   const abortController = new AbortController();
   const timeoutTimer = setTimeout(() => {
@@ -112,9 +118,10 @@ export async function get<O extends object>(
     meta: undefined,
   })}`;
 
-  return fetchWithErrorHandling(url, { method: "GET" }, request.timeout, request.meta) as Promise<
-    RestApiResponse<O>
-  >;
+  return fetchWithErrorHandling(url, { method: "GET" }, request.timeout, {
+    ...request.meta,
+    ...typesafePick(request, "method", "version"),
+  }) as Promise<RestApiResponse<O>>;
 }
 
 export async function post<O extends object>(
@@ -145,16 +152,14 @@ export async function post<O extends object>(
 
   const url = `${baseUrl}/webapi/${cgi}.cgi?${stringify({ _sid: request.sid })}`;
 
-  return fetchWithErrorHandling(
-    url,
-    { method: "POST", body: formData },
-    request.timeout,
-    request.meta,
-  ) as Promise<RestApiResponse<O>>;
+  return fetchWithErrorHandling(url, { method: "POST", body: formData }, request.timeout, {
+    ...request.meta,
+    ...typesafePick(request, "method", "version"),
+  }) as Promise<RestApiResponse<O>>;
 }
 
 export class ApiBuilder {
-  constructor(private cgiName: string, private apiName: string, private meta: ApiMeta) {}
+  constructor(private cgiName: string, private apiName: string, private meta: ApiGroupMeta) {}
 
   makeGet<I extends BaseRequest, O>(
     methodName: string,
