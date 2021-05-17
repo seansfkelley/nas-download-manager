@@ -36,6 +36,15 @@ export function _stripQueryAndFragment(url: string): string {
   return url.slice(0, Math.min(indexOf(url, "?") ?? Infinity, indexOf(url, "#") ?? Infinity));
 }
 
+function makeAuthorizationHeader(
+  username: string | undefined,
+  password: string | undefined,
+): { Authorization?: string } {
+  return username || password
+    ? { Authorization: `Basic ${btoa((username || "") + ":" + (password || ""))}` }
+    : {};
+}
+
 function guessDownloadFileName(url: string, headers: Headers, metadataFileType: MetadataFileType) {
   const strippedUrl = _stripQueryAndFragment(url);
 
@@ -59,7 +68,7 @@ function guessDownloadFileName(url: string, headers: Headers, metadataFileType: 
 
 async function fetchWithTimeout(
   url: string,
-  init: RequestInit,
+  init: Omit<RequestInit, "credentials" | "signal">,
   timeout: number,
 ): Promise<Response> {
   const abortController = new AbortController();
@@ -70,7 +79,7 @@ async function fetchWithTimeout(
   try {
     return fetch(url, {
       ...init,
-      credentials: "omit",
+      credentials: "include",
       signal: abortController.signal,
     });
   } finally {
@@ -87,10 +96,7 @@ async function getMetadataFileType(
     url,
     {
       method: "HEAD",
-      headers:
-        username || password
-          ? { Authorization: `Basic ${btoa((username || "") + ":" + (password || ""))}` }
-          : {},
+      headers: makeAuthorizationHeader(username, password),
     },
     10000,
   );
@@ -226,7 +232,11 @@ export async function resolveUrl(
       let response;
 
       try {
-        response = await fetchWithTimeout(url, {}, 10000);
+        response = await fetchWithTimeout(
+          url,
+          { headers: makeAuthorizationHeader(username, password) },
+          10000,
+        );
       } catch (e) {
         return createUnexpectedError(e, "error while trying to fetch metadata file");
       }
