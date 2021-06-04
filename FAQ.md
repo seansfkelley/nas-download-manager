@@ -1,5 +1,11 @@
 # FAQ
 
+## What's the difference between NAS Download Manager, Synology Download Manager and and Synology Download Station?
+
+This extension was previously known as Synology Download Manager, but has since been renamed to NAS Download Manager. There was no change in ownership or development status.
+
+This extension is not affiliated with the browser extension for Chrome named Synology Download Station. It does interact with Synology Download Station, the application on Synology NASes.
+
 ## How do I fix a connection failure?
 
 There are many ways NAS Download Manager's connection to your NAS can fail that are out of its control. NAS Download Manager does its best to guess what might be wrong and tell you (such as when it says "likely cause: wrong protocol"), but sometimes, for security reasons, browsers don't tell it enough to make a good guess.
