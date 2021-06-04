@@ -1,5 +1,5 @@
 {
-  "name": "synology-download-manager",
+  "name": "nas-download-manager",
   "version": "0.0.0",
   "description": "An open source browser extension for adding/managing download tasks to your Synology DiskStation.",
   "scripts": {
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/seansfkelley/synology-download-manager.git"
+    "url": "git+https://github.com/seansfkelley/nas-download-manager.git"
   },
   "license": "MIT",
   "browserslist": [

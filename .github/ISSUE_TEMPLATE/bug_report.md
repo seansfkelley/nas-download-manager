@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 <!--
-Thanks for filing an issue! I appreciate you taking the time to help improve Synology Download Manager. Please fill out the following information for a faster and more effective response/fix.
+Thanks for filing an issue! I appreciate you taking the time to help improve NAS Download Manager. Please fill out the following information for a faster and more effective response/fix.
 -->
 
 ### Description
@@ -29,7 +29,7 @@ Check the bottom of the extension's setting page for a "Debugging Output" sectio
 
 ### Versions
 
-**Extension version**: (visible in Synology Download Manager's settings (Firefox) or in the extension list (Chrome))
+**Extension version**: (visible in NAS Download Manager's settings (Firefox) or in the extension list (Chrome))
 
 **Browser version**: (usually found in the browser's "About")
 

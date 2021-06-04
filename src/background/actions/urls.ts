@@ -149,8 +149,8 @@ export function sanitizeUrlForSynology(url: string) {
   // mutiple downloadable URLs, the function signature for that (if it happens) will be `string[]` so
   // it's clear who's responsible for comma-separating the arguments.
   //
-  // https://github.com/seansfkelley/synology-download-manager/issues/118
-  // https://github.com/seansfkelley/synology-download-manager/issues/126
+  // https://github.com/seansfkelley/nas-download-manager/issues/118
+  // https://github.com/seansfkelley/nas-download-manager/issues/126
   return url.replace(/,/g, "%2C");
 }
 

@@ -1,4 +1,4 @@
-# Synology Download Manager
+# NAS Download Manager
 
 > An open source browser extension for adding/managing download tasks to your Synology DiskStation.
 
@@ -6,11 +6,11 @@
 
 ## Having an Issue?
 
-If you're here because of an issue with the extension, please check the [FAQ](./FAQ.md) first. If you can't find an answer there, feel free to [open an issue](https://github.com/seansfkelley/synology-download-manager/issues)!
+If you're here because of an issue with the extension, please check the [FAQ](./FAQ.md) first. If you can't find an answer there, feel free to [open an issue](https://github.com/seansfkelley/nas-download-manager/issues)!
 
 ## About
 
-Synology Download Manager allows you to add and manage your download tasks on your Synology DiskStation right from your browser. It requires a Synology NAS with DSM version 4 or higher.
+NAS Download Manager allows you to add and manage your download tasks on your Synology DiskStation right from your browser. It requires a Synology NAS with DSM version 4 or higher.
 
 ### Features
 
@@ -24,8 +24,8 @@ Synology Download Manager allows you to add and manage your download tasks on yo
 
 ### Officially Supported Browsers
 
-- Firefox ([view listing](https://addons.mozilla.org/en-US/firefox/addon/synology-download-manager/))
-- Chrome ([view listing](https://chrome.google.com/webstore/detail/synology-download-manager/iaijiochiiocodhamehbpmdlobhgghgi))
+- Firefox ([view listing](https://addons.mozilla.org/en-US/firefox/addon/nas-download-manager/))
+- Chrome ([view listing](https://chrome.google.com/webstore/detail/nas-download-manager/iaijiochiiocodhamehbpmdlobhgghgi))
 
 ### Browsers Reported to Work
 
@@ -42,7 +42,7 @@ There are currently no plans to support the following browsers.
 
 ## Privacy
 
-Synology Download Manager needs your login credentials to communicate with your NAS. It doesn't collect, store or transmit any other information. [Read more.](./PRIVACY.md)
+NAS Download Manager needs your login credentials to communicate with your NAS. It doesn't collect, store or transmit any other information. [Read more.](./PRIVACY.md)
 
 ## Development
 
@@ -104,7 +104,7 @@ Please note that while the build tasks will auto-recompile, the browser may not 
 
 ### Translating the Extension
 
-I need help localizing Synology Download Manager! Read in detail about [how to localize WebExtensions](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Internationalization), or skip to the sections below for short summaries.
+I need help localizing NAS Download Manager! Read in detail about [how to localize WebExtensions](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Internationalization), or skip to the sections below for short summaries.
 
 #### Adding a New Language
 

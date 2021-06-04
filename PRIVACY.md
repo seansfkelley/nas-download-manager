@@ -1,19 +1,19 @@
 # Privacy Policy
 
-Synology Download Manager asks for your login credentials for your Synology NAS in order to view and manage your download tasks. Your login credentials are stored locally to the browser in a place accessible only to Synology Download Manager. Your credentials are only ever transmitted to the host you specify in the settings.
+NAS Download Manager asks for your login credentials for your Synology NAS in order to view and manage your download tasks. Your login credentials are stored locally to the browser in a place accessible only to NAS Download Manager. Your credentials are only ever transmitted to the host you specify in the settings.
 
-**Synology Download Manager does not collect, store or transmit any other personal information, or use your credentials except to communicate with your NAS.** In particular, Synology Download Manager does not collect any usage information and does not sync any information between browsers.
+**NAS Download Manager does not collect, store or transmit any other personal information, or use your credentials except to communicate with your NAS.** In particular, NAS Download Manager does not collect any usage information and does not sync any information between browsers.
 
 ## Permission Explanations
 
-This section explains what each permission requested by Synology Download Manager is used for. You can find the list of requested permissions in [`manifest.json`](https://github.com/seansfkelley/synology-download-manager/blob/master/manifest.json), under the `permissions` section.
+This section explains what each permission requested by NAS Download Manager is used for. You can find the list of requested permissions in [`manifest.json`](https://github.com/seansfkelley/nas-download-manager/blob/master/manifest.json), under the `permissions` section.
 
 human-readable name               | source code name                | explanation
 ----------------------------------|---------------------------------|----------------------------------------
-Access your data for all websites | `http://*/*` and `https://*/*"` | Used to support the feature where left-clicking on supported link types automatically adds a download, rather than opening it in a browser tab. See [issue #45](https://github.com/seansfkelley/synology-download-manager/issues/45) for more on replacing this implementation with something better.
+Access your data for all websites | `http://*/*` and `https://*/*"` | Used to support the feature where left-clicking on supported link types automatically adds a download, rather than opening it in a browser tab. See [issue #45](https://github.com/seansfkelley/nas-download-manager/issues/45) for more on replacing this implementation with something better.
 Display notifications to you      | `notifications`                 | Used to display addition/completion notifications.
 _n/a_                             | `contextMenus`                  | Used for registering itself with the right-click menu to add downloads from inside a tab.
-_n/a_                             | `storage`                       | Used to allow storing credentials and settings in a place where only Synology Download Manager can access them.
+_n/a_                             | `storage`                       | Used to allow storing credentials and settings in a place where only NAS Download Manager can access them.
 
 ## Verifying Your Installation
 
