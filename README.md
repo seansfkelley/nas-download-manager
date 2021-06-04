@@ -12,6 +12,8 @@ If you're here because of an issue with the extension, please check the [FAQ](./
 
 NAS Download Manager allows you to add and manage your download tasks on your Synology DiskStation right from your browser. It requires a Synology NAS with DSM version 4 or higher.
 
+Please note that NAS Download Manager is not an official Synology offering.
+
 ### Features
 
 - Right-click and download many types of media (`<video>` and `<audio>` tags) and files (e.g. `.torrent` files).
