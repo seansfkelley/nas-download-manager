@@ -77,7 +77,7 @@ async function fetchWithTimeout(
   }, timeout);
 
   try {
-    return fetch(url, {
+    return await fetch(url, {
       ...init,
       credentials: "include",
       signal: abortController.signal,
