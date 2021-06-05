@@ -171,58 +171,54 @@ export interface MissingOrIllegalUrl {
   url: string;
 }
 
-export interface UnexpectedErrorForUrl {
-  type: "error";
-  reason: "timeout" | "network-error" | "unknown";
-  url: string;
-  error: any;
-  debugDescription: string;
-}
-
-export type ResolvedUrl =
-  | DirectDownloadUrl
-  | MetadataFileUrl
-  | MissingOrIllegalUrl
-  | UnexpectedErrorForUrl;
+export type ResolvedUrl = DirectDownloadUrl | MetadataFileUrl | MissingOrIllegalUrl;
 
 export async function resolveUrl(
   url: string,
   username: string | undefined,
   password: string | undefined,
 ): Promise<ResolvedUrl> {
-  function createUnexpectedError(error: any, debugDescription: string): UnexpectedErrorForUrl {
-    let subtype;
+  function bailAndAssumeDirectDownload(error: any, debugDescription: string): DirectDownloadUrl {
+    let guessedReason;
 
     if (error instanceof DOMException && error.name === "AbortError") {
-      subtype = "timeout" as const;
+      guessedReason = "timeout";
     } else if (/networkerror/i.test(error?.message)) {
       // This is a best-effort which I expect to start silently failing at some point in the future.
-      subtype = "network-error" as const;
+      guessedReason = "network-error";
     } else {
-      subtype = "unknown" as const;
+      guessedReason = "unknown";
     }
 
+    console.error(debugDescription, `(guessed reason: ${guessedReason})`, error);
+
     return {
-      type: "error",
-      reason: subtype,
+      type: "direct-download",
       url,
-      error,
-      debugDescription,
     };
   }
 
-  if (!url) {
-    return {
-      type: "missing-or-illegal",
-      url,
-    };
-  } else if (startsWithAnyProtocol(url, AUTO_DOWNLOAD_TORRENT_FILE_PROTOCOLS)) {
+  try {
+    // The empty string is an illegal URL, so this handles that case too.
+    new URL(url);
+  } catch (e) {
+    if (e instanceof TypeError) {
+      return {
+        type: "missing-or-illegal",
+        url,
+      };
+    } else {
+      return bailAndAssumeDirectDownload(e, "error while trying to parse download url");
+    }
+  }
+
+  if (startsWithAnyProtocol(url, AUTO_DOWNLOAD_TORRENT_FILE_PROTOCOLS)) {
     let metadataFileType;
 
     try {
       metadataFileType = await getMetadataFileType(url, username, password);
     } catch (e) {
-      return createUnexpectedError(
+      return bailAndAssumeDirectDownload(
         e,
         "error while trying to fetch metadata file type for download url",
       );
@@ -238,14 +234,14 @@ export async function resolveUrl(
           10000,
         );
       } catch (e) {
-        return createUnexpectedError(e, "error while trying to fetch metadata file");
+        return bailAndAssumeDirectDownload(e, "error while trying to fetch metadata file");
       }
 
       let bytes;
       try {
         bytes = await response.arrayBuffer();
       } catch (e) {
-        return createUnexpectedError(e, "error while trying to get bytes for metadata file");
+        return bailAndAssumeDirectDownload(e, "error while trying to get bytes for metadata file");
       }
 
       return {

@@ -13,13 +13,7 @@ import {
   EMULE_PROTOCOL,
   startsWithAnyProtocol,
 } from "../../common/apis/protocols";
-import {
-  resolveUrl,
-  ResolvedUrl,
-  UnexpectedErrorForUrl,
-  sanitizeUrlForSynology,
-  guessFileNameFromUrl,
-} from "./urls";
+import { resolveUrl, ResolvedUrl, sanitizeUrlForSynology, guessFileNameFromUrl } from "./urls";
 import { pollTasks } from "./pollTasks";
 import type { UnionByDiscriminant } from "../../common/types";
 import type { AddTaskOptions } from "../../common/apis/messages";
