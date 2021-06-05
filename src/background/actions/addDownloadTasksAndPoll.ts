@@ -25,14 +25,6 @@ type ArrayifyValues<T extends Record<string, any>> = {
 
 type ResolvedUrlByType = ArrayifyValues<UnionByDiscriminant<ResolvedUrl, "type">>;
 
-const UNEXPECTED_ERROR_REASON_TO_USER_MESSAGE: Record<UnexpectedErrorForUrl["reason"], string> = {
-  "network-error": browser.i18n.getMessage(
-    "Ensure_the_download_URL_is_valid_and_reachable_by_your_browser",
-  ),
-  timeout: browser.i18n.getMessage("The_download_URL_timed_out"),
-  unknown: browser.i18n.getMessage("The_download_URL_failed_with_an_unknown_error"),
-};
-
 async function checkIfEMuleShouldBeEnabled(api: SynologyClient, urls: string[]) {
   if (urls.some((url) => startsWithAnyProtocol(url, EMULE_PROTOCOL))) {
     const result = await api.DownloadStation.Info.GetConfig();
@@ -138,7 +130,7 @@ async function addOneTask(
   if (resolvedUrl.type === "direct-download") {
     try {
       const result = await api.DownloadStation.Task.Create({
-        uri: [sanitizeUrlForSynology(resolvedUrl.url)],
+        uri: [sanitizeUrlForSynology(resolvedUrl.url).toString()],
         ...commonCreateOptionsV1,
       });
       await reportTaskAddResult(result, guessFileNameFromUrl(url));
@@ -186,13 +178,6 @@ async function addOneTask(
       "failure",
       notificationId,
     );
-  } else if (resolvedUrl.type === "error") {
-    notify(
-      browser.i18n.getMessage("Failed_to_add_download"),
-      UNEXPECTED_ERROR_REASON_TO_USER_MESSAGE[resolvedUrl.reason],
-      "failure",
-      notificationId,
-    );
   } else {
     assertNever(resolvedUrl);
   }
@@ -220,7 +205,6 @@ async function addMultipleTasks(
     "direct-download": [],
     "metadata-file": [],
     "missing-or-illegal": [],
-    error: [],
   };
 
   resolvedUrls.forEach((url) => {
@@ -247,15 +231,6 @@ async function addMultipleTasks(
     }
   }
 
-  if (groupedUrls["error"].length > 0) {
-    const firstError = groupedUrls["error"][0];
-    saveLastSevereError(
-      firstError.error,
-      `${groupedUrls["error"].length} error(s) while resolving URLs; first message: ${firstError.debugDescription}`,
-    );
-    failures += groupedUrls["error"].length;
-  }
-
   failures += groupedUrls["missing-or-illegal"].length;
 
   const commonCreateOptionsV1 = {
@@ -274,7 +249,7 @@ async function addMultipleTasks(
     const urls = groupedUrls["direct-download"].map(({ url }) => sanitizeUrlForSynology(url));
     try {
       const result = await api.DownloadStation.Task.Create({
-        uri: urls,
+        uri: urls.map((url) => url.toString()),
         ...commonCreateOptionsV1,
       });
       countResults(result, urls.length);

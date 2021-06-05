@@ -21,21 +21,6 @@ const ARBITRARY_FILE_FETCH_SIZE_CUTOFF = 1024 * 1024 * 5;
 
 const FILENAME_PROPERTY_REGEX = /filename=("([^"]+)"|([^"][^ ]+))/;
 
-// Exported for testing.
-/**
- * Naively strip the query and fragment portions of a URL. This function does no validation or
- * complex parsing, and will do strange things on non-URLs, malformed URLs, and probably valid
- * URLs that do something unusual.
- */
-export function _stripQueryAndFragment(url: string): string {
-  function indexOf(string: string, substring: string) {
-    const i = string.indexOf(substring);
-    return i === -1 ? undefined : i;
-  }
-
-  return url.slice(0, Math.min(indexOf(url, "?") ?? Infinity, indexOf(url, "#") ?? Infinity));
-}
-
 function makeAuthorizationHeader(
   username: string | undefined,
   password: string | undefined,
@@ -45,16 +30,14 @@ function makeAuthorizationHeader(
     : {};
 }
 
-function guessDownloadFileName(url: string, headers: Headers, metadataFileType: MetadataFileType) {
-  const strippedUrl = _stripQueryAndFragment(url);
-
+function guessDownloadFileName(url: URL, headers: Headers, metadataFileType: MetadataFileType) {
   let maybeFilename: string | undefined;
   const contentDisposition = headers.get("content-disposition");
   if (contentDisposition != null && contentDisposition.indexOf("filename=") !== -1) {
     const regexMatch = FILENAME_PROPERTY_REGEX.exec(contentDisposition);
     maybeFilename = (regexMatch && (regexMatch[2] || regexMatch[3])) || undefined;
   } else {
-    maybeFilename = strippedUrl.slice(strippedUrl.lastIndexOf("/") + 1);
+    maybeFilename = url.pathname.slice(url.pathname.lastIndexOf("/") + 1);
   }
 
   if (maybeFilename == null || maybeFilename.length === 0) {
@@ -67,7 +50,7 @@ function guessDownloadFileName(url: string, headers: Headers, metadataFileType: 
 }
 
 async function fetchWithTimeout(
-  url: string,
+  url: URL,
   init: Omit<RequestInit, "credentials" | "signal">,
   timeout: number,
 ): Promise<Response> {
@@ -77,7 +60,7 @@ async function fetchWithTimeout(
   }, timeout);
 
   try {
-    return await fetch(url, {
+    return await fetch(url.toString(), {
       ...init,
       credentials: "include",
       signal: abortController.signal,
@@ -88,7 +71,7 @@ async function fetchWithTimeout(
 }
 
 async function getMetadataFileType(
-  url: string,
+  url: URL,
   username: string | undefined,
   password: string | undefined,
 ) {
@@ -106,10 +89,9 @@ async function getMetadataFileType(
   }
 
   const contentType = (headResponse.headers.get("content-type") ?? "").toLowerCase();
-  const strippedUrl = _stripQueryAndFragment(url);
   const metadataFileType = METADATA_FILE_TYPES.find(
     (fileType) =>
-      contentType.includes(fileType.mediaType) || strippedUrl.endsWith(fileType.extension),
+      contentType.includes(fileType.mediaType) || url.pathname.endsWith(fileType.extension),
   );
   const rawContentLength = headResponse.headers.get("content-length");
   const contentLength =
@@ -139,7 +121,7 @@ export function guessFileNameFromUrl(url: string): string | undefined {
   }
 }
 
-export function sanitizeUrlForSynology(url: string) {
+export function sanitizeUrlForSynology(url: URL): URL {
   // It should be safe to just blindly string-replace this. Commas are not URL-significant, but they
   // are significant to Synology. If we find a comma in a URL, then that URL is not technically
   // malformed but it will interfere with the way the Synology attempts to parse the result and as
@@ -151,24 +133,23 @@ export function sanitizeUrlForSynology(url: string) {
   //
   // https://github.com/seansfkelley/nas-download-manager/issues/118
   // https://github.com/seansfkelley/nas-download-manager/issues/126
-  return url.replace(/,/g, "%2C");
+  return new URL(url.toString().replace(/,/g, "%2C"));
 }
 
 export interface DirectDownloadUrl {
   type: "direct-download";
-  url: string;
+  url: URL;
 }
 
 export interface MetadataFileUrl {
   type: "metadata-file";
-  url: string;
+  url: URL;
   content: Blob;
   filename: string;
 }
 
 export interface MissingOrIllegalUrl {
   type: "missing-or-illegal";
-  url: string;
 }
 
 export type ResolvedUrl = DirectDownloadUrl | MetadataFileUrl | MissingOrIllegalUrl;
@@ -194,21 +175,22 @@ export async function resolveUrl(
 
     return {
       type: "direct-download",
-      url,
+      url: parsedUrl,
     };
   }
 
+  let parsedUrl: URL;
   try {
     // The empty string is an illegal URL, so this handles that case too.
-    new URL(url);
+    parsedUrl = new URL(url);
   } catch (e) {
     if (e instanceof TypeError) {
       return {
         type: "missing-or-illegal",
-        url,
       };
     } else {
-      return bailAndAssumeDirectDownload(e, "error while trying to parse download url");
+      // Something REALLY weird happened.
+      throw e;
     }
   }
 
@@ -216,7 +198,7 @@ export async function resolveUrl(
     let metadataFileType;
 
     try {
-      metadataFileType = await getMetadataFileType(url, username, password);
+      metadataFileType = await getMetadataFileType(parsedUrl, username, password);
     } catch (e) {
       return bailAndAssumeDirectDownload(
         e,
@@ -229,7 +211,7 @@ export async function resolveUrl(
 
       try {
         response = await fetchWithTimeout(
-          url,
+          parsedUrl,
           { headers: makeAuthorizationHeader(username, password) },
           10000,
         );
@@ -246,25 +228,24 @@ export async function resolveUrl(
 
       return {
         type: "metadata-file",
-        url,
+        url: parsedUrl,
         content: new Blob([bytes], { type: metadataFileType.mediaType }),
-        filename: guessDownloadFileName(url, response.headers, metadataFileType),
+        filename: guessDownloadFileName(parsedUrl, response.headers, metadataFileType),
       };
     } else {
       return {
         type: "direct-download",
-        url,
+        url: parsedUrl,
       };
     }
-  } else if (startsWithAnyProtocol(url, ALL_DOWNLOADABLE_PROTOCOLS)) {
+  } else if (startsWithAnyProtocol(parsedUrl.pathname, ALL_DOWNLOADABLE_PROTOCOLS)) {
     return {
       type: "direct-download",
-      url,
+      url: parsedUrl,
     };
   } else {
     return {
       type: "missing-or-illegal",
-      url,
     };
   }
 }
