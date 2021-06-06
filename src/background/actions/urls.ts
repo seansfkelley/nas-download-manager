@@ -238,7 +238,7 @@ export async function resolveUrl(
         url: parsedUrl,
       };
     }
-  } else if (startsWithAnyProtocol(parsedUrl.pathname, ALL_DOWNLOADABLE_PROTOCOLS)) {
+  } else if (startsWithAnyProtocol(parsedUrl.toString(), ALL_DOWNLOADABLE_PROTOCOLS)) {
     return {
       type: "direct-download",
       url: parsedUrl,
