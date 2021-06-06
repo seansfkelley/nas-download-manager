@@ -215,7 +215,7 @@ function Task_Create(
   } else {
     return get(baseUrl, CGI_NAME, {
       ...commonOptions,
-      uri: options.uri && options.uri.length ? options.uri.join(",") : undefined,
+      uri: options.uri?.length ? options.uri.join(",") : undefined,
     });
   }
 }
