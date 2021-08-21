@@ -1,5 +1,7 @@
 # FAQ
 
+If none of the below questions apply to you, feel free to [open an issue](https://github.com/seansfkelley/nas-download-manager/issues/new/choose)!
+
 ## What's the difference between NAS Download Manager, Synology Download Manager and and Synology Download Station?
 
 This extension was previously known as Synology Download Manager, but has since been renamed to NAS Download Manager. There was no change in ownership or development status.
