@@ -1,23 +1,21 @@
 import { typesafeOmit } from "../../lang";
 
-import type {
-  State as State_5,
-  CachedTasks as CachedTasks_5,
-  Logging as Logging_5,
-  Settings as Settings_5,
-} from "./5";
+import type { State as State_5, CachedTasks as CachedTasks_5, Settings as Settings_5 } from "./5";
 
 export {
   VisibleTaskSettings,
   TaskSortType,
   CachedTasks,
   NotificationSettings,
-  Logging,
   BadgeDisplayType,
 } from "./5";
 
 export interface StateVersion {
   stateVersion: 6;
+}
+
+export interface Logging {
+  lastSevereError: string | undefined;
 }
 
 export interface ConnectionSettings {
@@ -31,7 +29,7 @@ export interface Settings extends Omit<Settings_5, "connection"> {
   connection: ConnectionSettings;
 }
 
-export interface State extends CachedTasks_5, Logging_5, StateVersion {
+export interface State extends CachedTasks_5, Logging, StateVersion {
   settings: Settings;
 }
 

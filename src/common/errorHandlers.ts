@@ -12,6 +12,8 @@ ${e.stack ? "Error stack trace: " + e.stack.trim() : "(no error stack)"}`
     formattedError = `${message}\n\n${formattedError}`;
   }
 
+  formattedError = `Error generated at ${new Date().toLocaleString()}\n\n${formattedError}`;
+
   const logging: Logging = {
     lastSevereError: formattedError,
   };

@@ -30,7 +30,7 @@ import { typesafePick } from "../common/lang";
 interface Props {
   extensionState: ExtensionState;
   saveSettings: (settings: Settings) => Promise<boolean>;
-  lastSevereError?: any;
+  lastSevereError?: string;
   clearError: () => void;
 }
 
@@ -171,13 +171,13 @@ class SettingsForm extends React.PureComponent<Props, State> {
 
   private maybeRenderDebuggingOutputAndSeparator() {
     if (this.props.lastSevereError) {
-      const formattedDebugLogs = `Redacted extension state: ${JSON.stringify(
+      const formattedDebugLogs = `${
+        this.props.lastSevereError
+      }\n\nRedacted extension state: ${JSON.stringify(
         redactState(this.props.extensionState),
         null,
         2,
-      )}
-
-${this.props.lastSevereError}`;
+      )}`;
 
       return (
         <>
