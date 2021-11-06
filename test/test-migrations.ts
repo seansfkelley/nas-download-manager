@@ -102,6 +102,7 @@ describe("state versioning", () => {
             port: 0,
             username: "username",
             password: "password",
+            rememberPassword: true,
           },
           visibleTasks: {
             downloading: true,
@@ -166,6 +167,7 @@ describe("state versioning", () => {
             port: 0,
             username: "username",
             password: "password",
+            rememberPassword: true,
           },
           visibleTasks: {
             downloading: true,
@@ -204,6 +206,7 @@ describe("state versioning", () => {
             port: 5001,
             username: "",
             password: "",
+            rememberPassword: true,
           },
           visibleTasks: {
             downloading: true,
@@ -240,6 +243,7 @@ describe("state versioning", () => {
           port: 5001,
           username: "",
           password: "",
+          rememberPassword: true,
         },
         visibleTasks: {
           downloading: true,
@@ -303,6 +307,7 @@ describe("state versioning", () => {
             port: 0,
             username: "username",
             password: "password",
+            rememberPassword: true,
           },
           visibleTasks: {
             downloading: true,
@@ -368,6 +373,7 @@ describe("state versioning", () => {
             port: 0,
             username: "username",
             password: "password",
+            rememberPassword: true,
           },
           visibleTasks: {
             downloading: true,
@@ -431,6 +437,7 @@ describe("state versioning", () => {
             port: 0,
             username: "username",
             password: "password",
+            rememberPassword: true,
           },
           visibleTasks: {
             downloading: true,
@@ -496,6 +503,7 @@ describe("state versioning", () => {
             port: 0,
             username: "username",
             password: "password",
+            rememberPassword: true,
           },
           visibleTasks: {
             downloading: true,
@@ -562,6 +570,7 @@ describe("state versioning", () => {
             port: 0,
             username: "username",
             password: "password",
+            rememberPassword: true,
           },
           visibleTasks: {
             downloading: true,
@@ -630,6 +639,7 @@ describe("state versioning", () => {
             port: 0,
             username: "username",
             password: "password",
+            rememberPassword: true,
           },
           visibleTasks: {
             downloading: true,
@@ -665,6 +675,7 @@ describe("state versioning", () => {
           port: 0,
           username: "username",
           password: "password",
+          rememberPassword: true,
         },
         visibleTasks: {
           downloading: true,

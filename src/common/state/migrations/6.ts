@@ -22,7 +22,8 @@ export interface ConnectionSettings {
   hostname: string;
   port: number;
   username: string;
-  password: string;
+  password: string | undefined;
+  rememberPassword: boolean;
 }
 
 export interface Settings extends Omit<Settings_5, "connection"> {
@@ -42,6 +43,7 @@ export function migrate(state: State_5): State {
       connection: {
         // This isn't super necessary because we could just ignore it, but I like to keep a clean house.
         ...typesafeOmit(state.settings.connection, "protocol"),
+        rememberPassword: true,
       },
     },
   };
