@@ -1,10 +1,6 @@
 import * as React from "react";
 
-import {
-  Protocol,
-  PROTOCOLS,
-  ConnectionSettings as ConnectionSettingsObject,
-} from "../common/state";
+import type { ConnectionSettings as ConnectionSettingsObject } from "../common/state";
 import { ClientRequestResult } from "../common/apis/synology";
 import { SettingsList } from "../common/components/SettingsList";
 import { ConnectionTestResultDisplay } from "./ConnectionTestResultDisplay";
@@ -49,21 +45,7 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
           <li className="label-and-input host-settings">
             <span className="label">{browser.i18n.getMessage("Host")}</span>
             <div className="input">
-              <select
-                {...connectionDisabledProps}
-                value={mergedSettings.protocol}
-                onChange={(e) => {
-                  this.setSetting("protocol", e.currentTarget.value as Protocol);
-                }}
-                ref={kludgeRefSetClassname("protocol-setting")}
-              >
-                {PROTOCOLS.map((protocol) => (
-                  <option key={protocol} value={protocol}>
-                    {protocol}
-                  </option>
-                ))}
-              </select>
-              <span>://</span>
+              <span>https://</span>
               <input
                 type="text"
                 {...connectionDisabledProps}
@@ -124,8 +106,7 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
             <button
               type="submit"
               {...disabledPropAndClassName(
-                !mergedSettings.protocol ||
-                  !mergedSettings.hostname ||
+                !mergedSettings.hostname ||
                   !mergedSettings.port ||
                   !mergedSettings.username ||
                   !mergedSettings.password ||

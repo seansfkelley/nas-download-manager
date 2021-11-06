@@ -9,6 +9,7 @@ import type { State as State_2 } from "../src/common/state/migrations/2";
 import type { State as State_3 } from "../src/common/state/migrations/3";
 import type { State as State_4 } from "../src/common/state/migrations/4";
 import type { State as State_5 } from "../src/common/state/migrations/5";
+import type { State as State_6 } from "../src/common/state/migrations/6";
 
 interface PreVersioningState_0 {
   connection: {
@@ -58,7 +59,7 @@ const DUMMY_TASK: DownloadStationTask = {
   status: "downloading",
 };
 
-function testTranstion<T>(before: T, after: State_5) {
+function testTranstion<T>(before: T, after: State_6) {
   const originalBefore = cloneDeep(before);
   const transitioned = migrateState(before);
 
@@ -97,7 +98,6 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
-            protocol: "http",
             hostname: "hostname",
             port: 0,
             username: "username",
@@ -125,7 +125,7 @@ describe("state versioning", () => {
         tasksLastCompletedFetchTimestamp: null,
         tasksLastInitiatedFetchTimestamp: null,
         lastSevereError: undefined,
-        stateVersion: 5,
+        stateVersion: 6,
       },
     );
   });
@@ -162,7 +162,6 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
-            protocol: "http",
             hostname: "hostname",
             port: 0,
             username: "username",
@@ -190,7 +189,7 @@ describe("state versioning", () => {
         tasksLastCompletedFetchTimestamp: null,
         tasksLastInitiatedFetchTimestamp: null,
         lastSevereError: undefined,
-        stateVersion: 5,
+        stateVersion: 6,
       },
     );
   });
@@ -201,7 +200,6 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
-            protocol: "https",
             hostname: "",
             port: 5001,
             username: "",
@@ -229,7 +227,7 @@ describe("state versioning", () => {
         tasksLastCompletedFetchTimestamp: null,
         tasksLastInitiatedFetchTimestamp: null,
         lastSevereError: undefined,
-        stateVersion: 5,
+        stateVersion: 6,
       },
     );
   });
@@ -238,7 +236,6 @@ describe("state versioning", () => {
     testTranstion<null>(null, {
       settings: {
         connection: {
-          protocol: "https",
           hostname: "",
           port: 5001,
           username: "",
@@ -265,7 +262,7 @@ describe("state versioning", () => {
       tasksLastCompletedFetchTimestamp: null,
       tasksLastInitiatedFetchTimestamp: null,
       lastSevereError: undefined,
-      stateVersion: 5,
+      stateVersion: 6,
     });
   });
 
@@ -302,7 +299,6 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
-            protocol: "http",
             hostname: "hostname",
             port: 0,
             username: "username",
@@ -329,7 +325,7 @@ describe("state versioning", () => {
         tasksLastCompletedFetchTimestamp: null,
         tasksLastInitiatedFetchTimestamp: null,
         lastSevereError: undefined,
-        stateVersion: 5,
+        stateVersion: 6,
       },
     );
   });
@@ -368,7 +364,6 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
-            protocol: "http",
             hostname: "hostname",
             port: 0,
             username: "username",
@@ -395,7 +390,7 @@ describe("state versioning", () => {
         tasksLastCompletedFetchTimestamp: 0,
         tasksLastInitiatedFetchTimestamp: 0,
         lastSevereError: undefined,
-        stateVersion: 5,
+        stateVersion: 6,
       },
     );
   });
@@ -432,7 +427,6 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
-            protocol: "http",
             hostname: "hostname",
             port: 0,
             username: "username",
@@ -459,7 +453,7 @@ describe("state versioning", () => {
         tasksLastCompletedFetchTimestamp: 0,
         tasksLastInitiatedFetchTimestamp: 0,
         lastSevereError: undefined,
-        stateVersion: 5,
+        stateVersion: 6,
       },
     );
   });
@@ -498,7 +492,6 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
-            protocol: "http",
             hostname: "hostname",
             port: 0,
             username: "username",
@@ -525,7 +518,7 @@ describe("state versioning", () => {
         tasksLastCompletedFetchTimestamp: 0,
         tasksLastInitiatedFetchTimestamp: 0,
         lastSevereError: undefined,
-        stateVersion: 5,
+        stateVersion: 6,
       },
     );
   });
@@ -565,7 +558,6 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
-            protocol: "http",
             hostname: "hostname",
             port: 0,
             username: "username",
@@ -592,16 +584,83 @@ describe("state versioning", () => {
         tasksLastCompletedFetchTimestamp: 0,
         tasksLastInitiatedFetchTimestamp: 0,
         lastSevereError: undefined,
+        stateVersion: 6,
+      },
+    );
+  });
+
+  it("should remove the protocol setting when upgrading from 5 to 6", () => {
+    testTranstion<State_5>(
+      {
+        settings: {
+          connection: {
+            protocol: "http",
+            hostname: "hostname",
+            port: 0,
+            username: "username",
+            password: "password",
+          },
+          visibleTasks: {
+            downloading: true,
+            uploading: true,
+            completed: true,
+            errored: true,
+            other: true,
+          },
+          notifications: {
+            enableCompletionNotifications: true,
+            enableFeedbackNotifications: true,
+            completionPollingInterval: 0,
+          },
+          shouldHandleDownloadLinks: true,
+          taskSortType: "name-asc",
+          badgeDisplayType: "total",
+        },
+        tasks: [DUMMY_TASK],
+        taskFetchFailureReason: "missing-config",
+        tasksLastCompletedFetchTimestamp: 0,
+        tasksLastInitiatedFetchTimestamp: 0,
+        lastSevereError: undefined,
         stateVersion: 5,
+      },
+      {
+        settings: {
+          connection: {
+            hostname: "hostname",
+            port: 0,
+            username: "username",
+            password: "password",
+          },
+          visibleTasks: {
+            downloading: true,
+            uploading: true,
+            completed: true,
+            errored: true,
+            other: true,
+          },
+          notifications: {
+            enableCompletionNotifications: true,
+            enableFeedbackNotifications: true,
+            completionPollingInterval: 0,
+          },
+          taskSortType: "name-asc",
+          badgeDisplayType: "total",
+          shouldHandleDownloadLinks: true,
+        },
+        tasks: [DUMMY_TASK],
+        taskFetchFailureReason: "missing-config",
+        tasksLastCompletedFetchTimestamp: 0,
+        tasksLastInitiatedFetchTimestamp: 0,
+        lastSevereError: undefined,
+        stateVersion: 6,
       },
     );
   });
 
   it("should do nothing when the state is already latest", () => {
-    const before: State_5 = {
+    const before: State_6 = {
       settings: {
         connection: {
-          protocol: "http",
           hostname: "hostname",
           port: 0,
           username: "username",
@@ -628,13 +687,13 @@ describe("state versioning", () => {
       tasksLastCompletedFetchTimestamp: 0,
       tasksLastInitiatedFetchTimestamp: 0,
       lastSevereError: undefined,
-      stateVersion: 5,
+      stateVersion: 6,
     };
 
     expect(migrateState(before)).to.equal(before);
   });
 
-  it("should throw an error if the state version is too new", () => {
-    expect(() => migrateState({ stateVersion: 999 })).to.throw("cannot downgrade");
+  it("should silently create an empty state if the given version is too new", () => {
+    expect(migrateState({ stateVersion: 999 })).to.deep.equal(migrateState({}));
   });
 });

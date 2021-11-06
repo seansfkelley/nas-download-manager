@@ -1,5 +1,4 @@
 export {
-  Protocol,
   VisibleTaskSettings,
   TaskSortType,
   CachedTasks,
@@ -10,4 +9,4 @@ export {
   Logging,
   StateVersion,
   BadgeDisplayType,
-} from "./5";
+} from "./6";

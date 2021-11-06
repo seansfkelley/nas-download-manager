@@ -4,14 +4,16 @@ import { migrate as migrate1to2 } from "./2";
 import { migrate as migrate2to3 } from "./3";
 import { migrate as migrate3to4 } from "./4";
 import { migrate as migrate4to5 } from "./5";
+import { migrate as migrate5to6 } from "./6";
 
-const LATEST_STATE_VERSION: StateVersion["stateVersion"] = 5;
+const LATEST_STATE_VERSION: StateVersion["stateVersion"] = 6;
 const MIGRATIONS: ((state: any) => any)[] = [
   migrate0to1,
   migrate1to2,
   migrate2to3,
   migrate3to4,
   migrate4to5,
+  migrate5to6,
 ];
 
 interface AnyStateVersion {
@@ -39,10 +41,13 @@ function getStartingVersion(state: any) {
 }
 
 export function migrateState(state: any | null): State {
-  const version = getStartingVersion(state);
+  let version = getStartingVersion(state);
 
   if (version > LATEST_STATE_VERSION) {
-    throw new Error(`cannot downgrade state shape from ${version} to ${LATEST_STATE_VERSION}`);
+    // If the user has downgraded the extension for some reason, throw out their state. There isn't
+    // _that_ much of it, and they should already be preparing for extra work by virtue of going out
+    // of their way to downgrade it.
+    version = 0;
   }
 
   MIGRATIONS.slice(version).forEach((migration) => {
