@@ -1,7 +1,7 @@
 import { ClientRequestResult } from "../common/apis/synology";
 import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../common/apis/errors";
 import { MessageResponse, Message, Result } from "../common/apis/messages";
-import { addDownloadTasksAndPoll, pollTasks } from "./actions";
+import { addDownloadTasksAndPoll, clearCachedTasks, pollTasks } from "./actions";
 import { BackgroundState, getMutableStateSingleton } from "./backgroundState";
 import type { DiscriminateUnion } from "../common/types";
 
@@ -103,8 +103,12 @@ const MESSAGE_HANDLERS: MessageHandlers = {
       );
     }
   },
-  "reset-client-session": (_m, state) => {
-    return state.api.Auth.Logout().then(() => undefined);
+  "set-login-password": async (m, state) => {
+    if (state.api.partiallyUpdateSettings({ passwd: m.password })) {
+      await clearCachedTasks();
+    }
+    // Always reset the session!
+    await state.api.Auth.Logout();
   },
 };
 

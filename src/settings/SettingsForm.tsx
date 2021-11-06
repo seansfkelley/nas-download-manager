@@ -13,7 +13,6 @@ import {
   ConnectionSettings,
 } from "../common/state";
 import { BUG_REPORT_URL } from "../common/constants";
-import { ResetClientSession } from "../common/apis/messages";
 import { DOWNLOAD_ONLY_PROTOCOLS } from "../common/apis/protocols";
 import { TaskFilterSettingsForm } from "../common/components/TaskFilterSettingsForm";
 import { SettingsList } from "../common/components/SettingsList";
@@ -21,6 +20,8 @@ import { SettingsListCheckbox } from "../common/components/SettingsListCheckbox"
 import { ConnectionSettings as ConnectionSettingsComponent } from "./ConnectionSettings";
 import { disabledPropAndClassName, kludgeRefSetClassname } from "../common/classnameUtil";
 import { typesafePick } from "../common/lang";
+import { SetLoginPassword } from "../common/apis/messages";
+import type { Overwrite } from "../common/types";
 
 export interface Props {
   extensionState: ExtensionState;
@@ -229,9 +230,15 @@ export class SettingsForm extends React.PureComponent<Props, State> {
     this.saveSettings({ badgeDisplayType });
   };
 
-  private updateConnectionSettings = async (connection: ConnectionSettings) => {
-    this.saveSettings({ connection });
-    ResetClientSession.send();
+  private updateConnectionSettings = async (
+    connection: Overwrite<ConnectionSettings, { password: string }>,
+  ) => {
+    if (connection.rememberPassword) {
+      await this.saveSettings({ connection });
+    } else {
+      await this.saveSettings({ connection: { ...connection, password: undefined } });
+    }
+    await SetLoginPassword.send(connection.password);
   };
 
   private setNotificationSetting<K extends keyof NotificationSettings>(

@@ -1,3 +1,4 @@
+import { typesafeUnionMembers } from "../../lang";
 import { Auth, AuthLoginResponse } from "./Auth";
 import { DownloadStation } from "./DownloadStation";
 import { DownloadStation2 } from "./DownloadStation2";
@@ -24,19 +25,17 @@ export interface SynologyClientSettings {
   session: SessionName;
 }
 
-const SETTING_NAME_KEYS = (function () {
-  const _settingNames: Record<keyof SynologyClientSettings, true> = {
-    baseUrl: true,
-    account: true,
-    passwd: true,
-    session: true,
-  };
-  return Object.keys(_settingNames) as (keyof SynologyClientSettings)[];
-})();
+const SETTING_NAME_KEYS = typesafeUnionMembers<keyof SynologyClientSettings>({
+  baseUrl: true,
+  account: true,
+  passwd: true,
+  session: true,
+});
 
 export type ConnectionFailure =
   | {
       type: "missing-config";
+      which: "password" | "other";
     }
   | {
       type:
@@ -46,6 +45,12 @@ export type ConnectionFailure =
         | "unknown";
       error: any;
     };
+
+function isConnectionFailure(
+  v: SynologyClientSettings | ConnectionFailure,
+): v is ConnectionFailure {
+  return (v as ConnectionFailure).type != null;
+}
 
 const ConnectionFailure = {
   from: (error: any): ConnectionFailure => {
@@ -75,14 +80,14 @@ export const ClientRequestResult = {
 export class SynologyClient {
   private loginPromise: Promise<ClientRequestResult<AuthLoginResponse>> | undefined;
   private settingsVersion: number = 0;
-  private onSettingsChangeListeners: (() => void)[] = [];
 
   constructor(private settings: Partial<SynologyClientSettings>) {}
 
-  public updateSettings(settings: Partial<SynologyClientSettings>) {
-    if (SETTING_NAME_KEYS.some((k) => settings[k] !== this.settings[k])) {
+  public partiallyUpdateSettings(settings: Partial<SynologyClientSettings>) {
+    const updatedSettings = { ...this.settings, ...settings };
+    if (SETTING_NAME_KEYS.some((k) => updatedSettings[k] !== this.settings[k])) {
       this.settingsVersion++;
-      this.settings = settings;
+      this.settings = updatedSettings;
       this.maybeLogout();
       return true;
     } else {
@@ -90,39 +95,25 @@ export class SynologyClient {
     }
   }
 
-  public onSettingsChange(listener: () => void) {
-    this.onSettingsChangeListeners.push(listener);
-    let isSubscribed = true;
-    return () => {
-      if (isSubscribed) {
-        this.onSettingsChangeListeners = this.onSettingsChangeListeners.filter(
-          (l) => l !== listener,
-        );
-        isSubscribed = false;
-      }
-    };
-  }
-
-  private getValidatedSettings() {
-    if (
-      SETTING_NAME_KEYS.every((k) => {
-        const v = this.settings[k];
-        return v != null && v.length > 0;
-      })
-    ) {
+  private getValidatedSettings(): SynologyClientSettings | ConnectionFailure {
+    const missingFields = SETTING_NAME_KEYS.filter((k) => {
+      const v = this.settings[k];
+      return v == null || v.length === 0;
+    });
+    if (missingFields.length === 0) {
       return this.settings as SynologyClientSettings;
     } else {
-      return undefined;
+      return {
+        type: "missing-config",
+        which: missingFields.includes("passwd") ? "password" : "other",
+      };
     }
   }
 
   private maybeLogin = async (request?: BaseRequest) => {
     const settings = this.getValidatedSettings();
-    if (settings == null) {
-      const failure: ConnectionFailure = {
-        type: "missing-config",
-      };
-      return failure;
+    if (isConnectionFailure(settings)) {
+      return settings;
     } else if (!this.loginPromise) {
       const { baseUrl, ...restSettings } = settings;
       this.loginPromise = Auth.Login(baseUrl, {
@@ -168,11 +159,8 @@ export class SynologyClient {
 
     if (!stashedLoginPromise) {
       return "not-logged-in" as const;
-    } else if (settings == null) {
-      const failure: ConnectionFailure = {
-        type: "missing-config",
-      };
-      return failure;
+    } else if (isConnectionFailure(settings)) {
+      return settings;
     } else {
       const response = await stashedLoginPromise;
       if (ClientRequestResult.isConnectionFailure(response)) {
@@ -260,11 +248,8 @@ export class SynologyClient {
   ): (options: T) => Promise<ClientRequestResult<U>> {
     return async (options: T) => {
       const settings = this.getValidatedSettings();
-      if (settings == null) {
-        const response: ConnectionFailure = {
-          type: "missing-config",
-        };
-        return response;
+      if (isConnectionFailure(settings)) {
+        return settings;
       } else {
         try {
           return await fn(settings.baseUrl, options);

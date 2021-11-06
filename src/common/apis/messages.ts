@@ -68,8 +68,9 @@ export interface Directory {
   path: string;
 }
 
-export interface ResetClientSession {
-  type: "reset-client-session";
+export interface SetLoginPassword {
+  type: "set-login-password";
+  password: string;
 }
 
 export type Message =
@@ -80,7 +81,7 @@ export type Message =
   | DeleteTasks
   | GetConfig
   | ListDirectories
-  | ResetClientSession;
+  | SetLoginPassword;
 
 const MESSAGE_TYPES: Record<Message["type"], true> = {
   "add-tasks": true,
@@ -90,7 +91,7 @@ const MESSAGE_TYPES: Record<Message["type"], true> = {
   "resume-task": true,
   "get-config": true,
   "list-directories": true,
-  "reset-client-session": true,
+  "set-login-password": true,
 };
 
 export const Message = {
@@ -109,7 +110,7 @@ export type Result = {
   "delete-tasks": MessageResponse;
   "get-config": MessageResponse<DownloadStationInfoConfig>;
   "list-directories": MessageResponse<Directory[]>;
-  "reset-client-session": void;
+  "set-login-password": void;
 };
 
 function makeMessageOperations<T extends Message["type"], U extends any[]>(
@@ -157,7 +158,9 @@ export const ListDirectories = makeMessageOperations("list-directories", (path?:
   path,
 }));
 
-export const ResetClientSession = makeMessageOperations("reset-client-session", () => ({}));
+export const SetLoginPassword = makeMessageOperations("set-login-password", (password: string) => ({
+  password,
+}));
 
 {
   // Compile-time check to make sure that these two different types that have to match, do.

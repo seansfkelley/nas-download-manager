@@ -1,4 +1,5 @@
 import * as React from "react";
+import { default as uniqueId } from "lodash/uniqueId";
 
 import type { ConnectionSettings as ConnectionSettingsObject } from "../common/state";
 import { ClientRequestResult } from "../common/apis/synology";
@@ -6,14 +7,21 @@ import { SettingsList } from "../common/components/SettingsList";
 import { LoginStatus } from "./LoginStatus";
 import { testConnection } from "./settingsUtils";
 import { disabledPropAndClassName, kludgeRefSetClassname } from "../common/classnameUtil";
+import type { Overwrite } from "../common/types";
+import { assert } from "../common/lang";
+
+type ConnectionSettingsWithMandatoryPassword = Overwrite<
+  ConnectionSettingsObject,
+  { password: string }
+>;
 
 interface Props {
   connectionSettings: ConnectionSettingsObject;
-  saveConnectionSettings: (settings: ConnectionSettingsObject) => void;
+  saveConnectionSettings: (settings: ConnectionSettingsWithMandatoryPassword) => void;
 }
 
 interface State {
-  changedSettings: Partial<ConnectionSettingsObject>;
+  changedSettings: Partial<ConnectionSettingsWithMandatoryPassword>;
   loginStatus: "none" | "in-progress" | ClientRequestResult<unknown>;
   isLoginSlow: boolean;
 }
@@ -30,6 +38,7 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
     const connectionDisabledProps = disabledPropAndClassName(
       this.state.loginStatus === "in-progress",
     );
+    const checkboxId = uniqueId("checkbox-id-");
 
     const mergedSettings = this.getMergedSettings();
 
@@ -37,7 +46,8 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          this.testConnectionAndSave();
+          assert(mergedSettings.password != null);
+          this.testConnectionAndSave(mergedSettings as ConnectionSettingsWithMandatoryPassword);
         }}
         className="connection-settings"
       >
@@ -99,6 +109,19 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
           </li>
 
           <li>
+            <input
+              type="checkbox"
+              {...disabledPropAndClassName}
+              id={checkboxId}
+              checked={mergedSettings.rememberPassword}
+              onChange={() => {
+                this.setSetting("rememberPassword", !mergedSettings.rememberPassword);
+              }}
+            />
+            <label htmlFor={checkboxId}>{browser.i18n.getMessage("Remember_Password")}</label>
+          </li>
+
+          <li>
             <LoginStatus status={this.state.loginStatus} reassureUser={this.state.isLoginSlow} />
             <button
               type="submit"
@@ -128,9 +151,9 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
     };
   }
 
-  private setSetting<K extends keyof ConnectionSettingsObject>(
+  private setSetting<K extends keyof ConnectionSettingsWithMandatoryPassword>(
     key: K,
-    value: ConnectionSettingsObject[K],
+    value: ConnectionSettingsWithMandatoryPassword[K],
   ) {
     this.setState({
       loginStatus: "none",
@@ -142,7 +165,7 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
     });
   }
 
-  private testConnectionAndSave = async () => {
+  private testConnectionAndSave = async (settings: ConnectionSettingsWithMandatoryPassword) => {
     clearTimeout(this.loginSlowTimeout!);
 
     this.setState({
@@ -156,8 +179,7 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
       });
     }, 5000) as any) as number;
 
-    const mergedSettings = this.getMergedSettings();
-    const result = await testConnection(mergedSettings);
+    const result = await testConnection(settings);
 
     clearTimeout(this.loginSlowTimeout!);
     this.setState({
@@ -166,7 +188,7 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
     });
 
     if (!ClientRequestResult.isConnectionFailure(result) && result.success) {
-      this.props.saveConnectionSettings(mergedSettings);
+      this.props.saveConnectionSettings(settings);
     }
   };
 

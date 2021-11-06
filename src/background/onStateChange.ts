@@ -12,30 +12,38 @@ const START_TIME = Date.now();
 export function onStoredStateChange(storedState: State) {
   const backgroundState = getMutableStateSingleton();
 
-  const didUpdateSettings = backgroundState.api.updateSettings({
+  let didUpdateSettings = backgroundState.api.partiallyUpdateSettings({
     baseUrl: getHostUrl(storedState.settings.connection),
     account: storedState.settings.connection.username,
-    passwd: storedState.settings.connection.password,
     session: SessionName.DownloadStation,
+    // Do NOT set password from here. It might not be set because of the "remember me" feature, so
+    // we could erroneously overwrite it. Instead, read it once at startup time (if configured), and
+    // otherwise, wait for an imperative login request message to be handled elsewhere.
   });
+
+  if (backgroundState.isInitializingExtension && storedState.settings.connection.rememberPassword) {
+    // Note the ordering here: avoid short-circuiting.
+    didUpdateSettings =
+      backgroundState.api.partiallyUpdateSettings({
+        passwd: storedState.settings.connection.password,
+      }) || didUpdateSettings;
+  }
 
   if (didUpdateSettings) {
     const clearCachePromise = clearCachedTasks();
 
-    if (backgroundState.didInitializeSettings) {
+    // This is a little bit of a hack, but basically: onStoredStateChange eagerly fires this
+    // listener when it initializes. That first time through, the client gets initialized for the
+    // first time, and so we necessarily clear and reload. However, if the user hasn't configured
+    // notifications, we should try to avoid pinging the NAS, since we know we're opening in the
+    // background. If notifications are enabled, those'll still get set up and we'll starting
+    // pinging in the background.
+    if (!backgroundState.isInitializingExtension) {
       // Don't use await because we want this to fire in the background.
       clearCachePromise.then(() => {
         pollTasks(backgroundState.api, backgroundState.pollRequestManager);
       });
     }
-
-    // This is a little bit of a hack, but basically: onStoredStateChange eagerly fires this
-    // listener when it initializes. That first time through, the client gets initialized for
-    // the first time, and so we necessarily clear and reload. However, if the user hasn't
-    // configured notifications, we should try to avoid pinging the NAS, since we know we're
-    // opening in the background. Hence this boolean. If notifications are enabled, those'll
-    // still get set up and we'll starting pinging in the background.
-    backgroundState.didInitializeSettings = true;
   }
 
   if (!isEqual(storedState.settings.notifications, backgroundState.lastNotificationSettings)) {
@@ -116,4 +124,6 @@ export function onStoredStateChange(storedState: State) {
     }
     backgroundState.finishedTaskIds = new Set(updatedFinishedTaskIds);
   }
+
+  backgroundState.isInitializingExtension = false;
 }

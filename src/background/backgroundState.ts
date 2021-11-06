@@ -9,8 +9,8 @@ export interface BackgroundState {
   pollRequestManager: RequestManager;
   lastNotificationSettings: NotificationSettings | undefined;
   notificationInterval: number | undefined;
-  didInitializeSettings: boolean;
   showNonErrorNotifications: boolean;
+  isInitializingExtension: boolean;
 }
 
 const state: BackgroundState = {
@@ -19,10 +19,12 @@ const state: BackgroundState = {
   pollRequestManager: new RequestManager(),
   lastNotificationSettings: undefined,
   notificationInterval: undefined,
-  didInitializeSettings: false,
   showNonErrorNotifications: true,
+  isInitializingExtension: true,
 };
 
 export function getMutableStateSingleton() {
   return state;
 }
+
+(window as any).getMutableStateSingleton = getMutableStateSingleton;

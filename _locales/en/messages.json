@@ -352,6 +352,10 @@
     "message": "Password",
     "description": "Label for field on settings page."
   },
+  "Remember_Password": {
+    "message": "Remember Password",
+    "description": "Label for checkbox on settings page."
+  },
   "Login": {
     "message": "Login",
     "description": "Label for button on settings page."

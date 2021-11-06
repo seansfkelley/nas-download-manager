@@ -1,3 +1,11 @@
+export class AssertionError extends Error {}
+
+export function assert(condition: unknown, message?: string): asserts condition {
+  if (!condition) {
+    throw new AssertionError(message || "assertion failed");
+  }
+}
+
 export function assertNever(n: never): never {
   throw new Error(`never assertion failed, got value ${n}`);
 }
