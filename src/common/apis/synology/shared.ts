@@ -96,7 +96,7 @@ async function fetchWithErrorHandling(
   } catch (e) {
     if (e instanceof DOMException && e.name === "AbortError") {
       throw new TimeoutError();
-    } else if (/networkerror/i.test(e?.message)) {
+    } else if (e instanceof Error && /networkerror/i.test(e?.message)) {
       throw new NetworkError();
     } else {
       throw e;

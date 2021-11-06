@@ -6,7 +6,7 @@ import { BUG_REPORT_URL } from "../common/constants";
 import { State as ExtensionState, redactState } from "../common/state";
 
 export interface Props {
-  error: Error;
+  error: unknown;
   errorInfo?: React.ErrorInfo | undefined;
   state?: ExtensionState;
 }
@@ -21,18 +21,22 @@ export class FatalError extends React.PureComponent<Props, {}> {
       redactedState = undefined;
     }
 
+    const formattedError =
+      this.props.error instanceof Error
+        ? `${this.props.error.name}: '${this.props.error.message}'\n${
+            this.props.error.stack
+              ? "Error stack trace: " + this.props.error.stack.trim()
+              : "(no Error stack)"
+          }`
+        : JSON.stringify(this.props.error, null, 2);
+
     const formattedDebugLogs = `${
       redactedState
         ? "Redacted extension state: " + JSON.stringify(redactedState, null, 2)
         : "(no state provided)"
     }
 
-${this.props.error.name}: '${this.props.error.message}'
-${
-  this.props.error.stack
-    ? "Error stack trace: " + this.props.error.stack.trim()
-    : "(no Error stack)"
-}
+${formattedError}
 
 ${
   this.props.errorInfo
