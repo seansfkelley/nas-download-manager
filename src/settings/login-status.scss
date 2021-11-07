@@ -1,0 +1,12 @@
+.login-status-display {
+  display: flex;
+  flex: 1;
+  margin-right: 10px;
+  align-items: center;
+
+  .fa {
+    margin-left: auto;
+    margin-right: 5px;
+    font-size: 14px;
+  }
+}

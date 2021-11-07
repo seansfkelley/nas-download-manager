@@ -348,9 +348,10 @@
     "message": "Mot de passe",
     "description": "Label for field on settings page."
   },
-  "Test_Connection_and_Save": {
+  "Login": {
     "message": "Tester et sauvegarder",
-    "description": "Label for button on settings page."
+    "description": "Label for button on settings page.",
+    "needs_update": true
   },
   "Task_Display_Settings": {
     "message": "Réglages de l'affichage des tâches",
@@ -406,17 +407,20 @@
     "message": "Impossible d'enregistrer les réglages. Il s'agit d'un bogue ; veuillez reporter le problème.",
     "description": "Message shown in settings page when something is very wrong."
   },
-  "Testing_connection": {
+  "Logging_in": {
     "message": "Test de la connexion…",
-    "description": "Message for connection test status."
+    "description": "Message for login status.",
+    "needs_update": true
   },
-  "Testing_connection_this_is_unusually_slow_is_your_NAS_asleep": {
+  "Logging_in_this_is_unusually_slow_is_your_NAS_asleep": {
     "message": "Test de la connexion… (c'est curieusement lent, votre NAS est-il en veille ?)",
-    "description": "Message for connection test status."
+    "description": "Message for login status.",
+    "needs_update": true
   },
-  "Connection_successful": {
-    "message": "Connexion réussie !",
-    "description": "Message for connection test status."
+  "Login_successful": {
+    "message": "Connexion réussie!",
+    "description": "Message for login status.",
+    "needs_update": true
   },
   "Connection_settings_are_not_configured": {
     "message": "Les réglages de connexion ne sont pas configurés.",

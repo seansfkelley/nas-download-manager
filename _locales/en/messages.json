@@ -352,8 +352,8 @@
     "message": "Password",
     "description": "Label for field on settings page."
   },
-  "Test_Connection_and_Save": {
-    "message": "Test Connection and Save",
+  "Login": {
+    "message": "Login",
     "description": "Label for button on settings page."
   },
   "Task_Display_Settings": {
@@ -410,17 +410,17 @@
     "message": "Cannot save settings. This is a bug; please file an issue.",
     "description": "Message shown in settings page when something is very wrong."
   },
-  "Testing_connection": {
-    "message": "Testing connection...",
-    "description": "Message for connection test status."
+  "Logging_in": {
+    "message": "Logging in...",
+    "description": "Message for login status."
   },
-  "Testing_connection_this_is_unusually_slow_is_your_NAS_asleep": {
-    "message": "Testing connection... (this is unusually slow, is your NAS asleep?)",
-    "description": "Message for connection test status."
+  "Logging_in_this_is_unusually_slow_is_your_NAS_asleep": {
+    "message": "Logging in... (this is unusually slow, is your NAS asleep?)",
+    "description": "Message for login status."
   },
-  "Connection_successful": {
-    "message": "Connection successful!",
-    "description": "Message for connection test status."
+  "Login_successful": {
+    "message": "Login successful!",
+    "description": "Message for login status."
   },
   "Connection_settings_are_not_configured": {
     "message": "Connection settings are not configured.",

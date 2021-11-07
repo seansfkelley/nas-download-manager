@@ -3,7 +3,7 @@ import * as React from "react";
 import type { ConnectionSettings as ConnectionSettingsObject } from "../common/state";
 import { ClientRequestResult } from "../common/apis/synology";
 import { SettingsList } from "../common/components/SettingsList";
-import { ConnectionTestResultDisplay } from "./ConnectionTestResultDisplay";
+import { LoginStatus } from "./LoginStatus";
 import { testConnection } from "./settingsUtils";
 import { disabledPropAndClassName, kludgeRefSetClassname } from "../common/classnameUtil";
 
@@ -14,21 +14,21 @@ interface Props {
 
 interface State {
   changedSettings: Partial<ConnectionSettingsObject>;
-  connectionTest: "none" | "in-progress" | ClientRequestResult<unknown>;
-  isConnectionTestSlow: boolean;
+  loginStatus: "none" | "in-progress" | ClientRequestResult<unknown>;
+  isLoginSlow: boolean;
 }
 
 export class ConnectionSettings extends React.PureComponent<Props, State> {
-  private connectionTestSlowTimeout?: number;
+  private loginSlowTimeout?: number;
   state: State = {
     changedSettings: {},
-    connectionTest: "none",
-    isConnectionTestSlow: false,
+    loginStatus: "none",
+    isLoginSlow: false,
   };
 
   render() {
     const connectionDisabledProps = disabledPropAndClassName(
-      this.state.connectionTest === "in-progress",
+      this.state.loginStatus === "in-progress",
     );
 
     const mergedSettings = this.getMergedSettings();
@@ -99,10 +99,7 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
           </li>
 
           <li>
-            <ConnectionTestResultDisplay
-              testResult={this.state.connectionTest}
-              reassureUser={this.state.isConnectionTestSlow}
-            />
+            <LoginStatus status={this.state.loginStatus} reassureUser={this.state.isLoginSlow} />
             <button
               type="submit"
               {...disabledPropAndClassName(
@@ -110,13 +107,13 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
                   !mergedSettings.port ||
                   !mergedSettings.username ||
                   !mergedSettings.password ||
-                  this.state.connectionTest === "in-progress" ||
-                  (this.state.connectionTest !== "none" &&
-                    !ClientRequestResult.isConnectionFailure(this.state.connectionTest) &&
-                    this.state.connectionTest.success),
+                  this.state.loginStatus === "in-progress" ||
+                  (this.state.loginStatus !== "none" &&
+                    !ClientRequestResult.isConnectionFailure(this.state.loginStatus) &&
+                    this.state.loginStatus.success),
               )}
             >
-              {browser.i18n.getMessage("Test_Connection_and_Save")}
+              {browser.i18n.getMessage("Login")}
             </button>
           </li>
         </SettingsList>
@@ -136,8 +133,8 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
     value: ConnectionSettingsObject[K],
   ) {
     this.setState({
-      connectionTest: "none",
-      isConnectionTestSlow: false,
+      loginStatus: "none",
+      isLoginSlow: false,
       changedSettings: {
         ...this.state.changedSettings,
         [key]: value,
@@ -146,26 +143,26 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
   }
 
   private testConnectionAndSave = async () => {
-    clearTimeout(this.connectionTestSlowTimeout!);
+    clearTimeout(this.loginSlowTimeout!);
 
     this.setState({
-      connectionTest: "in-progress",
-      isConnectionTestSlow: false,
+      loginStatus: "in-progress",
+      isLoginSlow: false,
     });
 
-    this.connectionTestSlowTimeout = (setTimeout(() => {
+    this.loginSlowTimeout = (setTimeout(() => {
       this.setState({
-        isConnectionTestSlow: true,
+        isLoginSlow: true,
       });
     }, 5000) as any) as number;
 
     const mergedSettings = this.getMergedSettings();
     const result = await testConnection(mergedSettings);
 
-    clearTimeout(this.connectionTestSlowTimeout!);
+    clearTimeout(this.loginSlowTimeout!);
     this.setState({
-      connectionTest: result,
-      isConnectionTestSlow: false,
+      loginStatus: result,
+      isLoginSlow: false,
     });
 
     if (!ClientRequestResult.isConnectionFailure(result) && result.success) {
@@ -174,6 +171,6 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
   };
 
   componentWillUnmount() {
-    clearTimeout(this.connectionTestSlowTimeout!);
+    clearTimeout(this.loginSlowTimeout!);
   }
 }

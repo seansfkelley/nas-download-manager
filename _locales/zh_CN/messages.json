@@ -352,9 +352,10 @@
     "message": "密码",
     "description": "Label for field on settings page."
   },
-  "Test_Connection_and_Save": {
+  "Login": {
     "message": "测试连接并保存",
-    "description": "Label for button on settings page."
+    "description": "Label for button on settings page.",
+    "needs_update": true
   },
   "Task_Display_Settings": {
     "message": "任务显示选项",
@@ -410,17 +411,20 @@
     "message": "无法保存设置，请在 Github 中创建 Issue 来提交此 Bug",
     "description": "Message shown in settings page when something is very wrong."
   },
-  "Testing_connection": {
+  "Logging_in": {
     "message": "测试连接中...",
-    "description": "Message for connection test status."
+    "description": "Message for login status.",
+    "needs_update": true
   },
-  "Testing_connection_this_is_unusually_slow_is_your_NAS_asleep": {
+  "Logging_in_this_is_unusually_slow_is_your_NAS_asleep": {
     "message": "测试连接中...（等待超过了正常时间，NAS 是否休眠了？）",
-    "description": "Message for connection test status."
+    "description": "Message for login status.",
+    "needs_update": true
   },
-  "Connection_successful": {
+  "Login_successful": {
     "message": "连接成功！",
-    "description": "Message for connection test status."
+    "description": "Message for login status.",
+    "needs_update": true
   },
   "Connection_settings_are_not_configured": {
     "message": "未配置连接选项",

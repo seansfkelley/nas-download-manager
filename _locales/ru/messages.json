@@ -382,17 +382,20 @@
     "message": "Очистить вывод",
     "description": "Текст кнопки для очистки результатов отладки."
   },
-  "Testing_connection": {
+  "Logging_in": {
     "message": "Тестирование соединения...",
-    "description": "Сообщение о статусе проверки соединения."
+    "description": "Сообщение о статусе проверки соединения.",
+    "needs_update": true
   },
-  "Testing_connection_this_is_unusually_slow_is_your_NAS_asleep": {
+  "Logging_in_this_is_unusually_slow_is_your_NAS_asleep": {
     "message": "Проверка соединения... (это необычайно медленно, сетевое хранилище спит?)",
-    "description": "Сообщение о статусе проверки соединения."
+    "description": "Сообщение о статусе проверки соединения.",
+    "needs_update": true
   },
-  "Connection_successful": {
+  "Login_successful": {
     "message": "Соединение успешно выполнено!",
-    "description": "Сообщение о состоянии проверки соединения."
+    "description": "Сообщение о состоянии проверки соединения.",
+    "needs_update": true
   },
   "Connection_settings_are_not_configured": {
     "message": "Ошибка соединения (отсутствует конфигурация соединения).",
