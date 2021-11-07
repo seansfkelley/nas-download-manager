@@ -1,7 +1,6 @@
 export {
   VisibleTaskSettings,
   TaskSortType,
-  CachedTasks,
   NotificationSettings,
   Settings,
   State,
@@ -9,4 +8,4 @@ export {
   Logging,
   StateVersion,
   BadgeDisplayType,
-} from "./6";
+} from "./7";
