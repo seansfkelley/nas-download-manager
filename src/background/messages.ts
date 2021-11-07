@@ -1,7 +1,7 @@
 import { ClientRequestResult } from "../common/apis/synology";
 import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../common/apis/errors";
 import { MessageResponse, Message, Result } from "../common/apis/messages";
-import { addDownloadTasksAndPoll, pollTasks } from "./actions";
+import { addDownloadTasksAndReload, loadTasks } from "./actions";
 import { BackgroundState, getMutableStateSingleton } from "./backgroundState";
 import type { DiscriminateUnion } from "../common/types";
 
@@ -44,23 +44,17 @@ function toMessageResponse<T, U>(
 
 const MESSAGE_HANDLERS: MessageHandlers = {
   "add-tasks": (m, state) => {
-    return addDownloadTasksAndPoll(
-      state.api,
-      state.pollRequestManager,
-      state.showNonErrorNotifications,
-      m.urls,
-      m.options,
-    );
+    return addDownloadTasksAndReload(state, m.urls, m.options);
   },
   "poll-tasks": (_m, state) => {
-    return pollTasks(state.api, state.pollRequestManager);
+    return loadTasks(state);
   },
   "pause-task": async (m, state) => {
     const response = toMessageResponse(
       await state.api.DownloadStation.Task.Pause({ id: [m.taskId] }),
     );
     if (response.success) {
-      await pollTasks(state.api, state.pollRequestManager);
+      await loadTasks(state);
     }
     return response;
   },
@@ -69,7 +63,7 @@ const MESSAGE_HANDLERS: MessageHandlers = {
       await state.api.DownloadStation.Task.Resume({ id: [m.taskId] }),
     );
     if (response.success) {
-      await pollTasks(state.api, state.pollRequestManager);
+      await loadTasks(state);
     }
     return response;
   },
@@ -78,7 +72,7 @@ const MESSAGE_HANDLERS: MessageHandlers = {
       await state.api.DownloadStation.Task.Delete({ id: m.taskIds, force_complete: false }),
     );
     if (response.success) {
-      await pollTasks(state.api, state.pollRequestManager);
+      await loadTasks(state);
     }
     return response;
   },

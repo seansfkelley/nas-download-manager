@@ -1,7 +1,7 @@
 import { getMutableStateSingleton } from "./backgroundState";
 import { notify } from "../common/notify";
 
-import { addDownloadTasksAndPoll } from "./actions";
+import { addDownloadTasksAndReload as addDownloadTasksAndReload } from "./actions";
 import { ALL_DOWNLOADABLE_PROTOCOLS, startsWithAnyProtocol } from "../common/apis/protocols";
 
 export function initializeContextMenus() {
@@ -13,19 +13,9 @@ export function initializeContextMenus() {
       const state = getMutableStateSingleton();
 
       if (data.linkUrl) {
-        addDownloadTasksAndPoll(
-          state.api,
-          state.pollRequestManager,
-          state.showNonErrorNotifications,
-          [data.linkUrl],
-        );
+        addDownloadTasksAndReload(state, [data.linkUrl]);
       } else if (data.srcUrl) {
-        addDownloadTasksAndPoll(
-          state.api,
-          state.pollRequestManager,
-          state.showNonErrorNotifications,
-          [data.srcUrl],
-        );
+        addDownloadTasksAndReload(state, [data.srcUrl]);
       } else if (data.selectionText) {
         let urls = data.selectionText
           .split("\n")
@@ -40,12 +30,7 @@ export function initializeContextMenus() {
             "failure",
           );
         } else {
-          addDownloadTasksAndPoll(
-            state.api,
-            state.pollRequestManager,
-            state.showNonErrorNotifications,
-            urls,
-          );
+          addDownloadTasksAndReload(state, urls);
         }
       } else {
         notify(

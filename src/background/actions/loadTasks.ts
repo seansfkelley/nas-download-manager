@@ -1,35 +1,26 @@
-import type { RequestManager } from "../requestManager";
-import { SynologyClient, ClientRequestResult } from "../../common/apis/synology";
+import { ClientRequestResult } from "../../common/apis/synology";
 import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../../common/apis/errors";
-import type { CachedTasks, State } from "../../common/state";
 import { saveLastSevereError } from "../../common/errorHandlers";
+import type { BackgroundState } from "../backgroundState";
+import { update as updateTasks } from "../updates/tasks";
 
-function setCachedTasks(cachedTasks: Partial<CachedTasks>) {
-  return browser.storage.local.set<Partial<State>>({
-    tasksLastCompletedFetchTimestamp: Date.now(),
-    ...cachedTasks,
-  });
-}
+export async function loadTasks(state: BackgroundState): Promise<void> {
+  function setTasks(stateUpdates: Partial<BackgroundState>) {
+    Object.assign(state, stateUpdates, { tasksLastCompletedFetchTimestamp: Date.now() });
+    updateTasks(state);
+  }
 
-export async function pollTasks(api: SynologyClient, manager: RequestManager): Promise<void> {
-  const token = manager.startNewRequest();
+  const token = state.taskLoadRequestManager.startNewRequest();
 
-  const cachedTasksInit: Partial<CachedTasks> = {
-    tasksLastInitiatedFetchTimestamp: Date.now(),
-  };
+  state.tasksLastInitiatedFetchTimestamp = Date.now();
 
-  console.log(`(${token}) polling for tasks...`);
+  console.log(`(${token}) loading tasks...`);
 
   try {
-    await browser.storage.local.set<Partial<State>>(cachedTasksInit);
-
     let response;
 
     try {
-      // HELLO THERE
-      //
-      // When changing what this requests, you almost certainly want to update STATE_VERSION.
-      response = await api.DownloadStation.Task.List({
+      response = await state.api.DownloadStation.Task.List({
         offset: 0,
         limit: -1,
         additional: ["transfer", "detail"],
@@ -40,7 +31,7 @@ export async function pollTasks(api: SynologyClient, manager: RequestManager): P
       return;
     }
 
-    if (!manager.isRequestLatest(token)) {
+    if (!state.taskLoadRequestManager.isRequestLatest(token)) {
       console.log(`(${token}) poll result outdated; ignoring`, response);
       return;
     } else {
@@ -49,23 +40,23 @@ export async function pollTasks(api: SynologyClient, manager: RequestManager): P
 
     if (ClientRequestResult.isConnectionFailure(response)) {
       if (response.type === "missing-config") {
-        await setCachedTasks({
+        setTasks({
           taskFetchFailureReason: "missing-config",
         });
       } else {
-        await setCachedTasks({
+        setTasks({
           taskFetchFailureReason: {
             failureMessage: getErrorForConnectionFailure(response),
           },
         });
       }
     } else if (response.success) {
-      await setCachedTasks({
+      setTasks({
         tasks: response.data.tasks,
-        taskFetchFailureReason: null,
+        taskFetchFailureReason: undefined,
       });
     } else {
-      await setCachedTasks({
+      setTasks({
         taskFetchFailureReason: {
           failureMessage: getErrorForFailedResponse(response),
         },
