@@ -1,20 +1,21 @@
 import { ClientRequestResult } from "../../common/apis/synology";
 import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../../common/apis/errors";
 import { saveLastSevereError } from "../../common/errorHandlers";
-import type { BackgroundState } from "../backgroundState";
-import { update as updateTasks } from "../updates/tasks";
+import { CommonBackgroundState, updateStateSingleton } from "../backgroundState";
 
-export async function loadTasks(state: BackgroundState): Promise<void> {
-  function setTasks(stateUpdates: Partial<BackgroundState>) {
-    Object.assign(state, stateUpdates, { tasksLastCompletedFetchTimestamp: Date.now() });
-    updateTasks(state);
-  }
+let lastRequestId = 0;
 
-  const token = state.taskLoadRequestManager.startNewRequest();
+export async function loadTasks(state: CommonBackgroundState): Promise<void> {
+  const currentRequestId = ++lastRequestId;
 
-  state.tasksLastInitiatedFetchTimestamp = Date.now();
+  updateStateSingleton({
+    downloads: {
+      ...state.downloads,
+      tasksLastInitiatedFetchTimestamp: Date.now(),
+    },
+  });
 
-  console.log(`(${token}) loading tasks...`);
+  console.log(`(${currentRequestId}) loading tasks...`);
 
   try {
     let response;
@@ -31,34 +32,50 @@ export async function loadTasks(state: BackgroundState): Promise<void> {
       return;
     }
 
-    if (!state.taskLoadRequestManager.isRequestLatest(token)) {
-      console.log(`(${token}) poll result outdated; ignoring`, response);
+    if (currentRequestId !== lastRequestId) {
+      console.log(`(${currentRequestId}) result outdated; ignoring`, response);
       return;
     } else {
-      console.log(`(${token}) poll result still relevant; continuing...`, response);
+      console.log(`(${currentRequestId}) result still relevant; continuing...`, response);
     }
 
     if (ClientRequestResult.isConnectionFailure(response)) {
       if (response.type === "missing-config") {
-        setTasks({
-          taskFetchFailureReason: "missing-config",
+        updateStateSingleton({
+          downloads: {
+            ...state.downloads,
+            tasksLastCompletedFetchTimestamp: Date.now(),
+            taskFetchFailureReason: "missing-config",
+          },
         });
       } else {
-        setTasks({
-          taskFetchFailureReason: {
-            failureMessage: getErrorForConnectionFailure(response),
+        updateStateSingleton({
+          downloads: {
+            ...state.downloads,
+            tasksLastCompletedFetchTimestamp: Date.now(),
+            taskFetchFailureReason: {
+              failureMessage: getErrorForConnectionFailure(response),
+            },
           },
         });
       }
     } else if (response.success) {
-      setTasks({
-        tasks: response.data.tasks,
-        taskFetchFailureReason: undefined,
+      updateStateSingleton({
+        downloads: {
+          ...state.downloads,
+          tasksLastCompletedFetchTimestamp: Date.now(),
+          tasks: response.data.tasks,
+          taskFetchFailureReason: undefined,
+        },
       });
     } else {
-      setTasks({
-        taskFetchFailureReason: {
-          failureMessage: getErrorForFailedResponse(response),
+      updateStateSingleton({
+        downloads: {
+          ...state.downloads,
+          tasksLastCompletedFetchTimestamp: Date.now(),
+          taskFetchFailureReason: {
+            failureMessage: getErrorForFailedResponse(response),
+          },
         },
       });
     }

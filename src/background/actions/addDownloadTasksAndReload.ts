@@ -17,7 +17,7 @@ import { resolveUrl, ResolvedUrl, sanitizeUrlForSynology, guessFileNameFromUrl }
 import { loadTasks } from "./loadTasks";
 import type { UnionByDiscriminant } from "../../common/types";
 import type { AddTaskOptions } from "../../common/apis/messages";
-import type { BackgroundState } from "../backgroundState";
+import type { CommonBackgroundState } from "../backgroundState";
 
 type ArrayifyValues<T extends Record<string, any>> = {
   [K in keyof T]: T[K][];
@@ -55,7 +55,7 @@ function reportUnexpectedError(
 }
 
 async function addOneTask(
-  state: BackgroundState,
+  state: CommonBackgroundState,
   url: string,
   { path, ftpUsername, ftpPassword, unzipPassword }: AddTaskOptions,
 ) {
@@ -73,7 +73,7 @@ async function addOneTask(
         notificationId,
       );
     } else if (result.success) {
-      if (state.showNonErrorNotifications) {
+      if (state.settings.notifications.enableFeedbackNotifications) {
         notify(
           browser.i18n.getMessage("Download_added"),
           filename || url,
@@ -108,7 +108,7 @@ async function addOneTask(
     }
   }
 
-  const notificationId = state.showNonErrorNotifications
+  const notificationId = state.settings.notifications.enableFeedbackNotifications
     ? notify(browser.i18n.getMessage("Adding_download"), guessFileNameFromUrl(url) ?? url)
     : undefined;
 
@@ -182,11 +182,11 @@ async function addOneTask(
 }
 
 async function addMultipleTasks(
-  state: BackgroundState,
+  state: CommonBackgroundState,
   urls: string[],
   { path, ftpUsername, ftpPassword, unzipPassword }: AddTaskOptions,
 ) {
-  const notificationId = state.showNonErrorNotifications
+  const notificationId = state.settings.notifications.enableFeedbackNotifications
     ? notify(
         browser.i18n.getMessage("Adding_ZcountZ_downloads", [urls.length]),
         browser.i18n.getMessage("Please_be_patient_this_may_take_some_time"),
@@ -323,7 +323,7 @@ async function addMultipleTasks(
 }
 
 export async function addDownloadTasksAndReload(
-  state: BackgroundState,
+  state: CommonBackgroundState,
   urls: string[],
   options?: AddTaskOptions,
 ): Promise<void> {

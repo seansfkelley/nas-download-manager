@@ -1,39 +1,40 @@
 import { SynologyClient } from "../common/apis/synology";
 import type { Settings } from "../common/state";
-import { RequestManager } from "./requestManager";
 import type { DownloadStationTask } from "../common/apis/synology/DownloadStation/Task";
+import { onChange } from "./state-listeners";
 
-export interface BackgroundState {
-  api: SynologyClient;
-  taskLoadRequestManager: RequestManager;
-  settings: Settings;
-  lastSettings: Settings | undefined;
-  notificationInterval: number | undefined;
-  didInitializeSettings: boolean;
-  // This starts undefined, which means we haven't fetched the list of tasks yet.
-  finishedTaskIds: Set<string> | undefined;
+export interface Downloads {
   tasks: DownloadStationTask[];
   taskFetchFailureReason: "missing-config" | { failureMessage: string } | undefined;
   tasksLastInitiatedFetchTimestamp: number | undefined;
   tasksLastCompletedFetchTimestamp: number | undefined;
 }
 
-const state: BackgroundState = {
+export interface CommonBackgroundState {
+  readonly api: SynologyClient;
+  readonly settings: Settings;
+  readonly downloads: Readonly<Downloads>;
+}
+
+const state: CommonBackgroundState = {
   api: new SynologyClient({}),
-  taskLoadRequestManager: new RequestManager(),
-  // This is a hack, but we know that the only code that runs before this gets set the first
-  // time is thunk-y initialization code that won't read this field.
+  // This is a hack, but we know that the only code that runs before this gets set the first time is
+  // thunk-y initialization code that won't read this field. It's much more convenient if we can
+  // keep the type non-null.
   settings: (undefined as any) as Settings,
-  lastSettings: undefined,
-  notificationInterval: undefined,
-  didInitializeSettings: false,
-  finishedTaskIds: undefined,
-  tasks: [],
-  taskFetchFailureReason: undefined,
-  tasksLastInitiatedFetchTimestamp: undefined,
-  tasksLastCompletedFetchTimestamp: undefined,
+  downloads: {
+    tasks: [],
+    taskFetchFailureReason: undefined,
+    tasksLastInitiatedFetchTimestamp: undefined,
+    tasksLastCompletedFetchTimestamp: undefined,
+  },
 };
 
-export function getMutableStateSingleton() {
+export function updateStateSingleton(updates: Partial<CommonBackgroundState>) {
+  Object.assign(state, updates);
+  onChange(state);
+}
+
+export function getReadonlyStateSingleton() {
   return state;
 }

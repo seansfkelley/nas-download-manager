@@ -1,9 +1,11 @@
-import type { BackgroundState } from "../backgroundState";
+import { CommonBackgroundState, updateStateSingleton } from "../backgroundState";
 import { SessionName } from "../../common/apis/synology";
 import { getHostUrl } from "../../common/state";
-import { loadTasks, clearTasks } from "../actions";
+import { loadTasks } from "../actions";
 
-export function update(state: BackgroundState) {
+let didInitializeSettings = false;
+
+export function onChange(state: CommonBackgroundState) {
   const didUpdateSettings = state.api.updateSettings({
     baseUrl: getHostUrl(state.settings.connection),
     account: state.settings.connection.username,
@@ -12,9 +14,19 @@ export function update(state: BackgroundState) {
   });
 
   if (didUpdateSettings) {
-    clearTasks(state);
+    // TODO: Figure out how to prevent a listener loop here. This is the only place where it
+    // can happen, I'm pretty sure. I'd like to throw an error if one occurs , but I'm not
+    // sure how to change this to avoid getting into that state.
+    updateStateSingleton({
+      downloads: {
+        tasks: [],
+        taskFetchFailureReason: undefined,
+        tasksLastCompletedFetchTimestamp: undefined,
+        tasksLastInitiatedFetchTimestamp: undefined,
+      },
+    });
 
-    if (state.didInitializeSettings) {
+    if (didInitializeSettings) {
       // Don't await this -- just let it run in the background.
       loadTasks(state);
     }
@@ -25,6 +37,6 @@ export function update(state: BackgroundState) {
     // configured notifications, we should try to avoid pinging the NAS, since we know we're
     // opening in the background. Hence this boolean. If notifications are enabled, those'll
     // still get set up and we'll starting pinging in the background.
-    state.didInitializeSettings = true;
+    didInitializeSettings = true;
   }
 }
