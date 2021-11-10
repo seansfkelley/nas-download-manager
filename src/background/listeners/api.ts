@@ -1,34 +1,29 @@
-import { CommonBackgroundState, updateStateSingleton } from "../backgroundState";
 import { SessionName } from "../../common/apis/synology";
 import { getHostUrl } from "../../common/state";
 import { loadTasks } from "../actions";
+import type { SettingsChangeListener } from "./types";
 
 let didInitializeSettings = false;
 
-export function onChange(state: CommonBackgroundState) {
-  const didUpdateSettings = state.api.updateSettings({
-    baseUrl: getHostUrl(state.settings.connection),
-    account: state.settings.connection.username,
-    passwd: state.settings.connection.password,
+export const onChange: SettingsChangeListener = (settings, api, updateDownloads) => {
+  const didUpdateSettings = api.updateSettings({
+    baseUrl: getHostUrl(settings.connection),
+    account: settings.connection.username,
+    passwd: settings.connection.password,
     session: SessionName.DownloadStation,
   });
 
   if (didUpdateSettings) {
-    // TODO: Figure out how to prevent a listener loop here. This is the only place where it
-    // can happen, I'm pretty sure. I'd like to throw an error if one occurs , but I'm not
-    // sure how to change this to avoid getting into that state.
-    updateStateSingleton({
-      downloads: {
-        tasks: [],
-        taskFetchFailureReason: undefined,
-        tasksLastCompletedFetchTimestamp: undefined,
-        tasksLastInitiatedFetchTimestamp: undefined,
-      },
+    updateDownloads({
+      tasks: [],
+      taskFetchFailureReason: undefined,
+      tasksLastCompletedFetchTimestamp: undefined,
+      tasksLastInitiatedFetchTimestamp: undefined,
     });
 
     if (didInitializeSettings) {
       // Don't await this -- just let it run in the background.
-      loadTasks(state);
+      loadTasks(api, updateDownloads);
     }
 
     // This is a little bit of a hack, but basically: onStoredStateChange eagerly fires this
@@ -39,4 +34,4 @@ export function onChange(state: CommonBackgroundState) {
     // still get set up and we'll starting pinging in the background.
     didInitializeSettings = true;
   }
-}
+};

@@ -17,7 +17,8 @@ import { resolveUrl, ResolvedUrl, sanitizeUrlForSynology, guessFileNameFromUrl }
 import { loadTasks } from "./loadTasks";
 import type { UnionByDiscriminant } from "../../common/types";
 import type { AddTaskOptions } from "../../common/apis/messages";
-import type { CommonBackgroundState } from "../backgroundState";
+import type { Downloads } from "../backgroundState";
+import type { Settings } from "../../common/state";
 
 type ArrayifyValues<T extends Record<string, any>> = {
   [K in keyof T]: T[K][];
@@ -55,7 +56,9 @@ function reportUnexpectedError(
 }
 
 async function addOneTask(
-  state: CommonBackgroundState,
+  settings: Settings,
+  api: SynologyClient,
+  updateDownloads: (downloads: Partial<Downloads>) => void,
   url: string,
   { path, ftpUsername, ftpPassword, unzipPassword }: AddTaskOptions,
 ) {
@@ -73,7 +76,7 @@ async function addOneTask(
         notificationId,
       );
     } else if (result.success) {
-      if (state.settings.notifications.enableFeedbackNotifications) {
+      if (settings.notifications.enableFeedbackNotifications) {
         notify(
           browser.i18n.getMessage("Download_added"),
           filename || url,
@@ -84,7 +87,7 @@ async function addOneTask(
     } else {
       let shouldEMuleBeEnabled;
       try {
-        shouldEMuleBeEnabled = await checkIfEMuleShouldBeEnabled(state.api, [url]);
+        shouldEMuleBeEnabled = await checkIfEMuleShouldBeEnabled(api, [url]);
       } catch (e) {
         reportUnexpectedError(notificationId, e, "error while checking emule settings");
         return;
@@ -108,7 +111,7 @@ async function addOneTask(
     }
   }
 
-  const notificationId = state.settings.notifications.enableFeedbackNotifications
+  const notificationId = settings.notifications.enableFeedbackNotifications
     ? notify(browser.i18n.getMessage("Adding_download"), guessFileNameFromUrl(url) ?? url)
     : undefined;
 
@@ -127,18 +130,18 @@ async function addOneTask(
 
   if (resolvedUrl.type === "direct-download") {
     try {
-      const result = await state.api.DownloadStation.Task.Create({
+      const result = await api.DownloadStation.Task.Create({
         uri: [sanitizeUrlForSynology(resolvedUrl.url).toString()],
         ...commonCreateOptionsV1,
       });
       await reportTaskAddResult(result, guessFileNameFromUrl(url));
-      await loadTasks(state);
+      await loadTasks(api, updateDownloads);
     } catch (e) {
       reportUnexpectedError(notificationId, e, "error while adding direct-download task");
     }
   } else if (resolvedUrl.type === "metadata-file") {
     try {
-      const supportsNewApiQueryResult = await state.api.Info.Query({
+      const supportsNewApiQueryResult = await api.Info.Query({
         query: [DownloadStation2.Task.API_NAME],
       });
       if (ClientRequestResult.isConnectionFailure(supportsNewApiQueryResult)) {
@@ -150,19 +153,19 @@ async function addOneTask(
           supportsNewApiQueryResult.success &&
           supportsNewApiQueryResult.data[DownloadStation2.Task.API_NAME] != null
         ) {
-          result = await state.api.DownloadStation2.Task.Create({
+          result = await api.DownloadStation2.Task.Create({
             type: "file",
             file,
             ...commonCreateOptionsV2,
           });
         } else {
-          result = await state.api.DownloadStation.Task.Create({
+          result = await api.DownloadStation.Task.Create({
             file,
             ...commonCreateOptionsV1,
           });
         }
         await reportTaskAddResult(result, resolvedUrl.filename);
-        await loadTasks(state);
+        await loadTasks(api, updateDownloads);
       }
     } catch (e) {
       reportUnexpectedError(notificationId, e, "error while adding metadata-file task");
@@ -182,11 +185,13 @@ async function addOneTask(
 }
 
 async function addMultipleTasks(
-  state: CommonBackgroundState,
+  settings: Settings,
+  api: SynologyClient,
+  updateDownloads: (downloads: Partial<Downloads>) => void,
   urls: string[],
   { path, ftpUsername, ftpPassword, unzipPassword }: AddTaskOptions,
 ) {
-  const notificationId = state.settings.notifications.enableFeedbackNotifications
+  const notificationId = settings.notifications.enableFeedbackNotifications
     ? notify(
         browser.i18n.getMessage("Adding_ZcountZ_downloads", [urls.length]),
         browser.i18n.getMessage("Please_be_patient_this_may_take_some_time"),
@@ -244,7 +249,7 @@ async function addMultipleTasks(
   if (groupedUrls["direct-download"].length > 0) {
     const urls = groupedUrls["direct-download"].map(({ url }) => sanitizeUrlForSynology(url));
     try {
-      const result = await state.api.DownloadStation.Task.Create({
+      const result = await api.DownloadStation.Task.Create({
         uri: urls.map((url) => url.toString()),
         ...commonCreateOptionsV1,
       });
@@ -256,7 +261,7 @@ async function addMultipleTasks(
   }
 
   if (groupedUrls["metadata-file"].length > 0) {
-    const supportsNewApiQueryResult = await state.api.Info.Query({
+    const supportsNewApiQueryResult = await api.Info.Query({
       query: [DownloadStation2.Task.API_NAME],
     });
 
@@ -267,13 +272,13 @@ async function addMultipleTasks(
         supportsNewApiQueryResult.success &&
         supportsNewApiQueryResult.data[DownloadStation2.Task.API_NAME] != null
       ) {
-        return state.api.DownloadStation2.Task.Create({
+        return api.DownloadStation2.Task.Create({
           type: "file",
           file,
           ...commonCreateOptionsV2,
         });
       } else {
-        return state.api.DownloadStation.Task.Create({
+        return api.DownloadStation.Task.Create({
           file,
           ...commonCreateOptionsV1,
         });
@@ -319,11 +324,13 @@ async function addMultipleTasks(
     );
   }
 
-  loadTasks(state);
+  loadTasks(api, updateDownloads);
 }
 
 export async function addDownloadTasksAndReload(
-  state: CommonBackgroundState,
+  settings: Settings,
+  api: SynologyClient,
+  updateDownloads: (downloads: Partial<Downloads>) => void,
   urls: string[],
   options?: AddTaskOptions,
 ): Promise<void> {
@@ -340,8 +347,8 @@ export async function addDownloadTasksAndReload(
       "failure",
     );
   } else if (urls.length === 1) {
-    await addOneTask(state, urls[0], normalizedOptions);
+    await addOneTask(settings, api, updateDownloads, urls[0], normalizedOptions);
   } else {
-    await addMultipleTasks(state, urls, normalizedOptions);
+    await addMultipleTasks(settings, api, updateDownloads, urls, normalizedOptions);
   }
 }

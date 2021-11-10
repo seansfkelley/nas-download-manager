@@ -1,18 +1,18 @@
-import { ClientRequestResult } from "../../common/apis/synology";
+import { ClientRequestResult, SynologyClient } from "../../common/apis/synology";
 import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../../common/apis/errors";
 import { saveLastSevereError } from "../../common/errorHandlers";
-import { CommonBackgroundState, updateStateSingleton } from "../backgroundState";
+import type { Downloads } from "../backgroundState";
 
 let lastRequestId = 0;
 
-export async function loadTasks(state: CommonBackgroundState): Promise<void> {
+export async function loadTasks(
+  api: SynologyClient,
+  updateDownloads: (downloads: Partial<Downloads>) => void,
+): Promise<void> {
   const currentRequestId = ++lastRequestId;
 
-  updateStateSingleton({
-    downloads: {
-      ...state.downloads,
-      tasksLastInitiatedFetchTimestamp: Date.now(),
-    },
+  updateDownloads({
+    tasksLastInitiatedFetchTimestamp: Date.now(),
   });
 
   console.log(`(${currentRequestId}) loading tasks...`);
@@ -21,7 +21,7 @@ export async function loadTasks(state: CommonBackgroundState): Promise<void> {
     let response;
 
     try {
-      response = await state.api.DownloadStation.Task.List({
+      response = await api.DownloadStation.Task.List({
         offset: 0,
         limit: -1,
         additional: ["transfer", "detail"],
@@ -41,41 +41,29 @@ export async function loadTasks(state: CommonBackgroundState): Promise<void> {
 
     if (ClientRequestResult.isConnectionFailure(response)) {
       if (response.type === "missing-config") {
-        updateStateSingleton({
-          downloads: {
-            ...state.downloads,
-            tasksLastCompletedFetchTimestamp: Date.now(),
-            taskFetchFailureReason: "missing-config",
-          },
+        updateDownloads({
+          tasksLastCompletedFetchTimestamp: Date.now(),
+          taskFetchFailureReason: "missing-config",
         });
       } else {
-        updateStateSingleton({
-          downloads: {
-            ...state.downloads,
-            tasksLastCompletedFetchTimestamp: Date.now(),
-            taskFetchFailureReason: {
-              failureMessage: getErrorForConnectionFailure(response),
-            },
+        updateDownloads({
+          tasksLastCompletedFetchTimestamp: Date.now(),
+          taskFetchFailureReason: {
+            failureMessage: getErrorForConnectionFailure(response),
           },
         });
       }
     } else if (response.success) {
-      updateStateSingleton({
-        downloads: {
-          ...state.downloads,
-          tasksLastCompletedFetchTimestamp: Date.now(),
-          tasks: response.data.tasks,
-          taskFetchFailureReason: undefined,
-        },
+      updateDownloads({
+        tasksLastCompletedFetchTimestamp: Date.now(),
+        tasks: response.data.tasks,
+        taskFetchFailureReason: undefined,
       });
     } else {
-      updateStateSingleton({
-        downloads: {
-          ...state.downloads,
-          tasksLastCompletedFetchTimestamp: Date.now(),
-          taskFetchFailureReason: {
-            failureMessage: getErrorForFailedResponse(response),
-          },
+      updateDownloads({
+        tasksLastCompletedFetchTimestamp: Date.now(),
+        taskFetchFailureReason: {
+          failureMessage: getErrorForFailedResponse(response),
         },
       });
     }

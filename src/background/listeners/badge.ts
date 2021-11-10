@@ -1,9 +1,9 @@
 import { filterTasks } from "../../common/filtering";
 import { assertNever } from "../../common/lang";
-import type { CommonBackgroundState } from "../backgroundState";
+import type { ReadonlyListener } from "./types";
 
-export function onChange(state: CommonBackgroundState) {
-  if (state.downloads.taskFetchFailureReason) {
+export const onChange: ReadonlyListener = (settings, downloads) => {
+  if (downloads.taskFetchFailureReason) {
     browser.browserAction.setIcon({
       path: {
         "16": "icons/icon-16-disabled.png",
@@ -31,12 +31,12 @@ export function onChange(state: CommonBackgroundState) {
     });
 
     let taskCount;
-    if (state.settings.badgeDisplayType === "total") {
-      taskCount = state.downloads.tasks.length;
-    } else if (state.settings.badgeDisplayType === "filtered") {
-      taskCount = filterTasks(state.downloads.tasks, state.settings.visibleTasks).length;
+    if (settings.badgeDisplayType === "total") {
+      taskCount = downloads.tasks.length;
+    } else if (settings.badgeDisplayType === "filtered") {
+      taskCount = filterTasks(downloads.tasks, settings.visibleTasks).length;
     } else {
-      assertNever(state.settings.badgeDisplayType);
+      assertNever(settings.badgeDisplayType);
       return; // Can't `return assertNever(...)` because the linter complains.
     }
 
@@ -46,4 +46,4 @@ export function onChange(state: CommonBackgroundState) {
 
     browser.browserAction.setBadgeBackgroundColor({ color: [0, 217, 0, 255] });
   }
-}
+};

@@ -2,12 +2,12 @@ import { ClientRequestResult } from "../common/apis/synology";
 import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../common/apis/errors";
 import { MessageResponse, Message, Result } from "../common/apis/messages";
 import { addDownloadTasksAndReload, loadTasks } from "./actions";
-import { CommonBackgroundState, getReadonlyStateSingleton } from "./backgroundState";
+import { getState, BackgroundState } from "./backgroundState";
 import type { DiscriminateUnion } from "../common/types";
 
 type MessageHandler<T extends Message, U extends Result[keyof Result]> = (
   m: T,
-  state: CommonBackgroundState,
+  state: BackgroundState,
 ) => Promise<U>;
 
 type MessageHandlers = {
@@ -43,47 +43,43 @@ function toMessageResponse<T, U>(
 }
 
 const MESSAGE_HANDLERS: MessageHandlers = {
-  "add-tasks": (m, state) => {
-    return addDownloadTasksAndReload(state, m.urls, m.options);
+  "add-tasks": (m, { settings, api, updateDownloads }) => {
+    return addDownloadTasksAndReload(settings, api, updateDownloads, m.urls, m.options);
   },
-  "poll-tasks": (_m, state) => {
-    return loadTasks(state);
+  "poll-tasks": (_m, { api, updateDownloads }) => {
+    return loadTasks(api, updateDownloads);
   },
-  "pause-task": async (m, state) => {
-    const response = toMessageResponse(
-      await state.api.DownloadStation.Task.Pause({ id: [m.taskId] }),
-    );
+  "pause-task": async (m, { api, updateDownloads }) => {
+    const response = toMessageResponse(await api.DownloadStation.Task.Pause({ id: [m.taskId] }));
     if (response.success) {
-      await loadTasks(state);
+      await loadTasks(api, updateDownloads);
     }
     return response;
   },
-  "resume-task": async (m, state) => {
-    const response = toMessageResponse(
-      await state.api.DownloadStation.Task.Resume({ id: [m.taskId] }),
-    );
+  "resume-task": async (m, { api, updateDownloads }) => {
+    const response = toMessageResponse(await api.DownloadStation.Task.Resume({ id: [m.taskId] }));
     if (response.success) {
-      await loadTasks(state);
+      await loadTasks(api, updateDownloads);
     }
     return response;
   },
-  "delete-tasks": async (m, state) => {
+  "delete-tasks": async (m, { api, updateDownloads }) => {
     const response = toMessageResponse(
-      await state.api.DownloadStation.Task.Delete({ id: m.taskIds, force_complete: false }),
+      await api.DownloadStation.Task.Delete({ id: m.taskIds, force_complete: false }),
     );
     if (response.success) {
-      await loadTasks(state);
+      await loadTasks(api, updateDownloads);
     }
     return response;
   },
-  "get-config": async (_m, state) => {
-    return toMessageResponse(await state.api.DownloadStation.Info.GetConfig(), (data) => data);
+  "get-config": async (_m, { api }) => {
+    return toMessageResponse(await api.DownloadStation.Info.GetConfig(), (data) => data);
   },
-  "list-directories": async (m, state) => {
+  "list-directories": async (m, { api }) => {
     const { path } = m;
     if (path) {
       return toMessageResponse(
-        await state.api.FileStation.List.list({
+        await api.FileStation.List.list({
           folder_path: path,
           sort_by: "name",
           filetype: "dir",
@@ -92,20 +88,20 @@ const MESSAGE_HANDLERS: MessageHandlers = {
       );
     } else {
       return toMessageResponse(
-        await state.api.FileStation.List.list_share({ sort_by: "name" }),
+        await api.FileStation.List.list_share({ sort_by: "name" }),
         (data) => data.shares,
       );
     }
   },
-  "reset-client-session": (_m, state) => {
-    return state.api.Auth.Logout().then(() => undefined);
+  "reset-client-session": (_m, { api }) => {
+    return api.Auth.Logout().then(() => undefined);
   },
 };
 
 export function initializeMessageHandler() {
   browser.runtime.onMessage.addListener((m) => {
     if (Message.is(m)) {
-      return MESSAGE_HANDLERS[m.type](m as any, getReadonlyStateSingleton());
+      return MESSAGE_HANDLERS[m.type](m as any, getState());
     } else {
       console.error("received unhandleable message", m);
       return undefined;
