@@ -2,7 +2,7 @@ import { ClientRequestResult } from "../common/apis/synology";
 import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../common/apis/errors";
 import { MessageResponse, Message, Result } from "../common/apis/messages";
 import { addDownloadTasksAndReload, loadTasks } from "./actions";
-import { getState, BackgroundState } from "./backgroundState";
+import { getStateSingleton, BackgroundState } from "./backgroundState";
 import type { DiscriminateUnion } from "../common/types";
 
 type MessageHandler<T extends Message, U extends Result[keyof Result]> = (
@@ -43,32 +43,39 @@ function toMessageResponse<T, U>(
 }
 
 const MESSAGE_HANDLERS: MessageHandlers = {
-  "add-tasks": (m, { settings, api, updateDownloads }) => {
-    return addDownloadTasksAndReload(settings, api, updateDownloads, m.urls, m.options);
+  "add-tasks": (m, { settings, api, updateDownloads, contextContainer }) => {
+    return addDownloadTasksAndReload(
+      settings,
+      api,
+      updateDownloads,
+      contextContainer,
+      m.urls,
+      m.options,
+    );
   },
-  "poll-tasks": (_m, { api, updateDownloads }) => {
-    return loadTasks(api, updateDownloads);
+  "poll-tasks": (_m, { api, updateDownloads, contextContainer }) => {
+    return loadTasks(api, updateDownloads, contextContainer);
   },
-  "pause-task": async (m, { api, updateDownloads }) => {
+  "pause-task": async (m, { api, updateDownloads, contextContainer }) => {
     const response = toMessageResponse(await api.DownloadStation.Task.Pause({ id: [m.taskId] }));
     if (response.success) {
-      await loadTasks(api, updateDownloads);
+      await loadTasks(api, updateDownloads, contextContainer);
     }
     return response;
   },
-  "resume-task": async (m, { api, updateDownloads }) => {
+  "resume-task": async (m, { api, updateDownloads, contextContainer }) => {
     const response = toMessageResponse(await api.DownloadStation.Task.Resume({ id: [m.taskId] }));
     if (response.success) {
-      await loadTasks(api, updateDownloads);
+      await loadTasks(api, updateDownloads, contextContainer);
     }
     return response;
   },
-  "delete-tasks": async (m, { api, updateDownloads }) => {
+  "delete-tasks": async (m, { api, updateDownloads, contextContainer }) => {
     const response = toMessageResponse(
       await api.DownloadStation.Task.Delete({ id: m.taskIds, force_complete: false }),
     );
     if (response.success) {
-      await loadTasks(api, updateDownloads);
+      await loadTasks(api, updateDownloads, contextContainer);
     }
     return response;
   },
@@ -101,7 +108,7 @@ const MESSAGE_HANDLERS: MessageHandlers = {
 export function initializeMessageHandler() {
   browser.runtime.onMessage.addListener((m) => {
     if (Message.is(m)) {
-      return MESSAGE_HANDLERS[m.type](m as any, getState());
+      return MESSAGE_HANDLERS[m.type](m as any, getStateSingleton());
     } else {
       console.error("received unhandleable message", m);
       return undefined;

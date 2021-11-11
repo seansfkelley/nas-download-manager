@@ -1,15 +1,15 @@
 import { ClientRequestResult, SynologyClient } from "../../common/apis/synology";
 import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../../common/apis/errors";
 import { saveLastSevereError } from "../../common/errorHandlers";
-import type { Downloads } from "../backgroundState";
-
-let lastRequestId = 0;
+import type { Downloads, MutableContextContainer } from "../backgroundState";
 
 export async function loadTasks(
   api: SynologyClient,
   updateDownloads: (downloads: Partial<Downloads>) => void,
+  container: MutableContextContainer,
 ): Promise<void> {
-  const currentRequestId = ++lastRequestId;
+  const context = container.get(loadTasks, { lastRequestId: 0 });
+  const currentRequestId = ++context.lastRequestId;
 
   updateDownloads({
     tasksLastInitiatedFetchTimestamp: Date.now(),
@@ -32,7 +32,7 @@ export async function loadTasks(
       return;
     }
 
-    if (currentRequestId !== lastRequestId) {
+    if (currentRequestId !== context.lastRequestId) {
       console.log(`(${currentRequestId}) result outdated; ignoring`, response);
       return;
     } else {

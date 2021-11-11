@@ -10,6 +10,10 @@ export interface Downloads {
   tasksLastCompletedFetchTimestamp: number | undefined;
 }
 
+export interface MutableContextContainer {
+  get: <T>(key: unknown, initial: T) => T;
+}
+
 export interface BackgroundState {
   // Note that this isn't readonly. Nobody should be listening to changes to this; the way that it's
   // used, the intent is that changes to its settings transparently take effect next time it's needed.
@@ -18,6 +22,7 @@ export interface BackgroundState {
   readonly downloads: Readonly<Downloads>;
   readonly updateSettings: (settings: Settings) => void;
   readonly updateDownloads: (downloads: Partial<Downloads>) => void;
+  readonly contextContainer: MutableContextContainer;
 }
 
 const state: BackgroundState = {
@@ -44,17 +49,30 @@ const state: BackgroundState = {
     function updateDownloads(downloads: Partial<Downloads>) {
       Object.assign(downloadChanges, downloads);
     }
-    onChangeSettings(state.settings, state.api, updateDownloads);
+    onChangeSettings(state.settings, state.api, updateDownloads, state.contextContainer);
     Object.assign(state.downloads, downloadChanges);
-    onChangeState(state.settings, state.downloads);
+    onChangeState(state.settings, state.downloads, state.contextContainer);
   },
   updateDownloads(downloads: Partial<Downloads>): void {
     // Assign this way to guarantee the reference is stable.
     Object.assign(state.downloads, downloads);
-    onChangeState(state.settings, state.downloads);
+    onChangeState(state.settings, state.downloads, state.contextContainer);
   },
+  contextContainer: contextContainer(),
 };
 
-export function getState() {
+function contextContainer(): MutableContextContainer {
+  const storage = new Map<any, any>();
+  return {
+    get: (key, initial) => {
+      if (!storage.has(key)) {
+        storage.set(key, initial);
+      }
+      return storage.get(key);
+    },
+  };
+}
+
+export function getStateSingleton() {
   return state;
 }

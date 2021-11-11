@@ -3,7 +3,7 @@ import { onStoredStateChange, maybeMigrateState } from "../common/state";
 import { saveLastSevereError } from "../common/errorHandlers";
 import { initializeContextMenus } from "./contextMenus";
 import { initializeMessageHandler } from "./messages";
-import { getState } from "./backgroundState";
+import { getStateSingleton } from "./backgroundState";
 
 initializeContextMenus();
 initializeMessageHandler();
@@ -11,7 +11,7 @@ initializeMessageHandler();
 maybeMigrateState()
   .then(() => {
     onStoredStateChange((storedState) => {
-      getState().updateSettings(storedState.settings);
+      getStateSingleton().updateSettings(storedState.settings);
     });
   })
   .catch(saveLastSevereError);

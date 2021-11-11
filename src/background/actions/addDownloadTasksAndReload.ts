@@ -17,7 +17,7 @@ import { resolveUrl, ResolvedUrl, sanitizeUrlForSynology, guessFileNameFromUrl }
 import { loadTasks } from "./loadTasks";
 import type { UnionByDiscriminant } from "../../common/types";
 import type { AddTaskOptions } from "../../common/apis/messages";
-import type { Downloads } from "../backgroundState";
+import type { Downloads, MutableContextContainer } from "../backgroundState";
 import type { Settings } from "../../common/state";
 
 type ArrayifyValues<T extends Record<string, any>> = {
@@ -59,6 +59,7 @@ async function addOneTask(
   settings: Settings,
   api: SynologyClient,
   updateDownloads: (downloads: Partial<Downloads>) => void,
+  container: MutableContextContainer,
   url: string,
   { path, ftpUsername, ftpPassword, unzipPassword }: AddTaskOptions,
 ) {
@@ -135,7 +136,7 @@ async function addOneTask(
         ...commonCreateOptionsV1,
       });
       await reportTaskAddResult(result, guessFileNameFromUrl(url));
-      await loadTasks(api, updateDownloads);
+      await loadTasks(api, updateDownloads, container);
     } catch (e) {
       reportUnexpectedError(notificationId, e, "error while adding direct-download task");
     }
@@ -165,7 +166,7 @@ async function addOneTask(
           });
         }
         await reportTaskAddResult(result, resolvedUrl.filename);
-        await loadTasks(api, updateDownloads);
+        await loadTasks(api, updateDownloads, container);
       }
     } catch (e) {
       reportUnexpectedError(notificationId, e, "error while adding metadata-file task");
@@ -188,6 +189,7 @@ async function addMultipleTasks(
   settings: Settings,
   api: SynologyClient,
   updateDownloads: (downloads: Partial<Downloads>) => void,
+  container: MutableContextContainer,
   urls: string[],
   { path, ftpUsername, ftpPassword, unzipPassword }: AddTaskOptions,
 ) {
@@ -324,13 +326,14 @@ async function addMultipleTasks(
     );
   }
 
-  loadTasks(api, updateDownloads);
+  loadTasks(api, updateDownloads, container);
 }
 
 export async function addDownloadTasksAndReload(
   settings: Settings,
   api: SynologyClient,
   updateDownloads: (downloads: Partial<Downloads>) => void,
+  container: MutableContextContainer,
   urls: string[],
   options?: AddTaskOptions,
 ): Promise<void> {
@@ -347,8 +350,8 @@ export async function addDownloadTasksAndReload(
       "failure",
     );
   } else if (urls.length === 1) {
-    await addOneTask(settings, api, updateDownloads, urls[0], normalizedOptions);
+    await addOneTask(settings, api, updateDownloads, container, urls[0], normalizedOptions);
   } else {
-    await addMultipleTasks(settings, api, updateDownloads, urls, normalizedOptions);
+    await addMultipleTasks(settings, api, updateDownloads, container, urls, normalizedOptions);
   }
 }
