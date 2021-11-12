@@ -1,14 +1,7 @@
+import type { Downloads } from "../common/apis/messages";
 import { SynologyClient } from "../common/apis/synology";
 import type { Settings } from "../common/state";
-import type { DownloadStationTask } from "../common/apis/synology/DownloadStation/Task";
 import { onChangeSettings, onChangeState } from "./listeners";
-
-export interface Downloads {
-  tasks: DownloadStationTask[];
-  taskFetchFailureReason: "missing-config" | { failureMessage: string } | undefined;
-  tasksLastInitiatedFetchTimestamp: number | undefined;
-  tasksLastCompletedFetchTimestamp: number | undefined;
-}
 
 export interface MutableContextContainer {
   get: <T>(key: unknown, initial: T) => T;

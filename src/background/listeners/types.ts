@@ -1,6 +1,7 @@
+import type { Downloads } from "../../common/apis/messages";
 import type { SynologyClient } from "../../common/apis/synology";
 import type { Settings } from "../../common/state";
-import type { Downloads, MutableContextContainer } from "../backgroundState";
+import type { MutableContextContainer } from "../backgroundState";
 
 export type SettingsChangeListener = (
   settings: Readonly<Settings>,

@@ -16,8 +16,8 @@ import {
 import { resolveUrl, ResolvedUrl, sanitizeUrlForSynology, guessFileNameFromUrl } from "./urls";
 import { loadTasks } from "./loadTasks";
 import type { UnionByDiscriminant } from "../../common/types";
-import type { AddTaskOptions } from "../../common/apis/messages";
-import type { Downloads, MutableContextContainer } from "../backgroundState";
+import type { AddTaskOptions, Downloads } from "../../common/apis/messages";
+import type { MutableContextContainer } from "../backgroundState";
 import type { Settings } from "../../common/state";
 
 type ArrayifyValues<T extends Record<string, any>> = {

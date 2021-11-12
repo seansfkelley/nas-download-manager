@@ -1,73 +1,89 @@
 import { ClientRequestResult, SynologyClient } from "../../common/apis/synology";
 import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../../common/apis/errors";
 import { saveLastSevereError } from "../../common/errorHandlers";
-import type { Downloads, MutableContextContainer } from "../backgroundState";
+import type { MutableContextContainer } from "../backgroundState";
+import type { Downloads } from "../../common/apis/messages";
 
 export async function loadTasks(
   api: SynologyClient,
   updateDownloads: (downloads: Partial<Downloads>) => void,
   container: MutableContextContainer,
 ): Promise<void> {
-  const context = container.get(loadTasks, { lastRequestId: 0 });
-  const currentRequestId = ++context.lastRequestId;
-
-  updateDownloads({
-    tasksLastInitiatedFetchTimestamp: Date.now(),
+  const context = container.get(loadTasks, {
+    resolvers: [] as ((v: void) => void)[],
+    currentRequestId: 0,
   });
 
-  console.log(`(${currentRequestId}) loading tasks...`);
+  return new Promise(async (resolve) => {
+    const requestId = ++context.currentRequestId;
 
-  try {
-    let response;
+    console.log(`${requestId} loading tasks...`);
 
+    context.resolvers.push(resolve);
+
+    updateDownloads({
+      tasksLastInitiatedFetchTimestamp: Date.now(),
+    });
+
+    let result;
+    let error;
     try {
-      response = await api.DownloadStation.Task.List({
-        offset: 0,
-        limit: -1,
-        additional: ["transfer", "detail"],
-        timeout: 20000,
-      });
+      result = await performLoad(api);
     } catch (e) {
-      saveLastSevereError(e, "error while fetching list of tasks");
-      return;
+      error = e;
     }
 
-    if (currentRequestId !== context.lastRequestId) {
-      console.log(`(${currentRequestId}) result outdated; ignoring`, response);
-      return;
-    } else {
-      console.log(`(${currentRequestId}) result still relevant; continuing...`, response);
-    }
-
-    if (ClientRequestResult.isConnectionFailure(response)) {
-      if (response.type === "missing-config") {
-        updateDownloads({
-          tasksLastCompletedFetchTimestamp: Date.now(),
-          taskFetchFailureReason: "missing-config",
-        });
+    if (requestId === context.currentRequestId) {
+      console.log(`(${requestId}) result/error is latest; proceeding`, result, error);
+      if (result) {
+        updateDownloads(result);
       } else {
-        updateDownloads({
-          tasksLastCompletedFetchTimestamp: Date.now(),
-          taskFetchFailureReason: {
-            failureMessage: getErrorForConnectionFailure(response),
-          },
-        });
+        saveLastSevereError(error);
       }
-    } else if (response.success) {
-      updateDownloads({
-        tasksLastCompletedFetchTimestamp: Date.now(),
-        tasks: response.data.tasks,
-        taskFetchFailureReason: undefined,
-      });
+      const resolvers = context.resolvers.slice();
+      // Note that this is only safe because we never save a direct reference to the array anywhere.
+      context.resolvers = [];
+      resolvers.forEach((r) => r());
     } else {
-      updateDownloads({
+      console.log(`(${requestId}) result/error is outdated; ignoring`, result, error);
+    }
+  });
+}
+
+async function performLoad(api: SynologyClient): Promise<Partial<Downloads>> {
+  const response = await api.DownloadStation.Task.List({
+    offset: 0,
+    limit: -1,
+    additional: ["transfer", "detail"],
+    timeout: 20000,
+  });
+
+  if (ClientRequestResult.isConnectionFailure(response)) {
+    if (response.type === "missing-config") {
+      return {
+        tasksLastCompletedFetchTimestamp: Date.now(),
+        taskFetchFailureReason: "missing-config",
+      };
+    } else {
+      return {
         tasksLastCompletedFetchTimestamp: Date.now(),
         taskFetchFailureReason: {
-          failureMessage: getErrorForFailedResponse(response),
+          failureMessage: getErrorForConnectionFailure(response),
         },
-      });
+      };
     }
-  } catch (e) {
-    saveLastSevereError(e);
+  } else if (response.success) {
+    return {
+      tasksLastCompletedFetchTimestamp: Date.now(),
+      tasks: response.data.tasks,
+      taskFetchFailureReason: undefined,
+    };
+  } else {
+    return {
+      tasksLastCompletedFetchTimestamp: Date.now(),
+      taskFetchFailureReason: {
+        failureMessage: getErrorForFailedResponse(response),
+      },
+    };
   }
 }

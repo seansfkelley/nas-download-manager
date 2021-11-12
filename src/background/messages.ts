@@ -53,8 +53,14 @@ const MESSAGE_HANDLERS: MessageHandlers = {
       m.options,
     );
   },
-  "poll-tasks": (_m, { api, updateDownloads, contextContainer }) => {
-    return loadTasks(api, updateDownloads, contextContainer);
+  "load-tasks": async (_m, { api, downloads, updateDownloads, contextContainer }) => {
+    await loadTasks(api, updateDownloads, contextContainer);
+    return {
+      success: true,
+      // We are guaranteed that this reference is stable, so it's okay that we pull it from the
+      // parameters before the `await`.
+      result: downloads,
+    };
   },
   "pause-task": async (m, { api, updateDownloads, contextContainer }) => {
     const response = toMessageResponse(await api.DownloadStation.Task.Pause({ id: [m.taskId] }));
