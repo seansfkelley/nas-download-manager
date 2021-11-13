@@ -3,13 +3,13 @@ import { notify } from "../../common/notify";
 import type { Settings } from "../../common/state";
 import { loadTasks } from "../actions";
 import { getStateSingleton } from "../backgroundState";
-import { registerDownloadsChangeListener, registerSettingsChangeListener } from "./registry";
+import type { Listener } from "./registry";
 
 let finishedTaskIds: Set<string> | undefined = undefined;
 let lastSettings: Settings | undefined = undefined;
 let notificationInterval: number | undefined = undefined;
 
-function sendCompletionNotifications() {
+export const sendCompletionNotifications = (() => {
   const { settings, downloads } = getStateSingleton();
 
   if (!isEqual(lastSettings?.notifications, settings.notifications)) {
@@ -41,7 +41,6 @@ function sendCompletionNotifications() {
 
     finishedTaskIds = new Set(updatedFinishedTaskIds);
   }
-}
+}) as Listener;
 
-registerSettingsChangeListener(sendCompletionNotifications);
-registerDownloadsChangeListener(sendCompletionNotifications);
+sendCompletionNotifications.listenTo = ["settings", "downloads"];

@@ -1,20 +1,22 @@
-export type Listener = () => void;
+import { assert } from "../../common/lang";
 
-const settingsListeners: Listener[] = [];
-const downloadsListeners: Listener[] = [];
+export type ListenerType = "settings" | "downloads";
 
-export function registerSettingsChangeListener(listener: Listener) {
-  settingsListeners.push(listener);
+export interface Listener {
+  (): void;
+  listenTo: ListenerType[];
 }
 
-export function registerDownloadsChangeListener(listener: Listener) {
-  downloadsListeners.push(listener);
+const listeners: Record<ListenerType, Listener[]> = {
+  settings: [],
+  downloads: [],
+};
+
+export function registerListener(l: Listener) {
+  assert(l.listenTo.length > 0);
+  l.listenTo.forEach((t) => listeners[t].push(l));
 }
 
-export function notifySettingsChanged() {
-  settingsListeners.forEach((l) => l());
-}
-
-export function notifyDownloadsChanged() {
-  downloadsListeners.forEach((l) => l());
+export function notifyListeners(type: ListenerType) {
+  listeners[type].forEach((l) => l());
 }

@@ -13,7 +13,7 @@ export async function loadTasks(): Promise<void> {
   return new Promise(async (resolve) => {
     const requestId = ++currentRequestId;
 
-    console.log(`${requestId} loading tasks...`);
+    console.log(`(${requestId}) loading tasks...`);
 
     resolvers.push(resolve);
 
@@ -39,8 +39,9 @@ export async function loadTasks(): Promise<void> {
 
       // TODO: This is probably unnecessary, but in theory if the Promise constructor invokes the
       // callback synchronously _and_ these resolvers are synchronous (probably not?) _and_ one of
-      // these resolvers calls loadTasks, we could end up resolving a promise too soon. I have to
-      // find docs which can clarify how sync/which tick of the event loops some of things happen in.
+      // these resolvers calls loadTasks, we could end up resolving a newly-added promise too soon.
+      // I have to find docs which can clarify how sync/which tick of the event loops some of things
+      // happen in.
       const stashedResolvers = resolvers;
       resolvers = [];
       stashedResolvers.forEach((r) => r());

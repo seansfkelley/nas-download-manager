@@ -80,12 +80,10 @@ export class PopupWrapper extends React.PureComponent<{}, State> {
     this.pollTasks();
   }
 
-  pollTasks() {
-    setTimeout(async () => {
-      this.setState({ downloads: await LoadTasks.send() });
-      this.pollTasks();
-    }, 10000);
-  }
+  pollTasks = async () => {
+    this.setState({ downloads: await LoadTasks.send() });
+    setTimeout(this.pollTasks, 10000);
+  };
 }
 
 function updateSettings(settings: Settings) {

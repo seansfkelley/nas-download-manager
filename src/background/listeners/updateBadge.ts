@@ -2,9 +2,9 @@ import type { DownloadStationTask } from "../../common/apis/synology/DownloadSta
 import { filterTasks } from "../../common/filtering";
 import { assertNever } from "../../common/lang";
 import { getStateSingleton } from "../backgroundState";
-import { registerDownloadsChangeListener, registerSettingsChangeListener } from "./registry";
+import type { Listener } from "./registry";
 
-function updateBadge() {
+export const updateBadge = (() => {
   const { settings, downloads } = getStateSingleton();
 
   if (downloads.taskFetchFailureReason) {
@@ -50,7 +50,6 @@ function updateBadge() {
 
     browser.browserAction.setBadgeBackgroundColor({ color: [0, 217, 0, 255] });
   }
-}
+}) as Listener;
 
-registerSettingsChangeListener(updateBadge);
-registerDownloadsChangeListener(updateBadge);
+updateBadge.listenTo = ["settings", "downloads"];

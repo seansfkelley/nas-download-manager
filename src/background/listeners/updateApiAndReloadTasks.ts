@@ -2,11 +2,11 @@ import { SessionName } from "../../common/apis/synology";
 import { getHostUrl } from "../../common/state";
 import { loadTasks } from "../actions";
 import { getStateSingleton } from "../backgroundState";
-import { registerSettingsChangeListener } from "./registry";
+import type { Listener } from "./registry";
 
 let didInitializeSettings = false;
 
-function updateApiAndReloadTasks() {
+export const updateApiAndReloadTasks = (() => {
   const { api, settings, updateDownloads } = getStateSingleton();
 
   const didUpdateSettings = api.updateSettings({
@@ -37,6 +37,6 @@ function updateApiAndReloadTasks() {
     // still get set up and we'll starting pinging in the background.
     didInitializeSettings = true;
   }
-}
+}) as Listener;
 
-registerSettingsChangeListener(updateApiAndReloadTasks);
+updateApiAndReloadTasks.listenTo = ["settings"];

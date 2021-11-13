@@ -2,7 +2,7 @@ import type { Downloads } from "../common/apis/messages";
 import { SynologyClient } from "../common/apis/synology";
 import { assert, DeepReadonly } from "../common/lang";
 import type { Settings } from "../common/state";
-import { notifyDownloadsChanged, notifySettingsChanged } from "./listeners/registry";
+import { notifyListeners } from "./listeners/registry";
 
 // All attributes are guaranteed to stay reference-equal, so you can destructure getStateSingleton()
 // and use the results across `await` boundaries safely, as long as there's only one level of
@@ -37,14 +37,14 @@ const state: BackgroundState = {
     assert(!isUpdatingSettings, "listener loop: settings");
     Object.assign(state.settings, settings);
     isUpdatingSettings = true;
-    notifySettingsChanged();
+    notifyListeners("settings");
     isUpdatingSettings = false;
   },
   updateDownloads(downloads: Partial<Downloads>): void {
     assert(!isUpdatingDownloads, "listener loop: settings");
     Object.assign(state.downloads, downloads);
     isUpdatingDownloads = true;
-    notifyDownloadsChanged();
+    notifyListeners("downloads");
     isUpdatingDownloads = false;
   },
 };
@@ -52,3 +52,5 @@ const state: BackgroundState = {
 export function getStateSingleton() {
   return state;
 }
+
+(window as any).getStateSingleton = getStateSingleton;
