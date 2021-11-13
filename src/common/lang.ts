@@ -44,3 +44,5 @@ export function typesafeMapValues<K extends string, V, U>(
   });
   return result;
 }
+
+export type DeepReadonly<T> = { readonly [K in keyof T]: DeepReadonly<T[K]> };

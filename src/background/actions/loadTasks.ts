@@ -1,25 +1,21 @@
 import { ClientRequestResult, SynologyClient } from "../../common/apis/synology";
 import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../../common/apis/errors";
 import { saveLastSevereError } from "../../common/errorHandlers";
-import type { MutableContextContainer } from "../backgroundState";
 import type { Downloads } from "../../common/apis/messages";
+import { getStateSingleton } from "../backgroundState";
 
-export async function loadTasks(
-  api: SynologyClient,
-  updateDownloads: (downloads: Partial<Downloads>) => void,
-  container: MutableContextContainer,
-): Promise<void> {
-  const context = container.get(loadTasks, {
-    resolvers: [] as ((v: void) => void)[],
-    currentRequestId: 0,
-  });
+let resolvers: ((v: void) => void)[] = [];
+let currentRequestId = 0;
+
+export async function loadTasks(): Promise<void> {
+  const { api, updateDownloads } = getStateSingleton();
 
   return new Promise(async (resolve) => {
-    const requestId = ++context.currentRequestId;
+    const requestId = ++currentRequestId;
 
     console.log(`${requestId} loading tasks...`);
 
-    context.resolvers.push(resolve);
+    resolvers.push(resolve);
 
     updateDownloads({
       tasksLastInitiatedFetchTimestamp: Date.now(),
@@ -33,17 +29,21 @@ export async function loadTasks(
       error = e;
     }
 
-    if (requestId === context.currentRequestId) {
+    if (requestId === currentRequestId) {
       console.log(`(${requestId}) result/error is latest; proceeding`, result, error);
       if (result) {
         updateDownloads(result);
       } else {
         saveLastSevereError(error);
       }
-      const resolvers = context.resolvers.slice();
-      // Note that this is only safe because we never save a direct reference to the array anywhere.
-      context.resolvers = [];
-      resolvers.forEach((r) => r());
+
+      // TODO: This is probably unnecessary, but in theory if the Promise constructor invokes the
+      // callback synchronously _and_ these resolvers are synchronous (probably not?) _and_ one of
+      // these resolvers calls loadTasks, we could end up resolving a promise too soon. I have to
+      // find docs which can clarify how sync/which tick of the event loops some of things happen in.
+      const stashedResolvers = resolvers;
+      resolvers = [];
+      stashedResolvers.forEach((r) => r());
     } else {
       console.log(`(${requestId}) result/error is outdated; ignoring`, result, error);
     }

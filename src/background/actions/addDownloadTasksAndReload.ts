@@ -16,9 +16,8 @@ import {
 import { resolveUrl, ResolvedUrl, sanitizeUrlForSynology, guessFileNameFromUrl } from "./urls";
 import { loadTasks } from "./loadTasks";
 import type { UnionByDiscriminant } from "../../common/types";
-import type { AddTaskOptions, Downloads } from "../../common/apis/messages";
-import type { MutableContextContainer } from "../backgroundState";
-import type { Settings } from "../../common/state";
+import type { AddTaskOptions } from "../../common/apis/messages";
+import { getStateSingleton } from "../backgroundState";
 
 type ArrayifyValues<T extends Record<string, any>> = {
   [K in keyof T]: T[K][];
@@ -56,13 +55,11 @@ function reportUnexpectedError(
 }
 
 async function addOneTask(
-  settings: Settings,
-  api: SynologyClient,
-  updateDownloads: (downloads: Partial<Downloads>) => void,
-  container: MutableContextContainer,
   url: string,
   { path, ftpUsername, ftpPassword, unzipPassword }: AddTaskOptions,
 ) {
+  const { api, settings } = getStateSingleton();
+
   async function reportTaskAddResult(
     result: ClientRequestResult<unknown>,
     filename: string | undefined,
@@ -136,7 +133,7 @@ async function addOneTask(
         ...commonCreateOptionsV1,
       });
       await reportTaskAddResult(result, guessFileNameFromUrl(url));
-      await loadTasks(api, updateDownloads, container);
+      await loadTasks();
     } catch (e) {
       reportUnexpectedError(notificationId, e, "error while adding direct-download task");
     }
@@ -166,7 +163,7 @@ async function addOneTask(
           });
         }
         await reportTaskAddResult(result, resolvedUrl.filename);
-        await loadTasks(api, updateDownloads, container);
+        await loadTasks();
       }
     } catch (e) {
       reportUnexpectedError(notificationId, e, "error while adding metadata-file task");
@@ -186,13 +183,11 @@ async function addOneTask(
 }
 
 async function addMultipleTasks(
-  settings: Settings,
-  api: SynologyClient,
-  updateDownloads: (downloads: Partial<Downloads>) => void,
-  container: MutableContextContainer,
   urls: string[],
   { path, ftpUsername, ftpPassword, unzipPassword }: AddTaskOptions,
 ) {
+  const { api, settings } = getStateSingleton();
+
   const notificationId = settings.notifications.enableFeedbackNotifications
     ? notify(
         browser.i18n.getMessage("Adding_ZcountZ_downloads", [urls.length]),
@@ -326,14 +321,10 @@ async function addMultipleTasks(
     );
   }
 
-  loadTasks(api, updateDownloads, container);
+  loadTasks();
 }
 
 export async function addDownloadTasksAndReload(
-  settings: Settings,
-  api: SynologyClient,
-  updateDownloads: (downloads: Partial<Downloads>) => void,
-  container: MutableContextContainer,
   urls: string[],
   options?: AddTaskOptions,
 ): Promise<void> {
@@ -350,8 +341,8 @@ export async function addDownloadTasksAndReload(
       "failure",
     );
   } else if (urls.length === 1) {
-    await addOneTask(settings, api, updateDownloads, container, urls[0], normalizedOptions);
+    await addOneTask(urls[0], normalizedOptions);
   } else {
-    await addMultipleTasks(settings, api, updateDownloads, container, urls, normalizedOptions);
+    await addMultipleTasks(urls, normalizedOptions);
   }
 }

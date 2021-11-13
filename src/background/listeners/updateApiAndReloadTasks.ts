@@ -1,10 +1,13 @@
 import { SessionName } from "../../common/apis/synology";
 import { getHostUrl } from "../../common/state";
 import { loadTasks } from "../actions";
-import type { SettingsChangeListener } from "./types";
+import { getStateSingleton } from "../backgroundState";
+import { registerSettingsChangeListener } from "./registry";
 
-export const onChange: SettingsChangeListener = (settings, api, updateDownloads, container) => {
-  const context = container.get(onChange, { didInitializeSettings: false });
+let didInitializeSettings = false;
+
+function updateApiAndReloadTasks() {
+  const { api, settings, updateDownloads } = getStateSingleton();
 
   const didUpdateSettings = api.updateSettings({
     baseUrl: getHostUrl(settings.connection),
@@ -21,9 +24,9 @@ export const onChange: SettingsChangeListener = (settings, api, updateDownloads,
       tasksLastInitiatedFetchTimestamp: undefined,
     });
 
-    if (context.didInitializeSettings) {
+    if (didInitializeSettings) {
       // Don't await this -- just let it run in the background.
-      loadTasks(api, updateDownloads, container);
+      loadTasks();
     }
 
     // This is a little bit of a hack, but basically: onStoredStateChange eagerly fires this
@@ -32,6 +35,8 @@ export const onChange: SettingsChangeListener = (settings, api, updateDownloads,
     // configured notifications, we should try to avoid pinging the NAS, since we know we're
     // opening in the background. Hence this boolean. If notifications are enabled, those'll
     // still get set up and we'll starting pinging in the background.
-    context.didInitializeSettings = true;
+    didInitializeSettings = true;
   }
-};
+}
+
+registerSettingsChangeListener(updateApiAndReloadTasks);

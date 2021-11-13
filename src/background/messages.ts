@@ -1,6 +1,6 @@
 import { ClientRequestResult } from "../common/apis/synology";
 import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../common/apis/errors";
-import { MessageResponse, Message, Result } from "../common/apis/messages";
+import { MessageResponse, Message, Result, Downloads } from "../common/apis/messages";
 import { addDownloadTasksAndReload, loadTasks } from "./actions";
 import { getStateSingleton, BackgroundState } from "./backgroundState";
 import type { DiscriminateUnion } from "../common/types";
@@ -43,43 +43,36 @@ function toMessageResponse<T, U>(
 }
 
 const MESSAGE_HANDLERS: MessageHandlers = {
-  "add-tasks": (m, { settings, api, updateDownloads, contextContainer }) => {
-    return addDownloadTasksAndReload(
-      settings,
-      api,
-      updateDownloads,
-      contextContainer,
-      m.urls,
-      m.options,
-    );
+  "add-tasks": (m) => {
+    return addDownloadTasksAndReload(m.urls, m.options);
   },
   "try-get-cached-tasks": async (_, { downloads }) => {
-    return downloads;
+    return downloads as Downloads;
   },
-  "load-tasks": async (_m, { api, downloads, updateDownloads, contextContainer }) => {
-    await loadTasks(api, updateDownloads, contextContainer);
-    return downloads;
+  "load-tasks": async (_m, { downloads }) => {
+    await loadTasks();
+    return downloads as Downloads;
   },
-  "pause-task": async (m, { api, updateDownloads, contextContainer }) => {
+  "pause-task": async (m, { api }) => {
     const response = toMessageResponse(await api.DownloadStation.Task.Pause({ id: [m.taskId] }));
     if (response.success) {
-      await loadTasks(api, updateDownloads, contextContainer);
+      await loadTasks();
     }
     return response;
   },
-  "resume-task": async (m, { api, updateDownloads, contextContainer }) => {
+  "resume-task": async (m, { api }) => {
     const response = toMessageResponse(await api.DownloadStation.Task.Resume({ id: [m.taskId] }));
     if (response.success) {
-      await loadTasks(api, updateDownloads, contextContainer);
+      await loadTasks();
     }
     return response;
   },
-  "delete-tasks": async (m, { api, updateDownloads, contextContainer }) => {
+  "delete-tasks": async (m, { api }) => {
     const response = toMessageResponse(
       await api.DownloadStation.Task.Delete({ id: m.taskIds, force_complete: false }),
     );
     if (response.success) {
-      await loadTasks(api, updateDownloads, contextContainer);
+      await loadTasks();
     }
     return response;
   },

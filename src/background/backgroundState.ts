@@ -1,29 +1,32 @@
 import type { Downloads } from "../common/apis/messages";
 import { SynologyClient } from "../common/apis/synology";
+import { assert, DeepReadonly } from "../common/lang";
 import type { Settings } from "../common/state";
-import { onChangeSettings, onChangeState } from "./listeners";
+import { notifyDownloadsChanged, notifySettingsChanged } from "./listeners/registry";
 
-export interface MutableContextContainer {
-  get: <T>(key: unknown, initial: T) => T;
-}
-
+// All attributes are guaranteed to stay reference-equal, so you can destructure getStateSingleton()
+// and use the results across `await` boundaries safely, as long as there's only one level of
+// destructuring/keeping references to values. The values are still readonly, however -- the update
+// methods must be used to guarantee reference stability and to call listeners.
 export interface BackgroundState {
   // Note that this isn't readonly. Nobody should be listening to changes to this; the way that it's
   // used, the intent is that changes to its settings transparently take effect next time it's needed.
   readonly api: SynologyClient;
-  readonly settings: Readonly<Settings>;
-  readonly downloads: Readonly<Downloads>;
+  readonly settings: DeepReadonly<Settings>;
+  readonly downloads: DeepReadonly<Downloads>;
   readonly updateSettings: (settings: Settings) => void;
   readonly updateDownloads: (downloads: Partial<Downloads>) => void;
-  readonly contextContainer: MutableContextContainer;
 }
+
+let isUpdatingSettings = false;
+let isUpdatingDownloads = false;
 
 const state: BackgroundState = {
   api: new SynologyClient({}),
   // This is a hack, but we know that the only code that runs before this gets set the first time is
   // thunk-y initialization code that won't read this field. It's much more convenient if we can
-  // keep the type non-null.
-  settings: (undefined as any) as Settings,
+  // keep the type as if it's always got all the fields.
+  settings: ({} as any) as Settings,
   downloads: {
     tasks: [],
     taskFetchFailureReason: undefined,
@@ -31,40 +34,20 @@ const state: BackgroundState = {
     tasksLastCompletedFetchTimestamp: undefined,
   },
   updateSettings(settings: Settings): void {
-    // Assign this way to guarantee the reference is stable.
+    assert(!isUpdatingSettings, "listener loop: settings");
     Object.assign(state.settings, settings);
-
-    // Intercept requested changes to downloads, but since these handlers aren't allowed to read
-    // downloads, defer their application all at once, then call the readonly handlers once at the
-    // end. This will produce less churn and fewer weird intermediate states than if we passed the
-    // main implementation of updateDownloads along instead.
-    const downloadChanges: Partial<Downloads> = {};
-    function updateDownloads(downloads: Partial<Downloads>) {
-      Object.assign(downloadChanges, downloads);
-    }
-    onChangeSettings(state.settings, state.api, updateDownloads, state.contextContainer);
-    Object.assign(state.downloads, downloadChanges);
-    onChangeState(state.settings, state.downloads, state.contextContainer);
+    isUpdatingSettings = true;
+    notifySettingsChanged();
+    isUpdatingSettings = false;
   },
   updateDownloads(downloads: Partial<Downloads>): void {
-    // Assign this way to guarantee the reference is stable.
+    assert(!isUpdatingDownloads, "listener loop: settings");
     Object.assign(state.downloads, downloads);
-    onChangeState(state.settings, state.downloads, state.contextContainer);
+    isUpdatingDownloads = true;
+    notifyDownloadsChanged();
+    isUpdatingDownloads = false;
   },
-  contextContainer: contextContainer(),
 };
-
-function contextContainer(): MutableContextContainer {
-  const storage = new Map<any, any>();
-  return {
-    get: (key, initial) => {
-      if (!storage.has(key)) {
-        storage.set(key, initial);
-      }
-      return storage.get(key);
-    },
-  };
-}
 
 export function getStateSingleton() {
   return state;

@@ -1,8 +1,12 @@
+import type { DownloadStationTask } from "../../common/apis/synology/DownloadStation/Task";
 import { filterTasks } from "../../common/filtering";
 import { assertNever } from "../../common/lang";
-import type { ReadonlyListener } from "./types";
+import { getStateSingleton } from "../backgroundState";
+import { registerDownloadsChangeListener, registerSettingsChangeListener } from "./registry";
 
-export const onChange: ReadonlyListener = (settings, downloads) => {
+function updateBadge() {
+  const { settings, downloads } = getStateSingleton();
+
   if (downloads.taskFetchFailureReason) {
     browser.browserAction.setIcon({
       path: {
@@ -34,10 +38,10 @@ export const onChange: ReadonlyListener = (settings, downloads) => {
     if (settings.badgeDisplayType === "total") {
       taskCount = downloads.tasks.length;
     } else if (settings.badgeDisplayType === "filtered") {
-      taskCount = filterTasks(downloads.tasks, settings.visibleTasks).length;
+      taskCount = filterTasks(downloads.tasks as DownloadStationTask[], settings.visibleTasks)
+        .length;
     } else {
       assertNever(settings.badgeDisplayType);
-      return; // Can't `return assertNever(...)` because the linter complains.
     }
 
     browser.browserAction.setBadgeText({
@@ -46,4 +50,7 @@ export const onChange: ReadonlyListener = (settings, downloads) => {
 
     browser.browserAction.setBadgeBackgroundColor({ color: [0, 217, 0, 255] });
   }
-};
+}
+
+registerSettingsChangeListener(updateBadge);
+registerDownloadsChangeListener(updateBadge);
