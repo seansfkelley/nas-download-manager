@@ -169,7 +169,7 @@ export class SettingsForm extends React.PureComponent<Props, State> {
       const formattedDebugLogs = `${
         this.props.lastSevereError
       }\n\nRedacted extension state: ${JSON.stringify(
-        redactState(this.props.extensionState),
+        redactState(this.props.extensionState.settings),
         null,
         2,
       )}`;

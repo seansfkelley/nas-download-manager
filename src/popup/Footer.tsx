@@ -2,12 +2,10 @@ import "./footer.scss";
 import * as React from "react";
 import classNames from "classnames";
 import { moment } from "../common/moment";
-import type { CachedTasks } from "../common/state";
 import { formatMetric1024 } from "../common/format";
+import type { Downloads } from "../common/apis/messages";
 
-export interface Props extends CachedTasks {}
-
-export function Footer(props: Props) {
+export function Footer(props: Downloads) {
   if (props.taskFetchFailureReason === "missing-config") {
     return null;
   }

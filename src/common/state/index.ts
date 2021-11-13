@@ -1,6 +1,7 @@
-import type { ConnectionSettings, State } from "./migrations/latest";
+import type { ConnectionSettings, State, Settings } from "./migrations/latest";
 import { migrateState } from "./migrations/update";
 import { typesafeMapValues } from "../lang";
+import type { Downloads } from "../apis/messages";
 
 export * from "./constants";
 export * from "./listen";
@@ -20,18 +21,22 @@ export async function maybeMigrateState() {
   return browser.storage.local.set<State>(updated);
 }
 
-export function redactState(state: State): object {
-  const sanitizedConnection: Record<keyof ConnectionSettings, boolean> = {
-    ...typesafeMapValues(state.settings.connection, Boolean),
-  };
+export function redactState(settings?: Settings, downloads?: Downloads): object {
+  const redacted: { settings?: object; downloads?: object } = {};
 
-  return {
-    ...state,
-    settings: {
-      ...state.settings,
-      connection: sanitizedConnection,
-    },
-    lastSevereError: state.lastSevereError ? "(omitted for brevity)" : undefined,
-    tasks: state.tasks.length,
-  };
+  if (settings) {
+    redacted.settings = {
+      ...settings,
+      connection: typesafeMapValues(settings.connection, Boolean),
+    };
+  }
+
+  if (downloads) {
+    redacted.downloads = {
+      ...downloads,
+      tasks: downloads.tasks.length,
+    };
+  }
+
+  return redacted;
 }

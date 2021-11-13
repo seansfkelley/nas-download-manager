@@ -16,16 +16,16 @@ import { Task } from "./Task";
 
 export interface Props {
   tasks: DownloadStationTask[];
-  taskFetchFailureReason: "missing-config" | { failureMessage: string } | null;
-  tasksLastInitiatedFetchTimestamp: number | null;
-  tasksLastCompletedFetchTimestamp: number | null;
+  taskFetchFailureReason: "missing-config" | { failureMessage: string } | undefined;
+  tasksLastInitiatedFetchTimestamp: number | undefined;
+  tasksLastCompletedFetchTimestamp: number | undefined;
   visibleTasks: VisibleTaskSettings;
   changeVisibleTasks: (visibleTasks: VisibleTaskSettings) => void;
   taskSort: TaskSortType;
   changeTaskSort: (sort: TaskSortType) => void;
   badgeDisplay: BadgeDisplayType;
   changeBadgeDisplay: (display: BadgeDisplayType) => void;
-  client?: PopupClient;
+  client: PopupClient;
 }
 
 interface State {

@@ -1,9 +1,11 @@
 import * as React from "react";
-import type { State as ExtensionState } from "../common/state";
+import type { Downloads } from "../common/apis/messages";
+import type { Settings } from "../common/state";
 import { FatalError } from "./FatalError";
 
 export interface Props {
-  state: ExtensionState;
+  settings?: Settings;
+  downloads?: Downloads;
 }
 
 export interface State {
@@ -22,7 +24,8 @@ export class FatalErrorWrapper extends React.PureComponent<Props, State> {
         <FatalError
           error={this.state.error}
           errorInfo={this.state.errorInfo}
-          state={this.props.state}
+          settings={this.props.settings}
+          downloads={this.props.downloads}
         />
       );
     } else {

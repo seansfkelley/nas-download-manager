@@ -3,12 +3,14 @@ import * as React from "react";
 
 import { NonIdealState } from "../common/components/NonIdealState";
 import { BUG_REPORT_URL } from "../common/constants";
-import { State as ExtensionState, redactState } from "../common/state";
+import { redactState, Settings } from "../common/state";
+import type { Downloads } from "../common/apis/messages";
 
 export interface Props {
   error: unknown;
   errorInfo?: React.ErrorInfo | undefined;
-  state?: ExtensionState;
+  settings?: Settings;
+  downloads?: Downloads;
 }
 
 export class FatalError extends React.PureComponent<Props, {}> {
@@ -16,7 +18,7 @@ export class FatalError extends React.PureComponent<Props, {}> {
     let redactedState;
 
     try {
-      redactedState = this.props.state ? redactState(this.props.state) : undefined;
+      redactedState = redactState(this.props.settings, this.props.downloads);
     } catch (e) {
       redactedState = undefined;
     }

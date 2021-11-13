@@ -12,10 +12,6 @@ export const SETTING_NAMES = typesafeUnionMembers<keyof Settings>({
 
 const ALL_STORED_STATE_NAMES = typesafeUnionMembers<keyof State>({
   settings: true,
-  tasks: true,
-  taskFetchFailureReason: true,
-  tasksLastInitiatedFetchTimestamp: true,
-  tasksLastCompletedFetchTimestamp: true,
   lastSevereError: true,
   stateVersion: true,
 });

@@ -36,6 +36,10 @@ export interface AddTaskOptions {
   unzipPassword?: string;
 }
 
+export interface TryGetCachedTasks {
+  type: "try-get-cached-tasks";
+}
+
 export interface LoadTasks {
   type: "load-tasks";
 }
@@ -75,6 +79,7 @@ export interface ResetClientSession {
 
 export type Message =
   | AddTasks
+  | TryGetCachedTasks
   | LoadTasks
   | PauseTask
   | ResumeTask
@@ -94,6 +99,7 @@ const MESSAGE_TYPES: Record<Message["type"], true> = {
   "add-tasks": true,
   "delete-tasks": true,
   "pause-task": true,
+  "try-get-cached-tasks": true,
   "load-tasks": true,
   "resume-task": true,
   "get-config": true,
@@ -111,7 +117,8 @@ export const Message = {
 
 export type Result = {
   "add-tasks": void;
-  "load-tasks": MessageResponse<Downloads>;
+  "try-get-cached-tasks": Downloads | undefined;
+  "load-tasks": Downloads;
   "pause-task": MessageResponse;
   "resume-task": MessageResponse;
   "delete-tasks": MessageResponse;
@@ -144,6 +151,8 @@ export const AddTasks = makeMessageOperations(
     options,
   }),
 );
+
+export const TryGetCachedTasks = makeMessageOperations("try-get-cached-tasks", () => ({}));
 
 export const LoadTasks = makeMessageOperations("load-tasks", () => ({}));
 

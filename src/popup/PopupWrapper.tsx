@@ -1,62 +1,93 @@
 import * as React from "react";
 import isEqual from "lodash-es/isEqual";
-import type {
+import {
   Settings,
   VisibleTaskSettings,
   TaskSortType,
   State as ExtensionState,
   BadgeDisplayType,
+  onStoredStateChange,
 } from "../common/state";
 import { Popup } from "./Popup";
 import { getClient, PopupClient } from "./popupClient";
-
-interface Props {
-  state: ExtensionState;
-  updateSettings: (settings: Settings) => void;
-}
+import { Downloads, LoadTasks, TryGetCachedTasks } from "../common/apis/messages";
+import { assert } from "../common/lang";
+import { FatalErrorWrapper } from "./FatalErrorWrapper";
 
 interface State {
+  settings: Settings | undefined;
+  downloads: Downloads | undefined;
   client: PopupClient | undefined;
 }
 
-export class PopupWrapper extends React.PureComponent<Props> {
+export class PopupWrapper extends React.PureComponent<{}, State> {
   state: State = {
-    client: getClient(this.props.state.settings.connection),
+    settings: undefined,
+    downloads: undefined,
+    client: undefined,
   };
 
   render() {
-    return (
-      <Popup
-        tasks={this.props.state.tasks}
-        taskFetchFailureReason={this.props.state.taskFetchFailureReason}
-        tasksLastInitiatedFetchTimestamp={this.props.state.tasksLastInitiatedFetchTimestamp}
-        tasksLastCompletedFetchTimestamp={this.props.state.tasksLastCompletedFetchTimestamp}
-        visibleTasks={this.props.state.settings.visibleTasks}
-        changeVisibleTasks={this.changeVisibleTasks}
-        taskSort={this.props.state.settings.taskSortType}
-        changeTaskSort={this.changeSortType}
-        badgeDisplay={this.props.state.settings.badgeDisplayType}
-        changeBadgeDisplay={this.changeBadgeDisplay}
-        client={this.state.client}
-      />
-    );
+    if (this.state.settings && this.state.downloads && this.state.client) {
+      return (
+        <FatalErrorWrapper settings={this.state.settings} downloads={this.state.downloads}>
+          <Popup
+            tasks={this.state.downloads.tasks}
+            taskFetchFailureReason={this.state.downloads.taskFetchFailureReason}
+            tasksLastInitiatedFetchTimestamp={this.state.downloads.tasksLastInitiatedFetchTimestamp}
+            tasksLastCompletedFetchTimestamp={this.state.downloads.tasksLastCompletedFetchTimestamp}
+            visibleTasks={this.state.settings.visibleTasks}
+            changeVisibleTasks={this.changeVisibleTasks}
+            taskSort={this.state.settings.taskSortType}
+            changeTaskSort={this.changeSortType}
+            badgeDisplay={this.state.settings.badgeDisplayType}
+            changeBadgeDisplay={this.changeBadgeDisplay}
+            client={this.state.client}
+          />
+        </FatalErrorWrapper>
+      );
+    } else {
+      // This should only happen once at the beginning for basically no time. Should we render anything?
+      return null;
+    }
   }
 
   private changeVisibleTasks = (visibleTasks: VisibleTaskSettings) => {
-    this.props.updateSettings({ ...this.props.state.settings, visibleTasks });
+    assert(this.state.settings);
+    updateSettings({ ...this.state.settings, visibleTasks });
   };
 
   private changeSortType = (taskSortType: TaskSortType) => {
-    this.props.updateSettings({ ...this.props.state.settings, taskSortType });
+    assert(this.state.settings);
+    updateSettings({ ...this.state.settings, taskSortType });
   };
 
   private changeBadgeDisplay = (badgeDisplayType: BadgeDisplayType) => {
-    this.props.updateSettings({ ...this.props.state.settings, badgeDisplayType });
+    assert(this.state.settings);
+    updateSettings({ ...this.state.settings, badgeDisplayType });
   };
 
-  UNSAFE_componentWillReceiveProps(nextProps: Props) {
-    if (!isEqual(this.props.state.settings.connection, nextProps.state.settings.connection)) {
-      this.setState({ client: getClient(nextProps.state.settings.connection) });
-    }
+  async componentDidMount() {
+    // TODO: Clear these listeners on unmount?
+    onStoredStateChange(({ settings }) => {
+      if (!isEqual(this.state.settings?.connection, settings.connection)) {
+        this.setState({ client: getClient(settings.connection) });
+      }
+      this.setState({ settings });
+    });
+
+    this.setState({ downloads: await TryGetCachedTasks.send() });
+    this.pollTasks();
   }
+
+  pollTasks() {
+    setTimeout(async () => {
+      this.setState({ downloads: await LoadTasks.send() });
+      this.pollTasks();
+    }, 10000);
+  }
+}
+
+function updateSettings(settings: Settings) {
+  browser.storage.local.set<Partial<ExtensionState>>({ settings });
 }
