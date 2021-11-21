@@ -1,7 +1,7 @@
 import "./task.scss";
 import * as React from "react";
-import startCase from "lodash-es/startCase";
-import upperCase from "lodash-es/upperCase";
+import { default as startCase } from "lodash/startCase";
+import { default as upperCase } from "lodash/upperCase";
 import classNames from "classnames";
 
 import { formatMetric1024, formatTime, formatPercentage } from "../common/format";

@@ -1,4 +1,4 @@
-import isEqual from "lodash-es/isEqual";
+import { default as isEqual } from "lodash/isEqual";
 import { getMutableStateSingleton } from "./backgroundState";
 import { SessionName } from "../common/apis/synology";
 import { getHostUrl, State } from "../common/state";

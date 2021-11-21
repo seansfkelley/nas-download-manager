@@ -16,7 +16,8 @@
     "noUnusedParameters": true,
     "strict": true,
     "importsNotUsedAsValues": "error",
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true
   },
   "exclude": ["node_modules", "lib"]
 }

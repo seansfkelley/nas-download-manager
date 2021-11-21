@@ -1,4 +1,4 @@
-import sortBy from "lodash-es/sortBy";
+import { default as sortBy } from "lodash/sortBy";
 import {
   DownloadStationTask,
   DownloadStationTaskNormalStatus,

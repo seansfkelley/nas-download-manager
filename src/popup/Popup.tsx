@@ -1,7 +1,7 @@
 import "./popup.scss";
 import * as React from "react";
 import classNames from "classnames";
-import throttle from "lodash-es/throttle";
+import { default as throttle } from "lodash/throttle";
 
 import type { DownloadStationTask } from "../common/apis/synology/DownloadStation/Task";
 import type { VisibleTaskSettings, TaskSortType, BadgeDisplayType } from "../common/state";

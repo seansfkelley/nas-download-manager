@@ -1,5 +1,5 @@
 import * as React from "react";
-import uniqueId from "lodash-es/uniqueId";
+import { default as uniqueId } from "lodash/uniqueId";
 
 export interface Props {
   checked: boolean;

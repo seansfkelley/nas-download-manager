@@ -1,4 +1,4 @@
-import uniqueId from "lodash-es/uniqueId";
+import { default as uniqueId } from "lodash/uniqueId";
 
 export type NotificationType = "regular" | "success" | "failure";
 

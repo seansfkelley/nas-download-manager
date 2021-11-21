@@ -1,5 +1,5 @@
 import * as React from "react";
-import isEqual from "lodash-es/isEqual";
+import { default as isEqual } from "lodash/isEqual";
 import type {
   Settings,
   VisibleTaskSettings,
