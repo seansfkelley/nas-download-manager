@@ -4,11 +4,11 @@ import { default as uniqueId } from "lodash/uniqueId";
 import type { ConnectionSettings as ConnectionSettingsObject } from "../common/state";
 import { ClientRequestResult } from "../common/apis/synology";
 import { SettingsList } from "../common/components/SettingsList";
-import { LoginStatus } from "./LoginStatus";
 import { disabledPropAndClassName, kludgeRefSetClassname } from "../common/classnameUtil";
 import type { Overwrite } from "../common/types";
 import { assert } from "../common/lang";
 import { testConnection } from "../common/apis/connection";
+import { LoginStatus, Status } from "../common/components/LoginStatus";
 
 type ConnectionSettingsWithMandatoryPassword = Overwrite<
   ConnectionSettingsObject,
@@ -22,16 +22,13 @@ interface Props {
 
 interface State {
   changedSettings: Partial<ConnectionSettingsWithMandatoryPassword>;
-  loginStatus: "none" | "in-progress" | ClientRequestResult<unknown>;
-  isLoginSlow: boolean;
+  loginStatus: Status;
 }
 
 export class ConnectionSettings extends React.PureComponent<Props, State> {
-  private loginSlowTimeout?: number;
   state: State = {
     changedSettings: {},
     loginStatus: "none",
-    isLoginSlow: false,
   };
 
   render() {
@@ -122,7 +119,7 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
           </li>
 
           <li>
-            <LoginStatus status={this.state.loginStatus} reassureUser={this.state.isLoginSlow} />
+            <LoginStatus status={this.state.loginStatus} />
             <button
               type="submit"
               {...disabledPropAndClassName(
@@ -157,7 +154,6 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
   ) {
     this.setState({
       loginStatus: "none",
-      isLoginSlow: false,
       changedSettings: {
         ...this.state.changedSettings,
         [key]: value,
@@ -166,33 +162,18 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
   }
 
   private testConnectionAndSave = async (settings: ConnectionSettingsWithMandatoryPassword) => {
-    clearTimeout(this.loginSlowTimeout!);
-
     this.setState({
       loginStatus: "in-progress",
-      isLoginSlow: false,
     });
-
-    this.loginSlowTimeout = (setTimeout(() => {
-      this.setState({
-        isLoginSlow: true,
-      });
-    }, 5000) as any) as number;
 
     const result = await testConnection(settings);
 
-    clearTimeout(this.loginSlowTimeout!);
     this.setState({
       loginStatus: result,
-      isLoginSlow: false,
     });
 
     if (!ClientRequestResult.isConnectionFailure(result) && result.success) {
       this.props.saveConnectionSettings(settings);
     }
   };
-
-  componentWillUnmount() {
-    clearTimeout(this.loginSlowTimeout!);
-  }
 }

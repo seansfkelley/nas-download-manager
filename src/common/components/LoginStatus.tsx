@@ -1,21 +1,39 @@
 import "./login-status.scss";
+
 import * as React from "react";
 import classNames from "classnames";
 
-import { ClientRequestResult } from "../common/apis/synology";
-import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../common/apis/errors";
-import { assertNever } from "../common/lang";
+import { ClientRequestResult } from "../apis/synology";
+import { getErrorForConnectionFailure, getErrorForFailedResponse } from "../apis/errors";
+import { assertNever } from "../lang";
+
+export type Status = "none" | "in-progress" | ClientRequestResult<unknown>;
 
 export interface Props {
-  status: "none" | "in-progress" | ClientRequestResult<unknown>;
-  reassureUser: boolean;
+  status: Status;
 }
 
-export function LoginStatus({ status, reassureUser }: Props) {
+export function LoginStatus({ status }: Props) {
+  const [isSlow, setIsSlow] = React.useState(false);
+
+  React.useEffect(() => {
+    if (status === "in-progress") {
+      const timeout = setTimeout(() => {
+        setIsSlow(true);
+      }, 5000);
+      return () => {
+        clearTimeout(timeout);
+      };
+    } else {
+      setIsSlow(false);
+      return () => {}; // appease linter
+    }
+  }, [status]);
+
   if (status === "none") {
     return <StatusDisplay />;
   } else if (status === "in-progress") {
-    const text = reassureUser
+    const text = isSlow
       ? browser.i18n.getMessage("Logging_in_this_is_unusually_slow_is_your_NAS_asleep")
       : browser.i18n.getMessage("Logging_in");
     return <StatusDisplay text={text} icon="fa-sync fa-spin" />;

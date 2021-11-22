@@ -2,13 +2,14 @@ import "./password-form.scss";
 
 import * as React from "react";
 import type { PopupClient } from "./popupClient";
+import { LoginStatus, Status } from "../common/components/LoginStatus";
 
 export interface Props {
   client: PopupClient;
 }
 
 export function PasswordForm(props: Props) {
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [status, setStatus] = React.useState<Status>("none");
   const [password, setPassword] = React.useState("");
 
   return (
@@ -16,22 +17,25 @@ export function PasswordForm(props: Props) {
       className="password-form"
       onSubmit={async (e) => {
         e.preventDefault();
-        setIsLoading(true);
-        await props.client.testConnectionAndLogin(password);
-        setIsLoading(false);
+        setStatus("in-progress");
+        setStatus(await props.client.testConnectionAndLogin(password));
       }}
     >
-      <input
-        type="password"
-        value={password}
-        disabled={isLoading}
-        onChange={(e) => {
-          setPassword(e.currentTarget.value);
-        }}
-      />
-      <button type="submit" disabled={password.length === 0 || isLoading}>
-        {browser.i18n.getMessage("Login")}
-      </button>
+      <div className="centering-wrapper">
+        <input
+          type="password"
+          value={password}
+          disabled={status === "in-progress"}
+          onChange={(e) => {
+            setStatus("none");
+            setPassword(e.currentTarget.value);
+          }}
+        />
+        <button type="submit" disabled={password.length === 0 || status === "in-progress"}>
+          {browser.i18n.getMessage("Login")}
+        </button>
+      </div>
+      <LoginStatus status={status} />
     </form>
   );
 }

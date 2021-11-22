@@ -69,7 +69,10 @@ export class Popup extends React.PureComponent<Props, State> {
         <Header
           isAddingDownload={this.state.isAddingDownload}
           onClickAddDownload={
-            this.props.client != null
+            // This is a bit of an abstraction break-y hack. I don't like the way this.props.client
+            // is non-null if there is a hostname and that's used to indicate if the connection is
+            // in a good state. You should not be able to add downloads if there's no password!
+            this.props.client != null && this.props.taskFetchFailureReason !== "login-required"
               ? () => {
                   this.setState({
                     isAddingDownload: !this.state.isAddingDownload,
@@ -136,7 +139,6 @@ export class Popup extends React.PureComponent<Props, State> {
   };
 
   private renderTaskList() {
-    console.log(this.props);
     if (this.props.taskFetchFailureReason === "missing-config") {
       return (
         <NonIdealState

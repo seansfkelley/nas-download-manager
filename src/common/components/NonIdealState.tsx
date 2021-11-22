@@ -11,7 +11,7 @@ export interface Props {
 export function NonIdealState(props: React.PropsWithChildren<Props>) {
   return (
     <div className={classNames("non-ideal-state", props.className)}>
-      {props.icon && <span className={classNames("fa fa-2x", props.icon)} />}
+      {props.icon && <span className={classNames("main-icon fa fa-2x", props.icon)} />}
       {props.text && <span className="explanation">{props.text}</span>}
       {props.children}
     </div>
