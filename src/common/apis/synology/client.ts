@@ -105,7 +105,7 @@ export class SynologyClient {
     } else {
       return {
         type: "missing-config",
-        which: missingFields.includes("passwd") ? "password" : "other",
+        which: missingFields.length === 1 && missingFields[0] === "passwd" ? "password" : "other",
       };
     }
   }
