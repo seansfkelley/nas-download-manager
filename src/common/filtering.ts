@@ -1,4 +1,5 @@
 import { default as sortBy } from "lodash/sortBy";
+import { default as partition } from "lodash/partition";
 import {
   DownloadStationTask,
   DownloadStationTaskNormalStatus,
@@ -76,23 +77,27 @@ export function sortTasks(
     case "name-desc":
       return sortBy(tasks, (t) => t.title.toLocaleLowerCase()).reverse();
 
-    case "timestamp-completed-asc":
-      return sortBy(tasks, (t) => {
-        if (matchesFilter(t, "completed")) {
-          return t.additional!.detail!.completed_time;
-        } else {
-          return fractionComplete(t);
-        }
-      });
+    case "timestamp-completed-asc": {
+      const [completed, incomplete] = partition(
+        tasks,
+        (t) => matchesFilter(t, "completed") || matchesFilter(t, "uploading"),
+      );
+      return [
+        ...sortBy(incomplete, (t) => -fractionComplete(t)),
+        ...sortBy(completed, (t) => t.additional!.detail!.completed_time),
+      ];
+    }
 
-    case "timestamp-completed-desc":
-      return sortBy(tasks, (t) => {
-        if (matchesFilter(t, "completed")) {
-          return -t.additional!.detail!.completed_time;
-        } else {
-          return 1 - fractionComplete(t);
-        }
-      }).reverse();
+    case "timestamp-completed-desc": {
+      const [completed, incomplete] = partition(
+        tasks,
+        (t) => matchesFilter(t, "completed") || matchesFilter(t, "uploading"),
+      );
+      return [
+        ...sortBy(incomplete, (t) => -fractionComplete(t)),
+        ...sortBy(completed, (t) => -t.additional!.detail!.completed_time),
+      ];
+    }
 
     case "timestamp-added-asc":
       return sortBy(tasks, (t) => t.additional!.detail!.create_time);
