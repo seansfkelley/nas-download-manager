@@ -8,20 +8,24 @@ import {
   ALL_TASK_NORMAL_STATUSES,
 } from "../common/apis/synology/DownloadStation/Task";
 import type { VisibleTaskSettings, TaskSortType } from "./state";
-import { assertNever } from "./lang";
+import { assertNever, recordKeys } from "./lang";
 
 const EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES: {
-  [K in keyof VisibleTaskSettings]?: DownloadStationTaskNormalStatus[];
+  [K in "downloading" | "uploading" | "completed"]: DownloadStationTaskNormalStatus[];
 } = {
   downloading: ["downloading", "extracting", "finishing", "hash_checking"],
   uploading: ["seeding"],
   completed: ["finished"],
 };
 
-const EXPLICITLY_SPECIFIED_TYPES = (Object.keys(
-  EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES,
-) as (keyof VisibleTaskSettings)[]).reduce(
-  (acc, key) => acc.concat(EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES[key]!),
+{
+  // Compile-time unit test.
+  const _1: keyof VisibleTaskSettings = (null as any) as keyof typeof EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES;
+  _1;
+}
+
+const EXPLICITLY_SPECIFIED_TYPES = recordKeys(EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES).reduce(
+  (acc, key) => acc.concat(EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES[key]),
   [] as DownloadStationTaskNormalStatus[],
 );
 
@@ -39,9 +43,6 @@ const TASK_FILTER_TO_TYPES: Record<
   keyof VisibleTaskSettings,
   (DownloadStationTaskNormalStatus | DownloadStationTaskErrorStatus)[]
 > = {
-  downloading: [],
-  uploading: [],
-  completed: [],
   ...EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES,
   errored: ERRORED_TYPES,
   other: OTHER_STATUSES,
