@@ -96,7 +96,7 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
               <input
                 type="password"
                 {...disabledPropAndClassName(!canEditFields)}
-                value={mergedSettings.password}
+                value={mergedSettings.password ?? ""}
                 onChange={(e) => {
                   this.setSetting("password", e.currentTarget.value);
                 }}
