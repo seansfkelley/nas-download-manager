@@ -1,3 +1,5 @@
+import "./connection-settings.scss";
+
 import * as React from "react";
 import { default as uniqueId } from "lodash/uniqueId";
 
@@ -32,11 +34,8 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const connectionDisabledProps = disabledPropAndClassName(
-      this.state.loginStatus === "in-progress",
-    );
+    const canEditFields = this.state.loginStatus !== "in-progress";
     const checkboxId = uniqueId("checkbox-id-");
-
     const mergedSettings = this.getMergedSettings();
 
     return (
@@ -55,7 +54,7 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
               <span>https://</span>
               <input
                 type="text"
-                {...connectionDisabledProps}
+                {...disabledPropAndClassName(!canEditFields)}
                 placeholder={browser.i18n.getMessage("hostname_or_IP_address")}
                 value={mergedSettings.hostname}
                 onChange={(e) => {
@@ -65,7 +64,7 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
               />
               <span>:</span>
               <input
-                {...connectionDisabledProps}
+                {...disabledPropAndClassName(!canEditFields)}
                 type="number"
                 value={mergedSettings.port === 0 ? "" : mergedSettings.port}
                 onChange={(e) => {
@@ -82,7 +81,7 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
             <div className="input">
               <input
                 type="text"
-                {...connectionDisabledProps}
+                {...disabledPropAndClassName(!canEditFields)}
                 value={mergedSettings.username}
                 onChange={(e) => {
                   this.setSetting("username", e.currentTarget.value);
@@ -96,7 +95,7 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
             <div className="input">
               <input
                 type="password"
-                {...connectionDisabledProps}
+                {...disabledPropAndClassName(!canEditFields)}
                 value={mergedSettings.password}
                 onChange={(e) => {
                   this.setSetting("password", e.currentTarget.value);
@@ -105,10 +104,10 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
             </div>
           </li>
 
-          <li>
+          <li className="label-and-input remember-me">
             <input
               type="checkbox"
-              {...disabledPropAndClassName}
+              {...disabledPropAndClassName(!canEditFields)}
               id={checkboxId}
               checked={mergedSettings.rememberPassword}
               onChange={() => {
@@ -123,7 +122,8 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
             <button
               type="submit"
               {...disabledPropAndClassName(
-                !mergedSettings.hostname ||
+                !canEditFields ||
+                  !mergedSettings.hostname ||
                   !mergedSettings.port ||
                   !mergedSettings.username ||
                   !mergedSettings.password ||
