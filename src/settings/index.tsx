@@ -3,15 +3,27 @@ import "../common/init/nonContentContext";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
-import { State as ExtensionState, Logging, onStoredStateChange } from "../common/state";
-import { saveSettings } from "./settingsUtils";
+import { State, Logging, onStoredStateChange, Settings } from "../common/state";
 import { SettingsForm } from "./SettingsForm";
+import { saveLastSevereError } from "../common/errorHandlers";
 
 function clearError() {
   const clearedError: Logging = {
     lastSevereError: undefined,
   };
-  browser.storage.local.set<Partial<ExtensionState>>(clearedError);
+  browser.storage.local.set<Partial<State>>(clearedError);
+}
+
+async function saveSettings(settings: Settings): Promise<boolean> {
+  console.log("persisting settings...");
+  try {
+    await browser.storage.local.set<Partial<State>>({ settings });
+    console.log("done persisting settings");
+    return true;
+  } catch (e) {
+    saveLastSevereError(e);
+    return false;
+  }
 }
 
 const ELEMENT = document.getElementById("body")!;

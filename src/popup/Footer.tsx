@@ -8,7 +8,10 @@ import { formatMetric1024 } from "../common/format";
 export interface Props extends CachedTasks {}
 
 export function Footer(props: Props) {
-  if (props.taskFetchFailureReason === "missing-config") {
+  if (
+    props.taskFetchFailureReason === "missing-config" ||
+    props.taskFetchFailureReason === "login-required"
+  ) {
     return null;
   }
 

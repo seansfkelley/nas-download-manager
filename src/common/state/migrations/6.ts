@@ -1,14 +1,11 @@
+// TODO: This should re-define the properties that are interesting on the type, otherwise
+// this migration is not safe from changes made to the imported typed in the future.
+import type { DownloadStationTask } from "../../apis/synology/DownloadStation/Task";
 import { typesafeOmit } from "../../lang";
 
-import type { State as State_5, CachedTasks as CachedTasks_5, Settings as Settings_5 } from "./5";
+import type { State as State_5, Settings as Settings_5 } from "./5";
 
-export {
-  VisibleTaskSettings,
-  TaskSortType,
-  CachedTasks,
-  NotificationSettings,
-  BadgeDisplayType,
-} from "./5";
+export { VisibleTaskSettings, TaskSortType, NotificationSettings, BadgeDisplayType } from "./5";
 
 export interface StateVersion {
   stateVersion: 6;
@@ -26,11 +23,18 @@ export interface ConnectionSettings {
   rememberPassword: boolean;
 }
 
+export interface CachedTasks {
+  tasks: DownloadStationTask[];
+  taskFetchFailureReason: "missing-config" | "login-required" | { failureMessage: string } | null;
+  tasksLastInitiatedFetchTimestamp: number | null;
+  tasksLastCompletedFetchTimestamp: number | null;
+}
+
 export interface Settings extends Omit<Settings_5, "connection"> {
   connection: ConnectionSettings;
 }
 
-export interface State extends CachedTasks_5, Logging, StateVersion {
+export interface State extends CachedTasks, Logging, StateVersion {
   settings: Settings;
 }
 

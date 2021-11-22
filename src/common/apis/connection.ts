@@ -1,18 +1,5 @@
-import { SessionName, SynologyClient, ClientRequestResult } from "../common/apis/synology";
-import { Settings, getHostUrl, ConnectionSettings, State } from "../common/state";
-import { saveLastSevereError } from "../common/errorHandlers";
-
-export async function saveSettings(settings: Settings): Promise<boolean> {
-  console.log("persisting settings...");
-  try {
-    await browser.storage.local.set<Partial<State>>({ settings });
-    console.log("done persisting settings");
-    return true;
-  } catch (e) {
-    saveLastSevereError(e);
-    return false;
-  }
-}
+import { ConnectionSettings, getHostUrl } from "../state";
+import { ClientRequestResult, SessionName, SynologyClient } from "./synology";
 
 export async function testConnection(
   settings: ConnectionSettings,

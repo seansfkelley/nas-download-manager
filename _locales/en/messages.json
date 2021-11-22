@@ -136,6 +136,10 @@
     "message": "Configure your hostname, username and password in settings.",
     "description": "Body text for popup when no tasks are shown because nothing is configured."
   },
+  "Password_required": {
+    "message": "Password required.",
+    "description": "Body text for popup when user is being asked to log in again."
+  },
   "No_download_tasks": {
     "message": "No download tasks.",
     "description": "Body text for popup when no tasks are shown because there are none."

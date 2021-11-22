@@ -3,6 +3,7 @@ import { SynologyClient, ClientRequestResult } from "../../common/apis/synology"
 import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../../common/apis/errors";
 import type { CachedTasks, State } from "../../common/state";
 import { saveLastSevereError } from "../../common/errorHandlers";
+import { assertNever } from "../../common/lang";
 
 function setCachedTasks(cachedTasks: Partial<CachedTasks>) {
   return browser.storage.local.set<Partial<State>>({
@@ -49,9 +50,17 @@ export async function pollTasks(api: SynologyClient, manager: RequestManager): P
 
     if (ClientRequestResult.isConnectionFailure(response)) {
       if (response.type === "missing-config") {
-        await setCachedTasks({
-          taskFetchFailureReason: "missing-config",
-        });
+        if (response.which === "other") {
+          await setCachedTasks({
+            taskFetchFailureReason: "missing-config",
+          });
+        } else if (response.which === "password") {
+          await setCachedTasks({
+            taskFetchFailureReason: "login-required",
+          });
+        } else {
+          assertNever(response.which);
+        }
       } else {
         await setCachedTasks({
           taskFetchFailureReason: {

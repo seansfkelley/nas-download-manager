@@ -13,10 +13,11 @@ import { AdvancedAddDownloadForm } from "./AdvancedAddDownloadForm";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { Task } from "./Task";
+import { PasswordForm } from "./PasswordForm";
 
 export interface Props {
   tasks: DownloadStationTask[];
-  taskFetchFailureReason: "missing-config" | { failureMessage: string } | null;
+  taskFetchFailureReason: "missing-config" | "login-required" | { failureMessage: string } | null;
   tasksLastInitiatedFetchTimestamp: number | null;
   tasksLastCompletedFetchTimestamp: number | null;
   visibleTasks: VisibleTaskSettings;
@@ -135,6 +136,7 @@ export class Popup extends React.PureComponent<Props, State> {
   };
 
   private renderTaskList() {
+    console.log(this.props);
     if (this.props.taskFetchFailureReason === "missing-config") {
       return (
         <NonIdealState
@@ -144,6 +146,16 @@ export class Popup extends React.PureComponent<Props, State> {
           )}
         />
       );
+    } else if (this.props.taskFetchFailureReason === "login-required") {
+      if (!this.props.client) {
+        return <NonIdealState />;
+      } else {
+        return (
+          <NonIdealState icon="fa-lock" text={browser.i18n.getMessage("Password_required")}>
+            <PasswordForm client={this.props.client} />
+          </NonIdealState>
+        );
+      }
     } else if (this.props.tasksLastCompletedFetchTimestamp == null) {
       return <NonIdealState icon="fa-sync fa-spin" />;
     } else if (this.props.tasks.length === 0) {

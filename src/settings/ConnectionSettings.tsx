@@ -5,10 +5,10 @@ import type { ConnectionSettings as ConnectionSettingsObject } from "../common/s
 import { ClientRequestResult } from "../common/apis/synology";
 import { SettingsList } from "../common/components/SettingsList";
 import { LoginStatus } from "./LoginStatus";
-import { testConnection } from "./settingsUtils";
 import { disabledPropAndClassName, kludgeRefSetClassname } from "../common/classnameUtil";
 import type { Overwrite } from "../common/types";
 import { assert } from "../common/lang";
+import { testConnection } from "../common/apis/connection";
 
 type ConnectionSettingsWithMandatoryPassword = Overwrite<
   ConnectionSettingsObject,
