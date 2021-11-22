@@ -1,3 +1,5 @@
+import type { OmitStrict } from "./types";
+
 export class AssertionError extends Error {}
 
 export function assert(condition: unknown, message?: string): asserts condition {
@@ -26,7 +28,10 @@ export function typesafePick<T extends object, K extends keyof T>(o: T, ...keys:
   return copy;
 }
 
-export function typesafeOmit<T extends object, K extends keyof T>(o: T, ...keys: K[]): Omit<T, K> {
+export function typesafeOmit<T extends object, K extends keyof T>(
+  o: T,
+  ...keys: K[]
+): OmitStrict<T, K> {
   const copy = { ...o };
   keys.forEach((k) => {
     delete copy[k];

@@ -6,6 +6,7 @@ import {
   MAGNET_PROTOCOL,
   startsWithAnyProtocol,
 } from "../../common/apis/protocols";
+import type { OmitStrict } from "../../common/types";
 
 interface MetadataFileType {
   mediaType: string;
@@ -51,7 +52,7 @@ function guessDownloadFileName(url: URL, headers: Headers, metadataFileType: Met
 
 async function fetchWithTimeout(
   url: URL,
-  init: Omit<RequestInit, "credentials" | "signal">,
+  init: OmitStrict<RequestInit, "credentials" | "signal">,
   timeout: number,
 ): Promise<Response> {
   const abortController = new AbortController();

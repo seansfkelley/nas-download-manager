@@ -332,6 +332,18 @@
     "message": "filtered task count",
     "description": "Badge display type."
   },
+  "completed_task_count": {
+    "message": "completed task count",
+    "description": "Badge display type."
+  },
+  "Show_inactive_tasks": {
+    "message": "Show inactive tasks",
+    "description": "Task status filtering checkbox label."
+  },
+  "Tasks_with_nonzero_uploaddownload_speeds_are_active": {
+    "message": "Tasks with non-zero upload/download speeds are active",
+    "description": "Explanatory text for task filtering checkbox."
+  },
   "Connection": {
     "message": "Connection",
     "description": "Header for settings section."

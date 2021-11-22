@@ -5,21 +5,15 @@ export interface Props {
   checked: boolean;
   onChange: () => void;
   label: string;
+  title?: string;
 }
 
-export class SettingsListCheckbox extends React.PureComponent<Props, {}> {
-  render() {
-    const id = uniqueId("checkbox-id-");
-    return (
-      <li>
-        <input
-          id={id}
-          type="checkbox"
-          checked={this.props.checked}
-          onChange={this.props.onChange}
-        />
-        <label htmlFor={id}>{this.props.label}</label>
-      </li>
-    );
-  }
+export function SettingsListCheckbox(props: Props) {
+  const id = uniqueId("checkbox-id-");
+  return (
+    <li title={props.title}>
+      <input id={id} type="checkbox" checked={props.checked} onChange={props.onChange} />
+      <label htmlFor={id}>{props.label}</label>
+    </li>
+  );
 }

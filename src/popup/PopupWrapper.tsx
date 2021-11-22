@@ -37,6 +37,8 @@ export class PopupWrapper extends React.PureComponent<Props> {
         changeTaskSort={this.changeSortType}
         badgeDisplay={this.props.state.settings.badgeDisplayType}
         changeBadgeDisplay={this.changeBadgeDisplay}
+        showInactiveTasks={this.props.state.settings.showInactiveTasks}
+        changeShowInactiveTasks={this.changeShowInactiveTasks}
         client={this.state.client}
       />
     );
@@ -52,6 +54,10 @@ export class PopupWrapper extends React.PureComponent<Props> {
 
   private changeBadgeDisplay = (badgeDisplayType: BadgeDisplayType) => {
     this.props.updateSettings({ ...this.props.state.settings, badgeDisplayType });
+  };
+
+  private changeShowInactiveTasks = (showInactiveTasks: boolean) => {
+    this.props.updateSettings({ ...this.props.state.settings, showInactiveTasks });
   };
 
   UNSAFE_componentWillReceiveProps(nextProps: Props) {

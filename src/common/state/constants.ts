@@ -22,4 +22,5 @@ export const ORDERED_TASK_SORT_TYPE_NAMES: Record<TaskSortType, string> = {
 export const ORDERED_BADGE_DISPLAY_TYPE_NAMES: Record<BadgeDisplayType, string> = {
   total: browser.i18n.getMessage("total_task_count"),
   filtered: browser.i18n.getMessage("filtered_task_count"),
+  completed: browser.i18n.getMessage("completed_task_count"),
 };

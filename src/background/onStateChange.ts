@@ -5,7 +5,7 @@ import { getHostUrl, State } from "../common/state";
 import { notify } from "../common/notify";
 import { pollTasks, clearCachedTasks } from "./actions";
 import { assertNever } from "../common/lang";
-import { filterTasks } from "../common/filtering";
+import { filterTasks, matchesFilter } from "../common/filtering";
 
 const START_TIME = Date.now();
 
@@ -90,7 +90,15 @@ export function onStoredStateChange(storedState: State) {
     if (storedState.settings.badgeDisplayType === "total") {
       taskCount = storedState.tasks.length;
     } else if (storedState.settings.badgeDisplayType === "filtered") {
-      taskCount = filterTasks(storedState.tasks, storedState.settings.visibleTasks).length;
+      taskCount = filterTasks(
+        storedState.tasks,
+        storedState.settings.visibleTasks,
+        storedState.settings.showInactiveTasks,
+      ).length;
+    } else if (storedState.settings.badgeDisplayType === "completed") {
+      taskCount = storedState.tasks.filter(
+        (t) => matchesFilter(t, "completed") || matchesFilter(t, "uploading"),
+      ).length;
     } else {
       assertNever(storedState.settings.badgeDisplayType);
       return; // Can't `return assertNever(...)` because the linter complains.

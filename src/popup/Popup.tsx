@@ -26,6 +26,8 @@ export interface Props {
   changeTaskSort: (sort: TaskSortType) => void;
   badgeDisplay: BadgeDisplayType;
   changeBadgeDisplay: (display: BadgeDisplayType) => void;
+  showInactiveTasks: boolean;
+  changeShowInactiveTasks: (show: boolean) => void;
   client?: PopupClient;
 }
 
@@ -105,9 +107,11 @@ export class Popup extends React.PureComponent<Props, State> {
             visibleTasks={this.props.visibleTasks}
             taskSortType={this.props.taskSort}
             badgeDisplayType={this.props.badgeDisplay}
+            showInactiveTasks={this.props.showInactiveTasks}
             updateTaskTypeVisibility={this.updateTaskTypeVisibility}
             updateTaskSortType={this.props.changeTaskSort}
             updateBadgeDisplayType={this.props.changeBadgeDisplay}
+            updateShowInactiveTasks={this.props.changeShowInactiveTasks}
           />
         </div>
         <div
@@ -163,7 +167,11 @@ export class Popup extends React.PureComponent<Props, State> {
     } else if (this.props.tasks.length === 0) {
       return <NonIdealState text={browser.i18n.getMessage("No_download_tasks")} />;
     } else {
-      const filteredTasks = filterTasks(this.props.tasks, this.props.visibleTasks);
+      const filteredTasks = filterTasks(
+        this.props.tasks,
+        this.props.visibleTasks,
+        this.props.showInactiveTasks,
+      );
       if (filteredTasks.length === 0) {
         return (
           <NonIdealState

@@ -1,6 +1,7 @@
 // TODO: This should re-define the properties that are interesting on the type, otherwise
 // this migration is not safe from changes made to the imported typed in the future.
 import type { DownloadStationTask } from "../../../common/apis/synology/DownloadStation/Task";
+import type { OmitStrict } from "../../types";
 
 import {
   migrate as migrate_1,
@@ -48,10 +49,10 @@ export function migrate(state: State_1): State {
     ...migrate_1(null),
     ...state,
   };
-  delete (state as Omit<State_1, "cachedTasksVersion"> & { cachedTasksVersion?: unknown })
+  delete (state as OmitStrict<State_1, "cachedTasksVersion"> & { cachedTasksVersion?: unknown })
     .cachedTasksVersion;
   return {
-    ...(state as Omit<State_1, "cachedTasksVersion">),
+    ...(state as OmitStrict<State_1, "cachedTasksVersion">),
     // Clear tasks as we changed the shape of the request.
     tasks: [],
     taskFetchFailureReason: null,

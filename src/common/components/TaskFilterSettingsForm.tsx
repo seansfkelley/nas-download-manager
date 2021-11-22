@@ -16,9 +16,11 @@ export interface Props {
   visibleTasks: VisibleTaskSettings;
   taskSortType: TaskSortType;
   badgeDisplayType: BadgeDisplayType;
+  showInactiveTasks: boolean;
   updateTaskTypeVisibility: (taskType: keyof VisibleTaskSettings, visibility: boolean) => void;
   updateTaskSortType: (taskSortType: TaskSortType) => void;
   updateBadgeDisplayType: (badgeDisplayType: BadgeDisplayType) => void;
+  updateShowInactiveTasks: (showInactiveTasks: boolean) => void;
 }
 
 export class TaskFilterSettingsForm extends React.PureComponent<Props> {
@@ -67,6 +69,16 @@ export class TaskFilterSettingsForm extends React.PureComponent<Props> {
             ))}
           </select>
         </div>
+        <SettingsList>
+          <SettingsListCheckbox
+            checked={this.props.showInactiveTasks}
+            onChange={() => {
+              this.props.updateShowInactiveTasks(!this.props.showInactiveTasks);
+            }}
+            label={browser.i18n.getMessage("Show_inactive_tasks")}
+            title={browser.i18n.getMessage("Tasks_with_nonzero_uploaddownload_speeds_are_active")}
+          />
+        </SettingsList>
       </div>
     );
   }

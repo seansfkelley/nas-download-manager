@@ -85,9 +85,11 @@ export class SettingsForm extends React.PureComponent<Props, State> {
           visibleTasks={this.props.extensionState.settings.visibleTasks}
           taskSortType={this.props.extensionState.settings.taskSortType}
           badgeDisplayType={this.props.extensionState.settings.badgeDisplayType}
+          showInactiveTasks={this.props.extensionState.settings.showInactiveTasks}
           updateTaskTypeVisibility={this.updateTaskTypeVisibility}
           updateTaskSortType={this.updateTaskSortType}
           updateBadgeDisplayType={this.updateBadgeDisplayType}
+          updateShowInactiveTasks={this.updateShowInactiveTasks}
         />
 
         <div className="horizontal-separator" />
@@ -228,6 +230,10 @@ export class SettingsForm extends React.PureComponent<Props, State> {
 
   private updateBadgeDisplayType = (badgeDisplayType: BadgeDisplayType) => {
     this.saveSettings({ badgeDisplayType });
+  };
+
+  private updateShowInactiveTasks = (showInactiveTasks: boolean) => {
+    this.saveSettings({ showInactiveTasks });
   };
 
   private updateConnectionSettings = async (

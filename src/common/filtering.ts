@@ -52,15 +52,24 @@ export function matchesFilter(task: DownloadStationTask, filterName: keyof Visib
   return TASK_FILTER_TO_TYPES[filterName].indexOf(task.status) !== -1;
 }
 
-export function filterTasks(tasks: DownloadStationTask[], visibleTasks: VisibleTaskSettings) {
+export function filterTasks(
+  tasks: DownloadStationTask[],
+  visibleTasks: VisibleTaskSettings,
+  showInactiveTasks: boolean,
+) {
   return tasks.filter(
     (t) =>
-      (visibleTasks.downloading && matchesFilter(t, "downloading")) ||
-      (visibleTasks.uploading && matchesFilter(t, "uploading")) ||
-      (visibleTasks.completed && matchesFilter(t, "completed")) ||
-      (visibleTasks.errored && matchesFilter(t, "errored")) ||
-      (visibleTasks.other && matchesFilter(t, "other")),
+      ((visibleTasks.downloading && matchesFilter(t, "downloading")) ||
+        (visibleTasks.uploading && matchesFilter(t, "uploading")) ||
+        (visibleTasks.completed && matchesFilter(t, "completed")) ||
+        (visibleTasks.errored && matchesFilter(t, "errored")) ||
+        (visibleTasks.other && matchesFilter(t, "other"))) &&
+      (showInactiveTasks || isActive(t)),
   );
+}
+
+function isActive(task: DownloadStationTask) {
+  return task.additional!.transfer!.speed_upload > 0 || task.additional!.transfer!.speed_download;
 }
 
 function fractionComplete(task: DownloadStationTask) {

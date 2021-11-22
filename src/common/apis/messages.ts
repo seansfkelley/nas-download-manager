@@ -1,4 +1,4 @@
-import type { DiscriminateUnion } from "../types";
+import type { DiscriminateUnion, OmitStrict } from "../types";
 import type { DownloadStationInfoConfig } from "./synology/DownloadStation/Info";
 
 export interface SuccessMessageResponse<T> {
@@ -115,7 +115,7 @@ export type Result = {
 
 function makeMessageOperations<T extends Message["type"], U extends any[]>(
   type: T,
-  payload: (...args: U) => Omit<DiscriminateUnion<Message, "type", T>, "type">,
+  payload: (...args: U) => OmitStrict<DiscriminateUnion<Message, "type", T>, "type">,
 ) {
   return {
     send: (...args: U) => {

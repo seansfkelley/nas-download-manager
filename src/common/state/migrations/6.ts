@@ -2,6 +2,7 @@
 // this migration is not safe from changes made to the imported typed in the future.
 import type { DownloadStationTask } from "../../apis/synology/DownloadStation/Task";
 import { typesafeOmit } from "../../lang";
+import type { OmitStrict } from "../../types";
 
 import type { State as State_5, Settings as Settings_5 } from "./5";
 
@@ -30,7 +31,7 @@ export interface CachedTasks {
   tasksLastCompletedFetchTimestamp: number | null;
 }
 
-export interface Settings extends Omit<Settings_5, "connection"> {
+export interface Settings extends OmitStrict<Settings_5, "connection"> {
   connection: ConnectionSettings;
 }
 
