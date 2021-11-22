@@ -150,7 +150,10 @@ async function addOneTask(
         let result;
         if (
           supportsNewApiQueryResult.success &&
-          supportsNewApiQueryResult.data[DownloadStation2.Task.API_NAME] != null
+          // Synology seems to have some bizarre malformed implementation of this that has a
+          // maxVersion of 1. Note that the implementation of Create is haredcoded to version 2,
+          // probably for this reason.
+          (supportsNewApiQueryResult.data[DownloadStation2.Task.API_NAME]?.maxVersion ?? 0) >= 2
         ) {
           result = await api.DownloadStation2.Task.Create({
             type: "file",
