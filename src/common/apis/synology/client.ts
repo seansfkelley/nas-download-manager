@@ -252,6 +252,7 @@ export class SynologyClient {
         return settings;
       } else {
         try {
+          // TODO: This should do the same settings-version-checking that `this.proxy` does.
           return await fn(settings.baseUrl, options);
         } catch (e) {
           return ConnectionFailure.from(e);
