@@ -1,5 +1,6 @@
 import * as React from "react";
-import { default as uniqueId } from "lodash/uniqueId";
+
+import { useStableId } from "../hooks/useStableId";
 
 export interface Props {
   checked: boolean;
@@ -9,7 +10,7 @@ export interface Props {
 }
 
 export function SettingsListCheckbox(props: Props) {
-  const id = uniqueId("checkbox-id-");
+  const id = useStableId("checkbox-id-");
   return (
     <li title={props.title}>
       <input id={id} type="checkbox" checked={props.checked} onChange={props.onChange} />

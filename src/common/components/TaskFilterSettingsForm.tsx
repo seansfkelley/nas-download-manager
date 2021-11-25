@@ -1,4 +1,5 @@
 import "./task-filter-settings-form.scss";
+
 import * as React from "react";
 import {
   VisibleTaskSettings,
@@ -23,63 +24,61 @@ export interface Props {
   updateShowInactiveTasks: (showInactiveTasks: boolean) => void;
 }
 
-export class TaskFilterSettingsForm extends React.PureComponent<Props> {
-  render() {
-    return (
-      <div className="task-filter-settings-form">
-        <SettingsList>
-          {recordKeys(ORDERED_VISIBLE_TASK_TYPE_NAMES).map((type) => (
-            <SettingsListCheckbox
-              key={type}
-              checked={this.props.visibleTasks[type]}
-              onChange={() => {
-                this.props.updateTaskTypeVisibility(type, !this.props.visibleTasks[type]);
-              }}
-              label={ORDERED_VISIBLE_TASK_TYPE_NAMES[type]}
-            />
-          ))}
-        </SettingsList>
-        <div className="task-sort-type">
-          <span className="label">{browser.i18n.getMessage("Order_tasks_by")}</span>
-          <select
-            value={this.props.taskSortType}
-            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-              this.props.updateTaskSortType(e.currentTarget.value as TaskSortType);
-            }}
-          >
-            {recordKeys(ORDERED_TASK_SORT_TYPE_NAMES).map((type) => (
-              <option key={type} value={type}>
-                {ORDERED_TASK_SORT_TYPE_NAMES[type]}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="badge-display-type">
-          <span className="label">{browser.i18n.getMessage("Badge_shows")}</span>
-          <select
-            value={this.props.badgeDisplayType}
-            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-              this.props.updateBadgeDisplayType(e.currentTarget.value as BadgeDisplayType);
-            }}
-          >
-            {recordKeys(ORDERED_BADGE_DISPLAY_TYPE_NAMES).map((type) => (
-              <option key={type} value={type}>
-                {ORDERED_BADGE_DISPLAY_TYPE_NAMES[type]}
-              </option>
-            ))}
-          </select>
-        </div>
-        <SettingsList>
+export function TaskFilterSettingsForm(props: Props) {
+  return (
+    <div className="task-filter-settings-form">
+      <SettingsList>
+        {recordKeys(ORDERED_VISIBLE_TASK_TYPE_NAMES).map((type) => (
           <SettingsListCheckbox
-            checked={this.props.showInactiveTasks}
+            key={type}
+            checked={props.visibleTasks[type]}
             onChange={() => {
-              this.props.updateShowInactiveTasks(!this.props.showInactiveTasks);
+              props.updateTaskTypeVisibility(type, !props.visibleTasks[type]);
             }}
-            label={browser.i18n.getMessage("Show_inactive_tasks")}
-            title={browser.i18n.getMessage("Tasks_with_nonzero_uploaddownload_speeds_are_active")}
+            label={ORDERED_VISIBLE_TASK_TYPE_NAMES[type]}
           />
-        </SettingsList>
+        ))}
+      </SettingsList>
+      <div className="task-sort-type">
+        <span className="label">{browser.i18n.getMessage("Order_tasks_by")}</span>
+        <select
+          value={props.taskSortType}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+            props.updateTaskSortType(e.currentTarget.value as TaskSortType);
+          }}
+        >
+          {recordKeys(ORDERED_TASK_SORT_TYPE_NAMES).map((type) => (
+            <option key={type} value={type}>
+              {ORDERED_TASK_SORT_TYPE_NAMES[type]}
+            </option>
+          ))}
+        </select>
       </div>
-    );
-  }
+      <div className="badge-display-type">
+        <span className="label">{browser.i18n.getMessage("Badge_shows")}</span>
+        <select
+          value={props.badgeDisplayType}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+            props.updateBadgeDisplayType(e.currentTarget.value as BadgeDisplayType);
+          }}
+        >
+          {recordKeys(ORDERED_BADGE_DISPLAY_TYPE_NAMES).map((type) => (
+            <option key={type} value={type}>
+              {ORDERED_BADGE_DISPLAY_TYPE_NAMES[type]}
+            </option>
+          ))}
+        </select>
+      </div>
+      <SettingsList>
+        <SettingsListCheckbox
+          checked={props.showInactiveTasks}
+          onChange={() => {
+            props.updateShowInactiveTasks(!props.showInactiveTasks);
+          }}
+          label={browser.i18n.getMessage("Show_inactive_tasks")}
+          title={browser.i18n.getMessage("Tasks_with_nonzero_uploaddownload_speeds_are_active")}
+        />
+      </SettingsList>
+    </div>
+  );
 }

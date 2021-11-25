@@ -1,8 +1,7 @@
 import "./settings-list.scss";
+
 import * as React from "react";
 
-export class SettingsList extends React.PureComponent<{}, {}> {
-  render() {
-    return <ul className="settings-list">{this.props.children}</ul>;
-  }
+export function SettingsList(props: React.PropsWithChildren<{}>) {
+  return <ul className="settings-list">{props.children}</ul>;
 }
