@@ -16,7 +16,7 @@ NAS Download Manager is subject to the same security restrictions as regular bro
 
 ## Why can't I use HTTP (not HTTPS) to connect to the NAS?
 
-As of 2021-12-01, Firefox changed their [add-on policies](https://extensionworkshop.com/documentation/publish/add-on-policies-dec-2021/) to disallow non-encrypted traffic from extensions:
+As of 2021-12-01, Firefox changed their [add-on policies](https://extensionworkshop.com/documentation/publish/add-on-policies/#development-practices) to disallow non-encrypted traffic from extensions:
 
 > Add-ons must use encryption when transporting data remotely.
 
