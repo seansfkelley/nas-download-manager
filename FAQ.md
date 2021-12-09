@@ -10,9 +10,9 @@ You can login again through NAS Download Manager's settings. This will replace t
 
 ## What is an "invalid certificate"?
 
-Certificates are how servers prove to browsers they are who they claim. Browsers will, by default, prevent you from accessing sites with invalid certificates unless you explicitly tell them to ignore the issue.
+Certificates are how servers prove to browsers they are who they claim. Browsers will, by default, prevent you from accessing sites with invalid certificates unless you explicitly tell them to ignore the issue. Self-signed certificates, commonly used with Synology NASes, are generally considered invalid until you manually tell the browser to accept them.
 
-NAS Download Manager is subject to the same security restrictions as regular browser tabs. However, unlike a tab, it is unable to show you the page where you can override the browser's protections. To fix this issue, visit the DSM page in a browser tab using the same hostname/port you use for NAS Download Manager, which should prompt you to override the browser's protections.
+NAS Download Manager is subject to the same security restrictions as regular browser tabs. However, unlike a browser tab, it is unable to show you the page where you can override the browser's protections/tell it to accept a self-signed certificate. To fix this issue, visit the DSM page in a browser tab using the _same hostname/port you use for NAS Download Manager_, which should prompt you to override protections/accept the certificate.
 
 ## Why can't I use HTTP (not HTTPS) to connect to the NAS?
 
