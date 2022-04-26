@@ -133,5 +133,7 @@ export function onStoredStateChange(storedState: State) {
     backgroundState.finishedTaskIds = new Set(updatedFinishedTaskIds);
   }
 
+  backgroundState.extList = storedState.settings.extList;
+
   backgroundState.isInitializingExtension = false;
 }
