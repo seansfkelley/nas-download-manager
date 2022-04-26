@@ -11,7 +11,7 @@ export interface BackgroundState {
   notificationInterval: number | undefined;
   showNonErrorNotifications: boolean;
   isInitializingExtension: boolean;
-  interceptExtensions: string,
+  interceptExtensions: string;
 }
 
 const state: BackgroundState = {

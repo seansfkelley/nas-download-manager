@@ -173,7 +173,7 @@ export class SettingsForm extends React.PureComponent<Props, State> {
                   .split(' ')
                   .filter((s)=>{ return s; })
                   .join(' ');
-                this.saveExtList("interceptExtensions", interceptExtensions);
+                this.saveExtList(interceptExtensions);
               }}
             />
           </div>
