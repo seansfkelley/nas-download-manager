@@ -165,15 +165,15 @@ export class SettingsForm extends React.PureComponent<Props, State> {
           <div className="input">
             <input
               type="text"
-              value={this.props.extensionState.settings.extList}
+              value={this.props.extensionState.settings.interceptExtensions}
               onChange={(e) => {
-                var extList = e.currentTarget.value
+                var interceptExtensions = e.currentTarget.value
                   .replace(/[\;\,\.]/g,' ')// unify various separators into spaces
                   .toLowerCase()
                   .split(' ')
                   .filter((s)=>{ return s; })
                   .join(' ');
-                this.saveExtList("extList", extList);
+                this.saveExtList("interceptExtensions", interceptExtensions);
               }}
             />
           </div>
@@ -282,9 +282,9 @@ export class SettingsForm extends React.PureComponent<Props, State> {
     });
   }
 
-  private saveExtList(extList: string) {
+  private saveExtList(interceptExtensions: string) {
     this.saveSettings({
-      extList,
+      interceptExtensions,
     });
   }
 

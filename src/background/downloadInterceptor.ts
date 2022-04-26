@@ -7,7 +7,7 @@ export function initializeDownloadInterceptor() {
     const state = getMutableStateSingleton();
     var ext, ext_list;
 
-    ext_list = state.extList.split(' ');
+    ext_list = state.interceptExtensions.split(' ');
 
     // has no extension
     if (itm.filename.index('.') < 0) return;

@@ -11,7 +11,7 @@ export interface BackgroundState {
   notificationInterval: number | undefined;
   showNonErrorNotifications: boolean;
   isInitializingExtension: boolean;
-  extList: string,
+  interceptExtensions: string,
 }
 
 const state: BackgroundState = {
@@ -22,7 +22,7 @@ const state: BackgroundState = {
   notificationInterval: undefined,
   showNonErrorNotifications: true,
   isInitializingExtension: true,
-  extList: '',
+  interceptExtensions: '',
 };
 
 export function getMutableStateSingleton() {
