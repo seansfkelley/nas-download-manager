@@ -4,6 +4,10 @@
 
 [![Donate](https://img.shields.io/badge/Donate%20$2-PayPal-brightgreen.svg)](https://paypal.me/downloadmanager/2)
 
+## 🔧 Maintenance Mode 🔧
+
+NAS Download Manager is in maintenance mode. See [the announcement](https://github.com/seansfkelley/nas-download-manager/issues/227) for details.
+
 ## Having an Issue?
 
 If you're here because of an issue with the extension, please check the [FAQ](./FAQ.md) first. If you can't find an answer there, feel free to [open an issue](https://github.com/seansfkelley/nas-download-manager/issues)!
