@@ -136,6 +136,10 @@
     "message": "请在设置中配置主机名和登录信息",
     "description": "Body text for popup when no tasks are shown because nothing is configured."
   },
+  "Password_required": {
+    "message": "需要登录密码",
+    "description": "Body text for popup when user is being asked to log in again."
+  },
   "No_download_tasks": {
     "message": "无下载任务",
     "description": "Body text for popup when no tasks are shown because there are none."
@@ -328,6 +332,18 @@
     "message": "未隐藏的任务数量",
     "description": "Badge display type."
   },
+  "completed_task_count": {
+    "message": "已完成任务数量",
+    "description": "Badge display type."
+  },
+  "Show_inactive_tasks": {
+    "message": "显示非活跃任务",
+    "description": "Task status filtering checkbox label."
+  },
+  "Tasks_with_nonzero_uploaddownload_speeds_are_active": {
+    "message": "活跃任务是指有上传或者下载速度的任务",
+    "description": "Explanatory text for task filtering checkbox."
+  },
   "Connection": {
     "message": "连接设置",
     "description": "Header for settings section."
@@ -351,6 +367,10 @@
   "Password": {
     "message": "密码",
     "description": "Label for field on settings page."
+  },
+  "Remember_Password": {
+    "message": "记住密码",
+    "description": "Label for checkbox on settings page."
   },
   "Login": {
     "message": "测试连接并保存",
@@ -474,8 +494,7 @@
         "content": "$1",
         "example": "1"
       }
-    },
-    "needs_update": true
+    }
   },
   "Unknown_error": {
     "message": "未知错误",
@@ -506,7 +525,11 @@
     "description": "Error message on Synology API call failure."
   },
   "Session_interrupted_by_duplicate_login": {
-    "message": "登录会话被重复登录关闭",
+    "message": "登录会话被重复登录关闭", 
+    "description": "Error message on Synology API call failure."
+  },
+  "SID_not_found": {
+    "message": "无SID",
     "description": "Error message on Synology API call failure."
   },
   "No_such_username_or_incorrect_password": {
