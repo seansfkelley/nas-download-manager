@@ -16,7 +16,7 @@
   },
   "license": "MIT",
   "browserslist": [
-    "since 2019-06"
+    "since 2021-06"
   ],
   "devDependencies": {
     "@types/chai": "^4.0.4",
