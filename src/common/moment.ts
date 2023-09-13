@@ -3,6 +3,7 @@ import "moment/locale/ru";
 import "moment/locale/de";
 import "moment/locale/fr";
 import "moment/locale/zh-cn";
+import "moment/locale/zh-tw";
 
 // Explicitly fall back onto `en` as the default. For "backwards compatibility" (for the last
 // five years!), defining a locale will cause moment to silently set that locale as the
