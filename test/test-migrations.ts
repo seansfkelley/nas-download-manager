@@ -11,6 +11,7 @@ import type { State as State_4 } from "../src/common/state/migrations/4";
 import type { State as State_5 } from "../src/common/state/migrations/5";
 import type { State as State_6 } from "../src/common/state/migrations/6";
 import type { State as State_7 } from "../src/common/state/migrations/7";
+import type { State as State_8 } from "../src/common/state/migrations/8";
 
 interface PreVersioningState_0 {
   connection: {
@@ -60,9 +61,9 @@ const DUMMY_TASK: DownloadStationTask = {
   status: "downloading",
 };
 
-function testMigration<T>(before: T, after: State_7) {
+function testMigration<T, P>(before: T, after: P) {
   const originalBefore = cloneDeep(before);
-  const transitioned = migrateState(before);
+  const transitioned = migrateState(before, after);
 
   expect(before).to.not.deep.equal(after);
   expect(before).to.deep.equal(originalBefore);
@@ -71,7 +72,7 @@ function testMigration<T>(before: T, after: State_7) {
 
 describe("state versioning", () => {
   it("should update to the latest version from pre-version 0", () => {
-    testMigration<PreVersioningState_0>(
+    testMigration<PreVersioningState_0, State_8>(
       {
         connection: {
           protocol: "http",
@@ -99,7 +100,10 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
+            deviceId: "",
+            deviceName: "",
             hostname: "hostname",
+            otpCode: "",
             port: 0,
             username: "username",
             password: "password",
@@ -127,13 +131,13 @@ describe("state versioning", () => {
         tasksLastCompletedFetchTimestamp: null,
         tasksLastInitiatedFetchTimestamp: null,
         lastSevereError: undefined,
-        stateVersion: 7,
+        stateVersion: 8,
       },
     );
   });
 
   it("should update to the latest version from pre-version 1", () => {
-    testMigration<PreVersioningState_1>(
+    testMigration<PreVersioningState_1, State_8>(
       {
         connection: {
           protocol: "http",
@@ -164,7 +168,10 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
+            deviceId: "",
+            deviceName: "",
             hostname: "hostname",
+            otpCode: "",
             port: 0,
             username: "username",
             password: "password",
@@ -193,18 +200,21 @@ describe("state versioning", () => {
         tasksLastCompletedFetchTimestamp: null,
         tasksLastInitiatedFetchTimestamp: null,
         lastSevereError: undefined,
-        stateVersion: 7,
+        stateVersion: 8,
       },
     );
   });
 
   it("should update to the latest version with a degenerate tasks-only state", () => {
-    testMigration<{ tasks: unknown[] }>(
+    testMigration<{ tasks: unknown[] }, State_8>(
       { tasks: [] },
       {
         settings: {
           connection: {
+            deviceId: "",
+            deviceName: "",
             hostname: "",
+            otpCode: "",
             port: 5001,
             username: "",
             password: "",
@@ -233,16 +243,19 @@ describe("state versioning", () => {
         tasksLastCompletedFetchTimestamp: null,
         tasksLastInitiatedFetchTimestamp: null,
         lastSevereError: undefined,
-        stateVersion: 7,
+        stateVersion: 8,
       },
     );
   });
 
   it("should update to the latest version from version 0 (no state)", () => {
-    testMigration<null>(null, {
+    testMigration<null, State_8>(null, {
       settings: {
         connection: {
+          deviceId: "",
+          deviceName: "",
           hostname: "",
+          otpCode: "",
           port: 5001,
           username: "",
           password: "",
@@ -270,12 +283,12 @@ describe("state versioning", () => {
       tasksLastCompletedFetchTimestamp: null,
       tasksLastInitiatedFetchTimestamp: null,
       lastSevereError: undefined,
-      stateVersion: 7,
+      stateVersion: 8,
     });
   });
 
   it("should update to the latest version from version 1 and unset task data and metadata", () => {
-    testMigration<State_1>(
+    testMigration<State_1, State_8>(
       {
         connection: {
           protocol: "http",
@@ -307,7 +320,10 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
+            deviceId: "",
+            deviceName: "",
             hostname: "hostname",
+            otpCode: "",
             port: 0,
             username: "username",
             password: "password",
@@ -335,13 +351,13 @@ describe("state versioning", () => {
         tasksLastCompletedFetchTimestamp: null,
         tasksLastInitiatedFetchTimestamp: null,
         lastSevereError: undefined,
-        stateVersion: 7,
+        stateVersion: 8,
       },
     );
   });
 
   it("should update to the latest version from version 2", () => {
-    testMigration<State_2>(
+    testMigration<State_2, State_8>(
       {
         connection: {
           protocol: "http",
@@ -374,7 +390,10 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
+            deviceId: "",
+            deviceName: "",
             hostname: "hostname",
+            otpCode: "",
             port: 0,
             username: "username",
             password: "password",
@@ -402,13 +421,13 @@ describe("state versioning", () => {
         tasksLastCompletedFetchTimestamp: 0,
         tasksLastInitiatedFetchTimestamp: 0,
         lastSevereError: undefined,
-        stateVersion: 7,
+        stateVersion: 8,
       },
     );
   });
 
   it("should update to the latest version from an erroneous version 2 missing fields", () => {
-    testMigration<Omit<State_2, "taskSortType" | "shouldHandleDownloadLinks">>(
+    testMigration<Omit<State_2, "taskSortType" | "shouldHandleDownloadLinks">, State_8>(
       {
         connection: {
           protocol: "http",
@@ -439,7 +458,10 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
+            deviceId: "",
+            deviceName: "",
             hostname: "hostname",
+            otpCode: "",
             port: 0,
             username: "username",
             password: "password",
@@ -467,13 +489,13 @@ describe("state versioning", () => {
         tasksLastCompletedFetchTimestamp: 0,
         tasksLastInitiatedFetchTimestamp: 0,
         lastSevereError: undefined,
-        stateVersion: 7,
+        stateVersion: 8,
       },
     );
   });
 
   it("should add badgeDisplayType when upgrading from 3 to 4", () => {
-    testMigration<State_3>(
+    testMigration<State_3, State_4>(
       {
         connection: {
           protocol: "http",
@@ -504,43 +526,40 @@ describe("state versioning", () => {
         stateVersion: 3,
       },
       {
-        settings: {
-          connection: {
-            hostname: "hostname",
-            port: 0,
-            username: "username",
-            password: "password",
-            rememberPassword: true,
-          },
-          visibleTasks: {
-            downloading: true,
-            uploading: false,
-            completed: true,
-            errored: false,
-            other: true,
-          },
-          notifications: {
-            enableCompletionNotifications: true,
-            enableFeedbackNotifications: true,
-            completionPollingInterval: 0,
-          },
-          shouldHandleDownloadLinks: true,
-          taskSortType: "name-asc",
-          badgeDisplayType: "total",
-          showInactiveTasks: true,
+        connection: {
+          protocol: "http",
+          hostname: "hostname",
+          port: 0,
+          username: "username",
+          password: "password",
         },
+        visibleTasks: {
+          downloading: true,
+          uploading: false,
+          completed: true,
+          errored: false,
+          other: true,
+        },
+        notifications: {
+          enableCompletionNotifications: true,
+          enableFeedbackNotifications: true,
+          completionPollingInterval: 0,
+        },
+        shouldHandleDownloadLinks: true,
+        taskSortType: "name-asc",
+        badgeDisplayType: "total",
         tasks: [DUMMY_TASK],
         taskFetchFailureReason: "missing-config",
         tasksLastCompletedFetchTimestamp: 0,
         tasksLastInitiatedFetchTimestamp: 0,
         lastSevereError: undefined,
-        stateVersion: 7,
+        stateVersion: 4,
       },
     );
   });
 
   it("should inline settings when upgrading from 4 to 5", () => {
-    testMigration<State_4>(
+    testMigration<State_4, State_5>(
       {
         connection: {
           protocol: "http",
@@ -574,11 +593,11 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
+            protocol: "http",
             hostname: "hostname",
             port: 0,
             username: "username",
             password: "password",
-            rememberPassword: true,
           },
           visibleTasks: {
             downloading: true,
@@ -594,7 +613,6 @@ describe("state versioning", () => {
           },
           taskSortType: "name-asc",
           badgeDisplayType: "total",
-          showInactiveTasks: true,
           shouldHandleDownloadLinks: true,
         },
         tasks: [DUMMY_TASK],
@@ -602,13 +620,13 @@ describe("state versioning", () => {
         tasksLastCompletedFetchTimestamp: 0,
         tasksLastInitiatedFetchTimestamp: 0,
         lastSevereError: undefined,
-        stateVersion: 7,
+        stateVersion: 5,
       },
     );
   });
 
   it("should remove the protocol setting when upgrading from 5 to 6", () => {
-    testMigration<State_5>(
+    testMigration<State_5, State_6>(
       {
         settings: {
           connection: {
@@ -664,7 +682,6 @@ describe("state versioning", () => {
           },
           taskSortType: "name-asc",
           badgeDisplayType: "total",
-          showInactiveTasks: true,
           shouldHandleDownloadLinks: true,
         },
         tasks: [DUMMY_TASK],
@@ -672,13 +689,13 @@ describe("state versioning", () => {
         tasksLastCompletedFetchTimestamp: 0,
         tasksLastInitiatedFetchTimestamp: 0,
         lastSevereError: undefined,
-        stateVersion: 7,
+        stateVersion: 6,
       },
     );
   });
 
   it("should default show-inactive-tasks to true when upgrading from 6 to 7", () => {
-    testMigration<State_6>(
+    testMigration<State_6, State_7>(
       {
         settings: {
           connection: {
@@ -747,11 +764,88 @@ describe("state versioning", () => {
     );
   });
 
+  it("should add 2-FA settings when upgrading from 7 to 8", () => {
+    testMigration<State_7, State_8>(
+      {
+        settings: {
+          connection: {
+            hostname: "hostname",
+            port: 0,
+            username: "username",
+            password: "password",
+            rememberPassword: true,
+          },
+          visibleTasks: {
+            downloading: true,
+            uploading: false,
+            completed: true,
+            errored: false,
+            other: true,
+          },
+          notifications: {
+            enableCompletionNotifications: true,
+            enableFeedbackNotifications: true,
+            completionPollingInterval: 0,
+          },
+          shouldHandleDownloadLinks: true,
+          taskSortType: "name-asc",
+          badgeDisplayType: "total",
+          showInactiveTasks: true,
+        },
+        tasks: [],
+        taskFetchFailureReason: null,
+        tasksLastCompletedFetchTimestamp: null,
+        tasksLastInitiatedFetchTimestamp: null,
+        lastSevereError: undefined,
+        stateVersion: 7,
+      },
+      {
+        settings: {
+          connection: {
+            deviceId: "",
+            deviceName: "",
+            hostname: "hostname",
+            otpCode: "",
+            port: 0,
+            username: "username",
+            password: "password",
+            rememberPassword: true,
+          },
+          visibleTasks: {
+            downloading: true,
+            uploading: false,
+            completed: true,
+            errored: false,
+            other: true,
+          },
+          notifications: {
+            enableCompletionNotifications: true,
+            enableFeedbackNotifications: true,
+            completionPollingInterval: 0,
+          },
+          shouldHandleDownloadLinks: true,
+          taskSortType: "name-asc",
+          badgeDisplayType: "total",
+          showInactiveTasks: true,
+        },
+        tasks: [],
+        taskFetchFailureReason: null,
+        tasksLastCompletedFetchTimestamp: null,
+        tasksLastInitiatedFetchTimestamp: null,
+        lastSevereError: undefined,
+        stateVersion: 8,
+      },
+    );
+  });
+
   it("should do nothing when the state is already latest", () => {
-    const before: State_7 = {
+    const before: State_8 = {
       settings: {
         connection: {
+          deviceId: "",
+          deviceName: "",
           hostname: "hostname",
+          otpCode: "",
           port: 0,
           username: "username",
           password: "password",
@@ -779,13 +873,13 @@ describe("state versioning", () => {
       tasksLastCompletedFetchTimestamp: 0,
       tasksLastInitiatedFetchTimestamp: 0,
       lastSevereError: undefined,
-      stateVersion: 7,
+      stateVersion: 8,
     };
 
-    expect(migrateState(before)).to.equal(before);
+    expect(migrateState(before, before)).to.equal(before);
   });
 
   it("should silently create an empty state if the given version is too new", () => {
-    expect(migrateState({ stateVersion: 999 })).to.deep.equal(migrateState({}));
+    expect(migrateState({ stateVersion: 999 }, null)).to.deep.equal(migrateState({}, null));
   });
 });

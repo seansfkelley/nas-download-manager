@@ -15,7 +15,7 @@ export function getHostUrl(settings: ConnectionSettings) {
 }
 
 export async function maybeMigrateState() {
-  const updated = migrateState(await browser.storage.local.get<any>(null));
+  const updated = migrateState(await browser.storage.local.get<any>(null), null);
   await browser.storage.local.clear();
   return browser.storage.local.set<State>(updated);
 }

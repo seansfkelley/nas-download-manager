@@ -23,14 +23,24 @@ export interface SynologyClientSettings {
   account: string;
   passwd: string;
   session: SessionName;
+  otp_code: string;
+  device_id: string;
+  device_name: string;
 }
 
-const SETTING_NAME_KEYS = typesafeUnionMembers<keyof SynologyClientSettings>({
+const SETTING_NAME_KEY_FLAGS = {
   baseUrl: true,
   account: true,
   passwd: true,
   session: true,
-});
+  otp_code: false,
+  device_id: false,
+  device_name: false,
+};
+
+const SETTING_NAME_KEYS = typesafeUnionMembers<keyof SynologyClientSettings>(
+  SETTING_NAME_KEY_FLAGS,
+);
 
 export type ConnectionFailure =
   | {
@@ -97,8 +107,11 @@ export class SynologyClient {
 
   private getValidatedSettings(): SynologyClientSettings | ConnectionFailure {
     const missingFields = SETTING_NAME_KEYS.filter((k) => {
-      const v = this.settings[k];
-      return v == null || v.length === 0;
+      if (SETTING_NAME_KEY_FLAGS[k]) {
+        const v = this.settings[k];
+        return v == null || v.length === 0;
+      }
+      return false;
     });
     if (missingFields.length === 0) {
       return this.settings as SynologyClientSettings;
@@ -115,24 +128,32 @@ export class SynologyClient {
     if (isConnectionFailure(settings)) {
       return settings;
     } else if (!this.loginPromise) {
-      const { baseUrl, ...restSettings } = settings;
-      this.loginPromise = Auth.Login(baseUrl, {
+      const { baseUrl, device_id, otp_code, ...restSettings } = settings;
+
+      let option: any = {
         ...request,
         ...restSettings,
-        // First try with the lowest version that we can that supports sid, in an attempt to
-        // support the oldest DSMs we can.
         version: 2,
-      })
+      };
+
+      if (device_id) {
+        option.device_id = device_id;
+        option.device_name = settings.device_name;
+        option.version = 6;
+      } else if (otp_code) {
+        option.otp_code = otp_code;
+        option.enable_device_token = "yes";
+        option.version = 6;
+      }
+
+      this.loginPromise = Auth.Login(baseUrl, option)
         .then((response) => {
           // We guess we're on DSM 7, which does not support earlier versions of the API.
           // We'd like to do this with an Info.Query, but DSM 7 erroneously reports that it
           // supports version 2, which it definitely does not.
           if (!response.success && response.error.code === NO_SUCH_METHOD_ERROR_CODE) {
-            return Auth.Login(baseUrl, {
-              ...request,
-              ...restSettings,
-              version: 3,
-            });
+            option.version = 3;
+            return Auth.Login(baseUrl, option);
           } else {
             return response;
           }

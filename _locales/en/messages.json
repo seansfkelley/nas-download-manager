@@ -376,6 +376,10 @@
     "message": "Login",
     "description": "Label for button on settings page."
   },
+  "OTP_Code": {
+    "message": "OTP Code",
+    "description": "Label for field on settings page."
+  },
   "Task_Display_Settings": {
     "message": "Task Display Settings",
     "description": "Header for settings section."

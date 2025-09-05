@@ -117,6 +117,20 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
             <label htmlFor={checkboxId}>{browser.i18n.getMessage("Remember_Password")}</label>
           </li>
 
+          <li className="label-and-input">
+            <span className="label">{browser.i18n.getMessage("OTP_Code")}</span>
+            <div className="input">
+              <input
+                type="text"
+                {...disabledPropAndClassName(!canEditFields)}
+                value={mergedSettings.otpCode ?? ""}
+                onChange={(e) => {
+                  this.setSetting("otpCode", e.currentTarget.value);
+                }}
+              />
+            </div>
+          </li>
+
           <li>
             <LoginStatus status={this.state.loginStatus} />
             <button
@@ -166,6 +180,10 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
       loginStatus: "in-progress",
     });
 
+    if (!settings.deviceName) {
+      settings.deviceName = "device_" + Math.random().toString(36).slice(2, 9);
+    }
+
     const result = await testConnection(settings);
 
     this.setState({
@@ -173,7 +191,16 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
     });
 
     if (!ClientRequestResult.isConnectionFailure(result) && result.success) {
+      if (result.data && "did" in result.data) {
+        let deviceId = (result.data as { did?: string }).did;
+        if (deviceId) {
+          settings.deviceId = deviceId;
+        }
+      }
       this.props.saveConnectionSettings(settings);
+    } else {
+      settings.deviceId = "";
     }
+    settings.otpCode = "";
   };
 }

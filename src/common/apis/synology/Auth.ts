@@ -9,11 +9,16 @@ export interface AuthLoginRequest extends BaseRequest {
   session: SessionName;
   // 2 is the lowest version that actually provides an sid.
   // 3 is the lowest version that DSM 7 supports.
-  version: 2 | 3;
+  // 6 is the lowest version that omit opt code login.
+  version: 2 | 3 | 6;
+  otp_code?: string | undefined;
+  device_id?: string | undefined;
+  device_name?: string | undefined;
 }
 
 export interface AuthLoginResponse {
   sid: string;
+  did?: string | undefined;
 }
 
 export interface AuthLogoutRequest extends BaseRequest {

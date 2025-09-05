@@ -9,6 +9,9 @@ export async function testConnection(
     account: settings.username,
     passwd: settings.password,
     session: SessionName.DownloadStation,
+    otp_code: settings.otpCode,
+    device_id: settings.deviceId,
+    device_name: settings.deviceName,
   });
 
   const loginResult = await api.Auth.Login({ timeout: 30000 });

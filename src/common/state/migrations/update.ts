@@ -6,8 +6,9 @@ import { migrate as migrate3to4 } from "./4";
 import { migrate as migrate4to5 } from "./5";
 import { migrate as migrate5to6 } from "./6";
 import { migrate as migrate6to7 } from "./7";
+import { migrate as migrate7to8 } from "./8";
 
-const LATEST_STATE_VERSION: StateVersion["stateVersion"] = 7;
+const LATEST_STATE_VERSION: StateVersion["stateVersion"] = 8;
 const MIGRATIONS: ((state: any) => any)[] = [
   migrate0to1,
   migrate1to2,
@@ -16,6 +17,7 @@ const MIGRATIONS: ((state: any) => any)[] = [
   migrate4to5,
   migrate5to6,
   migrate6to7,
+  migrate7to8,
 ];
 
 interface AnyStateVersion {
@@ -42,8 +44,19 @@ function getStartingVersion(state: any) {
   }
 }
 
-export function migrateState(state: any | null): State {
+function getTargetVersion(state: any) {
+  if (state == null) {
+    return LATEST_STATE_VERSION;
+  } else if (isVersioned(state)) {
+    return state.stateVersion;
+  } else {
+    return LATEST_STATE_VERSION;
+  }
+}
+
+export function migrateState(state: any | null, target: any | null): State {
   let version = getStartingVersion(state);
+  let target_version = getTargetVersion(target);
 
   if (version > LATEST_STATE_VERSION) {
     // If the user has downgraded the extension for some reason, throw out their state. There isn't
@@ -52,7 +65,7 @@ export function migrateState(state: any | null): State {
     version = 0;
   }
 
-  MIGRATIONS.slice(version).forEach((migration) => {
+  MIGRATIONS.slice(version, target_version).forEach((migration) => {
     state = migration(state);
   });
 
