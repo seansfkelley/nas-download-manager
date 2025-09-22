@@ -418,6 +418,10 @@
       }
     }
   },
+  "Extension_list": {
+    "message": "Intercept download of files with those extensions (space/colon separated)",
+    "description": "Header for settings section."
+  },
   "Debugging_Output": {
     "message": "Debugging Output",
     "description": "Header for settings section."

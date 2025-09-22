@@ -160,6 +160,23 @@ export class SettingsForm extends React.PureComponent<Props, State> {
               DOWNLOAD_ONLY_PROTOCOLS.join(", "),
             ])}
           />
+
+          <span className="label">{browser.i18n.getMessage("Extension_list")}</span>
+          <div className="input">
+            <input
+              type="text"
+              value={this.props.extensionState.settings.interceptExtensions}
+              onChange={(e) => {
+                var interceptExtensions = e.currentTarget.value
+                  .replace(/[\;\,\.]/g,' ')// unify various separators into spaces
+                  .toLowerCase()
+                  .split(' ')
+                  .filter((s)=>{ return s; })
+                  .join(' ');
+                this.saveExtList(interceptExtensions);
+              }}
+            />
+          </div>
         </SettingsList>
 
         {this.maybeRenderDebuggingOutputAndSeparator()}
@@ -262,6 +279,12 @@ export class SettingsForm extends React.PureComponent<Props, State> {
   private setShouldHandleDownloadLinks(shouldHandleDownloadLinks: boolean) {
     this.saveSettings({
       shouldHandleDownloadLinks,
+    });
+  }
+
+  private saveExtList(interceptExtensions: string) {
+    this.saveSettings({
+      interceptExtensions,
     });
   }
 
