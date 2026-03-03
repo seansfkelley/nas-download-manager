@@ -36,8 +36,8 @@ Please note that NAS Download Manager is not an official Synology offering.
 
 The following browsers were supported in earlier versions, but made breaking changes since the extension was released.
 
-- Chrome ([view listing](https://chrome.google.com/webstore/detail/nas-download-manager/iaijiochiiocodhamehbpmdlobhgghgi))
-- Edge (see [how to install from Chrome Web Store](https://support.microsoft.com/en-us/help/4538971/microsoft-edge-add-or-remove-extensions) and use the Chrome link above)
+- Chrome ([view listing](https://chromewebstore.google.com/detail/nas-download-manager/iaijiochiiocodhamehbpmdlobhgghgi))
+- Edge (see [how to install from Chrome Web Store](https://support.microsoft.com/en-US/microsoft-edge/9c0ec68c-2fbc-2f2c-9ff0-bdc76f46b026) and use the Chrome link above)
 - Opera (using the [Install Chrome Extensions](https://addons.opera.com/en/extensions/details/install-chrome-extensions/) extension to install from the Chrome link above)
 
 There are currently no plans to support the following browsers.
