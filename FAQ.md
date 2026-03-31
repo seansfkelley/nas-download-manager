@@ -1,6 +1,6 @@
 # FAQ
 
-If none of the below questions apply to you, feel free to [open an issue](https://github.com/seansfkelley/nas-download-manager/issues/new/choose)!
+If none of the below questions apply to you, feel free to [open an issue](https://github.com/smolyn/nas-download-manager-v7/issues/new/choose)!
 
 ## How do I fix a connection failure?
 
@@ -16,13 +16,11 @@ NAS Download Manager is subject to the same security restrictions as regular bro
 
 ## Why can't I use HTTP (not HTTPS) to connect to the NAS?
 
-As of 2021-12-01, Firefox changed their [add-on policies](https://extensionworkshop.com/documentation/publish/add-on-policies/#development-practices) to disallow non-encrypted traffic from extensions:
+NAS Download Manager only supports HTTPS connections to your NAS. Firefox's [add-on policies](https://extensionworkshop.com/documentation/publish/add-on-policies/#development-practices) require encrypted traffic from extensions:
 
 > Add-ons must use encryption when transporting data remotely.
 
-In version 0.12.0, NAS Download Manager removed the HTTP option to comply with this requirement. As a workaround, you can downgrade to 0.11.1, which will presumably still be permitted by Firefox by virtue of being an older version of the extension.
-
-It is recommended that you set up HTTPS access, though note you may need to [configure your certificates](#what-is-an-invalid-certificate) to allow NAS Download Manager to log in properly.
+It is recommended that you set up HTTPS access on your NAS. Note you may need to [configure your certificates](#what-is-an-invalid-certificate) to allow NAS Download Manager to log in properly.
 
 ## Why is it downloading the .torrent file itself instead of the content of the torrent?
 
@@ -46,9 +44,9 @@ As a potential workaround, you can initiate the download in your browser, cancel
 
 ## Are my username and password stored securely?
 
-Sort of. Your credentials are stored in a place where only NAS Download Manager is able to access them, but unencrypted. Browsers don't yet support encrypted storage for extensions. [Issue #85](https://github.com/seansfkelley/nas-download-manager/issues/85) tracks using that storage if and when it exists.
+Your credentials are stored in a place where only NAS Download Manager is able to access them, but unencrypted. Browsers don't yet support encrypted storage for extensions.
 
-Your credentials are only ever transmitted to the host you specify in the settings. As of version 0.12.0, only HTTPS is permitted, so your credentials are transmitted encrypted. You can also uncheck the "Remember Password" checkbox during login to prevent the extension storing your password in the abovementioned extension-only storage.
+Your credentials are only ever transmitted to the host you specify in the settings over HTTPS, so your credentials are transmitted encrypted. You can also uncheck the "Remember Password" checkbox during login to prevent the extension storing your password.
 
 NAS Download Manager collects and stores only information you provide, and only enough to perform its job. [Read more.](./PRIVACY.md)
 
@@ -56,8 +54,8 @@ NAS Download Manager collects and stores only information you provide, and only 
 
 DSM's "Auto Extract service" feature must be enabled by an admistrator account _and_ the account you use for NAS Download Manager (which does not have to be the same administrator account) has to enable Auto Extract for downloaded files. See the [official Synology documentation](https://www.synology.com/en-global/knowledgebase/DSM/help/DownloadStation/auto_unzip) for more details.
 
-## What's the difference between NAS Download Manager, Synology Download Manager and Synology Download Station?
+## What is this fork?
 
-This extension was previously known as Synology Download Manager, but has since been renamed to NAS Download Manager. There was no change in ownership or development status.
+This extension is a community fork of the original [NAS Download Manager](https://github.com/seansfkelley/nas-download-manager) (previously known as Synology Download Manager). It has been rewritten to use Manifest V3, Svelte 5, and modern Synology DSM 7+ APIs.
 
-This extension is not affiliated with the browser extension for Chrome named Synology Download Station. It does interact with Synology Download Station, the application on Synology NASes.
+This extension is not affiliated with Synology. It interacts with Synology Download Station, the application on Synology NASes.

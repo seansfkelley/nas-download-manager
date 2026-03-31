@@ -1,7 +1,7 @@
 import type { DownloadStationTask } from "../apis/synology/DownloadStation/Task";
 import { typesafeMapValues } from "../lang";
 
-export const BUG_REPORT_URL = "https://github.com/seansfkelley/nas-download-manager/issues/new";
+export const BUG_REPORT_URL = "https://github.com/smolyn/nas-download-manager-v7/issues/new";
 
 export const STATE_VERSION = 1;
 

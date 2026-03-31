@@ -1,20 +1,16 @@
 # NAS Download Manager
 
-> An open source browser extension for adding/managing download tasks to your Synology DiskStation.
+> An open source browser extension for adding/managing download tasks on your Synology DiskStation running DSM 7+.
 
-[![Donate](https://img.shields.io/badge/Donate%20$2-PayPal-brightgreen.svg)](https://paypal.me/downloadmanager/2)
-
-## 🔧 Maintenance Mode 🔧
-
-NAS Download Manager is in maintenance mode. See [the announcement](https://github.com/seansfkelley/nas-download-manager/issues/227) for details.
+This is a community fork of the original [NAS Download Manager](https://github.com/seansfkelley/nas-download-manager), rewritten with Manifest V3, Svelte 5, Vite, and modern Synology DSM 7+ APIs.
 
 ## Having an Issue?
 
-If you're here because of an issue with the extension, please check the [FAQ](./FAQ.md) first. If you can't find an answer there, feel free to [open an issue](https://github.com/seansfkelley/nas-download-manager/issues)!
+If you're here because of an issue with the extension, please check the [FAQ](./FAQ.md) first. If you can't find an answer there, feel free to [open an issue](https://github.com/smolyn/nas-download-manager-v7/issues)!
 
 ## About
 
-NAS Download Manager allows you to add and manage your download tasks on your Synology DiskStation right from your browser. It requires a Synology NAS with DSM version 4 or higher.
+NAS Download Manager allows you to add and manage your download tasks on your Synology DiskStation right from your browser. It requires a Synology NAS with DSM 7 or higher.
 
 Please note that NAS Download Manager is not an official Synology offering.
 
@@ -28,21 +24,11 @@ Please note that NAS Download Manager is not an official Synology offering.
 - System notifications for completed download tasks.
 - Open some types of links (e.g. `magnet:`) in the extension rather than a desktop application.
 
-### Officially Supported Browsers
+### Supported Browsers
 
 - Firefox ([view listing](https://addons.mozilla.org/en-US/firefox/addon/nas-download-manager/))
 
-### Unsupported Browsers
-
-The following browsers were supported in earlier versions, but made breaking changes since the extension was released.
-
-- Chrome ([view listing](https://chrome.google.com/webstore/detail/nas-download-manager/iaijiochiiocodhamehbpmdlobhgghgi))
-- Edge (see [how to install from Chrome Web Store](https://support.microsoft.com/en-us/help/4538971/microsoft-edge-add-or-remove-extensions) and use the Chrome link above)
-- Opera (using the [Install Chrome Extensions](https://addons.opera.com/en/extensions/details/install-chrome-extensions/) extension to install from the Chrome link above)
-
-There are currently no plans to support the following browsers.
-
-- Safari
+Chrome/Chromium is not currently supported. The extension uses the `browser.*` API namespace exclusively. Chrome support would require adding a compatibility layer such as `webextension-polyfill`.
 
 ## Privacy
 
@@ -50,17 +36,15 @@ NAS Download Manager needs your login credentials to communicate with your NAS. 
 
 ## Development
 
-Please note that development is not actively supported on Windows. Some of the below commands may fail and require manually invoking an analogous Windows command instead.
-
 ### Prerequisites
 
 Dependencies are managed with [pnpm](https://pnpm.io/). Install it if you don't already have it.
 
 ### Actively Developing the Extension
 
-These instructions describe how to build and automatically re-build the assets for the extension for quick iteration during active development. For building, optimizing and packaging the extension for distribution, see the next section.
+These instructions describe how to build and automatically re-build the assets for the extension for quick iteration during active development.
 
-Please note that while the build tasks will auto-recompile, the browser may not pick up changes automatically. In particular, changes to code running in the extension's background generally requires you to explicitly refresh the extension (for which there is usually a button in the debugging interface). Changes to language support may require you to remove the development extension entirely and re-add it.
+Please note that while the build tasks will auto-recompile, the browser may not pick up changes automatically. In particular, changes to code running in the extension's background service worker generally requires you to explicitly refresh the extension (for which there is usually a button in the debugging interface). Changes to language support may require you to remove the development extension entirely and re-add it.
 
 1. Install dependencies.
 
@@ -74,11 +58,7 @@ Please note that while the build tasks will auto-recompile, the browser may not 
     pnpm watch
     ```
 
-3. In your browser, navigate to the extension debugging page and open `manifest.json`.
-
-    **Firefox**: `about:debugging` > This Firefox > Load Temporary Add-on...
-
-    ~~**Chrome**: `about:extensions` > Enable "Developer mode" > Load unpacked~~
+3. In Firefox, navigate to `about:debugging` > This Firefox > Load Temporary Add-on... and open `manifest.json`.
 
 ### Packing the Extension for Distribution
 
@@ -108,7 +88,7 @@ Please note that while the build tasks will auto-recompile, the browser may not 
 
 ### Translating the Extension
 
-I need help localizing NAS Download Manager! Read in detail about [how to localize WebExtensions](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Internationalization), or skip to the sections below for short summaries.
+Read in detail about [how to localize WebExtensions](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Internationalization), or skip to the section below for a short summary.
 
 #### Adding a New Language
 
@@ -120,15 +100,3 @@ In order to add the new language, base your translation file off the English mes
 4. Open a pull request!
 
 There are automated checks to ensure that you're only defining translated strings that the extension actually uses.
-
-#### Editing an Existing Language
-
-If you're adding more strings for an incomplete translation, you can use `./scripts/diff-messages <your language code>` to get a list of all the entries you need to add to the `messages.json` in a format that is easily copy-pasted:
-
-```
-$ ./scripts/diff-messages ru
-"Badge_shows": {
-  "message": "Badge shows",
-  "description": "Prefix text for badge-display-type dropdown."
-},
-```
