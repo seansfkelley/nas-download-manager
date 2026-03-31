@@ -26,9 +26,8 @@ Please note that NAS Download Manager is not an official Synology offering.
 
 ### Supported Browsers
 
-- Firefox ([view listing](https://addons.mozilla.org/en-US/firefox/addon/nas-download-manager/))
-
-Chrome/Chromium is not currently supported. The extension uses the `browser.*` API namespace exclusively. Chrome support would require adding a compatibility layer such as `webextension-polyfill`.
+- Firefox 148+ ([view listing](https://addons.mozilla.org/en-US/firefox/addon/nas-download-manager/))
+- Chrome 146+ (untested, but should work — Chrome 146 added `browser.*` namespace support)
 
 ## Privacy
 

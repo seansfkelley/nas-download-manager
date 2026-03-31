@@ -10,9 +10,7 @@ If you're able to reliably reproduce a bug, I recommend you first clear the logs
 
 ## Getting Logs in Chrome
 
-> Chrome is not currently supported. The extension uses the `browser.*` API namespace exclusively (Firefox), not `chrome.*`. Chrome support would require adding a polyfill like `webextension-polyfill` or converting to the `chrome.*` namespace.
-
-If Chrome support is added in the future:
+> Chrome 146+ supports the `browser.*` namespace used by this extension, but Chrome has not been actively tested.
 
 1. Open a new tab and navigate to `chrome://extensions`.
 2. In the top right, toggle the Developer Mode switch on.
