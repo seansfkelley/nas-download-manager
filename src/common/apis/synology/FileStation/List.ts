@@ -130,7 +130,7 @@ export interface FileStationListGetInfoResponse {
 }
 
 const API_NAME = "SYNO.FileStation.List";
-const listBuilder = new ApiBuilder("entry", API_NAME, {
+const listBuilder = new ApiBuilder(API_NAME, {
   apiGroup: "FileStation",
   apiSubgroup: "FileStation.List",
 });

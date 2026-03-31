@@ -1,0 +1,23 @@
+:root {
+  --color-error: #c23030;
+  --color-warning: #d99e0b;
+  --color-success: #0d8050;
+  --color-loading: #137cbd;
+  --color-selected: var(--color-loading);
+  --color-indeterminate: #888;
+  --color-background: #fbfbfb;
+  --color-text: #111;
+  --color-text-faded: #444;
+}
+
+.intent-error {
+  color: var(--color-error);
+}
+
+.intent-warning {
+  color: var(--color-warning);
+}
+
+.intent-success {
+  color: var(--color-success);
+}

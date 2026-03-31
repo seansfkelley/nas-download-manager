@@ -17,7 +17,7 @@ export function formatMetric1024(n: number) {
     }
   }
 
-  return renderString(METRIC_SUFFIXES[METRIC_SUFFIXES.length - 1]);
+  return renderString(METRIC_SUFFIXES.at(-1)!);
 }
 
 export function formatTime(s: number) {

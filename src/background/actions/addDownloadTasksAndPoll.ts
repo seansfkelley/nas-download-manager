@@ -1,25 +1,228 @@
-import {
-  SynologyClient,
-  ClientRequestResult,
-  DownloadStation2,
-  FormFile,
-} from "../../common/apis/synology";
+import { SynologyClient, ClientRequestResult } from "../../common/apis/synology/client";
+import type { FormFile } from "../../common/apis/synology/shared";
 import { getErrorForFailedResponse } from "../../common/apis/errors";
 import { saveLastSevereError } from "../../common/errorHandlers";
 import { assertNever } from "../../common/lang";
 import { notify } from "../../common/notify";
 import {
   ALL_DOWNLOADABLE_PROTOCOLS,
+  AUTO_DOWNLOAD_TORRENT_FILE_PROTOCOLS,
   EMULE_PROTOCOL,
+  MAGNET_PROTOCOL,
   startsWithAnyProtocol,
 } from "../../common/apis/protocols";
-import { resolveUrl, ResolvedUrl, sanitizeUrlForSynology, guessFileNameFromUrl } from "./urls";
 import { pollTasks } from "./pollTasks";
-import type { UnionByDiscriminant } from "../../common/types";
+import type { UnionByDiscriminant, OmitStrict } from "../../common/types";
 import type { AddTaskOptions } from "../../common/apis/messages";
-import type { RequestManager } from "../requestManager";
+import type { RequestManager } from "../backgroundState";
 
-type ArrayifyValues<T extends Record<string, any>> = {
+// --- URL resolution (merged from urls.ts) ---
+
+interface MetadataFileType {
+  mediaType: string;
+  extension: string;
+}
+
+const METADATA_FILE_TYPES: MetadataFileType[] = [
+  { mediaType: "application/x-bittorrent", extension: ".torrent" },
+  { mediaType: "application/x-nzb", extension: ".nzb" },
+];
+
+const ARBITRARY_FILE_FETCH_SIZE_CUTOFF = 1024 * 1024 * 5;
+
+const FILENAME_PROPERTY_REGEX = /filename=("([^"]+)"|([^"][^ ]+))/;
+
+function guessDownloadFileName(url: URL, headers: Headers, metadataFileType: MetadataFileType) {
+  let maybeFilename: string | undefined;
+  const contentDisposition = headers.get("content-disposition");
+  if (contentDisposition != null && contentDisposition.includes("filename=")) {
+    const regexMatch = FILENAME_PROPERTY_REGEX.exec(contentDisposition);
+    maybeFilename = (regexMatch && (regexMatch[2] || regexMatch[3])) || undefined;
+  } else {
+    maybeFilename = url.pathname.slice(url.pathname.lastIndexOf("/") + 1);
+  }
+
+  if (maybeFilename == null || maybeFilename.length === 0) {
+    maybeFilename = "download";
+  }
+
+  return maybeFilename.endsWith(metadataFileType.extension)
+    ? maybeFilename
+    : maybeFilename + metadataFileType.extension;
+}
+
+async function fetchWithTimeout(
+  url: URL,
+  init: OmitStrict<RequestInit, "credentials" | "signal">,
+  timeout: number,
+): Promise<Response> {
+  const abortController = new AbortController();
+  const timeoutTimer = setTimeout(() => {
+    abortController.abort();
+  }, timeout);
+
+  try {
+    return await fetch(url.toString(), {
+      ...init,
+      credentials: "include",
+      signal: abortController.signal,
+    });
+  } finally {
+    clearTimeout(timeoutTimer);
+  }
+}
+
+async function getMetadataFileType(url: URL) {
+  const headResponse = await fetchWithTimeout(url, { method: "HEAD" }, 10000);
+
+  if (!headResponse.ok) {
+    return undefined;
+  }
+
+  const contentType = (headResponse.headers.get("content-type") ?? "").toLowerCase();
+  const metadataFileType = METADATA_FILE_TYPES.find(
+    (fileType) =>
+      contentType.includes(fileType.mediaType) || url.pathname.endsWith(fileType.extension),
+  );
+  const rawContentLength = headResponse.headers.get("content-length");
+  const contentLength =
+    rawContentLength == null || isNaN(+rawContentLength) ? undefined : +rawContentLength;
+
+  return metadataFileType &&
+    // Optimistically assume that metadata files aren't ridiculously huge if their size is not reported.
+    (contentLength == null || contentLength < ARBITRARY_FILE_FETCH_SIZE_CUTOFF)
+    ? metadataFileType
+    : undefined;
+}
+
+export const EMULE_FILENAME_REGEX = /\|file\|([^|]+)\|/;
+
+function guessFileNameFromUrl(url: string): string | undefined {
+  if (startsWithAnyProtocol(url, MAGNET_PROTOCOL)) {
+    const match = url.match(/[?&]dn=([^&]+)/);
+    if (match) {
+      return decodeURIComponent(match[1]);
+    } else {
+      return undefined;
+    }
+  } else if (startsWithAnyProtocol(url, EMULE_PROTOCOL)) {
+    return url.match(EMULE_FILENAME_REGEX)?.[1] || undefined;
+  } else {
+    return undefined;
+  }
+}
+
+function sanitizeUrlForSynology(url: URL): URL {
+  return new URL(url.toString().replaceAll(",", "%2C"));
+}
+
+interface DirectDownloadUrl {
+  type: "direct-download";
+  url: URL;
+}
+
+interface MetadataFileUrl {
+  type: "metadata-file";
+  url: URL;
+  content: Blob;
+  filename: string;
+}
+
+interface MissingOrIllegalUrl {
+  type: "missing-or-illegal";
+}
+
+type ResolvedUrl = DirectDownloadUrl | MetadataFileUrl | MissingOrIllegalUrl;
+
+async function resolveUrl(url: string): Promise<ResolvedUrl> {
+  function bailAndAssumeDirectDownload(
+    error: unknown,
+    debugDescription: string,
+  ): DirectDownloadUrl {
+    let guessedReason;
+
+    if (error instanceof DOMException && error.name === "AbortError") {
+      guessedReason = "timeout";
+    } else if (error instanceof Error && /networkerror/i.test(error.message)) {
+      guessedReason = "network-error";
+    } else {
+      guessedReason = "unknown";
+    }
+
+    console.error(debugDescription, `(guessed reason: ${guessedReason})`, error);
+
+    return {
+      type: "direct-download",
+      url: parsedUrl,
+    };
+  }
+
+  let parsedUrl: URL;
+  try {
+    parsedUrl = new URL(url);
+  } catch (e) {
+    if (e instanceof TypeError) {
+      return {
+        type: "missing-or-illegal",
+      };
+    } else {
+      throw e;
+    }
+  }
+
+  if (startsWithAnyProtocol(url, AUTO_DOWNLOAD_TORRENT_FILE_PROTOCOLS)) {
+    let metadataFileType;
+
+    try {
+      metadataFileType = await getMetadataFileType(parsedUrl);
+    } catch (e) {
+      return bailAndAssumeDirectDownload(
+        e,
+        "error while trying to fetch metadata file type for download url",
+      );
+    }
+
+    if (metadataFileType != null) {
+      let response;
+
+      try {
+        response = await fetchWithTimeout(parsedUrl, {}, 10000);
+      } catch (e) {
+        return bailAndAssumeDirectDownload(e, "error while trying to fetch metadata file");
+      }
+
+      let bytes;
+      try {
+        bytes = await response.arrayBuffer();
+      } catch (e) {
+        return bailAndAssumeDirectDownload(e, "error while trying to get bytes for metadata file");
+      }
+
+      return {
+        type: "metadata-file",
+        url: parsedUrl,
+        content: new Blob([bytes], { type: metadataFileType.mediaType }),
+        filename: guessDownloadFileName(parsedUrl, response.headers, metadataFileType),
+      };
+    } else {
+      return {
+        type: "direct-download",
+        url: parsedUrl,
+      };
+    }
+  } else if (startsWithAnyProtocol(parsedUrl.toString(), ALL_DOWNLOADABLE_PROTOCOLS)) {
+    return {
+      type: "direct-download",
+      url: parsedUrl,
+    };
+  } else {
+    return {
+      type: "missing-or-illegal",
+    };
+  }
+}
+
+type ArrayifyValues<T extends Record<string, unknown>> = {
   [K in keyof T]: T[K][];
 };
 
@@ -31,7 +234,7 @@ async function checkIfEMuleShouldBeEnabled(api: SynologyClient, urls: string[]) 
     if (ClientRequestResult.isConnectionFailure(result)) {
       return false;
     } else if (result.success) {
-      return !result.data.emule_enabled;
+      return !result.data.enable_emule;
     } else {
       return false;
     }
@@ -42,7 +245,7 @@ async function checkIfEMuleShouldBeEnabled(api: SynologyClient, urls: string[]) 
 
 function reportUnexpectedError(
   notificationId: string | undefined,
-  e: any | undefined,
+  e: unknown,
   debugMessage?: string,
 ) {
   saveLastSevereError(e, debugMessage);
@@ -59,13 +262,18 @@ async function addOneTask(
   pollRequestManager: RequestManager,
   showNonErrorNotifications: boolean,
   url: string,
-  { path, ftpUsername, ftpPassword, unzipPassword }: AddTaskOptions,
+  { path, unzipPassword }: AddTaskOptions,
 ) {
   async function reportTaskAddResult(
     result: ClientRequestResult<unknown>,
     filename: string | undefined,
   ) {
-    console.log("task add result", result);
+    console.log(
+      "task add result:",
+      ClientRequestResult.isConnectionFailure(result)
+        ? `connection failure (${result.type})`
+        : `success=${result.success}`,
+    );
 
     if (ClientRequestResult.isConnectionFailure(result)) {
       notify(
@@ -114,15 +322,9 @@ async function addOneTask(
     ? notify(browser.i18n.getMessage("Adding_download"), guessFileNameFromUrl(url) ?? url)
     : undefined;
 
-  const resolvedUrl = await resolveUrl(url, ftpUsername, ftpPassword);
+  const resolvedUrl = await resolveUrl(url);
 
-  const commonCreateOptionsV1 = {
-    destination: path,
-    username: ftpUsername,
-    password: ftpPassword,
-    unzip_password: unzipPassword,
-  };
-  const commonCreateOptionsV2 = {
+  const createOptions = {
     destination: path,
     extract_password: unzipPassword,
   };
@@ -130,8 +332,9 @@ async function addOneTask(
   if (resolvedUrl.type === "direct-download") {
     try {
       const result = await api.DownloadStation.Task.Create({
-        uri: [sanitizeUrlForSynology(resolvedUrl.url).toString()],
-        ...commonCreateOptionsV1,
+        type: "url",
+        url: [sanitizeUrlForSynology(resolvedUrl.url).toString()],
+        ...createOptions,
       });
       await reportTaskAddResult(result, guessFileNameFromUrl(url));
       await pollTasks(api, pollRequestManager);
@@ -140,35 +343,14 @@ async function addOneTask(
     }
   } else if (resolvedUrl.type === "metadata-file") {
     try {
-      const supportsNewApiQueryResult = await api.Info.Query({
-        query: [DownloadStation2.Task.API_NAME],
+      const file: FormFile = { content: resolvedUrl.content, filename: resolvedUrl.filename };
+      const result = await api.DownloadStation.Task.Create({
+        type: "file",
+        file,
+        ...createOptions,
       });
-      if (ClientRequestResult.isConnectionFailure(supportsNewApiQueryResult)) {
-        await reportTaskAddResult(supportsNewApiQueryResult, resolvedUrl.filename);
-      } else {
-        const file: FormFile = { content: resolvedUrl.content, filename: resolvedUrl.filename };
-        let result;
-        if (
-          supportsNewApiQueryResult.success &&
-          // Synology seems to have some bizarre malformed implementation of this that has a
-          // maxVersion of 1. Note that the implementation of Create is haredcoded to version 2,
-          // probably for this reason.
-          (supportsNewApiQueryResult.data[DownloadStation2.Task.API_NAME]?.maxVersion ?? 0) >= 2
-        ) {
-          result = await api.DownloadStation2.Task.Create({
-            type: "file",
-            file,
-            ...commonCreateOptionsV2,
-          });
-        } else {
-          result = await api.DownloadStation.Task.Create({
-            file,
-            ...commonCreateOptionsV1,
-          });
-        }
-        await reportTaskAddResult(result, resolvedUrl.filename);
-        await pollTasks(api, pollRequestManager);
-      }
+      await reportTaskAddResult(result, resolvedUrl.filename);
+      await pollTasks(api, pollRequestManager);
     } catch (e) {
       reportUnexpectedError(notificationId, e, "error while adding metadata-file task");
     }
@@ -191,7 +373,7 @@ async function addMultipleTasks(
   pollRequestManager: RequestManager,
   showNonErrorNotifications: boolean,
   urls: string[],
-  { path, ftpUsername, ftpPassword, unzipPassword }: AddTaskOptions,
+  { path, unzipPassword }: AddTaskOptions,
 ) {
   const notificationId = showNonErrorNotifications
     ? notify(
@@ -200,9 +382,7 @@ async function addMultipleTasks(
       )
     : undefined;
 
-  const resolvedUrls = await Promise.all(
-    urls.map((url) => resolveUrl(url, ftpUsername, ftpPassword)),
-  );
+  const resolvedUrls = await Promise.all(urls.map((url) => resolveUrl(url)));
 
   const groupedUrls: ResolvedUrlByType = {
     "direct-download": [],
@@ -211,14 +391,19 @@ async function addMultipleTasks(
   };
 
   resolvedUrls.forEach((url) => {
-    (groupedUrls[url.type] as typeof url[]).push(url);
+    (groupedUrls[url.type] as (typeof url)[]).push(url);
   });
 
   let successes = 0;
   let failures = 0;
 
   function countResults(result: ClientRequestResult<unknown>, count: number) {
-    console.log("task add result", result);
+    console.log(
+      "task add result:",
+      ClientRequestResult.isConnectionFailure(result)
+        ? `connection failure (${result.type})`
+        : `success=${result.success}`,
+    );
 
     if (ClientRequestResult.isConnectionFailure(result)) {
       failures += count;
@@ -227,64 +412,42 @@ async function addMultipleTasks(
       // operation requested was completed, which might have added invalid torrents. So this
       // is really just a best guess.
       successes += count;
-    } else if (!result.success) {
-      failures += count;
     } else {
-      assertNever(result);
+      failures += count;
     }
   }
 
   failures += groupedUrls["missing-or-illegal"].length;
 
-  const commonCreateOptionsV1 = {
-    destination: path,
-    username: ftpUsername,
-    password: ftpPassword,
-    unzip_password: unzipPassword,
-  };
-
-  const commonCreateOptionsV2 = {
+  const createOptions = {
     destination: path,
     extract_password: unzipPassword,
   };
 
   if (groupedUrls["direct-download"].length > 0) {
-    const urls = groupedUrls["direct-download"].map(({ url }) => sanitizeUrlForSynology(url));
+    const downloadUrls = groupedUrls["direct-download"].map(({ url }) =>
+      sanitizeUrlForSynology(url),
+    );
     try {
       const result = await api.DownloadStation.Task.Create({
-        uri: urls.map((url) => url.toString()),
-        ...commonCreateOptionsV1,
+        type: "url",
+        url: downloadUrls.map((url) => url.toString()),
+        ...createOptions,
       });
-      countResults(result, urls.length);
+      countResults(result, downloadUrls.length);
     } catch (e) {
-      failures += urls.length;
+      failures += downloadUrls.length;
       saveLastSevereError(e, "error while adding multiple direct-download URLs");
     }
   }
 
   if (groupedUrls["metadata-file"].length > 0) {
-    const supportsNewApiQueryResult = await api.Info.Query({
-      query: [DownloadStation2.Task.API_NAME],
-    });
-
     const results = groupedUrls["metadata-file"].map((file) => {
-      if (ClientRequestResult.isConnectionFailure(supportsNewApiQueryResult)) {
-        return Promise.resolve(supportsNewApiQueryResult);
-      } else if (
-        supportsNewApiQueryResult.success &&
-        supportsNewApiQueryResult.data[DownloadStation2.Task.API_NAME] != null
-      ) {
-        return api.DownloadStation2.Task.Create({
-          type: "file",
-          file,
-          ...commonCreateOptionsV2,
-        });
-      } else {
-        return api.DownloadStation.Task.Create({
-          file,
-          ...commonCreateOptionsV1,
-        });
-      }
+      return api.DownloadStation.Task.Create({
+        type: "file",
+        file,
+        ...createOptions,
+      });
     });
 
     await Promise.all(
@@ -326,7 +489,7 @@ async function addMultipleTasks(
     );
   }
 
-  pollTasks(api, pollRequestManager);
+  await pollTasks(api, pollRequestManager);
 }
 
 export async function addDownloadTasksAndPoll(
@@ -338,8 +501,7 @@ export async function addDownloadTasksAndPoll(
 ): Promise<void> {
   const normalizedOptions = {
     ...options,
-    // TODO: This seems wrong. Shouldn't this be ... ? path.slice(1) : path?
-    path: options?.path?.startsWith("/") ? options?.path.slice(1) : undefined,
+    path: options?.path?.startsWith("/") ? options.path.slice(1) : options?.path,
   };
 
   if (urls.length === 0) {
@@ -348,6 +510,7 @@ export async function addDownloadTasksAndPoll(
       browser.i18n.getMessage("No_downloadable_URLs_provided"),
       "failure",
     );
+    return;
   } else if (urls.length === 1) {
     await addOneTask(
       api,

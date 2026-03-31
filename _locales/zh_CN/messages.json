@@ -466,14 +466,6 @@
     "message": "连接失败。未知原因",
     "description": "Connection failure explanatory text."
   },
-  "Unknown_error_displaying_tasks": {
-    "message": "显示任务出错 ",
-    "description": "Main explanatory text for the popup when we have a fatal rendering error."
-  },
-  "Your_download_tasks_are_not_affected": {
-    "message": "您 NAS 上的下载并未受到影响 ",
-    "description": "Reassuring explanatory text for when we have a fatal rendering error."
-  },
   "Please_": {
     "message": "请 ",
     "description": "Prefix for action text for the popup when asking the user to file a bug when we have a fatal rendering error."
@@ -525,7 +517,7 @@
     "description": "Error message on Synology API call failure."
   },
   "Session_interrupted_by_duplicate_login": {
-    "message": "登录会话被重复登录关闭", 
+    "message": "登录会话被重复登录关闭",
     "description": "Error message on Synology API call failure."
   },
   "SID_not_found": {
@@ -747,14 +739,6 @@
   "Please_be_patient_this_may_take_some_time": {
     "message": "此操作会持续一段时间，请耐心等待...",
     "description": "Notification body text."
-  },
-  "FTP_username": {
-    "message": "FTP 用户名...",
-    "description": "Placeholder for input field in add-download form."
-  },
-  "FTP_password": {
-    "message": "FTP 密码...",
-    "description": "Placeholder for input field in add-download form."
   },
   "Unzip_password": {
     "message": "Zip 压缩包密码...",

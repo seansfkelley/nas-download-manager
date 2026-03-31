@@ -1,15 +1,34 @@
-import type { RequestManager } from "../requestManager";
-import { SynologyClient, ClientRequestResult } from "../../common/apis/synology";
+import type { RequestManager } from "../backgroundState";
+import { SynologyClient, ClientRequestResult } from "../../common/apis/synology/client";
 import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../../common/apis/errors";
-import type { CachedTasks, State } from "../../common/state";
+import type { State } from "../../common/state/defaults";
 import { saveLastSevereError } from "../../common/errorHandlers";
 import { assertNever } from "../../common/lang";
 
+type CachedTasks = Pick<
+  State,
+  | "tasks"
+  | "taskFetchFailureReason"
+  | "tasksLastInitiatedFetchTimestamp"
+  | "tasksLastCompletedFetchTimestamp"
+>;
+
 function setCachedTasks(cachedTasks: Partial<CachedTasks>) {
-  return browser.storage.local.set<Partial<State>>({
+  return browser.storage.local.set({
     tasksLastCompletedFetchTimestamp: Date.now(),
     ...cachedTasks,
   });
+}
+
+export function clearCachedTasks() {
+  const emptyState: CachedTasks = {
+    tasks: [],
+    taskFetchFailureReason: null,
+    tasksLastCompletedFetchTimestamp: null,
+    tasksLastInitiatedFetchTimestamp: null,
+  };
+
+  return browser.storage.local.set(emptyState);
 }
 
 export async function pollTasks(api: SynologyClient, manager: RequestManager): Promise<void> {
@@ -22,19 +41,17 @@ export async function pollTasks(api: SynologyClient, manager: RequestManager): P
   console.log(`(${token}) polling for tasks...`);
 
   try {
-    await browser.storage.local.set<Partial<State>>(cachedTasksInit);
+    await browser.storage.local.set(cachedTasksInit);
 
     let response;
 
     try {
-      // HELLO THERE
-      //
       // When changing what this requests, you almost certainly want to update STATE_VERSION.
       response = await api.DownloadStation.Task.List({
         offset: 0,
         limit: -1,
         additional: ["transfer", "detail"],
-        timeout: 20000,
+        timeout: 45000,
       });
     } catch (e) {
       saveLastSevereError(e, "error while fetching list of tasks");
@@ -42,10 +59,12 @@ export async function pollTasks(api: SynologyClient, manager: RequestManager): P
     }
 
     if (!manager.isRequestLatest(token)) {
-      console.log(`(${token}) poll result outdated; ignoring`, response);
+      console.log(`(${token}) poll result outdated; ignoring`);
       return;
     } else {
-      console.log(`(${token}) poll result still relevant; continuing...`, response);
+      console.log(
+        `(${token}) poll result: success=${!ClientRequestResult.isConnectionFailure(response) && response.success}`,
+      );
     }
 
     if (ClientRequestResult.isConnectionFailure(response)) {

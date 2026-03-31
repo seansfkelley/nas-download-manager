@@ -1,0 +1,28 @@
+@import "../../css/fields.css";
+@import "../../css/colors.css";
+@import "../../css/common.css";
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
+
+button:not(:disabled) {
+  cursor: pointer;
+}
+
+body {
+  margin: 0;
+}
+
+html,
+body,
+#body,
+.popup {
+  width: 425px;
+  max-height: 500px;
+}

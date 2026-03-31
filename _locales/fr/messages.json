@@ -442,14 +442,6 @@
     "message": "La connexion a échoué pour une raison inconnue.",
     "description": "Connection failure explanatory text."
   },
-  "Unknown_error_displaying_tasks": {
-    "message": "Erreur inconnue en essayant d'afficher les tâches.",
-    "description": "Main explanatory text for the popup when we have a fatal rendering error."
-  },
-  "Your_download_tasks_are_not_affected": {
-    "message": "Vos tâches de téléchargement ne sont pas affectées.",
-    "description": "Reassuring explanatory text for when we have a fatal rendering error."
-  },
   "Please_": {
     "message": "Veuillez ",
     "description": "Prefix for action text for the popup when asking the user to file a bug when we have a fatal rendering error."

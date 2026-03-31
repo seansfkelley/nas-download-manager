@@ -2,7 +2,7 @@
 *.zip
 *.log
 *.md
-yarn.lock
+pnpm-lock.yaml
 dist/
 lib/
 icons/

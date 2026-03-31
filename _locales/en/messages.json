@@ -462,14 +462,6 @@
     "message": "Connection failed for an unknown reason.",
     "description": "Connection failure explanatory text."
   },
-  "Unknown_error_displaying_tasks": {
-    "message": "Unknown error displaying tasks.",
-    "description": "Main explanatory text for the popup when we have a fatal rendering error."
-  },
-  "Your_download_tasks_are_not_affected": {
-    "message": "Your download tasks are not affected.",
-    "description": "Reassuring explanatory text for when we have a fatal rendering error."
-  },
   "Please_": {
     "message": "Please ",
     "description": "Prefix for action text for the popup when asking the user to file a bug when we have a fatal rendering error."
@@ -743,14 +735,6 @@
   "Please_be_patient_this_may_take_some_time": {
     "message": "Please be patient; this may take some time...",
     "description": "Notification body text."
-  },
-  "FTP_username": {
-    "message": "FTP username...",
-    "description": "Placeholder for input field in add-download form."
-  },
-  "FTP_password": {
-    "message": "FTP password...",
-    "description": "Placeholder for input field in add-download form."
   },
   "Unzip_password": {
     "message": "Unzip password...",

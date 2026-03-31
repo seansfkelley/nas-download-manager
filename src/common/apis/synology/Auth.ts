@@ -1,19 +1,20 @@
 import { RestApiResponse, BaseRequest, get, SessionName } from "./shared";
 
-const CGI_NAME = "auth";
 const API_NAME = "SYNO.API.Auth";
+
+export const AUTH_ERROR_OTP_REQUIRED = 403;
 
 export interface AuthLoginRequest extends BaseRequest {
   account: string;
   passwd: string;
   session: SessionName;
-  // 2 is the lowest version that actually provides an sid.
-  // 3 is the lowest version that DSM 7 supports.
-  version: 2 | 3;
+  version: 6;
+  otp_code?: string;
 }
 
 export interface AuthLoginResponse {
   sid: string;
+  synotoken: string;
 }
 
 export interface AuthLogoutRequest extends BaseRequest {
@@ -25,11 +26,12 @@ function Login(
   baseUrl: string,
   options: AuthLoginRequest,
 ): Promise<RestApiResponse<AuthLoginResponse>> {
-  return get(baseUrl, CGI_NAME, {
+  return get(baseUrl, {
     ...options,
     api: API_NAME,
     method: "login",
     format: "sid",
+    enable_syno_token: "yes",
     meta: {
       apiGroup: "Auth",
     },
@@ -37,7 +39,7 @@ function Login(
 }
 
 function Logout(baseUrl: string, options: AuthLogoutRequest): Promise<RestApiResponse<{}>> {
-  return get(baseUrl, CGI_NAME, {
+  return get(baseUrl, {
     ...options,
     api: API_NAME,
     version: 1,

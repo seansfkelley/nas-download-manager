@@ -1,0 +1,36 @@
+@import "../../css/fields.css";
+@import "../../css/colors.css";
+@import "../../css/common.css";
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  padding: 4px 2px;
+}
+
+header {
+  p {
+    font-size: 0.9em;
+    color: #999;
+  }
+  h3 {
+    margin-bottom: 0;
+  }
+
+  &:first-child h3 {
+    margin-top: 0;
+  }
+}
+
+p pre {
+  display: inline;
+}
+
+button {
+  padding: 7px;
+  height: auto;
+  white-space: nowrap;
+  flex-shrink: 0;
+}

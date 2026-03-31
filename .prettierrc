@@ -1,2 +1,4 @@
 printWidth: 100
 trailingComma: all
+plugins:
+  - prettier-plugin-svelte

@@ -1,4 +1,4 @@
-import type { Settings, State } from "./migrations/latest";
+import type { Settings, State } from "./defaults";
 import { typesafeUnionMembers } from "../lang";
 
 export const SETTING_NAMES = typesafeUnionMembers<keyof Settings>({
@@ -22,22 +22,24 @@ const ALL_STORED_STATE_NAMES = typesafeUnionMembers<keyof State>({
 });
 
 async function fetchStateAndNotify(listeners: ((state: State) => void)[]) {
-  const state = await browser.storage.local.get<State>(ALL_STORED_STATE_NAMES);
+  const state = (await browser.storage.local.get(ALL_STORED_STATE_NAMES)) as State;
   listeners.forEach((l) => l(state));
 }
 
-let stateListeners: ((state: State) => void)[] = [];
+const stateListeners: ((state: State) => void)[] = [];
 
 let didAttachSingletonListener = false;
 
 function attachSharedStateListener() {
   if (!didAttachSingletonListener) {
     didAttachSingletonListener = true;
-    browser.storage.onChanged.addListener((_changes: StorageChangeEvent<State>, areaName) => {
-      if (areaName === "local") {
-        fetchStateAndNotify(stateListeners);
-      }
-    });
+    browser.storage.onChanged.addListener(
+      (_changes: Record<string, browser.storage.StorageChange>, areaName) => {
+        if (areaName === "local") {
+          fetchStateAndNotify(stateListeners);
+        }
+      },
+    );
   }
 }
 

@@ -1,4 +1,5 @@
-import type { ConnectionFailure, RestApiFailureResponse } from "./synology";
+import type { ConnectionFailure } from "./synology/client";
+import type { RestApiFailureResponse } from "./synology/shared";
 import { assertNever } from "../lang";
 
 const DOWNLOADSTATION_TASK_ERRORS: Record<string, string> = {

@@ -1,0 +1,8 @@
+repos:
+  - repo: local
+    hooks:
+      - id: prettier
+        name: prettier
+        entry: pnpm prettier --write
+        language: system
+        types_or: [javascript, jsx, ts, tsx, css, scss, json, yaml, markdown]

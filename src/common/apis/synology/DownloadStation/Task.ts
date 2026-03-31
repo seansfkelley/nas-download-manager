@@ -140,24 +140,6 @@ export interface DownloadStationTask {
   };
 }
 
-export interface DownloadStationTaskGetInfoRequest extends BaseRequest {
-  id: string[];
-  additional?: DownloadStationTaskAdditionalType[];
-}
-
-export interface DownloadStationTaskGetInfoResponse {
-  tasks: DownloadStationTask[];
-}
-
-export interface DownloadStationTaskCreateRequest extends BaseRequest {
-  uri?: string[];
-  file?: FormFile;
-  username?: string;
-  password?: string;
-  unzip_password?: string;
-  destination?: string;
-}
-
 export interface DownloadStationTaskDeleteRequest extends BaseRequest {
   id: string[];
   force_complete: boolean;
@@ -172,51 +154,93 @@ export interface DownloadStationTaskPauseResumeRequest extends BaseRequest {
   id: string[];
 }
 
-export interface DownloadStationTaskEditRequest extends BaseRequest {
-  id: string[];
+// --- v2 Create types (SYNO.DownloadStation2.Task) ---
+
+interface BaseCreateRequest extends BaseRequest {
+  create_list?: boolean;
   destination?: string;
+  extract_password?: string;
 }
 
-const CGI_NAME = "DownloadStation/task";
-const API_NAME = "SYNO.DownloadStation.Task";
+export interface TaskCreateFileRequest extends BaseCreateRequest {
+  type: "file";
+  file: FormFile;
+}
 
-const taskBuilder = new ApiBuilder(CGI_NAME, API_NAME, {
-  apiGroup: "DownloadStation",
-  apiSubgroup: "DownloadStation.Task",
+export interface TaskCreateUrlRequest extends BaseCreateRequest {
+  type: "url";
+  url: string[];
+}
+
+export interface TaskCreateLocalRequest extends BaseCreateRequest {
+  type: "local";
+  local_path: string;
+}
+
+export type TaskCreateRequest =
+  | TaskCreateFileRequest
+  | TaskCreateUrlRequest
+  | TaskCreateLocalRequest;
+
+export interface TaskCreateResponse {
+  list_id: string[];
+  task_id: string[];
+}
+
+// --- API builders ---
+
+const API_NAME = "SYNO.DownloadStation2.Task";
+
+const taskBuilder = new ApiBuilder(API_NAME, {
+  apiGroup: "DownloadStation2",
+  apiSubgroup: "DownloadStation2.Task",
 });
 
 function Task_Create(
   baseUrl: string,
   sid: string,
-  options: DownloadStationTaskCreateRequest,
-): Promise<RestApiResponse<{}>> {
-  if (options.file && options.uri) {
-    throw new Error("cannot specify both a file and a uri argument to Create");
-  }
+  options: TaskCreateRequest,
+  synotoken: string,
+): Promise<RestApiResponse<TaskCreateResponse>> {
   const commonOptions = {
-    ...options,
+    // These three must come first. I believe they also must be in this order.
     api: API_NAME,
-    version: 1,
     method: "create",
+    version: 2,
+    ...options,
+    type: JSON.stringify(options.type),
+    // undefined means default location configured on the NAS, which is represented by empty string
+    destination: JSON.stringify(options.destination ?? ""),
+    create_list: JSON.stringify(options.create_list ?? false),
     sid,
-    meta: {
-      apiGroup: "DownloadStation",
-      apiSubgroup: "DownloadStation.Task",
-    },
+    SynoToken: synotoken,
+    meta: taskBuilder.meta,
     file: undefined,
-    uri: undefined,
+    url: undefined,
+    local_path: undefined,
   };
 
-  if (options.file) {
-    return post(baseUrl, CGI_NAME, {
+  if (options.type === "file") {
+    return post(baseUrl, {
       ...commonOptions,
-      file: options.file,
+      file: '["torrent"]',
+      torrent: options.file,
+    });
+  } else if (options.type === "url") {
+    return get(baseUrl, {
+      ...commonOptions,
+      url: JSON.stringify(options.url),
+    });
+  } else if (options.type === "local") {
+    return get(baseUrl, {
+      ...commonOptions,
+      // TODO: Unsure if this works. Documentation isn't clear on how it's intended to work.
+      local_path: JSON.stringify(options.local_path),
     });
   } else {
-    return get(baseUrl, CGI_NAME, {
-      ...commonOptions,
-      uri: options.uri?.length ? options.uri.join(",") : undefined,
-    });
+    return Promise.reject(
+      new Error(`illegal type "${(options as never as { type: string }).type}"`),
+    );
   }
 }
 
@@ -230,7 +254,7 @@ function fixTaskNumericTypes(task: DownloadStationTask): DownloadStationTask {
         if (obj[k] != null) {
           // We don't expect any of these values to be greater than Number.MAX_SAFE_INTEGER, so this is safe.
           // If they are, so be it: you have a 9 quadrillion byte download, so you probably have other problems.
-          obj[k] = +obj[k] as any;
+          (obj as Record<string, unknown>)[k as string] = +obj[k];
         }
       });
     }
@@ -285,17 +309,12 @@ export const Task = {
       ...o,
       additional: o?.additional?.length ? o.additional.join(",") : undefined,
     }),
-    (r) => ({ ...r, tasks: (r.tasks || []).map(fixTaskNumericTypes) }),
+    (r) => {
+      const raw = r as DownloadStationTaskListResponse & { task?: DownloadStationTask[] };
+      return { ...raw, tasks: ((raw.task ?? raw.tasks) || []).map(fixTaskNumericTypes) };
+    },
     true,
   ),
-  GetInfo: taskBuilder.makeGet<
-    DownloadStationTaskGetInfoRequest,
-    DownloadStationTaskGetInfoResponse
-  >("getinfo", (o) => ({
-    ...o,
-    id: o.id.join(","),
-    additional: o?.additional?.length ? o.additional.join(",") : undefined,
-  })),
   Create: Task_Create,
   Delete: taskBuilder.makeGet<DownloadStationTaskDeleteRequest, DownloadStationTaskActionResponse>(
     "delete",
@@ -309,8 +328,4 @@ export const Task = {
     DownloadStationTaskPauseResumeRequest,
     DownloadStationTaskActionResponse
   >("resume", (o) => ({ ...o, id: o.id.join(",") })),
-  Edit: taskBuilder.makeGet<DownloadStationTaskEditRequest, DownloadStationTaskActionResponse>(
-    "edit",
-    (o) => ({ ...o, id: o.id.join(",") }),
-  ),
 };

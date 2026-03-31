@@ -14,14 +14,13 @@ export type InfoQueryResponse = Record<
   }
 >;
 
-const CGI_NAME = "query";
 const API_NAME = "SYNO.API.Info";
 
 function Query(
   baseUrl: string,
   options: InfoQueryRequest,
 ): Promise<RestApiResponse<InfoQueryResponse>> {
-  return get(baseUrl, CGI_NAME, {
+  return get(baseUrl, {
     ...options,
     api: API_NAME,
     version: 1,

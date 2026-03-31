@@ -1,9 +1,12 @@
-import { default as isEqual } from "lodash/isEqual";
-import { getMutableStateSingleton } from "./backgroundState";
-import { SessionName } from "../common/apis/synology";
-import { getHostUrl, State } from "../common/state";
+import {
+  getMutableStateSingleton,
+  clearCachedSession,
+  resolveSettingsReady,
+} from "./backgroundState";
+import { SessionName } from "../common/apis/synology/shared";
+import { getHostUrl, type State } from "../common/state/defaults";
 import { notify } from "../common/notify";
-import { pollTasks, clearCachedTasks } from "./actions";
+import { pollTasks, clearCachedTasks } from "./actions/pollTasks";
 import { assertNever } from "../common/lang";
 import { filterTasks, matchesFilter } from "../common/filtering";
 
@@ -21,7 +24,10 @@ export function onStoredStateChange(storedState: State) {
     // otherwise, wait for an imperative login request message to be handled elsewhere.
   });
 
-  if (backgroundState.isInitializingExtension && storedState.settings.connection.rememberPassword) {
+  if (
+    storedState.settings.connection.rememberPassword &&
+    storedState.settings.connection.password
+  ) {
     // Note the ordering here: avoid short-circuiting.
     didUpdateSettings =
       backgroundState.api.partiallyUpdateSettings({
@@ -30,29 +36,28 @@ export function onStoredStateChange(storedState: State) {
   }
 
   if (didUpdateSettings) {
+    if (!backgroundState.isInitializingExtension) {
+      clearCachedSession();
+    }
     const clearCachePromise = clearCachedTasks();
 
-    // This is a little bit of a hack, but basically: onStoredStateChange eagerly fires this
-    // listener when it initializes. That first time through, the client gets initialized for the
-    // first time, and so we necessarily clear and reload. However, if the user hasn't configured
-    // notifications, we should try to avoid pinging the NAS, since we know we're opening in the
-    // background. If notifications are enabled, those'll still get set up and we'll starting
-    // pinging in the background.
-    if (!backgroundState.isInitializingExtension) {
-      // Don't use await because we want this to fire in the background.
-      clearCachePromise.then(() => {
-        pollTasks(backgroundState.api, backgroundState.pollRequestManager);
-      });
-    }
+    // Don't use await because we want this to fire in the background.
+    clearCachePromise
+      .then(() => pollTasks(backgroundState.api, backgroundState.pollRequestManager))
+      .catch((e) => console.error("error during post-settings-change poll", e));
   }
 
-  if (!isEqual(storedState.settings.notifications, backgroundState.lastNotificationSettings)) {
+  if (
+    JSON.stringify(storedState.settings.notifications) !==
+    JSON.stringify(backgroundState.lastNotificationSettings)
+  ) {
     backgroundState.lastNotificationSettings = storedState.settings.notifications;
-    clearInterval(backgroundState.notificationInterval!);
     if (backgroundState.lastNotificationSettings.enableCompletionNotifications) {
-      backgroundState.notificationInterval = (setInterval(() => {
-        pollTasks(backgroundState.api, backgroundState.pollRequestManager);
-      }, backgroundState.lastNotificationSettings.completionPollingInterval * 1000) as any) as number;
+      browser.alarms.create("poll-tasks", {
+        periodInMinutes: backgroundState.lastNotificationSettings.completionPollingInterval / 60,
+      });
+    } else {
+      browser.alarms.clear("poll-tasks");
     }
   }
 
@@ -60,29 +65,29 @@ export function onStoredStateChange(storedState: State) {
     storedState.settings.notifications.enableFeedbackNotifications;
 
   if (storedState.taskFetchFailureReason) {
-    browser.browserAction.setIcon({
+    browser.action.setIcon({
       path: {
-        "16": "icons/icon-16-disabled.png",
-        "32": "icons/icon-32-disabled.png",
-        "64": "icons/icon-64-disabled.png",
-        "128": "icons/icon-128-disabled.png",
-        "256": "icons/icon-256-disabled.png",
+        "16": "/icons/icon-16-disabled.png",
+        "32": "/icons/icon-32-disabled.png",
+        "64": "/icons/icon-64-disabled.png",
+        "128": "/icons/icon-128-disabled.png",
+        "256": "/icons/icon-256-disabled.png",
       },
     });
 
-    browser.browserAction.setBadgeText({
+    browser.action.setBadgeText({
       text: "",
     });
 
-    browser.browserAction.setBadgeBackgroundColor({ color: [217, 0, 0, 255] });
+    browser.action.setBadgeBackgroundColor({ color: [217, 0, 0, 255] });
   } else {
-    browser.browserAction.setIcon({
+    browser.action.setIcon({
       path: {
-        "16": "icons/icon-16.png",
-        "32": "icons/icon-32.png",
-        "64": "icons/icon-64.png",
-        "128": "icons/icon-128.png",
-        "256": "icons/icon-256.png",
+        "16": "/icons/icon-16.png",
+        "32": "/icons/icon-32.png",
+        "64": "/icons/icon-64.png",
+        "128": "/icons/icon-128.png",
+        "256": "/icons/icon-256.png",
       },
     });
 
@@ -104,11 +109,11 @@ export function onStoredStateChange(storedState: State) {
       return; // Can't `return assertNever(...)` because the linter complains.
     }
 
-    browser.browserAction.setBadgeText({
+    browser.action.setBadgeText({
       text: taskCount === 0 ? "" : taskCount.toString(),
     });
 
-    browser.browserAction.setBadgeBackgroundColor({ color: [0, 217, 0, 255] });
+    browser.action.setBadgeBackgroundColor({ color: [0, 217, 0, 255] });
   }
 
   if (
@@ -134,4 +139,5 @@ export function onStoredStateChange(storedState: State) {
   }
 
   backgroundState.isInitializingExtension = false;
+  resolveSettingsReady();
 }

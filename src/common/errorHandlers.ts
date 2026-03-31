@@ -1,11 +1,17 @@
-import type { Logging, State } from "./state";
+export function setupGlobalErrorHandler() {
+  globalThis.addEventListener("error", (e) => {
+    e.preventDefault();
+    saveLastSevereError(e.error);
+  });
+}
 
-export function saveLastSevereError(e: any | undefined, message?: string) {
+export function saveLastSevereError(e: unknown, message?: string) {
   console.error(message || "unhandled error", e);
+  const err = e instanceof Error ? e : null;
   let formattedError =
     e != null
-      ? `${e.name || "(no error name)"}: '${e.message || "(no error message)"}'
-${e.stack ? "Error stack trace: " + e.stack.trim() : "(no error stack)"}`
+      ? `${err?.name || "(no error name)"}: '${err?.message || "(no error message)"}'
+${err?.stack ? "Error stack trace: " + err.stack.trim() : "(no error stack)"}`
       : "unknown error";
 
   if (message) {
@@ -14,8 +20,8 @@ ${e.stack ? "Error stack trace: " + e.stack.trim() : "(no error stack)"}`
 
   formattedError = `Error generated at ${new Date().toLocaleString()}\n\n${formattedError}`;
 
-  const logging: Logging = {
+  const logging: Pick<import("./state/defaults").State, "lastSevereError"> = {
     lastSevereError: formattedError,
   };
-  browser.storage.local.set<Partial<State>>(logging);
+  browser.storage.local.set(logging);
 }

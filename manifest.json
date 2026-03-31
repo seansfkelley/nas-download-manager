@@ -1,34 +1,34 @@
 {
-  "manifest_version": 2,
-  "name": "NAS Download Manager (for Synology)",
-  "version": "0.12.2",
+  "manifest_version": 3,
+  "name": "NAS Download Manager (Synology DSM 7+)",
+  "version": "0.8.0",
   "description": "__MSG_Add_and_manage_Download_Station_tasks_on_your_Synology_DiskStation__",
   "default_locale": "en",
-  "background": {
-    "scripts": [
-      "dist/background/index.js"
-    ]
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "nas-download-manager-dsm7@smolyn.org",
+      "strict_min_version": "148.0",
+      "data_collection_permissions": {
+        "required": ["none"],
+        "optional": []
+      }
+    }
   },
-  "permissions": [
-    "contextMenus",
-    "storage",
-    "notifications",
-    "http://*/*",
-    "https://*/*"
-  ],
+  "permissions": ["contextMenus", "storage", "notifications", "alarms"],
+  "host_permissions": ["<all_urls>"],
+  "optional_permissions": ["<all_urls>"],
   "content_scripts": [
     {
-      "matches": [
-        "http://*/*",
-        "https://*/*"
-      ],
-      "js": [
-        "dist/content/index.js"
-      ]
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["dist/content/index.js"],
+      "run_at": "document_idle"
     }
   ],
-  "browser_action": {
-    "browser_style": true,
+  "background": {
+    "service_worker": "dist/background/index.js",
+    "scripts": ["dist/background/index.js"]
+  },
+  "action": {
     "default_title": "NAS Download Manager",
     "default_popup": "html/popup.html",
     "default_icon": {
@@ -40,7 +40,8 @@
     }
   },
   "options_ui": {
-    "page": "html/settings.html"
+    "page": "html/settings.html",
+    "open_in_tab": false
   },
   "icons": {
     "16": "icons/icon-16.png",

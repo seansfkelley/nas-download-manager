@@ -1,15 +1,7 @@
-import "../common/init/commonContext";
 import { AddTasks } from "../common/apis/messages";
-import { onStoredStateChange } from "../common/state/listen";
 import { DOWNLOAD_ONLY_PROTOCOLS, startsWithAnyProtocol } from "../common/apis/protocols";
 
 const LEFT_MOUSE_BUTTON = 0;
-
-let enabled = true;
-
-onStoredStateChange((state) => {
-  enabled = state.settings.shouldHandleDownloadLinks;
-});
 
 function recursivelyFindAnchorAncestor(
   e: HTMLElement | null,
@@ -26,10 +18,10 @@ function recursivelyFindAnchorAncestor(
   }
 }
 
-// I hate this implementation. True protocol handling for extensions does not exist.
+// True protocol handling for extensions does not exist.
 // https://bugzilla.mozilla.org/show_bug.cgi?id=1271553
 document.addEventListener("click", (e: MouseEvent) => {
-  if (enabled && e.button === LEFT_MOUSE_BUTTON) {
+  if (e.button === LEFT_MOUSE_BUTTON) {
     const anchor = recursivelyFindAnchorAncestor(e.target as HTMLElement);
     if (
       anchor != null &&

@@ -1,50 +1,39 @@
 {
-  "name": "nas-download-manager",
+  "name": "nas-download-manager-v3",
   "version": "0.0.0",
   "description": "An open source browser extension for adding/managing download tasks to your Synology DiskStation.",
   "scripts": {
-    "test": "TS_NODE_PROJECT=test/tsconfig-test.json mocha --require ts-node/register 'test/**/*.{ts,tsx}'",
-    "lint": "prettier --check src/**/* && tsc -p src --noemit",
-    "watch": "parcel watch --no-hmr src/content/index.ts src/background/index.ts src/settings/index.tsx src/popup/index.tsx",
-    "build": "rm -rf dist && parcel build src/content/index.ts src/background/index.ts src/settings/index.tsx src/popup/index.tsx --no-source-maps",
-    "zip": "rm -rf addon.zip && zip -r addon.zip . -i 'dist/*' -i 'html/*' -i 'icons/*' -i 'vendor/*' -i '_locales/*' -i 'manifest.json' -x '**/*.map' -x '**/.DS_Store'",
+    "build": "node --import tsx build.ts",
+    "watch": "node --import tsx build.ts --watch",
+    "check": "svelte-check && tsc -p src --noEmit",
+    "lint": "eslint src/ && prettier --check 'src/**/*' && pnpm check",
+    "format": "prettier --write 'src/**/*'",
+    "test": "mocha --require tsx 'test/**/*.{ts,tsx}'",
+    "zip": "rm -rf addon.zip && zip -r addon.zip dist html icons _locales manifest.json -x '**/*.map' -x '**/.DS_Store'",
     "zip-sources": "rm -rf sources.zip && zip -r sources.zip . -x '*.zip' -x 'dist/*' -x 'node_modules/*' -x '**/.DS_Store' -x '.git/*' -x '.cache/*' -x '.vscode/*' -x '.github/*' -x '.circleci/*'"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/seansfkelley/nas-download-manager.git"
-  },
+  "type": "module",
   "license": "MIT",
   "browserslist": [
-    "since 2021-06"
+    "firefox >= 148"
   ],
   "devDependencies": {
-    "@types/chai": "^4.0.4",
-    "@types/glob": "^5.0.33",
-    "@types/lodash": "^4.14.141",
-    "@types/mocha": "^2.2.44",
-    "@types/node": "^14.14.41",
-    "@types/react": "^17.0.34",
-    "@types/react-dom": "^17.0.0",
-    "chai": "^4.1.2",
-    "glob": "^7.1.2",
-    "mocha": "^4.0.1",
-    "parcel-bundler": "^1.12.4",
-    "prettier": "^2.2.1",
-    "sass": "^1.22.10",
-    "semver": "^7.3.4",
-    "ts-node": "^9.1.1",
-    "typescript": "^5.2.2"
+    "@eslint/js": "^10.0.1",
+    "@sveltejs/vite-plugin-svelte": "^7.0.0",
+    "@types/firefox-webext-browser": "143.0.0",
+    "@types/mocha": "^10.0.10",
+    "chai": "^6.2.2",
+    "eslint": "^10.1.0",
+    "eslint-plugin-svelte": "^3.16.0",
+    "mocha": "^11.7.5",
+    "prettier": "^3.8.1",
+    "prettier-plugin-svelte": "^3.5.1",
+    "svelte": "^5.55.1",
+    "svelte-check": "^4.4.6",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2",
+    "typescript-eslint": "^8.58.0",
+    "vite": "^8.0.3"
   },
-  "dependencies": {
-    "classnames": "^2.3.1",
-    "lodash": "^4.17.21",
-    "moment": "^2.18.1",
-    "query-string": "^6.8.2",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-textarea-autosize": "^8.3.2",
-    "webextension-polyfill": "^0.7.0"
-  },
-  "packageManager": "yarn@1.22.19"
+  "packageManager": "pnpm@10.12.1"
 }

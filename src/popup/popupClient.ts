@@ -1,5 +1,5 @@
-import { getHostUrl, ConnectionSettings } from "../common/state";
-import type { DownloadStationInfoConfig } from "../common/apis/synology/DownloadStation/Info";
+import { getHostUrl, type ConnectionSettings } from "../common/state/defaults";
+import type { DownloadStationGlobalSettings } from "../common/apis/synology/DownloadStation/Info";
 import {
   MessageResponse,
   AddTaskOptions,
@@ -14,7 +14,7 @@ import {
   GetConfig,
   ListDirectories,
 } from "../common/apis/messages";
-import { ClientRequestResult } from "../common/apis/synology";
+import { ClientRequestResult } from "../common/apis/synology/client";
 import { testConnection } from "../common/apis/connection";
 
 export interface PopupClient {
@@ -23,7 +23,7 @@ export interface PopupClient {
   pauseTask: (taskId: string) => Promise<MessageResponse>;
   resumeTask: (taskId: string) => Promise<MessageResponse>;
   deleteTasks: (taskIds: string[]) => Promise<MessageResponse>;
-  getConfig: () => Promise<MessageResponse<DownloadStationInfoConfig>>;
+  getConfig: () => Promise<MessageResponse<DownloadStationGlobalSettings>>;
   listDirectories: (path?: string) => Promise<MessageResponse<Directory[]>>;
   testConnectionAndLogin: (password: string) => Promise<ClientRequestResult<{}>>;
 }

@@ -1,5 +1,6 @@
-import { ConnectionSettings, getHostUrl } from "../state";
-import { ClientRequestResult, SessionName, SynologyClient } from "./synology";
+import { type ConnectionSettings, getHostUrl } from "../state/defaults";
+import { ClientRequestResult, SynologyClient } from "./synology/client";
+import { SessionName } from "./synology/shared";
 
 export async function testConnection(
   settings: ConnectionSettings,

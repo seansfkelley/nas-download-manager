@@ -1,5 +1,5 @@
 import type { DiscriminateUnion, OmitStrict } from "../types";
-import type { DownloadStationInfoConfig } from "./synology/DownloadStation/Info";
+import type { DownloadStationGlobalSettings } from "./synology/DownloadStation/Info";
 
 export interface SuccessMessageResponse<T> {
   success: true;
@@ -30,8 +30,6 @@ export interface AddTasks {
 
 export interface AddTaskOptions {
   path?: string;
-  ftpUsername?: string;
-  ftpPassword?: string;
   unzipPassword?: string;
 }
 
@@ -73,6 +71,14 @@ export interface SetLoginPassword {
   password: string;
 }
 
+export interface TestConnection {
+  type: "test-connection";
+  hostname: string;
+  port: number;
+  username: string;
+  password: string;
+}
+
 export type Message =
   | AddTasks
   | PollTasks
@@ -81,7 +87,8 @@ export type Message =
   | DeleteTasks
   | GetConfig
   | ListDirectories
-  | SetLoginPassword;
+  | SetLoginPassword
+  | TestConnection;
 
 const MESSAGE_TYPES: Record<Message["type"], true> = {
   "add-tasks": true,
@@ -92,12 +99,15 @@ const MESSAGE_TYPES: Record<Message["type"], true> = {
   "get-config": true,
   "list-directories": true,
   "set-login-password": true,
+  "test-connection": true,
 };
 
 export const Message = {
   is: (m: object | null | undefined): m is Message => {
     return (
-      m != null && (m as any).type != null && MESSAGE_TYPES[(m as any).type as Message["type"]]
+      m != null &&
+      (m as Record<string, unknown>).type != null &&
+      MESSAGE_TYPES[(m as Record<string, unknown>).type as Message["type"]]
     );
   },
 };
@@ -108,12 +118,13 @@ export type Result = {
   "pause-task": MessageResponse;
   "resume-task": MessageResponse;
   "delete-tasks": MessageResponse;
-  "get-config": MessageResponse<DownloadStationInfoConfig>;
+  "get-config": MessageResponse<DownloadStationGlobalSettings>;
   "list-directories": MessageResponse<Directory[]>;
   "set-login-password": void;
+  "test-connection": MessageResponse;
 };
 
-function makeMessageOperations<T extends Message["type"], U extends any[]>(
+function makeMessageOperations<T extends Message["type"], U extends unknown[]>(
   type: T,
   payload: (...args: U) => OmitStrict<DiscriminateUnion<Message, "type", T>, "type">,
 ) {
@@ -125,7 +136,7 @@ function makeMessageOperations<T extends Message["type"], U extends any[]>(
       }) as Promise<Result[T]>;
     },
     is: (m: object | null | undefined): m is DiscriminateUnion<Message, "type", T> => {
-      return m != null && (m as any).type == type;
+      return m != null && (m as Record<string, unknown>).type == type;
     },
   };
 }
@@ -162,12 +173,19 @@ export const SetLoginPassword = makeMessageOperations("set-login-password", (pas
   password,
 }));
 
-{
-  // Compile-time check to make sure that these two different types that have to match, do.
-  let _message: Message["type"] = (null as unknown) as keyof Result;
-  let _result: keyof Result = (null as unknown) as Message["type"];
+export const TestConnection = makeMessageOperations(
+  "test-connection",
+  (hostname: string, port: number, username: string, password: string) => ({
+    hostname,
+    port,
+    username,
+    password,
+  }),
+);
 
-  // Get the compiler to shut up. These lines don't necessarily catch type errors.
-  _message = _result;
-  _result = _message;
-}
+// Compile-time check to make sure that these two different types that have to match, do.
+export type AssertMessageTypesMatch = Message["type"] extends keyof Result
+  ? keyof Result extends Message["type"]
+    ? true
+    : never
+  : never;

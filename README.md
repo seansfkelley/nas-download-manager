@@ -54,7 +54,7 @@ Please note that development is not actively supported on Windows. Some of the b
 
 ### Prerequisites
 
-Dependencies are managed with [Yarn](https://github.com/yarnpkg/yarn). Install it if you don't already have it.
+Dependencies are managed with [pnpm](https://pnpm.io/). Install it if you don't already have it.
 
 ### Actively Developing the Extension
 
@@ -65,13 +65,13 @@ Please note that while the build tasks will auto-recompile, the browser may not 
 1. Install dependencies.
 
     ```
-    yarn
+    pnpm install
     ```
 
 2. Start a build to watch files and auto-recompile code on change.
 
     ```
-    yarn watch
+    pnpm watch
     ```
 
 3. In your browser, navigate to the extension debugging page and open `manifest.json`.
@@ -85,25 +85,25 @@ Please note that while the build tasks will auto-recompile, the browser may not 
 1. Install dependencies.
 
     ```
-    yarn
+    pnpm install
     ```
 
 2. Build and optimize all assets.
 
     ```
-    yarn build
+    pnpm build
     ```
 
 3. Zip all assets into a file suitable for distribution.
 
     ```
-    yarn zip
+    pnpm zip
     ```
 
 4. _(Optional)_ Zip all source code into a file suitable for distribution.
 
     ```
-    yarn zip-sources
+    pnpm zip-sources
     ```
 
 ### Translating the Extension
@@ -116,9 +116,8 @@ In order to add the new language, base your translation file off the English mes
 
 1. Copy `_locales/en/messages.json` into a new file at `_locales/<your language code>/messages.json`.
 2. Edit the `message` field in each item with your translation.
-3. In `src/common/moment.ts`, add a new import line like `import "moment/locale/<your language code>";`.
-4. Load (or reload) the extension to test it out. You may need to remove the extension entirely and then re-add it for changes to be reflected.
-5. Open a pull request!
+3. Load (or reload) the extension to test it out. You may need to remove the extension entirely and then re-add it for changes to be reflected.
+4. Open a pull request!
 
 There are automated checks to ensure that you're only defining translated strings that the extension actually uses.
 

@@ -1,5 +1,3 @@
-import { default as sortBy } from "lodash/sortBy";
-import { default as partition } from "lodash/partition";
 import {
   DownloadStationTask,
   DownloadStationTaskNormalStatus,
@@ -7,7 +5,7 @@ import {
   ALL_TASK_ERROR_STATUSES,
   ALL_TASK_NORMAL_STATUSES,
 } from "../common/apis/synology/DownloadStation/Task";
-import type { VisibleTaskSettings, TaskSortType } from "./state";
+import type { VisibleTaskSettings, TaskSortType } from "./state/defaults";
 import { assertNever, recordKeys } from "./lang";
 
 const EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES: {
@@ -20,19 +18,24 @@ const EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES: {
 
 {
   // Compile-time unit test.
-  const _1: keyof VisibleTaskSettings = (null as any) as keyof typeof EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES;
-  _1;
+  const _1: keyof VisibleTaskSettings =
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    null as any as keyof typeof EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES;
+  void _1;
 }
 
 const EXPLICITLY_SPECIFIED_TYPES = recordKeys(EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES).reduce(
-  (acc, key) => acc.concat(EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES[key]),
+  (acc, key) => [...acc, ...EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES[key]],
   [] as DownloadStationTaskNormalStatus[],
 );
 
-const ERRORED_TYPES = (ALL_TASK_ERROR_STATUSES as (
-  | DownloadStationTaskNormalStatus
-  | DownloadStationTaskErrorStatus
-)[]).concat(["error"]);
+const ERRORED_TYPES = [
+  ...(ALL_TASK_ERROR_STATUSES as (
+    | DownloadStationTaskNormalStatus
+    | DownloadStationTaskErrorStatus
+  )[]),
+  "error" as const,
+];
 
 const OTHER_STATUSES = ALL_TASK_NORMAL_STATUSES.filter(
   (status) =>
@@ -49,7 +52,7 @@ const TASK_FILTER_TO_TYPES: Record<
 };
 
 export function matchesFilter(task: DownloadStationTask, filterName: keyof VisibleTaskSettings) {
-  return TASK_FILTER_TO_TYPES[filterName].indexOf(task.status) !== -1;
+  return TASK_FILTER_TO_TYPES[filterName].includes(task.status);
 }
 
 export function filterTasks(
@@ -69,57 +72,66 @@ export function filterTasks(
 }
 
 function isActive(task: DownloadStationTask) {
-  return task.additional!.transfer!.speed_upload > 0 || task.additional!.transfer!.speed_download;
+  return (
+    task.additional!.transfer!.speed_upload > 0 || task.additional!.transfer!.speed_download > 0
+  );
 }
 
 function fractionComplete(task: DownloadStationTask) {
   return task.additional!.transfer!.size_downloaded / task.size;
 }
 
+function sortedBy<T>(arr: T[], key: (item: T) => number | string): T[] {
+  return [...arr].sort((a, b) => {
+    const ka = key(a);
+    const kb = key(b);
+    return ka < kb ? -1 : ka > kb ? 1 : 0;
+  });
+}
+
 export function sortTasks(
   tasks: DownloadStationTask[],
   taskSortType: TaskSortType,
 ): DownloadStationTask[] {
+  const isCompletedOrUploading = (t: DownloadStationTask) =>
+    matchesFilter(t, "completed") || matchesFilter(t, "uploading");
+
   switch (taskSortType) {
     case "name-asc":
-      return sortBy(tasks, (t) => t.title.toLocaleLowerCase());
+      return sortedBy(tasks, (t) => t.title.toLocaleLowerCase());
 
     case "name-desc":
-      return sortBy(tasks, (t) => t.title.toLocaleLowerCase()).reverse();
+      return sortedBy(tasks, (t) => t.title.toLocaleLowerCase()).reverse();
 
     case "timestamp-completed-asc": {
-      const [completed, incomplete] = partition(
-        tasks,
-        (t) => matchesFilter(t, "completed") || matchesFilter(t, "uploading"),
-      );
+      const completed = tasks.filter(isCompletedOrUploading);
+      const incomplete = tasks.filter((t) => !isCompletedOrUploading(t));
       return [
-        ...sortBy(incomplete, (t) => -fractionComplete(t)),
-        ...sortBy(completed, (t) => t.additional!.detail!.completed_time),
+        ...sortedBy(incomplete, (t) => -fractionComplete(t)),
+        ...sortedBy(completed, (t) => t.additional!.detail!.completed_time),
       ];
     }
 
     case "timestamp-completed-desc": {
-      const [completed, incomplete] = partition(
-        tasks,
-        (t) => matchesFilter(t, "completed") || matchesFilter(t, "uploading"),
-      );
+      const completed = tasks.filter(isCompletedOrUploading);
+      const incomplete = tasks.filter((t) => !isCompletedOrUploading(t));
       return [
-        ...sortBy(incomplete, (t) => -fractionComplete(t)),
-        ...sortBy(completed, (t) => -t.additional!.detail!.completed_time),
+        ...sortedBy(incomplete, (t) => -fractionComplete(t)),
+        ...sortedBy(completed, (t) => -t.additional!.detail!.completed_time),
       ];
     }
 
     case "timestamp-added-asc":
-      return sortBy(tasks, (t) => t.additional!.detail!.create_time);
+      return sortedBy(tasks, (t) => t.additional!.detail!.create_time);
 
     case "timestamp-added-desc":
-      return sortBy(tasks, (t) => t.additional!.detail!.create_time).reverse();
+      return sortedBy(tasks, (t) => t.additional!.detail!.create_time).reverse();
 
     case "completed-percent-asc":
-      return sortBy(sortTasks(tasks, "name-asc"), fractionComplete);
+      return sortedBy(sortTasks(tasks, "name-asc"), fractionComplete);
 
     case "completed-percent-desc":
-      return sortBy(sortTasks(tasks, "name-desc"), fractionComplete).reverse();
+      return sortedBy(sortTasks(tasks, "name-desc"), fractionComplete).reverse();
 
     default:
       return assertNever(taskSortType);

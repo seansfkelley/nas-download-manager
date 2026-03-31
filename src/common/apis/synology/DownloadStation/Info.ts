@@ -1,46 +1,37 @@
 import { ApiBuilder, BaseRequest } from "../shared";
 
-export interface DownloadStationInfoGetInfoResponse {
-  is_manager: boolean;
-  version: number;
-  version_string: string;
+export interface DownloadStationGlobalSettings {
+  download_volume: string;
+  enable_emule: boolean;
+  enable_unzip_service: boolean;
+  volume_count: number;
+  volume_list: {
+    desc: string;
+    display: string;
+    mount_point: string;
+    size_free: string;
+    size_total: string;
+    value: string;
+    vol_desc: string;
+  }[];
 }
 
-export interface DownloadStationInfoConfig {
-  bt_max_download: number;
-  bt_max_upload: number;
-  emule_max_download: number;
-  emule_max_upload: number;
-  nzb_max_download: number;
-  http_max_download: number;
-  ftp_max_download: number;
-  emule_enabled: boolean;
-  unzip_service_enabled: boolean;
-  default_destination: string;
-  emule_default_destination: string;
-}
-
-const API_NAME = "SYNO.DownloadStation.Info";
-const infoBuilder = new ApiBuilder("DownloadStation/info", API_NAME, {
-  apiGroup: "DownloadStation",
-  apiSubgroup: "DownloadStation.Info",
-});
+const API_NAME = "SYNO.DownloadStation2.Settings.Global";
+const infoBuilder = new ApiBuilder(
+  API_NAME,
+  {
+    apiGroup: "DownloadStation2",
+    apiSubgroup: "DownloadStation2.Settings.Global",
+  },
+  2,
+);
 
 export const Info = {
   API_NAME,
-  GetInfo: infoBuilder.makeGet<BaseRequest, DownloadStationInfoGetInfoResponse>(
-    "getinfo",
+  GetConfig: infoBuilder.makeGet<BaseRequest, DownloadStationGlobalSettings>(
+    "get",
     undefined,
     undefined,
     true,
-  ),
-  GetConfig: infoBuilder.makeGet<BaseRequest, DownloadStationInfoConfig>(
-    "getconfig",
-    undefined,
-    undefined,
-    true,
-  ),
-  SetServerConfig: infoBuilder.makeGet<Partial<DownloadStationInfoConfig> & BaseRequest, {}>(
-    "setserverconfig",
   ),
 };

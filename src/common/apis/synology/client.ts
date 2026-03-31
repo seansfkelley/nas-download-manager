@@ -1,8 +1,8 @@
 import { typesafeUnionMembers } from "../../lang";
 import { Auth, AuthLoginResponse } from "./Auth";
-import { DownloadStation } from "./DownloadStation";
-import { DownloadStation2 } from "./DownloadStation2";
-import { FileStation } from "./FileStation";
+import { Task } from "./DownloadStation/Task";
+import { Info as DSInfo } from "./DownloadStation/Info";
+import { List } from "./FileStation/List";
 import { Info } from "./Info";
 import {
   SessionName,
@@ -14,9 +14,21 @@ import {
   NetworkError,
 } from "./shared";
 
-const NO_SUCH_METHOD_ERROR_CODE = 103;
 const NO_PERMISSIONS_ERROR_CODE = 105;
 const SESSION_TIMEOUT_ERROR_CODE = 106;
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+const CONNECTION_RETRY_DELAYS = [5000, 10000, 20000];
+
+function isRetryableConnectionFailure(failure: ConnectionFailure): boolean {
+  return (
+    failure.type === "probable-wrong-url-or-no-connection-or-cert-error" ||
+    failure.type === "timeout"
+  );
+}
 
 export interface SynologyClientSettings {
   baseUrl: string;
@@ -38,12 +50,20 @@ export type ConnectionFailure =
       which: "password" | "other";
     }
   | {
-      type:
-        | "probable-wrong-protocol"
-        | "probable-wrong-url-or-no-connection-or-cert-error"
-        | "timeout"
-        | "unknown";
-      error: any;
+      type: "probable-wrong-protocol";
+      error: BadResponseError;
+    }
+  | {
+      type: "probable-wrong-url-or-no-connection-or-cert-error";
+      error: NetworkError;
+    }
+  | {
+      type: "timeout";
+      error: TimeoutError;
+    }
+  | {
+      type: "unknown";
+      error: unknown;
     };
 
 function isConnectionFailure(
@@ -53,7 +73,7 @@ function isConnectionFailure(
 }
 
 const ConnectionFailure = {
-  from: (error: any): ConnectionFailure => {
+  from: (error: unknown): ConnectionFailure => {
     if (error instanceof BadResponseError && error.response.status === 400) {
       return { type: "probable-wrong-protocol", error };
     } else if (error instanceof NetworkError) {
@@ -80,8 +100,24 @@ export const ClientRequestResult = {
 export class SynologyClient {
   private loginPromise: Promise<ClientRequestResult<AuthLoginResponse>> | undefined;
   private settingsVersion: number = 0;
+  private synotoken: string = "";
+  private onSessionChange?: (sid: string, synotoken: string) => void;
+  private onSessionClear?: () => void;
+  private loadCachedSession?: () => Promise<{ sid: string; synotoken: string } | undefined>;
+  private sessionCleared = false;
 
-  constructor(private settings: Partial<SynologyClientSettings>) {}
+  constructor(
+    private settings: Partial<SynologyClientSettings>,
+    options?: {
+      onSessionChange?: (sid: string, synotoken: string) => void;
+      onSessionClear?: () => void;
+      loadCachedSession?: () => Promise<{ sid: string; synotoken: string } | undefined>;
+    },
+  ) {
+    this.onSessionChange = options?.onSessionChange;
+    this.onSessionClear = options?.onSessionClear;
+    this.loadCachedSession = options?.loadCachedSession;
+  }
 
   public partiallyUpdateSettings(settings: Partial<SynologyClientSettings>) {
     const updatedSettings = { ...this.settings, ...settings };
@@ -115,27 +151,37 @@ export class SynologyClient {
     if (isConnectionFailure(settings)) {
       return settings;
     } else if (!this.loginPromise) {
+      // Try to restore a cached session before making a network login call.
+      // Skip cache if sessionCleared is set — the cached session is stale.
+      if (this.loadCachedSession && !this.sessionCleared) {
+        console.log("[session] no loginPromise, trying cached session");
+        const cached = await this.loadCachedSession();
+        if (cached?.sid) {
+          console.log("[session] restoring session from cache");
+          this.synotoken = cached.synotoken;
+          this.loginPromise = Promise.resolve({
+            success: true as const,
+            data: cached,
+            meta: { apiGroup: "Auth", method: "login", version: 6 },
+          });
+          return this.loginPromise;
+        }
+      }
+
+      console.log("[session] performing fresh login");
       const { baseUrl, ...restSettings } = settings;
       this.loginPromise = Auth.Login(baseUrl, {
         ...request,
         ...restSettings,
-        // First try with the lowest version that we can that supports sid, in an attempt to
-        // support the oldest DSMs we can.
-        version: 2,
+        version: 6,
       })
         .then((response) => {
-          // We guess we're on DSM 7, which does not support earlier versions of the API.
-          // We'd like to do this with an Info.Query, but DSM 7 erroneously reports that it
-          // supports version 2, which it definitely does not.
-          if (!response.success && response.error.code === NO_SUCH_METHOD_ERROR_CODE) {
-            return Auth.Login(baseUrl, {
-              ...request,
-              ...restSettings,
-              version: 3,
-            });
-          } else {
-            return response;
+          if (response.success) {
+            this.sessionCleared = false;
+            this.synotoken = response.data.synotoken;
+            this.onSessionChange?.(response.data.sid, response.data.synotoken);
           }
+          return response;
         })
         .catch((e) => ConnectionFailure.from(e));
     }
@@ -155,7 +201,11 @@ export class SynologyClient {
   ): Promise<ClientRequestResult<{}> | "not-logged-in"> => {
     const stashedLoginPromise = this.loginPromise;
     const settings = this.getValidatedSettings();
+    console.log("[session] clearing loginPromise (logout)");
     this.loginPromise = undefined;
+    this.synotoken = "";
+    this.sessionCleared = true;
+    this.onSessionClear?.();
 
     if (!stashedLoginPromise) {
       return "not-logged-in" as const;
@@ -183,16 +233,23 @@ export class SynologyClient {
   };
 
   private proxy<T, U>(
-    fn: (baseUrl: string, sid: string, options: T) => Promise<RestApiResponse<U>>,
+    fn: (
+      baseUrl: string,
+      sid: string,
+      options: T,
+      synotoken: string,
+    ) => Promise<RestApiResponse<U>>,
   ): (options: T) => Promise<ClientRequestResult<U>> {
     const wrappedFunction = async (
       options: T,
       shouldRetryRoutineFailures: boolean = true,
+      connectionRetryCount: number = 0,
     ): Promise<ClientRequestResult<U>> => {
       const versionAtInit = this.settingsVersion;
 
       const maybeLogoutAndRetry = async (
         result: ConnectionFailure | RestApiFailureResponse,
+        loginSucceeded: boolean,
       ): Promise<ClientRequestResult<U>> => {
         if (
           shouldRetryRoutineFailures &&
@@ -200,9 +257,36 @@ export class SynologyClient {
             result.error.code === SESSION_TIMEOUT_ERROR_CODE ||
             result.error.code === NO_PERMISSIONS_ERROR_CODE)
         ) {
-          this.loginPromise = undefined;
-          return wrappedFunction(options, false);
+          // Only clear loginPromise when the NAS told us our session is invalid
+          // (auth errors 105/106) or when login itself failed. Connection failures
+          // from API calls do NOT invalidate the session — the NAS just didn't respond.
+          const isAuthError =
+            !ClientRequestResult.isConnectionFailure(result) &&
+            (result.error.code === SESSION_TIMEOUT_ERROR_CODE ||
+              result.error.code === NO_PERMISSIONS_ERROR_CODE);
+
+          if (!loginSucceeded || isAuthError) {
+            this.loginPromise = undefined;
+            this.sessionCleared = true;
+            this.onSessionClear?.();
+          }
+
+          return wrappedFunction(options, false, connectionRetryCount);
+        } else if (
+          ClientRequestResult.isConnectionFailure(result) &&
+          isRetryableConnectionFailure(result) &&
+          connectionRetryCount < CONNECTION_RETRY_DELAYS.length
+        ) {
+          const delay = CONNECTION_RETRY_DELAYS[connectionRetryCount];
+          console.warn(
+            `Connection failed (${result.type}), retrying in ${delay / 1000}s (attempt ${connectionRetryCount + 1}/${CONNECTION_RETRY_DELAYS.length})`,
+          );
+          await sleep(delay);
+          return wrappedFunction(options, true, connectionRetryCount + 1);
         } else {
+          if (ClientRequestResult.isConnectionFailure(result)) {
+            console.error(`Connection failed (${result.type}), no more retries`);
+          }
           return result;
         }
       };
@@ -217,20 +301,40 @@ export class SynologyClient {
         if (this.settingsVersion !== versionAtInit) {
           return await wrappedFunction(options);
         } else if (ClientRequestResult.isConnectionFailure(loginResult) || !loginResult.success) {
-          return await maybeLogoutAndRetry(loginResult);
+          return await maybeLogoutAndRetry(loginResult, false);
         } else {
-          const response = await fn(this.settings.baseUrl!, loginResult.data.sid, options);
+          const response = await fn(
+            this.settings.baseUrl!,
+            loginResult.data.sid,
+            options,
+            this.synotoken,
+          );
 
           if (this.settingsVersion !== versionAtInit) {
             return await wrappedFunction(options);
           } else if (response.success) {
             return response;
           } else {
-            return await maybeLogoutAndRetry(response);
+            return await maybeLogoutAndRetry(response, true);
           }
         }
       } catch (e) {
-        return ConnectionFailure.from(e);
+        const failure = ConnectionFailure.from(e);
+
+        if (
+          isRetryableConnectionFailure(failure) &&
+          connectionRetryCount < CONNECTION_RETRY_DELAYS.length
+        ) {
+          const delay = CONNECTION_RETRY_DELAYS[connectionRetryCount];
+          console.warn(
+            `Connection failed (${failure.type}), retrying in ${delay / 1000}s (attempt ${connectionRetryCount + 1}/${CONNECTION_RETRY_DELAYS.length})`,
+          );
+          await sleep(delay);
+          return wrappedFunction(options, true, connectionRetryCount + 1);
+        }
+
+        console.error(`Connection failed (${failure.type}), no more retries`);
+        return failure;
       }
     };
 
@@ -272,35 +376,22 @@ export class SynologyClient {
 
   public DownloadStation = {
     Info: {
-      GetInfo: this.proxyOptionalArgs(DownloadStation.Info.GetInfo),
-      GetConfig: this.proxyOptionalArgs(DownloadStation.Info.GetConfig),
-      SetServerConfig: this.proxy(DownloadStation.Info.SetServerConfig),
+      GetConfig: this.proxyOptionalArgs(DSInfo.GetConfig),
     },
     Task: {
-      List: this.proxyOptionalArgs(DownloadStation.Task.List),
-      GetInfo: this.proxy(DownloadStation.Task.GetInfo),
-      Create: this.proxy(DownloadStation.Task.Create),
-      Delete: this.proxy(DownloadStation.Task.Delete),
-      Pause: this.proxy(DownloadStation.Task.Pause),
-      Resume: this.proxy(DownloadStation.Task.Resume),
-      Edit: this.proxy(DownloadStation.Task.Edit),
-    },
-  };
-
-  public DownloadStation2 = {
-    Task: {
-      Create: this.proxy(DownloadStation2.Task.Create),
+      List: this.proxyOptionalArgs(Task.List),
+      Create: this.proxy(Task.Create),
+      Delete: this.proxy(Task.Delete),
+      Pause: this.proxy(Task.Pause),
+      Resume: this.proxy(Task.Resume),
     },
   };
 
   public FileStation = {
-    Info: {
-      get: this.proxy(FileStation.Info.get),
-    },
     List: {
-      list_share: this.proxyOptionalArgs(FileStation.List.list_share),
-      list: this.proxy(FileStation.List.list),
-      getinfo: this.proxy(FileStation.List.getinfo),
+      list_share: this.proxyOptionalArgs(List.list_share),
+      list: this.proxy(List.list),
+      getinfo: this.proxy(List.getinfo),
     },
   };
 }

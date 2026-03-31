@@ -1,8 +1,15 @@
-import { ClientRequestResult } from "../common/apis/synology";
+import { ClientRequestResult } from "../common/apis/synology/client";
 import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../common/apis/errors";
+import { testConnection } from "../common/apis/connection";
 import { MessageResponse, Message, Result } from "../common/apis/messages";
-import { addDownloadTasksAndPoll, clearCachedTasks, pollTasks } from "./actions";
-import { BackgroundState, getMutableStateSingleton } from "./backgroundState";
+import { addDownloadTasksAndPoll } from "./actions/addDownloadTasksAndPoll";
+import { pollTasks, clearCachedTasks } from "./actions/pollTasks";
+import {
+  BackgroundState,
+  getMutableStateSingleton,
+  clearCachedSession,
+  settingsReady,
+} from "./backgroundState";
 import type { DiscriminateUnion } from "../common/types";
 
 type MessageHandler<T extends Message, U extends Result[keyof Result]> = (
@@ -37,7 +44,7 @@ function toMessageResponse<T, U>(
     return {
       success: true,
       // Non-null assert: extract exists iff we are type-parameterized to something other than undefined.
-      result: extract?.(response.data)!,
+      result: extract!(response.data),
     };
   }
 }
@@ -104,18 +111,35 @@ const MESSAGE_HANDLERS: MessageHandlers = {
     }
   },
   "set-login-password": async (m, state) => {
+    clearCachedSession();
     if (state.api.partiallyUpdateSettings({ passwd: m.password })) {
       await clearCachedTasks();
     }
     // Always reset the session!
     await state.api.Auth.Logout();
   },
+  "test-connection": async (m) => {
+    const result = await testConnection({
+      hostname: m.hostname,
+      port: m.port,
+      username: m.username,
+      password: m.password,
+      rememberPassword: false,
+    });
+    return toMessageResponse(result, () => undefined);
+  },
 };
 
 export function initializeMessageHandler() {
   browser.runtime.onMessage.addListener((m) => {
     if (Message.is(m)) {
-      return MESSAGE_HANDLERS[m.type](m as any, getMutableStateSingleton());
+      return settingsReady.then(
+        () =>
+          (MESSAGE_HANDLERS[m.type] as MessageHandler<Message, Result[keyof Result]>)(
+            m,
+            getMutableStateSingleton(),
+          ) as Promise<unknown>,
+      );
     } else {
       console.error("received unhandleable message", m);
       return undefined;

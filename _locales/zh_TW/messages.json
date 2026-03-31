@@ -409,7 +409,7 @@
     "description": "Error message when notification interval is too short."
   },
   "Handle_opening_downloadable_link_types_ZprotocolsZ": {
-    "message": "閈啟支援的下載連結類型（$PROTOCOLS$）",
+    "message": "闡啟支援的下載連結類型（$PROTOCOLS$）",
     "description": "Label for option on settings page.",
     "placeholders": {
       "protocols": {
@@ -461,14 +461,6 @@
   "Connection_failed_for_an_unknown_reason": {
     "message": "連接失敗。未知原因",
     "description": "Connection failure explanatory text."
-  },
-  "Unknown_error_displaying_tasks": {
-    "message": "顯示任務出錯 ",
-    "description": "Main explanatory text for the popup when we have a fatal rendering error."
-  },
-  "Your_download_tasks_are_not_affected": {
-    "message": "您 NAS 上的下載並未受到影響 ",
-    "description": "Reassuring explanatory text for when we have a fatal rendering error."
   },
   "Please_": {
     "message": "請 ",
@@ -743,14 +735,6 @@
   "Please_be_patient_this_may_take_some_time": {
     "message": "此操作會持續一段時間，請耐心等待...",
     "description": "Notification body text."
-  },
-  "FTP_username": {
-    "message": "FTP 使用者名稱...",
-    "description": "Placeholder for input field in add-download form."
-  },
-  "FTP_password": {
-    "message": "FTP 密碼...",
-    "description": "Placeholder for input field in add-download form."
   },
   "Unzip_password": {
     "message": "Zip 壓縮包密碼...",

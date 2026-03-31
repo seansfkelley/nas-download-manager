@@ -1,4 +1,3 @@
-import { stringify } from "query-string";
 import { typesafePick } from "../../lang";
 
 export class BadResponseError extends Error {
@@ -21,8 +20,8 @@ export interface FormFile {
   filename: string;
 }
 
-export function isFormFile(f?: any): f is FormFile {
-  return f && (f as FormFile).content != null && (f as FormFile).filename != null;
+export function isFormFile(f?: unknown): f is FormFile {
+  return !!f && (f as FormFile).content != null && (f as FormFile).filename != null;
 }
 
 export interface ApiGroupMeta {
@@ -46,7 +45,7 @@ export interface RestApiFailureResponse {
   meta: ResponseMeta;
   error: {
     code: number;
-    errors?: any[];
+    errors?: unknown[];
   };
 }
 
@@ -62,6 +61,7 @@ export interface ApiRequest {
   method: string;
   meta: ApiGroupMeta;
   sid?: string;
+  SynoToken?: string;
   timeout?: number;
   [key: string]: string | number | boolean | FormFile | ApiGroupMeta | undefined;
 }
@@ -108,15 +108,16 @@ async function fetchWithErrorHandling(
 
 export async function get<O extends object>(
   baseUrl: string,
-  cgi: string,
   request: ApiRequest,
 ): Promise<RestApiResponse<O>> {
-  const url = `${baseUrl}/webapi/${cgi}.cgi?${stringify({
-    ...request,
-    _sid: request.sid,
-    timeout: undefined,
-    meta: undefined,
-  })}`;
+  const params = new URLSearchParams();
+  for (const [k, v] of Object.entries(request)) {
+    if (k !== "timeout" && k !== "meta" && v !== undefined && typeof v !== "object") {
+      params.set(k, String(v));
+    }
+  }
+  if (request.sid) params.set("_sid", request.sid);
+  const url = `${baseUrl}/webapi/entry.cgi?${params.toString()}`;
 
   return fetchWithErrorHandling(url, { method: "GET" }, request.timeout, {
     ...request.meta,
@@ -126,7 +127,6 @@ export async function get<O extends object>(
 
 export async function post<O extends object>(
   baseUrl: string,
-  cgi: string,
   request: ApiRequest,
 ): Promise<RestApiResponse<O>> {
   const formData = new FormData();
@@ -150,7 +150,7 @@ export async function post<O extends object>(
     }
   });
 
-  const url = `${baseUrl}/webapi/${cgi}.cgi?${stringify({ _sid: request.sid })}`;
+  const url = `${baseUrl}/webapi/entry.cgi?${request.sid ? `_sid=${encodeURIComponent(request.sid)}` : ""}`;
 
   return fetchWithErrorHandling(url, { method: "POST", body: formData }, request.timeout, {
     ...request.meta,
@@ -159,19 +159,23 @@ export async function post<O extends object>(
 }
 
 export class ApiBuilder {
-  constructor(private cgiName: string, private apiName: string, private meta: ApiGroupMeta) {}
+  constructor(
+    private apiName: string,
+    public readonly meta: ApiGroupMeta,
+    private version: number = 1,
+  ) {}
 
   makeGet<I extends BaseRequest, O>(
     methodName: string,
     preprocess?: (options: I) => object,
     postprocess?: (response: O) => O,
-  ): (baseUrl: string, sid: string, options: I) => Promise<RestApiResponse<O>>;
+  ): (baseUrl: string, sid: string, options: I, synotoken: string) => Promise<RestApiResponse<O>>;
   makeGet<I extends BaseRequest, O>(
     methodName: string,
     preprocess: ((options?: I) => object) | undefined,
     postprocess: ((response: O) => O) | undefined,
     optional: true,
-  ): (baseUrl: string, sid: string, options?: I) => Promise<RestApiResponse<O>>;
+  ): (baseUrl: string, sid: string, options?: I, synotoken?: string) => Promise<RestApiResponse<O>>;
 
   makeGet(
     methodName: string,
@@ -186,13 +190,13 @@ export class ApiBuilder {
     methodName: string,
     preprocess?: (options: I) => object,
     postprocess?: (response: O) => O,
-  ): (baseUrl: string, sid: string, options: I) => Promise<RestApiResponse<O>>;
+  ): (baseUrl: string, sid: string, options: I, synotoken: string) => Promise<RestApiResponse<O>>;
   makePost<I extends BaseRequest, O>(
     methodName: string,
     preprocess: ((options?: I) => object) | undefined,
     postprocess: ((response: O) => O) | undefined,
     optional: true,
-  ): (baseUrl: string, sid: string, options?: I) => Promise<RestApiResponse<O>>;
+  ): (baseUrl: string, sid: string, options?: I, synotoken?: string) => Promise<RestApiResponse<O>>;
 
   makePost(
     methodName: string,
@@ -211,13 +215,14 @@ export class ApiBuilder {
   ) {
     preprocess = preprocess || ((o) => o);
     postprocess = postprocess || ((r) => r);
-    return async (baseUrl: string, sid: string, options?: object) => {
-      const response = await method(baseUrl, this.cgiName, {
+    return async (baseUrl: string, sid: string, options?: object, synotoken: string = "") => {
+      const response = await method(baseUrl, {
         ...preprocess!(options || {}),
         api: this.apiName,
-        version: 1,
+        version: this.version,
         method: methodName,
         sid,
+        SynoToken: synotoken,
         meta: this.meta,
       });
       if (response.success) {
