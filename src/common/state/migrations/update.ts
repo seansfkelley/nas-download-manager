@@ -6,8 +6,9 @@ import { migrate as migrate3to4 } from "./4";
 import { migrate as migrate4to5 } from "./5";
 import { migrate as migrate5to6 } from "./6";
 import { migrate as migrate6to7 } from "./7";
+import { migrate as migrate7to8 } from "./8";
 
-const LATEST_STATE_VERSION: StateVersion["stateVersion"] = 7;
+const LATEST_STATE_VERSION: StateVersion["stateVersion"] = 8;
 const MIGRATIONS: ((state: any) => any)[] = [
   migrate0to1,
   migrate1to2,
@@ -16,6 +17,7 @@ const MIGRATIONS: ((state: any) => any)[] = [
   migrate4to5,
   migrate5to6,
   migrate6to7,
+  migrate7to8,
 ];
 
 interface AnyStateVersion {

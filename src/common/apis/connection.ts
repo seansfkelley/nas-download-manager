@@ -1,14 +1,18 @@
 import { ConnectionSettings, getHostUrl } from "../state";
 import { ClientRequestResult, SessionName, SynologyClient } from "./synology";
+import type { AuthLoginResponse } from "./synology/Auth";
 
 export async function testConnection(
   settings: ConnectionSettings,
-): Promise<ClientRequestResult<{}>> {
+  otpCode?: string,
+): Promise<ClientRequestResult<AuthLoginResponse>> {
   const api = new SynologyClient({
     baseUrl: getHostUrl(settings),
     account: settings.username,
     passwd: settings.password,
     session: SessionName.DownloadStation,
+    otpCode,
+    deviceToken: settings.rememberedDeviceToken,
   });
 
   const loginResult = await api.Auth.Login({ timeout: 30000 });

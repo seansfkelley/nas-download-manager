@@ -16,6 +16,8 @@ export function onStoredStateChange(storedState: State) {
     baseUrl: getHostUrl(storedState.settings.connection),
     account: storedState.settings.connection.username,
     session: SessionName.DownloadStation,
+    // The remembered 2FA device token (if any) lets the background log in without an OTP prompt.
+    deviceToken: storedState.settings.connection.rememberedDeviceToken,
     // Do NOT set password from here. It might not be set because of the "remember me" feature, so
     // we could erroneously overwrite it. Instead, read it once at startup time (if configured), and
     // otherwise, wait for an imperative login request message to be handled elsewhere.
