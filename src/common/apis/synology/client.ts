@@ -18,19 +18,37 @@ const NO_SUCH_METHOD_ERROR_CODE = 103;
 const NO_PERMISSIONS_ERROR_CODE = 105;
 const SESSION_TIMEOUT_ERROR_CODE = 106;
 
+// Shown in DSM's Control Panel > Security > Account > trusted devices list.
+const DEVICE_NAME = "NAS Download Manager";
+
 export interface SynologyClientSettings {
   baseUrl: string;
   account: string;
   passwd: string;
   session: SessionName;
+  // 2FA one-time-password, used only for a single login (the first one on a 2FA account).
+  otpCode?: string;
+  // A remembered device token ("did") presented in lieu of an OTP on subsequent logins.
+  deviceToken?: string;
 }
 
-const SETTING_NAME_KEYS = typesafeUnionMembers<keyof SynologyClientSettings>({
+// The fields that must be present for the connection to be considered configured. The 2FA
+// fields above are deliberately excluded — they're optional and account-dependent.
+type RequiredSettingName = "baseUrl" | "account" | "passwd" | "session";
+
+const SETTING_NAME_KEYS = typesafeUnionMembers<RequiredSettingName>({
   baseUrl: true,
   account: true,
   passwd: true,
   session: true,
 });
+
+// A change to any of these should tear down the current session and force a fresh login.
+const SESSION_RESET_KEYS: (keyof SynologyClientSettings)[] = [
+  ...SETTING_NAME_KEYS,
+  "deviceToken",
+  "otpCode",
+];
 
 export type ConnectionFailure =
   | {
@@ -85,7 +103,7 @@ export class SynologyClient {
 
   public partiallyUpdateSettings(settings: Partial<SynologyClientSettings>) {
     const updatedSettings = { ...this.settings, ...settings };
-    if (SETTING_NAME_KEYS.some((k) => updatedSettings[k] !== this.settings[k])) {
+    if (SESSION_RESET_KEYS.some((k) => updatedSettings[k] !== this.settings[k])) {
       this.settingsVersion++;
       this.settings = updatedSettings;
       this.maybeLogout();
@@ -115,28 +133,39 @@ export class SynologyClient {
     if (isConnectionFailure(settings)) {
       return settings;
     } else if (!this.loginPromise) {
-      const { baseUrl, ...restSettings } = settings;
-      this.loginPromise = Auth.Login(baseUrl, {
-        ...request,
-        ...restSettings,
-        // First try with the lowest version that we can that supports sid, in an attempt to
-        // support the oldest DSMs we can.
-        version: 2,
-      })
-        .then((response) => {
-          // We guess we're on DSM 7, which does not support earlier versions of the API.
-          // We'd like to do this with an Info.Query, but DSM 7 erroneously reports that it
-          // supports version 2, which it definitely does not.
-          if (!response.success && response.error.code === NO_SUCH_METHOD_ERROR_CODE) {
-            return Auth.Login(baseUrl, {
-              ...request,
-              ...restSettings,
-              version: 3,
-            });
-          } else {
-            return response;
-          }
-        })
+      const { baseUrl, account, passwd, session, otpCode, deviceToken } = settings;
+
+      // Note: only camelCased fields known to Auth.Login are forwarded — never spread the whole
+      // settings object, or otpCode/deviceToken would leak into the query string verbatim.
+      const attempt = (version: 2 | 3 | 6) =>
+        Auth.Login(baseUrl, {
+          ...request,
+          account,
+          passwd,
+          session,
+          version,
+          // Always ask DSM to (re)issue a device token so we can keep skipping the OTP prompt.
+          enable_device_token: "yes",
+          device_name: DEVICE_NAME,
+          // Prefer a freshly-typed OTP; otherwise present a remembered device token, if any.
+          otp_code: otpCode || undefined,
+          device_id: !otpCode && deviceToken ? deviceToken : undefined,
+        });
+
+      // 6 is the lowest version supporting device tokens, so try it first. Fall back through
+      // 3 then 2 for older DSMs that don't implement it (they report code 103, no-such-method).
+      // DSM 7 erroneously claims to support version 2, so we can't rely on Info.Query here.
+      this.loginPromise = attempt(6)
+        .then((response) =>
+          !response.success && response.error.code === NO_SUCH_METHOD_ERROR_CODE
+            ? attempt(3)
+            : response,
+        )
+        .then((response) =>
+          !response.success && response.error.code === NO_SUCH_METHOD_ERROR_CODE
+            ? attempt(2)
+            : response,
+        )
         .catch((e) => ConnectionFailure.from(e));
     }
 

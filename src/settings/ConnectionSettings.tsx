@@ -25,12 +25,15 @@ interface Props {
 interface State {
   changedSettings: Partial<ConnectionSettingsWithMandatoryPassword>;
   loginStatus: Status;
+  // Transient 2FA code — used for a single login and never persisted.
+  otpCode: string;
 }
 
 export class ConnectionSettings extends React.PureComponent<Props, State> {
   state: State = {
     changedSettings: {},
     loginStatus: "none",
+    otpCode: "",
   };
 
   render() {
@@ -117,6 +120,27 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
             <label htmlFor={checkboxId}>{browser.i18n.getMessage("Remember_Password")}</label>
           </li>
 
+          <li className="label-and-input">
+            <span className="label">{browser.i18n.getMessage("Twostep_verification_code")}</span>
+            <div className="input">
+              <input
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={6}
+                placeholder={browser.i18n.getMessage("Twostep_verification_code_placeholder")}
+                {...disabledPropAndClassName(!canEditFields)}
+                value={this.state.otpCode}
+                onChange={(e) => {
+                  this.setState({
+                    loginStatus: "none",
+                    otpCode: e.currentTarget.value.replace(/[^0-9]/g, ""),
+                  });
+                }}
+              />
+            </div>
+          </li>
+
           <li>
             <LoginStatus status={this.state.loginStatus} />
             <button
@@ -166,14 +190,20 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
       loginStatus: "in-progress",
     });
 
-    const result = await testConnection(settings);
+    const otpCode = this.state.otpCode.trim();
+    const result = await testConnection(settings, otpCode || undefined);
 
     this.setState({
       loginStatus: result,
     });
 
     if (!ClientRequestResult.isConnectionFailure(result) && result.success) {
-      this.props.saveConnectionSettings(settings);
+      // DSM returns a device token ("did") when we log in with enable_device_token after a 2FA
+      // code. Persist it so subsequent logins skip the OTP prompt; keep any existing token if
+      // none came back (e.g. accounts without 2FA).
+      const rememberedDeviceToken = result.data.did ?? settings.rememberedDeviceToken;
+      this.props.saveConnectionSettings({ ...settings, rememberedDeviceToken });
+      this.setState({ otpCode: "" });
     }
   };
 }

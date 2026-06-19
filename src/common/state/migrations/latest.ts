@@ -9,4 +9,4 @@ export {
   Logging,
   StateVersion,
   BadgeDisplayType,
-} from "./7";
+} from "./8";

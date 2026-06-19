@@ -548,6 +548,14 @@
     "message": "Two-step verification failed.",
     "description": "Error message on Synology API call failure."
   },
+  "Twostep_verification_code": {
+    "message": "2FA code",
+    "description": "Label for the two-step verification (OTP) input on the settings page."
+  },
+  "Twostep_verification_code_placeholder": {
+    "message": "Only if 2-step verification is enabled",
+    "description": "Placeholder for the two-step verification code input on the settings page."
+  },
   "File_upload_failed": {
     "message": "File upload failed.",
     "description": "Error message on Synology API call failure."
