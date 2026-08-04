@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "description": "An open source browser extension for adding/managing download tasks to your Synology DiskStation.",
   "scripts": {
-    "test": "TS_NODE_PROJECT=test/tsconfig-test.json mocha --require ts-node/register 'test/**/*.{ts,tsx}'",
+    "test": "jest",
     "lint": "prettier --check \"src/**/*\" \"test/**/*\" && tsc -p src --noemit",
     "watch": "parcel watch --no-hmr src/content/index.ts src/background/index.ts src/settings/index.tsx src/popup/index.tsx",
     "build": "rm -rf dist && parcel build src/content/index.ts src/background/index.ts src/settings/index.tsx src/popup/index.tsx --no-source-maps",
@@ -19,21 +19,19 @@
     "since 2021-06"
   ],
   "devDependencies": {
-    "@types/chai": "^4.0.4",
     "@types/glob": "^5.0.33",
+    "@types/jest": "^30.0.0",
     "@types/lodash": "^4.14.141",
-    "@types/mocha": "^2.2.44",
     "@types/node": "^14.14.41",
     "@types/react": "^17.0.34",
     "@types/react-dom": "^17.0.0",
-    "chai": "^4.1.2",
     "glob": "^7.1.2",
-    "mocha": "^4.0.1",
+    "jest": "^30.4.2",
     "parcel-bundler": "^1.12.4",
     "prettier": "^3.9.6",
     "sass": "^1.22.10",
     "semver": "^7.3.4",
-    "ts-node": "^9.1.1",
+    "ts-jest": "^29.4.12",
     "typescript": "^5.2.2"
   },
   "dependencies": {
