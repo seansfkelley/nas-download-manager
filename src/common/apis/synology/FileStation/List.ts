@@ -33,13 +33,7 @@ export interface FileStationListListShareRequest extends BaseRequest {
   sort_direction?: "asc" | "desc";
   onlywritable?: boolean;
   additional?: (
-    | "real_path"
-    | "size"
-    | "owner"
-    | "time"
-    | "perm"
-    | "mount_point_type"
-    | "volume_status"
+    "real_path" | "size" | "owner" | "time" | "perm" | "mount_point_type" | "volume_status"
   )[];
 }
 
@@ -77,13 +71,7 @@ export interface FileStationListListShareResponse {
 }
 
 export type FileStationFileAdditionalType =
-  | "real_path"
-  | "size"
-  | "owner"
-  | "time"
-  | "perm"
-  | "mount_point_type"
-  | "type";
+  "real_path" | "size" | "owner" | "time" | "perm" | "mount_point_type" | "type";
 
 export interface FileStationListListRequest extends BaseRequest {
   folder_path: string;

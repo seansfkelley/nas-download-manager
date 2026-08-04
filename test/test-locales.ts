@@ -33,7 +33,7 @@ function loadLocale(localeName: string): LocaleMessages {
 function createForEachMessage(localeName: string) {
   return (fn: (message: I18nMessage, messageName: string) => void) => {
     const messages = loadLocale(localeName);
-    Object.keys(messages).forEach(key => {
+    Object.keys(messages).forEach((key) => {
       fn(messages[key], key);
     });
   };
@@ -43,7 +43,7 @@ describe("i18n", () => {
   const DEFAULT_LOCALE: string = loadJson("manifest.json").default_locale;
   const SOURCE_FILES_BY_NAME: Record<string, string> = {};
 
-  globSync(path.join(__dirname, "..", "src", "**", "*.ts*")).forEach(filename => {
+  globSync(path.join(__dirname, "..", "src", "**", "*.ts*")).forEach((filename) => {
     if (!filename.endsWith(".d.ts")) {
       SOURCE_FILES_BY_NAME[filename] = fs.readFileSync(filename).toString("utf8");
     }
@@ -70,7 +70,7 @@ describe("i18n", () => {
       forEachMessage(({ message }, messageName) => {
         expect(messageName).to.equal(
           message
-            .replace(/\$[A-Z]+\$/g, substr => substr.toLowerCase())
+            .replace(/\$[A-Z]+\$/g, (substr) => substr.toLowerCase())
             .replace(/[^A-Za-z0-9$_ ]/g, "")
             .replace(/ +/g, "_")
             .replace(/\$/g, "Z"),
@@ -83,7 +83,7 @@ describe("i18n", () => {
         if (!test_skip_reference_check) {
           const I18N_CALL_REGEX = new RegExp(`browser\\.i18n\\.getMessage\\(\\s*"${messageName}"`);
           expect(
-            Object.keys(SOURCE_FILES_BY_NAME).some(name => {
+            Object.keys(SOURCE_FILES_BY_NAME).some((name) => {
               return SOURCE_FILES_BY_NAME[name].search(I18N_CALL_REGEX) !== -1;
             }),
             messageName,
@@ -95,7 +95,7 @@ describe("i18n", () => {
     it('every "getMessage" call should use a known message name', () => {
       const I18N_CALL_REGEX = /browser\.i18n\.getMessage\(\s*"([^"]*)"/g;
       const MESSAGES = loadLocale(DEFAULT_LOCALE);
-      Object.keys(SOURCE_FILES_BY_NAME).forEach(name => {
+      Object.keys(SOURCE_FILES_BY_NAME).forEach((name) => {
         const content = SOURCE_FILES_BY_NAME[name];
         let match;
         let didMatch = false;
@@ -124,7 +124,7 @@ describe("i18n", () => {
           if (namedPlaceholders != null) {
             expect(placeholders).to.exist;
             expect(placeholders).to.have.all.keys(
-              namedPlaceholders.map(p => p.toLowerCase().replace(/(^\$)|(\$$)/g, "")),
+              namedPlaceholders.map((p) => p.toLowerCase().replace(/(^\$)|(\$$)/g, "")),
             );
           } else {
             expect(placeholders).to.not.exist;
@@ -135,13 +135,15 @@ describe("i18n", () => {
       it('should have "content" fields on every placeholder of the form "$n" and are the first n natural numbers', () => {
         forEachMessage(({ placeholders }) => {
           if (placeholders != null) {
-            const placeholderContents = Object.keys(placeholders).map(p => placeholders[p].content);
+            const placeholderContents = Object.keys(placeholders).map(
+              (p) => placeholders[p].content,
+            );
 
-            placeholderContents.forEach(p => {
+            placeholderContents.forEach((p) => {
               expect(p).to.match(/^\$[0-9]$/);
             });
 
-            expect(placeholderContents.sort().map(p => p.replace("$", ""))).to.deep.equal(
+            expect(placeholderContents.sort().map((p) => p.replace("$", ""))).to.deep.equal(
               (Array.apply(null, new Array(placeholderContents.length)) as undefined[]).map(
                 (_value, index) => (index + 1).toString(),
               ),
@@ -153,7 +155,7 @@ describe("i18n", () => {
       it('should have "example" fields on every placeholder', () => {
         forEachMessage(({ placeholders }) => {
           if (placeholders != null) {
-            Object.keys(placeholders).forEach(placeholderName => {
+            Object.keys(placeholders).forEach((placeholderName) => {
               expect(placeholders[placeholderName].example).to.exist;
             });
           }
@@ -164,8 +166,8 @@ describe("i18n", () => {
 
   describe("other locale messages", () => {
     fs.readdirSync(path.join(__dirname, "..", "_locales"))
-      .filter(locale => locale !== DEFAULT_LOCALE)
-      .forEach(locale => {
+      .filter((locale) => locale !== DEFAULT_LOCALE)
+      .forEach((locale) => {
         const DEFAULT_LOCALE_MESSAGES = loadLocale(DEFAULT_LOCALE);
         it(`"${locale}" locale should have a subset of the messages from the default locale`, () => {
           expect(DEFAULT_LOCALE_MESSAGES).to.include.all.keys(Object.keys(loadLocale(locale)));

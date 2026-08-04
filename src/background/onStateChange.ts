@@ -50,9 +50,9 @@ export function onStoredStateChange(storedState: State) {
     backgroundState.lastNotificationSettings = storedState.settings.notifications;
     clearInterval(backgroundState.notificationInterval!);
     if (backgroundState.lastNotificationSettings.enableCompletionNotifications) {
-      backgroundState.notificationInterval = (setInterval(() => {
+      backgroundState.notificationInterval = setInterval(() => {
         pollTasks(backgroundState.api, backgroundState.pollRequestManager);
-      }, backgroundState.lastNotificationSettings.completionPollingInterval * 1000) as any) as number;
+      }, backgroundState.lastNotificationSettings.completionPollingInterval * 1000) as any as number;
     }
   }
 

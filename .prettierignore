@@ -2,7 +2,7 @@
 *.zip
 *.log
 *.md
-yarn.lock
+package-lock.json
 dist/
 lib/
 icons/

@@ -9,20 +9,17 @@ interface BaseDownloadStation2TaskCreateRequest extends BaseRequest {
   extract_password?: string;
 }
 
-export interface DownloadStation2TaskCreateFileRequest
-  extends BaseDownloadStation2TaskCreateRequest {
+export interface DownloadStation2TaskCreateFileRequest extends BaseDownloadStation2TaskCreateRequest {
   type: "file";
   file: FormFile;
 }
 
-export interface DownloadStation2TaskCreateUrlRequest
-  extends BaseDownloadStation2TaskCreateRequest {
+export interface DownloadStation2TaskCreateUrlRequest extends BaseDownloadStation2TaskCreateRequest {
   type: "url";
   url: string[];
 }
 
-export interface DownloadStation2TaskCreateLocalRequest
-  extends BaseDownloadStation2TaskCreateRequest {
+export interface DownloadStation2TaskCreateLocalRequest extends BaseDownloadStation2TaskCreateRequest {
   type: "local";
   local_path: string;
 }

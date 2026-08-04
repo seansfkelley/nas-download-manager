@@ -4,7 +4,7 @@
   "description": "An open source browser extension for adding/managing download tasks to your Synology DiskStation.",
   "scripts": {
     "test": "TS_NODE_PROJECT=test/tsconfig-test.json mocha --require ts-node/register 'test/**/*.{ts,tsx}'",
-    "lint": "prettier --check src/**/* && tsc -p src --noemit",
+    "lint": "prettier --check \"src/**/*\" \"test/**/*\" && tsc -p src --noemit",
     "watch": "parcel watch --no-hmr src/content/index.ts src/background/index.ts src/settings/index.tsx src/popup/index.tsx",
     "build": "rm -rf dist && parcel build src/content/index.ts src/background/index.ts src/settings/index.tsx src/popup/index.tsx --no-source-maps",
     "zip": "rm -rf addon.zip && zip -r addon.zip . -i 'dist/*' -i 'html/*' -i 'icons/*' -i 'vendor/*' -i '_locales/*' -i 'manifest.json' -x '**/*.map' -x '**/.DS_Store'",
@@ -30,7 +30,7 @@
     "glob": "^7.1.2",
     "mocha": "^4.0.1",
     "parcel-bundler": "^1.12.4",
-    "prettier": "^2.2.1",
+    "prettier": "^3.9.6",
     "sass": "^1.22.10",
     "semver": "^7.3.4",
     "ts-node": "^9.1.1",

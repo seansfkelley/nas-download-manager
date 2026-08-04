@@ -164,8 +164,8 @@ export const SetLoginPassword = makeMessageOperations("set-login-password", (pas
 
 {
   // Compile-time check to make sure that these two different types that have to match, do.
-  let _message: Message["type"] = (null as unknown) as keyof Result;
-  let _result: keyof Result = (null as unknown) as Message["type"];
+  let _message: Message["type"] = null as unknown as keyof Result;
+  let _result: keyof Result = null as unknown as Message["type"];
 
   // Get the compiler to shut up. These lines don't necessarily catch type errors.
   _message = _result;

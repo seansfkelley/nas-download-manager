@@ -20,7 +20,8 @@ const EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES: {
 
 {
   // Compile-time unit test.
-  const _1: keyof VisibleTaskSettings = (null as any) as keyof typeof EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES;
+  const _1: keyof VisibleTaskSettings =
+    null as any as keyof typeof EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES;
   _1;
 }
 
@@ -29,10 +30,9 @@ const EXPLICITLY_SPECIFIED_TYPES = recordKeys(EXPLICIT_TASK_FILTER_TO_NORMAL_TYP
   [] as DownloadStationTaskNormalStatus[],
 );
 
-const ERRORED_TYPES = (ALL_TASK_ERROR_STATUSES as (
-  | DownloadStationTaskNormalStatus
-  | DownloadStationTaskErrorStatus
-)[]).concat(["error"]);
+const ERRORED_TYPES = (
+  ALL_TASK_ERROR_STATUSES as (DownloadStationTaskNormalStatus | DownloadStationTaskErrorStatus)[]
+).concat(["error"]);
 
 const OTHER_STATUSES = ALL_TASK_NORMAL_STATUSES.filter(
   (status) =>

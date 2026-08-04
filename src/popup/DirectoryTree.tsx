@@ -3,9 +3,7 @@ import * as React from "react";
 import classNames from "classnames";
 
 export type DirectoryTreeFileChildren =
-  | "unloaded"
-  | { failureMessage: string }
-  | DirectoryTreeFile[];
+  "unloaded" | { failureMessage: string } | DirectoryTreeFile[];
 
 export interface DirectoryTreeFile {
   name: string;

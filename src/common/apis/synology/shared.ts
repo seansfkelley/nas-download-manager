@@ -159,7 +159,11 @@ export async function post<O extends object>(
 }
 
 export class ApiBuilder {
-  constructor(private cgiName: string, private apiName: string, private meta: ApiGroupMeta) {}
+  constructor(
+    private cgiName: string,
+    private apiName: string,
+    private meta: ApiGroupMeta,
+  ) {}
 
   makeGet<I extends BaseRequest, O>(
     methodName: string,
