@@ -1,5 +1,3 @@
-import "mocha";
-import { expect } from "chai";
 import { cloneDeep } from "lodash";
 
 import type { DownloadStationTask } from "../src/common/apis/synology/DownloadStation/Task";
@@ -65,9 +63,9 @@ function testMigration<T>(before: T, after: State_8) {
   const originalBefore = cloneDeep(before);
   const transitioned = migrateState(before);
 
-  expect(before).to.not.deep.equal(after);
-  expect(before).to.deep.equal(originalBefore);
-  expect(transitioned).to.deep.equal(after);
+  expect(before).not.toStrictEqual(after);
+  expect(before).toStrictEqual(originalBefore);
+  expect(transitioned).toStrictEqual(after);
 }
 
 describe("state versioning", () => {
@@ -867,10 +865,10 @@ describe("state versioning", () => {
       stateVersion: 8,
     };
 
-    expect(migrateState(before)).to.equal(before);
+    expect(migrateState(before)).toBe(before);
   });
 
   it("should silently create an empty state if the given version is too new", () => {
-    expect(migrateState({ stateVersion: 999 })).to.deep.equal(migrateState({}));
+    expect(migrateState({ stateVersion: 999 })).toStrictEqual(migrateState({}));
   });
 });

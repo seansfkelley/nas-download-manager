@@ -2,8 +2,19 @@ import * as fs from "fs";
 import * as path from "path";
 import { sync as globSync } from "glob";
 
-import "mocha";
-import { expect, assert } from "chai";
+// chai's `.to.exist` asserted `!= null` and took a context string that Jest's matchers have no
+// equivalent for, so keep both behaviours here rather than weakening the assertions.
+function expectToExist(value: unknown, context: string) {
+  if (value == null) {
+    throw new Error(`expected ${context} to exist, got ${value}`);
+  }
+}
+
+function expectNotToExist(value: unknown, context: string) {
+  if (value != null) {
+    throw new Error(`expected ${context} not to exist, got ${JSON.stringify(value)}`);
+  }
+}
 
 interface I18nMessage {
   message: string;
@@ -51,7 +62,7 @@ describe("i18n", () => {
 
   describe("manifest.json", () => {
     it("should have a default locale set", () => {
-      expect(DEFAULT_LOCALE).to.be.a("string");
+      expect(typeof DEFAULT_LOCALE).toBe("string");
     });
   });
 
@@ -60,15 +71,16 @@ describe("i18n", () => {
 
     it("should have a message and description field which are different", () => {
       forEachMessage(({ message, description }, messageName) => {
-        expect(message, `message for ${messageName}`).to.exist;
-        expect(description, `description for ${messageName}`).to.exist;
-        expect(message).to.not.equal(description, messageName);
+        expectToExist(message, `message for ${messageName}`);
+        expectToExist(description, `description for ${messageName}`);
+        // Prefixing both sides keeps the message name visible in the failure diff.
+        expect(`${messageName}: ${message}`).not.toBe(`${messageName}: ${description}`);
       });
     });
 
     it("should have names derivable from the content", () => {
       forEachMessage(({ message }, messageName) => {
-        expect(messageName).to.equal(
+        expect(messageName).toBe(
           message
             .replace(/\$[A-Z]+\$/g, (substr) => substr.toLowerCase())
             .replace(/[^A-Za-z0-9$_ ]/g, "")
@@ -79,17 +91,19 @@ describe("i18n", () => {
     });
 
     it('should be referenced at least once in any "getMessage" call', () => {
+      const unreferenced: string[] = [];
       forEachMessage(({ test_skip_reference_check }, messageName) => {
         if (!test_skip_reference_check) {
           const I18N_CALL_REGEX = new RegExp(`browser\\.i18n\\.getMessage\\(\\s*"${messageName}"`);
-          expect(
-            Object.keys(SOURCE_FILES_BY_NAME).some((name) => {
-              return SOURCE_FILES_BY_NAME[name].search(I18N_CALL_REGEX) !== -1;
-            }),
-            messageName,
-          ).to.be.true;
+          const isReferenced = Object.keys(SOURCE_FILES_BY_NAME).some((name) => {
+            return SOURCE_FILES_BY_NAME[name].search(I18N_CALL_REGEX) !== -1;
+          });
+          if (!isReferenced) {
+            unreferenced.push(messageName);
+          }
         }
       });
+      expect(unreferenced).toEqual([]);
     });
 
     it('every "getMessage" call should use a known message name', () => {
@@ -104,7 +118,7 @@ describe("i18n", () => {
           if (match != null) {
             didMatch = true;
             const stringName = match[1];
-            expect(MESSAGES[stringName], stringName).to.exist;
+            expectToExist(MESSAGES[stringName], `message "${stringName}" referenced by ${name}`);
           }
         } while (match != null);
 
@@ -112,22 +126,22 @@ describe("i18n", () => {
         // trying to guard against formatting changes that might cause such a strict
         // regex to fail, such as breaking lines across the dot.
         if (!didMatch && /getMessage/.exec(content)) {
-          assert.fail(`${name} appears to have an untested getMessage call`);
+          throw new Error(`${name} appears to have an untested getMessage call`);
         }
       });
     });
 
     describe("with placeholders", () => {
       it("should declare all placeholders that are mentioned in the message", () => {
-        forEachMessage(({ message, placeholders }) => {
+        forEachMessage(({ message, placeholders }, messageName) => {
           const namedPlaceholders = message.match(/\$[A-Z]+\$/g);
           if (namedPlaceholders != null) {
-            expect(placeholders).to.exist;
-            expect(placeholders).to.have.all.keys(
-              namedPlaceholders.map((p) => p.toLowerCase().replace(/(^\$)|(\$$)/g, "")),
+            expectToExist(placeholders, `placeholders for ${messageName}`);
+            expect(Object.keys(placeholders!).sort()).toEqual(
+              namedPlaceholders.map((p) => p.toLowerCase().replace(/(^\$)|(\$$)/g, "")).sort(),
             );
           } else {
-            expect(placeholders).to.not.exist;
+            expectNotToExist(placeholders, `placeholders for ${messageName}`);
           }
         });
       });
@@ -140,10 +154,10 @@ describe("i18n", () => {
             );
 
             placeholderContents.forEach((p) => {
-              expect(p).to.match(/^\$[0-9]$/);
+              expect(p).toMatch(/^\$[0-9]$/);
             });
 
-            expect(placeholderContents.sort().map((p) => p.replace("$", ""))).to.deep.equal(
+            expect(placeholderContents.sort().map((p) => p.replace("$", ""))).toStrictEqual(
               (Array.apply(null, new Array(placeholderContents.length)) as undefined[]).map(
                 (_value, index) => (index + 1).toString(),
               ),
@@ -153,10 +167,13 @@ describe("i18n", () => {
       });
 
       it('should have "example" fields on every placeholder', () => {
-        forEachMessage(({ placeholders }) => {
+        forEachMessage(({ placeholders }, messageName) => {
           if (placeholders != null) {
             Object.keys(placeholders).forEach((placeholderName) => {
-              expect(placeholders[placeholderName].example).to.exist;
+              expectToExist(
+                placeholders[placeholderName].example,
+                `example for placeholder "${placeholderName}" of ${messageName}`,
+              );
             });
           }
         });
@@ -170,7 +187,9 @@ describe("i18n", () => {
       .forEach((locale) => {
         const DEFAULT_LOCALE_MESSAGES = loadLocale(DEFAULT_LOCALE);
         it(`"${locale}" locale should have a subset of the messages from the default locale`, () => {
-          expect(DEFAULT_LOCALE_MESSAGES).to.include.all.keys(Object.keys(loadLocale(locale)));
+          expect(Object.keys(DEFAULT_LOCALE_MESSAGES)).toEqual(
+            expect.arrayContaining(Object.keys(loadLocale(locale))),
+          );
         });
       });
   });

@@ -1,6 +1,3 @@
-import "mocha";
-import { expect } from "chai";
-
 import { formatTime, formatPercentage } from "../src/common/format";
 
 describe("format", () => {
@@ -20,7 +17,7 @@ describe("format", () => {
 
     TESTS.forEach(([input, output]) => {
       it(`should output '${output}' for ${input}`, () => {
-        expect(formatTime(input)).to.equal(output);
+        expect(formatTime(input)).toBe(output);
       });
     });
   });
@@ -37,7 +34,7 @@ describe("format", () => {
 
     TESTS.forEach(([input, output]) => {
       it(`should output '${output}' for ${input}`, () => {
-        expect(formatPercentage(input)).to.equal(output);
+        expect(formatPercentage(input)).toBe(output);
       });
     });
   });
