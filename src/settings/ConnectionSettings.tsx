@@ -3,7 +3,11 @@ import "./connection-settings.scss";
 import * as React from "react";
 import { default as uniqueId } from "lodash/uniqueId";
 
-import type { ConnectionSettings as ConnectionSettingsObject } from "../common/state";
+import {
+  Protocol,
+  PROTOCOLS,
+  ConnectionSettings as ConnectionSettingsObject,
+} from "../common/state";
 import { ClientRequestResult } from "../common/apis/synology";
 import { SettingsList } from "../common/components/SettingsList";
 import { disabledPropAndClassName, kludgeRefSetClassname } from "../common/classnameUtil";
@@ -51,7 +55,21 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
           <li className="label-and-input host-settings">
             <span className="label">{browser.i18n.getMessage("Host")}</span>
             <div className="input">
-              <span>https://</span>
+              <select
+                {...disabledPropAndClassName(!canEditFields)}
+                value={mergedSettings.protocol}
+                onChange={(e) => {
+                  this.setSetting("protocol", e.currentTarget.value as Protocol);
+                }}
+                ref={kludgeRefSetClassname("protocol-setting")}
+              >
+                {PROTOCOLS.map((protocol) => (
+                  <option key={protocol} value={protocol}>
+                    {protocol}
+                  </option>
+                ))}
+              </select>
+              <span>://</span>
               <input
                 type="text"
                 {...disabledPropAndClassName(!canEditFields)}
@@ -123,6 +141,7 @@ export class ConnectionSettings extends React.PureComponent<Props, State> {
               type="submit"
               {...disabledPropAndClassName(
                 !canEditFields ||
+                  !mergedSettings.protocol ||
                   !mergedSettings.hostname ||
                   !mergedSettings.port ||
                   !mergedSettings.username ||

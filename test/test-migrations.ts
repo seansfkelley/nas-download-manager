@@ -11,6 +11,7 @@ import type { State as State_4 } from "../src/common/state/migrations/4";
 import type { State as State_5 } from "../src/common/state/migrations/5";
 import type { State as State_6 } from "../src/common/state/migrations/6";
 import type { State as State_7 } from "../src/common/state/migrations/7";
+import type { State as State_8 } from "../src/common/state/migrations/8";
 
 interface PreVersioningState_0 {
   connection: {
@@ -60,7 +61,7 @@ const DUMMY_TASK: DownloadStationTask = {
   status: "downloading",
 };
 
-function testMigration<T>(before: T, after: State_7) {
+function testMigration<T>(before: T, after: State_8) {
   const originalBefore = cloneDeep(before);
   const transitioned = migrateState(before);
 
@@ -99,6 +100,7 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
+            protocol: "https",
             hostname: "hostname",
             port: 0,
             username: "username",
@@ -127,7 +129,7 @@ describe("state versioning", () => {
         tasksLastCompletedFetchTimestamp: null,
         tasksLastInitiatedFetchTimestamp: null,
         lastSevereError: undefined,
-        stateVersion: 7,
+        stateVersion: 8,
       },
     );
   });
@@ -164,6 +166,7 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
+            protocol: "https",
             hostname: "hostname",
             port: 0,
             username: "username",
@@ -193,7 +196,7 @@ describe("state versioning", () => {
         tasksLastCompletedFetchTimestamp: null,
         tasksLastInitiatedFetchTimestamp: null,
         lastSevereError: undefined,
-        stateVersion: 7,
+        stateVersion: 8,
       },
     );
   });
@@ -204,6 +207,7 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
+            protocol: "https",
             hostname: "",
             port: 5001,
             username: "",
@@ -233,7 +237,7 @@ describe("state versioning", () => {
         tasksLastCompletedFetchTimestamp: null,
         tasksLastInitiatedFetchTimestamp: null,
         lastSevereError: undefined,
-        stateVersion: 7,
+        stateVersion: 8,
       },
     );
   });
@@ -242,6 +246,7 @@ describe("state versioning", () => {
     testMigration<null>(null, {
       settings: {
         connection: {
+          protocol: "https",
           hostname: "",
           port: 5001,
           username: "",
@@ -270,7 +275,7 @@ describe("state versioning", () => {
       tasksLastCompletedFetchTimestamp: null,
       tasksLastInitiatedFetchTimestamp: null,
       lastSevereError: undefined,
-      stateVersion: 7,
+      stateVersion: 8,
     });
   });
 
@@ -307,6 +312,7 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
+            protocol: "https",
             hostname: "hostname",
             port: 0,
             username: "username",
@@ -335,7 +341,7 @@ describe("state versioning", () => {
         tasksLastCompletedFetchTimestamp: null,
         tasksLastInitiatedFetchTimestamp: null,
         lastSevereError: undefined,
-        stateVersion: 7,
+        stateVersion: 8,
       },
     );
   });
@@ -374,6 +380,7 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
+            protocol: "https",
             hostname: "hostname",
             port: 0,
             username: "username",
@@ -402,7 +409,7 @@ describe("state versioning", () => {
         tasksLastCompletedFetchTimestamp: 0,
         tasksLastInitiatedFetchTimestamp: 0,
         lastSevereError: undefined,
-        stateVersion: 7,
+        stateVersion: 8,
       },
     );
   });
@@ -439,6 +446,7 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
+            protocol: "https",
             hostname: "hostname",
             port: 0,
             username: "username",
@@ -467,7 +475,7 @@ describe("state versioning", () => {
         tasksLastCompletedFetchTimestamp: 0,
         tasksLastInitiatedFetchTimestamp: 0,
         lastSevereError: undefined,
-        stateVersion: 7,
+        stateVersion: 8,
       },
     );
   });
@@ -506,6 +514,7 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
+            protocol: "https",
             hostname: "hostname",
             port: 0,
             username: "username",
@@ -534,7 +543,7 @@ describe("state versioning", () => {
         tasksLastCompletedFetchTimestamp: 0,
         tasksLastInitiatedFetchTimestamp: 0,
         lastSevereError: undefined,
-        stateVersion: 7,
+        stateVersion: 8,
       },
     );
   });
@@ -574,6 +583,7 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
+            protocol: "https",
             hostname: "hostname",
             port: 0,
             username: "username",
@@ -602,7 +612,7 @@ describe("state versioning", () => {
         tasksLastCompletedFetchTimestamp: 0,
         tasksLastInitiatedFetchTimestamp: 0,
         lastSevereError: undefined,
-        stateVersion: 7,
+        stateVersion: 8,
       },
     );
   });
@@ -644,6 +654,7 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
+            protocol: "https",
             hostname: "hostname",
             port: 0,
             username: "username",
@@ -672,7 +683,7 @@ describe("state versioning", () => {
         tasksLastCompletedFetchTimestamp: 0,
         tasksLastInitiatedFetchTimestamp: 0,
         lastSevereError: undefined,
-        stateVersion: 7,
+        stateVersion: 8,
       },
     );
   });
@@ -714,6 +725,7 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
+            protocol: "https",
             hostname: "hostname",
             port: 0,
             username: "username",
@@ -742,15 +754,88 @@ describe("state versioning", () => {
         tasksLastCompletedFetchTimestamp: 0,
         tasksLastInitiatedFetchTimestamp: 0,
         lastSevereError: undefined,
+        stateVersion: 8,
+      },
+    );
+  });
+
+  it("should default the protocol setting to https when upgrading from 7 to 8", () => {
+    testMigration<State_7>(
+      {
+        settings: {
+          connection: {
+            hostname: "hostname",
+            port: 0,
+            username: "username",
+            password: "password",
+            rememberPassword: true,
+          },
+          visibleTasks: {
+            downloading: true,
+            uploading: true,
+            completed: true,
+            errored: true,
+            other: true,
+          },
+          notifications: {
+            enableCompletionNotifications: true,
+            enableFeedbackNotifications: true,
+            completionPollingInterval: 0,
+          },
+          shouldHandleDownloadLinks: true,
+          taskSortType: "name-asc",
+          badgeDisplayType: "total",
+          showInactiveTasks: true,
+        },
+        tasks: [DUMMY_TASK],
+        taskFetchFailureReason: "missing-config",
+        tasksLastCompletedFetchTimestamp: 0,
+        tasksLastInitiatedFetchTimestamp: 0,
+        lastSevereError: undefined,
         stateVersion: 7,
+      },
+      {
+        settings: {
+          connection: {
+            protocol: "https",
+            hostname: "hostname",
+            port: 0,
+            username: "username",
+            password: "password",
+            rememberPassword: true,
+          },
+          visibleTasks: {
+            downloading: true,
+            uploading: true,
+            completed: true,
+            errored: true,
+            other: true,
+          },
+          notifications: {
+            enableCompletionNotifications: true,
+            enableFeedbackNotifications: true,
+            completionPollingInterval: 0,
+          },
+          taskSortType: "name-asc",
+          badgeDisplayType: "total",
+          showInactiveTasks: true,
+          shouldHandleDownloadLinks: true,
+        },
+        tasks: [DUMMY_TASK],
+        taskFetchFailureReason: "missing-config",
+        tasksLastCompletedFetchTimestamp: 0,
+        tasksLastInitiatedFetchTimestamp: 0,
+        lastSevereError: undefined,
+        stateVersion: 8,
       },
     );
   });
 
   it("should do nothing when the state is already latest", () => {
-    const before: State_7 = {
+    const before: State_8 = {
       settings: {
         connection: {
+          protocol: "https",
           hostname: "hostname",
           port: 0,
           username: "username",
@@ -779,7 +864,7 @@ describe("state versioning", () => {
       tasksLastCompletedFetchTimestamp: 0,
       tasksLastInitiatedFetchTimestamp: 0,
       lastSevereError: undefined,
-      stateVersion: 7,
+      stateVersion: 8,
     };
 
     expect(migrateState(before)).to.equal(before);

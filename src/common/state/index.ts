@@ -1,4 +1,4 @@
-import type { ConnectionSettings, State } from "./migrations/latest";
+import type { Protocol, ConnectionSettings, State } from "./migrations/latest";
 import { migrateState } from "./migrations/update";
 import { typesafeMapValues } from "../lang";
 
@@ -7,8 +7,8 @@ export * from "./listen";
 export * from "./migrations/latest";
 
 export function getHostUrl(settings: ConnectionSettings) {
-  if (settings.hostname && settings.port) {
-    return `https://${settings.hostname}:${settings.port}`;
+  if (settings.protocol && settings.hostname && settings.port) {
+    return `${settings.protocol}://${settings.hostname}:${settings.port}`;
   } else {
     return undefined;
   }
@@ -21,8 +21,9 @@ export async function maybeMigrateState() {
 }
 
 export function redactState(state: State): object {
-  const sanitizedConnection: Record<keyof ConnectionSettings, boolean> = {
+  const sanitizedConnection: Record<keyof ConnectionSettings, boolean | Protocol> = {
     ...typesafeMapValues(state.settings.connection, Boolean),
+    protocol: state.settings.connection.protocol,
   };
 
   return {

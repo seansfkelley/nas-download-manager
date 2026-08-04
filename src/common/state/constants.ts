@@ -1,4 +1,15 @@
-import type { VisibleTaskSettings, TaskSortType, BadgeDisplayType } from "./migrations/latest";
+import type {
+  Protocol,
+  VisibleTaskSettings,
+  TaskSortType,
+  BadgeDisplayType,
+} from "./migrations/latest";
+import { typesafeUnionMembers } from "../lang";
+
+export const PROTOCOLS = typesafeUnionMembers<Protocol>({
+  http: true,
+  https: true,
+});
 
 export const ORDERED_VISIBLE_TASK_TYPE_NAMES: Record<keyof VisibleTaskSettings, string> = {
   downloading: browser.i18n.getMessage("Downloading"),
