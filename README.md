@@ -54,7 +54,7 @@ Please note that development is not actively supported on Windows. Some of the b
 
 ### Prerequisites
 
-Dependencies are managed with [Yarn](https://github.com/yarnpkg/yarn). Install it if you don't already have it.
+Dependencies are managed with npm, which ships with [Node](https://nodejs.org/).
 
 ### Actively Developing the Extension
 
@@ -65,13 +65,13 @@ Please note that while the build tasks will auto-recompile, the browser may not 
 1. Install dependencies.
 
     ```
-    yarn
+    npm install
     ```
 
 2. Start a build to watch files and auto-recompile code on change.
 
     ```
-    yarn watch
+    npm run watch
     ```
 
 3. In your browser, navigate to the extension debugging page and open `manifest.json`.
@@ -85,25 +85,25 @@ Please note that while the build tasks will auto-recompile, the browser may not 
 1. Install dependencies.
 
     ```
-    yarn
+    npm install
     ```
 
 2. Build and optimize all assets.
 
     ```
-    yarn build
+    npm run build
     ```
 
 3. Zip all assets into a file suitable for distribution.
 
     ```
-    yarn zip
+    npm run zip
     ```
 
 4. _(Optional)_ Zip all source code into a file suitable for distribution.
 
     ```
-    yarn zip-sources
+    npm run zip-sources
     ```
 
 ### Translating the Extension
