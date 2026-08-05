@@ -92,19 +92,14 @@ Please note that while the build tasks will auto-recompile, the browser may not 
     npm install
     ```
 
-2. Build and optimize all assets.
+2. Build the extension, check it against the validation rules addons.mozilla.org applies, and zip it
+   into a file suitable for distribution.
 
     ```
-    npm run build
+    npm run package
     ```
 
-3. Zip all assets into a file suitable for distribution.
-
-    ```
-    npm run zip
-    ```
-
-4. _(Optional)_ Zip all source code into a file suitable for distribution.
+3. _(Optional)_ Zip all source code into a file suitable for distribution.
 
     ```
     npm run zip-sources
