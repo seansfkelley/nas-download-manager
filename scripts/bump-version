@@ -26,7 +26,7 @@ if [ -n "$repo_status" ]; then
 fi
 
 current_version=$(jq -r .version manifest.json)
-next_version=$(yarn -s run semver -i "$bump_kind" "$current_version")
+next_version=$(npx --no-install semver -i "$bump_kind" "$current_version")
 
 temp_file=$(mktemp)
 

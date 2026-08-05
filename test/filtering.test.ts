@@ -1,6 +1,3 @@
-import "mocha";
-import { expect } from "chai";
-
 import type { DownloadStationTask } from "../src/common/apis/synology/DownloadStation/Task";
 import { sortTasks } from "../src/common/filtering";
 
@@ -51,7 +48,7 @@ describe("sortTasks", () => {
         ],
         "name-asc",
       ).map(({ id }) => id),
-    ).to.deep.equal(["1", "2", "3"]);
+    ).toStrictEqual(["1", "2", "3"]);
   });
 
   it("should sort by name, Z-A", () => {
@@ -64,7 +61,7 @@ describe("sortTasks", () => {
         ],
         "name-desc",
       ).map(({ id }) => id),
-    ).to.deep.equal(["3", "2", "1"]);
+    ).toStrictEqual(["3", "2", "1"]);
   });
 
   it("should sort completed tasks, oldest first, and in-progress tasks before in %-complete order", () => {
@@ -112,7 +109,7 @@ describe("sortTasks", () => {
         ],
         "timestamp-completed-asc",
       ).map(({ id }) => id),
-    ).to.deep.equal(["4", "3", "5", "2", "1"]);
+    ).toStrictEqual(["4", "3", "5", "2", "1"]);
   });
 
   it("should sort completed tasks, newest first, and in-progress tasks before in %-complete order", () => {
@@ -160,6 +157,6 @@ describe("sortTasks", () => {
         ],
         "timestamp-completed-desc",
       ).map(({ id }) => id),
-    ).to.deep.equal(["4", "3", "1", "2", "5"]);
+    ).toStrictEqual(["4", "3", "1", "2", "5"]);
   });
 });

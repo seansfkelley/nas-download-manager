@@ -1,4 +1,4 @@
-import * as React from "react";
+import { type ErrorInfo, PureComponent } from "react";
 import type { State as ExtensionState } from "../common/state";
 import { FatalError } from "./FatalError";
 
@@ -8,10 +8,10 @@ export interface Props {
 
 export interface State {
   error: Error | undefined;
-  errorInfo?: React.ErrorInfo | undefined;
+  errorInfo?: ErrorInfo | undefined;
 }
 
-export class FatalErrorWrapper extends React.PureComponent<Props, State> {
+export class FatalErrorWrapper extends PureComponent<Props, State> {
   state: State = {
     error: undefined,
   };
@@ -30,7 +30,7 @@ export class FatalErrorWrapper extends React.PureComponent<Props, State> {
     }
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     this.setState({ error, errorInfo });
   }
 }

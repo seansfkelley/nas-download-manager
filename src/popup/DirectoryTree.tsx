@@ -1,11 +1,9 @@
 import "./directory-tree.scss";
-import * as React from "react";
+import { PureComponent, type ReactNode } from "react";
 import classNames from "classnames";
 
 export type DirectoryTreeFileChildren =
-  | "unloaded"
-  | { failureMessage: string }
-  | DirectoryTreeFile[];
+  "unloaded" | { failureMessage: string } | DirectoryTreeFile[];
 
 export interface DirectoryTreeFile {
   name: string;
@@ -70,7 +68,7 @@ export interface State {
   isExpanded: boolean;
 }
 
-export class DirectoryTree extends React.PureComponent<Props, State> {
+export class DirectoryTree extends PureComponent<Props, State> {
   state: State = {
     isExpanded: false,
   };
@@ -143,7 +141,7 @@ export class DirectoryTree extends React.PureComponent<Props, State> {
     }
   };
 
-  private renderChildren(): React.ReactNode {
+  private renderChildren(): ReactNode {
     if (this.state.isExpanded) {
       if (isUnloadedChild(this.props.file.children)) {
         return <div className="children loading">{browser.i18n.getMessage("Loading")}</div>;

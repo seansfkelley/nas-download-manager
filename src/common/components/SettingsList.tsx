@@ -1,7 +1,7 @@
 import "./settings-list.scss";
 
-import * as React from "react";
+import type { PropsWithChildren } from "react";
 
-export function SettingsList(props: React.PropsWithChildren<{}>) {
+export function SettingsList(props: PropsWithChildren<{}>) {
   return <ul className="settings-list">{props.children}</ul>;
 }

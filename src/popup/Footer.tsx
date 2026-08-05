@@ -1,5 +1,4 @@
 import "./footer.scss";
-import * as React from "react";
 import classNames from "classnames";
 import { moment } from "../common/moment";
 import type { CachedTasks } from "../common/state";

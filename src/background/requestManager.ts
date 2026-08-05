@@ -9,10 +9,10 @@ export class RequestManager {
   private _token: number = 0;
 
   public startNewRequest() {
-    return (++this._token as unknown) as RequestToken;
+    return ++this._token as unknown as RequestToken;
   }
 
   public isRequestLatest(token: RequestToken) {
-    return ((token as unknown) as number) === this._token;
+    return (token as unknown as number) === this._token;
   }
 }

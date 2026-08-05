@@ -1,5 +1,5 @@
 import "./path-selector.scss";
-import * as React from "react";
+import { PureComponent } from "react";
 import type { MessageResponse, Directory } from "../common/apis/messages";
 import {
   DirectoryTree,
@@ -23,7 +23,7 @@ export interface State {
   directoryTree: DirectoryTreeFile;
 }
 
-export class PathSelector extends React.PureComponent<Props, State> {
+export class PathSelector extends PureComponent<Props, State> {
   state: State = {
     directoryTree: {
       name: "/",

@@ -1,6 +1,6 @@
 import "./login-status.scss";
 
-import * as React from "react";
+import { useEffect, useState } from "react";
 import classNames from "classnames";
 
 import { ClientRequestResult } from "../apis/synology";
@@ -14,9 +14,9 @@ export interface Props {
 }
 
 export function LoginStatus({ status }: Props) {
-  const [isSlow, setIsSlow] = React.useState(false);
+  const [isSlow, setIsSlow] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (status === "in-progress") {
       const timeout = setTimeout(() => {
         setIsSlow(true);

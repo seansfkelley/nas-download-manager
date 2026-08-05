@@ -1,5 +1,5 @@
 import "./fatal-error.scss";
-import * as React from "react";
+import type { ErrorInfo } from "react";
 
 import { NonIdealState } from "../common/components/NonIdealState";
 import { BUG_REPORT_URL } from "../common/constants";
@@ -7,7 +7,7 @@ import { State as ExtensionState, redactState } from "../common/state";
 
 export interface Props {
   error: unknown;
-  errorInfo?: React.ErrorInfo | undefined;
+  errorInfo?: ErrorInfo | undefined;
   state?: ExtensionState;
 }
 

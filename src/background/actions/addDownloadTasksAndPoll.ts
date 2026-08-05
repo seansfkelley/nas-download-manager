@@ -211,7 +211,7 @@ async function addMultipleTasks(
   };
 
   resolvedUrls.forEach((url) => {
-    (groupedUrls[url.type] as typeof url[]).push(url);
+    (groupedUrls[url.type] as (typeof url)[]).push(url);
   });
 
   let successes = 0;

@@ -1,5 +1,3 @@
-import * as React from "react";
-
 import { useStableId } from "../hooks/useStableId";
 
 export interface Props {

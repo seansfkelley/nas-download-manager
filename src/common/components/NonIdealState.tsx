@@ -1,5 +1,5 @@
 import "./non-ideal-state.scss";
-import * as React from "react";
+import type { PropsWithChildren } from "react";
 import classNames from "classnames";
 
 export interface Props {
@@ -8,7 +8,7 @@ export interface Props {
   className?: string;
 }
 
-export function NonIdealState(props: React.PropsWithChildren<Props>) {
+export function NonIdealState(props: PropsWithChildren<Props>) {
   return (
     <div className={classNames("non-ideal-state", props.className)}>
       {props.icon && <span className={classNames("main-icon fa fa-2x", props.icon)} />}

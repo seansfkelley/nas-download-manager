@@ -1,6 +1,6 @@
 import "./connection-settings.scss";
 
-import * as React from "react";
+import { PureComponent } from "react";
 import { default as uniqueId } from "lodash/uniqueId";
 
 import {
@@ -31,7 +31,7 @@ interface State {
   loginStatus: Status;
 }
 
-export class ConnectionSettings extends React.PureComponent<Props, State> {
+export class ConnectionSettings extends PureComponent<Props, State> {
   state: State = {
     changedSettings: {},
     loginStatus: "none",

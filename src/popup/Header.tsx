@@ -1,5 +1,4 @@
 import "./header.scss";
-import * as React from "react";
 import classNames from "classnames";
 
 import { disabledPropAndClassName } from "../common/classnameUtil";

@@ -1,14 +1,9 @@
 {
   "compilerOptions": {
-    "module": "es2015",
-    "moduleResolution": "node",
-    "target": "es2017",
-    "jsx": "react",
-    "rootDir": ".",
-    "outDir": "../lib",
-    "sourceMap": true,
-    "declaration": true,
-    "experimentalDecorators": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "target": "es2022",
+    "jsx": "react-jsx",
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,

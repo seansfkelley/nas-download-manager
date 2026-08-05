@@ -3,23 +3,23 @@ jobs:
   build:
     working_directory: ~/nas-download-manager
     docker:
-      - image: cimg/node:18.17.1
+      - image: cimg/node:22.21.1
     steps:
       - checkout
       - restore_cache:
           keys:
-            - yarn-packages-{{ checksum "yarn.lock" }}
-            - yarn-packages-
+            - npm-packages-{{ checksum "package-lock.json" }}
+            - npm-packages-
       - run:
-          name: Yarn Install
-          command: yarn install --frozen-lockfile
+          name: Install
+          command: npm ci
       - save_cache:
-          key: yarn-packages-{{ checksum "yarn.lock" }}
+          key: npm-packages-{{ checksum "package-lock.json" }}
           paths:
-            - ~/.cache/yarn
+            - ~/.npm
       - run:
           name: Lint
-          command: yarn lint
+          command: npm run lint
       - run:
           name: Test
-          command: yarn test
+          command: npm test
