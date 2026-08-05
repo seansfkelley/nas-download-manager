@@ -26,5 +26,3 @@ const state: BackgroundState = {
 export function getMutableStateSingleton() {
   return state;
 }
-
-(window as any).getMutableStateSingleton = getMutableStateSingleton;
