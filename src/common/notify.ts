@@ -17,7 +17,7 @@ export function notify(
     type: "basic",
     title,
     message: message || "",
-    iconUrl: browser.extension.getURL(`icons/icon-256${TYPE_TO_FILE_SUFFIX[type]}.png`),
+    iconUrl: browser.runtime.getURL(`icons/icon-256${TYPE_TO_FILE_SUFFIX[type]}.png`),
   });
   return id;
 }

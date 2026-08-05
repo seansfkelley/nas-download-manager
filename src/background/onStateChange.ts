@@ -60,7 +60,7 @@ export function onStoredStateChange(storedState: State) {
     storedState.settings.notifications.enableFeedbackNotifications;
 
   if (storedState.taskFetchFailureReason) {
-    browser.browserAction.setIcon({
+    browser.action.setIcon({
       path: {
         "16": "icons/icon-16-disabled.png",
         "32": "icons/icon-32-disabled.png",
@@ -70,13 +70,13 @@ export function onStoredStateChange(storedState: State) {
       },
     });
 
-    browser.browserAction.setBadgeText({
+    browser.action.setBadgeText({
       text: "",
     });
 
-    browser.browserAction.setBadgeBackgroundColor({ color: [217, 0, 0, 255] });
+    browser.action.setBadgeBackgroundColor({ color: [217, 0, 0, 255] });
   } else {
-    browser.browserAction.setIcon({
+    browser.action.setIcon({
       path: {
         "16": "icons/icon-16.png",
         "32": "icons/icon-32.png",
@@ -104,11 +104,11 @@ export function onStoredStateChange(storedState: State) {
       return; // Can't `return assertNever(...)` because the linter complains.
     }
 
-    browser.browserAction.setBadgeText({
+    browser.action.setBadgeText({
       text: taskCount === 0 ? "" : taskCount.toString(),
     });
 
-    browser.browserAction.setBadgeBackgroundColor({ color: [0, 217, 0, 255] });
+    browser.action.setBadgeBackgroundColor({ color: [0, 217, 0, 255] });
   }
 
   if (
