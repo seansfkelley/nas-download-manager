@@ -1,9 +1,12 @@
 name: CI
 
 on:
+  # Restricted to master so pull requests are not checked twice: a push to a PR branch fires only
+  # the pull_request event, and push fires once on merge.
   push:
     branches: [master]
   pull_request:
+    types: [opened, synchronize, reopened]
 
 # Nothing here writes anything back to the repository.
 permissions:
