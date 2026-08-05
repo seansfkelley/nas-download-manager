@@ -7,7 +7,9 @@
     "module": "node16",
     "moduleResolution": "node16",
     // ts-jest builds its own file list, which loses the automatic @types inclusion that tsc does.
-    "types": ["jest", "jest-extended", "node"],
+    // firefox-webext-browser is named in the source config too, and a "types" array replaces rather
+    // than extends the inherited one, so it has to be repeated here.
+    "types": ["firefox-webext-browser", "jest", "jest-extended", "node"],
     "rootDir": ".."
   },
   // The ambient declarations under src/ are not reachable from the test files' imports.

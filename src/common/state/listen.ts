@@ -1,4 +1,4 @@
-import type { Settings, State } from "./migrations/latest";
+import { type Settings, State } from "./migrations/latest";
 import { typesafeUnionMembers } from "../lang";
 
 export const SETTING_NAMES = typesafeUnionMembers<keyof Settings>({
@@ -11,18 +11,8 @@ export const SETTING_NAMES = typesafeUnionMembers<keyof Settings>({
   showInactiveTasks: true,
 });
 
-const ALL_STORED_STATE_NAMES = typesafeUnionMembers<keyof State>({
-  settings: true,
-  tasks: true,
-  taskFetchFailureReason: true,
-  tasksLastInitiatedFetchTimestamp: true,
-  tasksLastCompletedFetchTimestamp: true,
-  lastSevereError: true,
-  stateVersion: true,
-});
-
 async function fetchStateAndNotify(listeners: ((state: State) => void)[]) {
-  const state = await browser.storage.local.get<State>(ALL_STORED_STATE_NAMES);
+  const state = await State.get();
   listeners.forEach((l) => l(state));
 }
 
@@ -33,7 +23,7 @@ let didAttachSingletonListener = false;
 function attachSharedStateListener() {
   if (!didAttachSingletonListener) {
     didAttachSingletonListener = true;
-    browser.storage.onChanged.addListener((_changes: StorageChangeEvent<State>, areaName) => {
+    browser.storage.onChanged.addListener((_changes, areaName) => {
       if (areaName === "local") {
         fetchStateAndNotify(stateListeners);
       }

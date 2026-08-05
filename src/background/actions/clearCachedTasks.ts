@@ -1,4 +1,4 @@
-import type { CachedTasks, State } from "../../common/state";
+import { type CachedTasks, State } from "../../common/state";
 
 export function clearCachedTasks() {
   const emptyState: CachedTasks = {
@@ -8,5 +8,5 @@ export function clearCachedTasks() {
     tasksLastInitiatedFetchTimestamp: null,
   };
 
-  return browser.storage.local.set<Partial<State>>(emptyState);
+  return State.set(emptyState);
 }

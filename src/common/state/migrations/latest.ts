@@ -1,13 +1,39 @@
-export {
+// Aliased because the exported namespace below also claims the name State, and TypeScript refuses a
+// merged declaration whose parts are not all exported (TS2395).
+import type { State as LatestState } from "./8";
+import { typesafeUnionMembers } from "../../lang";
+
+export type {
   Protocol,
   VisibleTaskSettings,
   TaskSortType,
   CachedTasks,
   NotificationSettings,
   Settings,
-  State,
   ConnectionSettings,
   Logging,
   StateVersion,
   BadgeDisplayType,
+  State,
 } from "./8";
+
+const ALL_STORED_STATE_NAMES = typesafeUnionMembers<keyof LatestState>({
+  settings: true,
+  tasks: true,
+  taskFetchFailureReason: true,
+  tasksLastInitiatedFetchTimestamp: true,
+  tasksLastCompletedFetchTimestamp: true,
+  lastSevereError: true,
+  stateVersion: true,
+});
+
+// Type-safe read/write pair that comes for free with importing the type.
+export namespace State {
+  export async function get(): Promise<LatestState> {
+    return (await browser.storage.local.get(ALL_STORED_STATE_NAMES)) as LatestState;
+  }
+
+  export function set(state: Partial<LatestState>): Promise<void> {
+    return browser.storage.local.set(state);
+  }
+}
