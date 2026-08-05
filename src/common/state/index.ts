@@ -1,4 +1,4 @@
-import type { Protocol, ConnectionSettings, State } from "./migrations/latest";
+import { type Protocol, type ConnectionSettings, State } from "./migrations/latest";
 import { migrateState } from "./migrations/update";
 import { typesafeMapValues } from "../lang";
 
@@ -15,9 +15,11 @@ export function getHostUrl(settings: ConnectionSettings) {
 }
 
 export async function maybeMigrateState() {
-  const updated = migrateState(await browser.storage.local.get<any>(null));
+  // Deliberately not getStoredState: this reads the pre-migration contents, whose shape is whatever
+  // an older version of the extension last wrote, and is not yet a State.
+  const updated = migrateState(await browser.storage.local.get(null));
   await browser.storage.local.clear();
-  return browser.storage.local.set<State>(updated);
+  return State.set(updated);
 }
 
 export function redactState(state: State): object {

@@ -1,4 +1,4 @@
-import type { Logging, State } from "./state";
+import { type Logging, State } from "./state";
 
 export function saveLastSevereError(e: any | undefined, message?: string) {
   console.error(message || "unhandled error", e);
@@ -17,5 +17,5 @@ ${e.stack ? "Error stack trace: " + e.stack.trim() : "(no error stack)"}`
   const logging: Logging = {
     lastSevereError: formattedError,
   };
-  browser.storage.local.set<Partial<State>>(logging);
+  State.set(logging);
 }

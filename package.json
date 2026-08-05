@@ -32,6 +32,7 @@
   "devDependencies": {
     "@parcel/config-webextension": "^2.16.4",
     "@parcel/transformer-sass": "^2.16.4",
+    "@types/firefox-webext-browser": "^143.0.0",
     "@types/glob": "^5.0.33",
     "@types/jest": "^30.0.0",
     "@types/lodash": "^4.14.141",

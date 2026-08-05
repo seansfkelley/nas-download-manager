@@ -2,7 +2,7 @@ import "./index.scss";
 import "../common/init/nonContentContext";
 import * as ReactDOM from "react-dom";
 
-import { onStoredStateChange, Settings, State } from "../common/state";
+import { onStoredStateChange, State, Settings } from "../common/state";
 import { FatalError } from "./FatalError";
 import { FatalErrorWrapper } from "./FatalErrorWrapper";
 import { PopupWrapper } from "./PopupWrapper";
@@ -11,7 +11,7 @@ import { PollTasks } from "../common/apis/messages";
 const ELEMENT = document.getElementById("body")!;
 
 function updateSettings(settings: Settings) {
-  browser.storage.local.set<Partial<State>>({ settings });
+  State.set({ settings });
 }
 
 PollTasks.send();
