@@ -1,5 +1,5 @@
 import "./advanced-add-download-form.scss";
-import * as React from "react";
+import { PureComponent } from "react";
 import { default as last } from "lodash/last";
 import classNames from "classnames";
 import TextareaAutosize from "react-textarea-autosize";
@@ -22,7 +22,7 @@ export interface State {
   unzipEnabled: boolean;
 }
 
-export class AdvancedAddDownloadForm extends React.PureComponent<Props, State> {
+export class AdvancedAddDownloadForm extends PureComponent<Props, State> {
   state: State = {
     selectedPath: undefined,
     downloadUrl: "",

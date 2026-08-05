@@ -1,5 +1,5 @@
 import "./popup.scss";
-import * as React from "react";
+import { PureComponent } from "react";
 import classNames from "classnames";
 import { default as throttle } from "lodash/throttle";
 
@@ -43,7 +43,7 @@ interface State {
   firefoxRerenderNonce: number;
 }
 
-export class Popup extends React.PureComponent<Props, State> {
+export class Popup extends PureComponent<Props, State> {
   private bodyRef?: HTMLElement;
 
   state: State = {

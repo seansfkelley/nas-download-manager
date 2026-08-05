@@ -1,5 +1,5 @@
 import "./task.scss";
-import * as React from "react";
+import { PureComponent, type ReactChild } from "react";
 import { default as startCase } from "lodash/startCase";
 import { default as upperCase } from "lodash/upperCase";
 import classNames from "classnames";
@@ -21,7 +21,7 @@ export interface State {
   deleteState: "none" | "in-progress" | MessageResponse;
 }
 
-export class Task extends React.PureComponent<Props, State> {
+export class Task extends PureComponent<Props, State> {
   state: State = {
     pauseResumeState: "none",
     deleteState: "none",
@@ -80,7 +80,7 @@ export class Task extends React.PureComponent<Props, State> {
   }
 
   private renderStatus() {
-    const renderStatusLine = (iconName: string, subtitle: React.ReactChild) => {
+    const renderStatusLine = (iconName: string, subtitle: ReactChild) => {
       return (
         <span title={startCase(this.props.task.status)}>
           <span className={classNames("status-icon", iconName)} />

@@ -1,6 +1,6 @@
 import "./task-filter-settings-form.scss";
 
-import * as React from "react";
+import type { ChangeEvent } from "react";
 import {
   VisibleTaskSettings,
   TaskSortType,
@@ -43,7 +43,7 @@ export function TaskFilterSettingsForm(props: Props) {
         <span className="label">{browser.i18n.getMessage("Order_tasks_by")}</span>
         <select
           value={props.taskSortType}
-          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+          onChange={(e: ChangeEvent<HTMLSelectElement>) => {
             props.updateTaskSortType(e.currentTarget.value as TaskSortType);
           }}
         >
@@ -58,7 +58,7 @@ export function TaskFilterSettingsForm(props: Props) {
         <span className="label">{browser.i18n.getMessage("Badge_shows")}</span>
         <select
           value={props.badgeDisplayType}
-          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+          onChange={(e: ChangeEvent<HTMLSelectElement>) => {
             props.updateBadgeDisplayType(e.currentTarget.value as BadgeDisplayType);
           }}
         >

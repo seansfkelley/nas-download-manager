@@ -1,5 +1,5 @@
 import "./settings-form.scss";
-import * as React from "react";
+import { PureComponent } from "react";
 
 import {
   State as ExtensionState,
@@ -43,7 +43,7 @@ function isValidPollingInterval(stringValue: string) {
   return !isNaN(+stringValue) && +stringValue >= POLL_MIN_INTERVAL;
 }
 
-export class SettingsForm extends React.PureComponent<Props, State> {
+export class SettingsForm extends PureComponent<Props, State> {
   state: State = {
     savesFailed: false,
     rawPollingInterval:

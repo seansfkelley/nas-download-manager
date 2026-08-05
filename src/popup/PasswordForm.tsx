@@ -1,6 +1,6 @@
 import "./password-form.scss";
 
-import * as React from "react";
+import { useState } from "react";
 import type { PopupClient } from "./popupClient";
 import { LoginStatus, Status } from "../common/components/LoginStatus";
 
@@ -9,8 +9,8 @@ export interface Props {
 }
 
 export function PasswordForm(props: Props) {
-  const [status, setStatus] = React.useState<Status>("none");
-  const [password, setPassword] = React.useState("");
+  const [status, setStatus] = useState<Status>("none");
+  const [password, setPassword] = useState("");
 
   return (
     <form

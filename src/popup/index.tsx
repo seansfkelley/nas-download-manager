@@ -1,6 +1,5 @@
 import "./index.scss";
 import "../common/init/nonContentContext";
-import * as React from "react";
 import * as ReactDOM from "react-dom";
 
 import { onStoredStateChange, Settings, State } from "../common/state";

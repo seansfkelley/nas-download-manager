@@ -1,4 +1,4 @@
-import * as React from "react";
+import { PureComponent } from "react";
 import { default as isEqual } from "lodash/isEqual";
 import type {
   Settings,
@@ -19,7 +19,7 @@ interface State {
   client: PopupClient | undefined;
 }
 
-export class PopupWrapper extends React.PureComponent<Props> {
+export class PopupWrapper extends PureComponent<Props> {
   state: State = {
     client: getClient(this.props.state.settings.connection),
   };
