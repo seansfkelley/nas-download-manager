@@ -1,5 +1,6 @@
 import "./path-selector.scss";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useUpdateEffect } from "../common/hooks/useUpdateEffect";
 import type { MessageResponse, Directory } from "../common/apis/messages";
 import {
   DirectoryTree,
@@ -26,7 +27,6 @@ export function PathSelector(props: Props) {
   });
 
   const requestVersionByPath = useRef<Record<string, number>>({});
-  const isInitialLoad = useRef(true);
 
   function updateTreeWithResponse(path: string, response: MessageResponse<Directory[]>) {
     // Updated as a function of the current tree rather than the one this render closed over,
@@ -77,16 +77,13 @@ export function PathSelector(props: Props) {
   }, [props.client]);
 
   useEffect(() => {
-    if (isInitialLoad.current) {
-      isInitialLoad.current = false;
-    } else {
-      // Only when the client actually changed. This was componentDidUpdate, not componentDidMount:
-      // on mount there is no stale selection to clear, and clearing it would notify the parent of
-      // a change that did not happen.
-      props.onSelectPath(undefined);
-    }
     loadTopLevelDirectories();
   }, [loadTopLevelDirectories]);
+
+  // Not on mount, where there is no stale selection to clear.
+  useUpdateEffect(() => {
+    props.onSelectPath(undefined);
+  }, [props.client]);
 
   function renderContent() {
     if (isUnloadedChild(directoryTree.children)) {
