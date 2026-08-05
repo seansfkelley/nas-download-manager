@@ -111,7 +111,8 @@ export function guessFileNameFromUrl(url: string): string | undefined {
   if (startsWithAnyProtocol(url, MAGNET_PROTOCOL)) {
     const dn = parseQueryString(url).dn;
     if (dn) {
-      return typeof dn === "string" ? dn : dn[0];
+      // A valueless key, as in "magnet:?dn", parses to null rather than to a string.
+      return (typeof dn === "string" ? dn : dn[0]) ?? undefined;
     } else {
       return undefined;
     }
