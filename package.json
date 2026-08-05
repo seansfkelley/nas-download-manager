@@ -4,7 +4,8 @@
   "description": "An open source browser extension for adding/managing download tasks to your Synology DiskStation.",
   "scripts": {
     "test": "jest",
-    "lint": "prettier --check \"src/**/*\" \"test/**/*\" && tsc -p src --noemit",
+    "lint": "prettier --check \"src/**/*\" \"test/**/*\"",
+    "typecheck": "tsc -p src --noemit && tsc -p test --noemit",
     "lint:ext": "web-ext lint --source-dir dist",
     "dev": "web-ext run --source-dir dist --target firefox-desktop",
     "watch": "parcel watch manifest.json --no-hmr",
