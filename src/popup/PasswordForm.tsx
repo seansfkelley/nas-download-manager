@@ -1,4 +1,4 @@
-import "./password-form.scss";
+import "./password-form.css";
 
 import { useState } from "react";
 import type { PopupClient } from "./popupClient";

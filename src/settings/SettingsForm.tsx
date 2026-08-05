@@ -1,4 +1,4 @@
-import "./settings-form.scss";
+import "./settings-form.css";
 import { useState } from "react";
 
 import {

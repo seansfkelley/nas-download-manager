@@ -1,4 +1,4 @@
-import "./footer.scss";
+import "./footer.css";
 import classNames from "classnames";
 import type { CachedTasks } from "../common/state";
 import { formatMetric1024, formatRelativeTime } from "../common/format";

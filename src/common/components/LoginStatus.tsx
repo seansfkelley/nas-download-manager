@@ -1,4 +1,4 @@
-import "./login-status.scss";
+import "./login-status.css";
 
 import { useEffect, useState } from "react";
 import classNames from "classnames";

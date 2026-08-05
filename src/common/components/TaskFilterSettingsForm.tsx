@@ -1,4 +1,4 @@
-import "./task-filter-settings-form.scss";
+import "./task-filter-settings-form.css";
 
 import type { ChangeEvent } from "react";
 import {

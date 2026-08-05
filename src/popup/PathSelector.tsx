@@ -1,4 +1,4 @@
-import "./path-selector.scss";
+import "./path-selector.css";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { MessageResponse, Directory } from "../common/apis/messages";
 import {
