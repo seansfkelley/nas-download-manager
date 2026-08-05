@@ -1,5 +1,5 @@
 import "./directory-tree.scss";
-import { PureComponent, type ReactNode } from "react";
+import { memo, useState, type ReactNode } from "react";
 import classNames from "classnames";
 
 export type DirectoryTreeFileChildren =
@@ -64,101 +64,44 @@ export interface Props {
   onSelect: (path: string | undefined) => void;
 }
 
-export interface State {
-  isExpanded: boolean;
-}
+function DirectoryTreeNode(props: Props) {
+  const [isExpanded, setIsExpanded] = useState(false);
 
-export class DirectoryTree extends PureComponent<Props, State> {
-  state: State = {
-    isExpanded: false,
-  };
+  // A directory that failed to load cannot stay open, because there is nothing left to show
+  // underneath it and its chevron becomes a warning icon.
+  if (isExpanded && isErrorChild(props.file.children)) {
+    setIsExpanded(false);
+  }
 
-  UNSAFE_componentWillReceiveProps(nextProps: Props) {
-    if (isErrorChild(nextProps.file.children)) {
-      this.setState({ isExpanded: false });
+  function toggleExpanded() {
+    setIsExpanded(!isExpanded);
+    if (!isExpanded && isUnloadedChild(props.file.children)) {
+      props.requestLoad(props.file.path);
+    }
+
+    if (isExpanded && props.selectedPath && props.selectedPath.startsWith(props.file.path)) {
+      props.onSelect(undefined);
     }
   }
 
-  render() {
-    const isPlaceholder =
-      isLoadedChild(this.props.file.children) && this.props.file.children.length === 0;
-    return (
-      <div className="directory-tree">
-        <div
-          className={classNames("directory-header", {
-            "is-selected": this.props.selectedPath === this.props.file.path,
-          })}
-        >
-          <div
-            className={classNames("directory-icon-wrapper", {
-              placeholder: isPlaceholder,
-              disabled: isErrorChild(this.props.file.children),
-            })}
-            onClick={isErrorChild(this.props.file.children) ? undefined : this.toggleExpanded}
-            title={
-              isErrorChild(this.props.file.children)
-                ? this.props.file.children.failureMessage
-                : browser.i18n.getMessage("Expandcollapse_directory")
-            }
-          >
-            <span
-              className={classNames("fa", {
-                "fa-chevron-right expand-collapse":
-                  isUnloadedChild(this.props.file.children) ||
-                  (!isErrorChild(this.props.file.children) && this.props.file.children.length > 0),
-                "fa-exclamation-triangle intent-warning": isErrorChild(this.props.file.children),
-                "fa-fighter-jet": isPlaceholder,
-                "is-expanded": this.state.isExpanded,
-              })}
-            />
-          </div>
-          <div className="name" onClick={this.onSelect} title={this.props.file.name}>
-            {this.props.file.name}
-          </div>
-        </div>
-        {this.renderChildren()}
-      </div>
-    );
-  }
-
-  private onSelect = () => {
-    this.props.onSelect(this.props.file.path);
-  };
-
-  private toggleExpanded = () => {
-    const isExpanded = !this.state.isExpanded;
-    this.setState({ isExpanded });
-    if (isExpanded && isUnloadedChild(this.props.file.children)) {
-      this.props.requestLoad(this.props.file.path);
-    }
-
-    if (
-      !isExpanded &&
-      this.props.selectedPath &&
-      this.props.selectedPath.startsWith(this.props.file.path)
-    ) {
-      this.props.onSelect(undefined);
-    }
-  };
-
-  private renderChildren(): ReactNode {
-    if (this.state.isExpanded) {
-      if (isUnloadedChild(this.props.file.children)) {
+  function renderChildren(): ReactNode {
+    if (isExpanded) {
+      if (isUnloadedChild(props.file.children)) {
         return <div className="children loading">{browser.i18n.getMessage("Loading")}</div>;
-      } else if (isErrorChild(this.props.file.children)) {
+      } else if (isErrorChild(props.file.children)) {
         return null;
-      } else if (this.props.file.children.length === 0) {
+      } else if (props.file.children.length === 0) {
         return null;
       } else {
         return (
           <ul className="children loaded">
-            {this.props.file.children.map((child) => (
+            {props.file.children.map((child) => (
               <DirectoryTree
                 key={child.path}
                 file={child}
-                requestLoad={this.props.requestLoad}
-                selectedPath={this.props.selectedPath}
-                onSelect={this.props.onSelect}
+                requestLoad={props.requestLoad}
+                selectedPath={props.selectedPath}
+                onSelect={props.onSelect}
               />
             ))}
           </ul>
@@ -168,4 +111,57 @@ export class DirectoryTree extends PureComponent<Props, State> {
       return null;
     }
   }
+
+  const isPlaceholder = isLoadedChild(props.file.children) && props.file.children.length === 0;
+
+  return (
+    <div className="directory-tree">
+      <div
+        className={classNames("directory-header", {
+          "is-selected": props.selectedPath === props.file.path,
+        })}
+      >
+        <div
+          className={classNames("directory-icon-wrapper", {
+            placeholder: isPlaceholder,
+            disabled: isErrorChild(props.file.children),
+          })}
+          onClick={isErrorChild(props.file.children) ? undefined : toggleExpanded}
+          title={
+            isErrorChild(props.file.children)
+              ? props.file.children.failureMessage
+              : browser.i18n.getMessage("Expandcollapse_directory")
+          }
+        >
+          <span
+            className={classNames("fa", {
+              "fa-chevron-right expand-collapse":
+                isUnloadedChild(props.file.children) ||
+                (!isErrorChild(props.file.children) && props.file.children.length > 0),
+              "fa-exclamation-triangle intent-warning": isErrorChild(props.file.children),
+              "fa-fighter-jet": isPlaceholder,
+              "is-expanded": isExpanded,
+            })}
+          />
+        </div>
+        <div
+          className="name"
+          onClick={() => {
+            props.onSelect(props.file.path);
+          }}
+          title={props.file.name}
+        >
+          {props.file.name}
+        </div>
+      </div>
+      {renderChildren()}
+    </div>
+  );
 }
+
+// Memoized to preserve the bailout the PureComponent used to give. recursivelyUpdateDirectoryTree
+// keeps the identity of every subtree it did not touch, so loading one directory re-renders only
+// that branch rather than the whole tree. PathSelector holds requestLoad stable for the same
+// reason. Named separately from the inner function because a named function expression binds its
+// own name in its body, which would make the recursive usage above skip the memo.
+export const DirectoryTree = memo(DirectoryTreeNode);

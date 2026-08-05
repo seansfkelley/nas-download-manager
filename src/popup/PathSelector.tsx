@@ -1,11 +1,10 @@
 import "./path-selector.scss";
-import { PureComponent } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { MessageResponse, Directory } from "../common/apis/messages";
 import {
   DirectoryTree,
   DirectoryTreeFile,
   isUnloadedChild,
-  isLoadedChild,
   isErrorChild,
   recursivelyUpdateDirectoryTree,
 } from "./DirectoryTree";
@@ -19,47 +18,98 @@ export interface Props {
   client: PopupClient;
 }
 
-export interface State {
-  directoryTree: DirectoryTreeFile;
-}
+export function PathSelector(props: Props) {
+  const [directoryTree, setDirectoryTree] = useState<DirectoryTreeFile>({
+    name: "/",
+    path: ROOT_PATH,
+    children: "unloaded",
+  });
 
-export class PathSelector extends PureComponent<Props, State> {
-  state: State = {
-    directoryTree: {
-      name: "/",
-      path: ROOT_PATH,
-      children: "unloaded",
-    },
-  };
+  const requestVersionByPath = useRef<Record<string, number>>({});
+  const isInitialLoad = useRef(true);
 
-  private requestVersionByPath: Record<string, number> = {};
-
-  render() {
-    return <div className="path-selector">{this.renderContent()}</div>;
+  function updateTreeWithResponse(path: string, response: MessageResponse<Directory[]>) {
+    // Updated as a function of the current tree rather than the one this render closed over,
+    // because every caller reads it back after awaiting a response, by which time a sibling
+    // request may already have replaced it.
+    if (response.success) {
+      setDirectoryTree((tree) =>
+        recursivelyUpdateDirectoryTree(
+          tree,
+          path,
+          response.result.map((c) => ({ ...c, children: "unloaded" })),
+        ),
+      );
+    } else {
+      setDirectoryTree((tree) =>
+        recursivelyUpdateDirectoryTree(tree, path, { failureMessage: response.reason }),
+      );
+    }
   }
 
-  private renderContent() {
-    if (isUnloadedChild(this.state.directoryTree.children)) {
+  // Both loaders are held stable so that DirectoryTree's memoization keeps working; see the note
+  // there. Neither reads the tree, so the client is their only dependency.
+  const loadNestedDirectory = useCallback(
+    async (path: string) => {
+      const stashedRequestVersion = (requestVersionByPath.current[path] =
+        (requestVersionByPath.current[path] || 0) + 1);
+
+      const response = await props.client.listDirectories(path);
+
+      if (stashedRequestVersion === requestVersionByPath.current[path]) {
+        updateTreeWithResponse(path, response);
+      }
+    },
+    [props.client],
+  );
+
+  const loadTopLevelDirectories = useCallback(async () => {
+    setDirectoryTree((tree) => recursivelyUpdateDirectoryTree(tree, ROOT_PATH, "unloaded"));
+
+    const stashedRequestVersion = (requestVersionByPath.current[ROOT_PATH] =
+      (requestVersionByPath.current[ROOT_PATH] || 0) + 1);
+
+    const response = await props.client.listDirectories();
+
+    if (stashedRequestVersion === requestVersionByPath.current[ROOT_PATH]) {
+      updateTreeWithResponse(ROOT_PATH, response);
+    }
+  }, [props.client]);
+
+  useEffect(() => {
+    if (isInitialLoad.current) {
+      isInitialLoad.current = false;
+    } else {
+      // Only when the client actually changed. This was componentDidUpdate, not componentDidMount:
+      // on mount there is no stale selection to clear, and clearing it would notify the parent of
+      // a change that did not happen.
+      props.onSelectPath(undefined);
+    }
+    loadTopLevelDirectories();
+  }, [loadTopLevelDirectories]);
+
+  function renderContent() {
+    if (isUnloadedChild(directoryTree.children)) {
       return <div className="no-content">{browser.i18n.getMessage("Loading_directories")}</div>;
-    } else if (isErrorChild(this.state.directoryTree.children)) {
+    } else if (isErrorChild(directoryTree.children)) {
       return (
         <div className="no-content intent-error">
           <span className="fa fa-exclamation-triangle" />
-          {this.state.directoryTree.children.failureMessage}
+          {directoryTree.children.failureMessage}
         </div>
       );
-    } else if (this.state.directoryTree.children.length === 0) {
+    } else if (directoryTree.children.length === 0) {
       return <div className="no-content">{browser.i18n.getMessage("No_directories")}</div>;
     } else {
       return (
         <div>
-          {this.state.directoryTree.children.map((directory) => (
+          {directoryTree.children.map((directory) => (
             <DirectoryTree
               key={directory.path}
               file={directory}
-              requestLoad={this.loadNestedDirectory}
-              selectedPath={this.props.selectedPath}
-              onSelect={this.props.onSelectPath}
+              requestLoad={loadNestedDirectory}
+              selectedPath={props.selectedPath}
+              onSelect={props.onSelectPath}
             />
           ))}
         </div>
@@ -67,66 +117,5 @@ export class PathSelector extends PureComponent<Props, State> {
     }
   }
 
-  componentDidMount() {
-    this.loadTopLevelDirectories();
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    if (this.props.client !== prevProps.client) {
-      this.props.onSelectPath(undefined);
-      this.loadTopLevelDirectories();
-    }
-  }
-
-  private loadNestedDirectory = async (path: string) => {
-    if (!isLoadedChild(this.state.directoryTree.children)) {
-      console.error(
-        `programmer error: cannot load nested directories when top-level directories are not in a valid state`,
-      );
-    } else {
-      const stashedRequestVersion = (this.requestVersionByPath[path] =
-        (this.requestVersionByPath[path] || 0) + 1);
-
-      const response = await this.props.client.listDirectories(path);
-
-      if (stashedRequestVersion === this.requestVersionByPath[path]) {
-        this.updateTreeWithResponse(path, response);
-      }
-    }
-  };
-
-  private loadTopLevelDirectories = async () => {
-    this.setState({
-      directoryTree: recursivelyUpdateDirectoryTree(
-        this.state.directoryTree,
-        ROOT_PATH,
-        "unloaded",
-      ),
-    });
-    const stashedRequestVersion = (this.requestVersionByPath[ROOT_PATH] =
-      (this.requestVersionByPath[ROOT_PATH] || 0) + 1);
-    const response = await this.props.client.listDirectories();
-
-    if (stashedRequestVersion === this.requestVersionByPath[ROOT_PATH]) {
-      this.updateTreeWithResponse(ROOT_PATH, response);
-    }
-  };
-
-  private updateTreeWithResponse(path: string, response: MessageResponse<Directory[]>) {
-    if (response.success) {
-      this.setState({
-        directoryTree: recursivelyUpdateDirectoryTree(
-          this.state.directoryTree,
-          path,
-          response.result.map((c) => ({ ...c, children: "unloaded" })),
-        ),
-      });
-    } else {
-      this.setState({
-        directoryTree: recursivelyUpdateDirectoryTree(this.state.directoryTree, path, {
-          failureMessage: response.reason,
-        }),
-      });
-    }
-  }
+  return <div className="path-selector">{renderContent()}</div>;
 }
