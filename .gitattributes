@@ -1,0 +1,4 @@
+# Kept out of the source archive built by `npm run zip-sources`. CI configuration is not part of
+# the extension's source and is not something AMO reviewers need.
+.github/ export-ignore
+.gitattributes export-ignore

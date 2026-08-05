@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  # Restricted to master so pull requests are not checked twice: a push to a PR branch fires only
+  # the pull_request event, and push fires once on merge.
+  push:
+    branches: [master]
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+# Nothing here writes anything back to the repository.
+permissions:
+  contents: read
+
+jobs:
+  check:
+    # Each of these is an npm script and none of them depend on each other, so they run as four
+    # independent checks rather than one pass/fail blob. fail-fast is off because knowing that only
+    # the typecheck broke is more useful than finding out after fixing the lint.
+    strategy:
+      fail-fast: false
+      matrix:
+        script: [lint, typecheck, test, package]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      # Pinned to commit SHAs rather than tags, which are mutable; the trailing comment is the
+      # human-readable version. Resolve replacements with:
+      #   gh api repos/actions/checkout/commits/v7.0.1 --jq .sha
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run ${{ matrix.script }}
