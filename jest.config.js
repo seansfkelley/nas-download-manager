@@ -2,6 +2,7 @@
 module.exports = {
   testEnvironment: "node",
   roots: ["<rootDir>/test"],
+  setupFilesAfterEnv: ["jest-extended/all"],
   transform: {
     "^.+\\.tsx?$": [
       "ts-jest",

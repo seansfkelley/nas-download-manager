@@ -2,20 +2,6 @@ import * as fs from "fs";
 import * as path from "path";
 import { sync as globSync } from "glob";
 
-// chai's `.to.exist` asserted `!= null` and took a context string that Jest's matchers have no
-// equivalent for, so keep both behaviours here rather than weakening the assertions.
-function expectToExist(value: unknown, context: string) {
-  if (value == null) {
-    throw new Error(`expected ${context} to exist, got ${value}`);
-  }
-}
-
-function expectNotToExist(value: unknown, context: string) {
-  if (value != null) {
-    throw new Error(`expected ${context} not to exist, got ${JSON.stringify(value)}`);
-  }
-}
-
 interface I18nMessage {
   message: string;
   description: string;
@@ -71,8 +57,8 @@ describe("i18n", () => {
 
     it("should have a message and description field which are different", () => {
       forEachMessage(({ message, description }, messageName) => {
-        expectToExist(message, `message for ${messageName}`);
-        expectToExist(description, `description for ${messageName}`);
+        expect(message).not.toBeNil();
+        expect(description).not.toBeNil();
         // Prefixing both sides keeps the message name visible in the failure diff.
         expect(`${messageName}: ${message}`).not.toBe(`${messageName}: ${description}`);
       });
@@ -118,7 +104,7 @@ describe("i18n", () => {
           if (match != null) {
             didMatch = true;
             const stringName = match[1];
-            expectToExist(MESSAGES[stringName], `message "${stringName}" referenced by ${name}`);
+            expect(MESSAGES[stringName]).not.toBeNil();
           }
         } while (match != null);
 
@@ -133,15 +119,15 @@ describe("i18n", () => {
 
     describe("with placeholders", () => {
       it("should declare all placeholders that are mentioned in the message", () => {
-        forEachMessage(({ message, placeholders }, messageName) => {
+        forEachMessage(({ message, placeholders }) => {
           const namedPlaceholders = message.match(/\$[A-Z]+\$/g);
           if (namedPlaceholders != null) {
-            expectToExist(placeholders, `placeholders for ${messageName}`);
+            expect(placeholders).not.toBeNil();
             expect(Object.keys(placeholders!).sort()).toEqual(
               namedPlaceholders.map((p) => p.toLowerCase().replace(/(^\$)|(\$$)/g, "")).sort(),
             );
           } else {
-            expectNotToExist(placeholders, `placeholders for ${messageName}`);
+            expect(placeholders).toBeNil();
           }
         });
       });
@@ -167,13 +153,10 @@ describe("i18n", () => {
       });
 
       it('should have "example" fields on every placeholder', () => {
-        forEachMessage(({ placeholders }, messageName) => {
+        forEachMessage(({ placeholders }) => {
           if (placeholders != null) {
             Object.keys(placeholders).forEach((placeholderName) => {
-              expectToExist(
-                placeholders[placeholderName].example,
-                `example for placeholder "${placeholderName}" of ${messageName}`,
-              );
+              expect(placeholders[placeholderName].example).not.toBeNil();
             });
           }
         });
