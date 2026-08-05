@@ -182,15 +182,17 @@ describe("i18n", () => {
   });
 
   describe("other locale messages", () => {
-    fs.readdirSync(path.join(__dirname, "..", "_locales"))
-      .filter((locale) => locale !== DEFAULT_LOCALE)
-      .forEach((locale) => {
-        const DEFAULT_LOCALE_MESSAGES = loadLocale(DEFAULT_LOCALE);
-        it(`"${locale}" locale should have a subset of the messages from the default locale`, () => {
-          expect(Object.keys(DEFAULT_LOCALE_MESSAGES)).toEqual(
-            expect.arrayContaining(Object.keys(loadLocale(locale))),
-          );
-        });
-      });
+    const OTHER_LOCALES = fs
+      .readdirSync(path.join(__dirname, "..", "_locales"))
+      .filter((locale) => locale !== DEFAULT_LOCALE);
+
+    it.each(OTHER_LOCALES)(
+      '"%s" locale should have a subset of the messages from the default locale',
+      (locale) => {
+        expect(Object.keys(loadLocale(DEFAULT_LOCALE))).toEqual(
+          expect.arrayContaining(Object.keys(loadLocale(locale))),
+        );
+      },
+    );
   });
 });
