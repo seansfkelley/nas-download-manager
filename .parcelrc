@@ -1,4 +1,17 @@
 {
   "extends": "@parcel/config-webextension",
+  // Parcel only emits assets it can trace through a static import, and it renames them with a
+  // content hash. The toolbar icon, the popup header logo and the notification icons are all named
+  // by literal path at runtime, so they have to keep their well-known names under icons/. This
+  // reporter copies that directory verbatim after the build; Parcel has no first-party way to copy
+  // a directory, and the "raw:" pipeline still requires an import and still hashes the name.
+  //
+  // Known issue: the five icons manifest.json also references are consequently emitted twice, since
+  // the manifest is a build entry and its icon paths become real assets in the graph. dist/ ends up
+  // with a hashed, recompressed copy at the root, which the manifest points at, and a verbatim copy
+  // under dist/icons/, which the runtime paths point at. That is about 73kB of redundancy, which we
+  // accept. --no-content-hash does not fix it: the root copy remains, and every JS and CSS bundle
+  // loses its hash too. The only real fix is rewriting dist/manifest.json after the build and
+  // deleting the root copies, which is more machinery than the duplication is worth.
   "reporters": ["...", "parcel-reporter-static-files-copy"]
 }

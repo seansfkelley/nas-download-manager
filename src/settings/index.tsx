@@ -1,8 +1,8 @@
 import "./index.scss";
 import "../common/init/nonContentContext";
-import * as ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 
-import { State, Logging, onStoredStateChange, Settings } from "../common/state";
+import { Logging, onStoredStateChange, State, Settings } from "../common/state";
 import { SettingsForm } from "./SettingsForm";
 import { saveLastSevereError } from "../common/errorHandlers";
 
@@ -10,13 +10,13 @@ function clearError() {
   const clearedError: Logging = {
     lastSevereError: undefined,
   };
-  browser.storage.local.set<Partial<State>>(clearedError);
+  State.set(clearedError);
 }
 
 async function saveSettings(settings: Settings): Promise<boolean> {
   console.log("persisting settings...");
   try {
-    await browser.storage.local.set<Partial<State>>({ settings });
+    await State.set({ settings });
     console.log("done persisting settings");
     return true;
   } catch (e) {
@@ -25,16 +25,17 @@ async function saveSettings(settings: Settings): Promise<boolean> {
   }
 }
 
-const ELEMENT = document.getElementById("body")!;
+// Created once. Calling createRoot inside the listener would build a fresh root, and so throw away
+// all component state, every time the stored state changed.
+const ROOT = createRoot(document.getElementById("body")!);
 
 onStoredStateChange((state) => {
-  ReactDOM.render(
+  ROOT.render(
     <SettingsForm
       extensionState={state}
       saveSettings={saveSettings}
       lastSevereError={state.lastSevereError}
       clearError={clearError}
     />,
-    ELEMENT,
   );
 });

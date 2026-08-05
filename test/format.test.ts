@@ -1,4 +1,13 @@
-import { formatTime, formatPercentage } from "../src/common/format";
+import * as fs from "fs";
+import * as path from "path";
+
+import {
+  formatTime,
+  formatPercentage,
+  formatRelativeTime,
+  resolveTranslatedLocale,
+  TRANSLATED_LOCALES,
+} from "../src/common/format";
 
 describe("format", () => {
   describe("formatTime", () => {
@@ -33,6 +42,77 @@ describe("format", () => {
 
     it.each(TESTS)("should output '$output' for $input", ({ input, output }) => {
       expect(formatPercentage(input)).toBe(output);
+    });
+  });
+
+  describe("formatRelativeTime", () => {
+    const NOW = Date.UTC(2026, 0, 15, 12, 0, 0);
+    const SECOND = 1000;
+    const MINUTE = 60 * SECOND;
+    const HOUR = 60 * MINUTE;
+    const DAY = 24 * HOUR;
+
+    const TESTS: { name: string; offset: number; output: string }[] = [
+      { name: "now", offset: 0, output: "now" },
+      { name: "under a second", offset: -999, output: "now" },
+      { name: "one second", offset: -SECOND, output: "1 second ago" },
+      { name: "under a minute", offset: -59 * SECOND, output: "59 seconds ago" },
+      { name: "one minute", offset: -MINUTE, output: "1 minute ago" },
+      { name: "under an hour", offset: -59 * MINUTE, output: "59 minutes ago" },
+      { name: "one hour", offset: -HOUR, output: "1 hour ago" },
+      { name: "one day", offset: -DAY, output: "yesterday" },
+      { name: "one month", offset: -30 * DAY, output: "last month" },
+      { name: "one year", offset: -365 * DAY, output: "last year" },
+      { name: "in the future", offset: HOUR, output: "in 1 hour" },
+    ];
+
+    it.each(TESTS)("should output '$output' $name", ({ offset, output }) => {
+      expect(formatRelativeTime(NOW + offset, NOW, "en")).toBe(output);
+    });
+
+    it("should format in the requested locale", () => {
+      expect(formatRelativeTime(NOW - HOUR, NOW, "de")).toBe("vor 1 Stunde");
+    });
+  });
+
+  describe("resolveTranslatedLocale", () => {
+    const TESTS: { input: string; output: string }[] = [
+      { input: "en", output: "en" },
+      { input: "de", output: "de" },
+      { input: "en-US", output: "en" },
+      { input: "de-AT", output: "de" },
+      { input: "fr-CA", output: "fr" },
+      { input: "zh-CN", output: "zh-CN" },
+      { input: "zh-TW", output: "zh-TW" },
+      // Case-insensitive, because getUILanguage is not required to match our casing.
+      { input: "zh-tw", output: "zh-TW" },
+      // No zh directory exists to fall back to, so browser.i18n serves English and so do we.
+      { input: "zh-HK", output: "en" },
+      { input: "zh", output: "en" },
+      // Not translated at all.
+      { input: "es", output: "en" },
+      { input: "ja-JP", output: "en" },
+    ];
+
+    it.each(TESTS)("should resolve $input to $output", ({ input, output }) => {
+      expect(resolveTranslatedLocale(input)).toBe(output);
+    });
+  });
+
+  describe("TRANSLATED_LOCALES", () => {
+    it("should list exactly the locales that have messages", () => {
+      // _locales uses underscores, BCP 47 uses hyphens.
+      const onDisk = fs
+        .readdirSync(path.join(__dirname, "..", "_locales"))
+        .map((name) => name.replace("_", "-"))
+        .sort();
+      expect([...TRANSLATED_LOCALES].sort()).toStrictEqual(onDisk);
+    });
+
+    it("should be formattable by Intl.RelativeTimeFormat", () => {
+      TRANSLATED_LOCALES.forEach((locale) => {
+        expect(Intl.RelativeTimeFormat.supportedLocalesOf(locale)).toStrictEqual([locale]);
+      });
     });
   });
 });

@@ -1,8 +1,7 @@
 import "./footer.scss";
 import classNames from "classnames";
-import { moment } from "../common/moment";
 import type { CachedTasks } from "../common/state";
-import { formatMetric1024 } from "../common/format";
+import { formatMetric1024, formatRelativeTime } from "../common/format";
 
 export interface Props extends CachedTasks {}
 
@@ -38,7 +37,7 @@ export function Footer(props: Props) {
     icon = "fa-info-circle";
   } else {
     tooltip = browser.i18n.getMessage("Updated_ZtimeZ", [
-      moment(props.tasksLastCompletedFetchTimestamp).fromNow(),
+      formatRelativeTime(props.tasksLastCompletedFetchTimestamp),
     ]);
     icon = "fa-check";
   }

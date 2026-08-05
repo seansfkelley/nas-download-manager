@@ -1,12 +1,12 @@
 import type { RequestManager } from "../requestManager";
 import { SynologyClient, ClientRequestResult } from "../../common/apis/synology";
 import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../../common/apis/errors";
-import type { CachedTasks, State } from "../../common/state";
+import { type CachedTasks, State } from "../../common/state";
 import { saveLastSevereError } from "../../common/errorHandlers";
 import { assertNever } from "../../common/lang";
 
 function setCachedTasks(cachedTasks: Partial<CachedTasks>) {
-  return browser.storage.local.set<Partial<State>>({
+  return State.set({
     tasksLastCompletedFetchTimestamp: Date.now(),
     ...cachedTasks,
   });
@@ -22,7 +22,7 @@ export async function pollTasks(api: SynologyClient, manager: RequestManager): P
   console.log(`(${token}) polling for tasks...`);
 
   try {
-    await browser.storage.local.set<Partial<State>>(cachedTasksInit);
+    await State.set(cachedTasksInit);
 
     let response;
 

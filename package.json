@@ -4,11 +4,13 @@
   "description": "An open source browser extension for adding/managing download tasks to your Synology DiskStation.",
   "scripts": {
     "test": "jest",
-    "lint": "prettier --check \"src/**/*\" \"test/**/*\" && tsc -p src --noemit",
-    "lint:ext": "web-ext lint --source-dir dist",
+    "lint": "prettier --check \"src/**/*\" \"test/**/*\"",
+    "typecheck": "tsc -p src --noemit && tsc -p test --noemit",
+    "check:dist": "web-ext lint --source-dir dist",
     "dev": "web-ext run --source-dir dist --target firefox-desktop",
     "watch": "parcel watch manifest.json --no-hmr",
-    "build": "rm -rf dist .parcel-cache && parcel build manifest.json --no-source-maps",
+    "dist": "rm -rf dist && parcel build manifest.json --no-source-maps",
+    "package": "npm run dist && npm run check:dist && npm run zip",
     "zip": "rm -f addon.zip && cd dist && zip -qr ../addon.zip . -x '**/*.map' -x '**/.DS_Store'",
     "zip-sources": "rm -f sources.zip && zip -qr sources.zip . -x '*.zip' -x 'dist/*' -x 'node_modules/*' -x '**/.DS_Store' -x '.git/*' -x '.cache/*' -x '.parcel-cache/*' -x '.vscode/*' -x '.github/*' -x '.circleci/*'"
   },
@@ -32,12 +34,13 @@
   "devDependencies": {
     "@parcel/config-webextension": "^2.16.4",
     "@parcel/transformer-sass": "^2.16.4",
+    "@types/firefox-webext-browser": "^143.0.0",
     "@types/glob": "^5.0.33",
     "@types/jest": "^30.0.0",
     "@types/lodash": "^4.14.141",
     "@types/node": "^26.1.2",
-    "@types/react": "^17.0.34",
-    "@types/react-dom": "^17.0.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
     "glob": "^7.1.2",
     "jest": "^30.4.2",
     "jest-extended": "^6.0.0",
@@ -53,11 +56,9 @@
   "dependencies": {
     "classnames": "^2.3.1",
     "lodash": "^4.17.21",
-    "moment": "^2.18.1",
-    "query-string": "^6.8.2",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-textarea-autosize": "^8.3.2",
-    "webextension-polyfill": "^0.7.0"
+    "query-string": "^7.1.3",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-textarea-autosize": "^8.5.9"
   }
 }

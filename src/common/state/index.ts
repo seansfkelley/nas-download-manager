@@ -1,10 +1,13 @@
-import type { Protocol, ConnectionSettings, State } from "./migrations/latest";
+import { type Protocol, type ConnectionSettings, State } from "./migrations/latest";
 import { migrateState } from "./migrations/update";
 import { typesafeMapValues } from "../lang";
 
 export * from "./constants";
 export * from "./listen";
 export * from "./migrations/latest";
+// Named explicitly because the wildcard above silently drops it. Parcel drops namespaces from
+// wildcard exports for some reason, and we use namespace merging for ergonomics.
+export { State } from "./migrations/latest";
 
 export function getHostUrl(settings: ConnectionSettings) {
   if (settings.protocol && settings.hostname && settings.port) {
@@ -15,9 +18,11 @@ export function getHostUrl(settings: ConnectionSettings) {
 }
 
 export async function maybeMigrateState() {
-  const updated = migrateState(await browser.storage.local.get<any>(null));
+  // Bypass State.get; we don't know what shape this is at runtime and don't want to lie to the
+  // typechecker!
+  const updated = migrateState(await browser.storage.local.get(null));
   await browser.storage.local.clear();
-  return browser.storage.local.set<State>(updated);
+  return State.set(updated);
 }
 
 export function redactState(state: State): object {
