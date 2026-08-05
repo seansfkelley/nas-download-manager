@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { default as isEqual } from "lodash/isEqual";
+import { useMemoDeep } from "../common/hooks/useMemoDeep";
 import type {
   Settings,
   VisibleTaskSettings,
@@ -18,18 +17,9 @@ interface Props {
 export function PopupWrapper(props: Props) {
   const connection = props.state.settings.connection;
 
-  // Compared by value, and the connection it was built from is stored alongside it. getClient
-  // returns a new object every call, AdvancedAddDownloadForm refetches its config whenever the
-  // client identity changes, and stored state arrives as a fresh object on every poll -- so
-  // comparing by identity would refetch every few seconds for as long as the form is open.
-  const [client, setClient] = useState(() => ({
-    connection,
-    value: getClient(connection),
-  }));
-
-  if (!isEqual(client.connection, connection)) {
-    setClient({ connection, value: getClient(connection) });
-  }
+  // Deep because AdvancedAddDownloadForm refetches its config whenever the client identity changes,
+  // and a plain useMemo would hand it a new one on every poll.
+  const client = useMemoDeep(() => getClient(connection), [connection]);
 
   return (
     <Popup
@@ -53,7 +43,7 @@ export function PopupWrapper(props: Props) {
       changeShowInactiveTasks={(showInactiveTasks: boolean) => {
         props.updateSettings({ ...props.state.settings, showInactiveTasks });
       }}
-      client={client.value}
+      client={client}
     />
   );
 }
