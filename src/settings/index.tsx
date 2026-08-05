@@ -1,6 +1,6 @@
 import "./index.scss";
 import "../common/init/nonContentContext";
-import * as ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 
 import { Logging, onStoredStateChange, State, Settings } from "../common/state";
 import { SettingsForm } from "./SettingsForm";
@@ -25,16 +25,17 @@ async function saveSettings(settings: Settings): Promise<boolean> {
   }
 }
 
-const ELEMENT = document.getElementById("body")!;
+// Created once. Calling createRoot inside the listener would build a fresh root, and so throw away
+// all component state, every time the stored state changed.
+const ROOT = createRoot(document.getElementById("body")!);
 
 onStoredStateChange((state) => {
-  ReactDOM.render(
+  ROOT.render(
     <SettingsForm
       extensionState={state}
       saveSettings={saveSettings}
       lastSevereError={state.lastSevereError}
       clearError={clearError}
     />,
-    ELEMENT,
   );
 });

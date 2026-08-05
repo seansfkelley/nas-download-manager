@@ -1,5 +1,5 @@
 import "./task.scss";
-import { PureComponent, type ReactChild } from "react";
+import { PureComponent, type ReactNode } from "react";
 import { default as startCase } from "lodash/startCase";
 import { default as upperCase } from "lodash/upperCase";
 import classNames from "classnames";
@@ -80,7 +80,7 @@ export class Task extends PureComponent<Props, State> {
   }
 
   private renderStatus() {
-    const renderStatusLine = (iconName: string, subtitle: ReactChild) => {
+    const renderStatusLine = (iconName: string, subtitle: ReactNode) => {
       return (
         <span title={startCase(this.props.task.status)}>
           <span className={classNames("status-icon", iconName)} />
