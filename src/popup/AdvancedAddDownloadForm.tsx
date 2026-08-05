@@ -1,6 +1,5 @@
 import "./advanced-add-download-form.scss";
 import { PureComponent } from "react";
-import { default as last } from "lodash/last";
 import classNames from "classnames";
 import TextareaAutosize from "react-textarea-autosize";
 
@@ -117,7 +116,7 @@ export class AdvancedAddDownloadForm extends PureComponent<Props, State> {
             {browser.i18n.getMessage("Download_to")}
             <span className={classNames("path", { faded: !this.state.selectedPath })}>
               {this.state.selectedPath
-                ? last(this.state.selectedPath.split("/"))
+                ? this.state.selectedPath.split("/").at(-1)
                 : browser.i18n.getMessage("default_location")}
             </span>
           </div>

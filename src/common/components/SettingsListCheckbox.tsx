@@ -1,4 +1,4 @@
-import { useStableId } from "../hooks/useStableId";
+import { useId } from "react";
 
 export interface Props {
   checked: boolean;
@@ -8,7 +8,7 @@ export interface Props {
 }
 
 export function SettingsListCheckbox(props: Props) {
-  const id = useStableId("checkbox-id-");
+  const id = useId();
   return (
     <li title={props.title}>
       <input id={id} type="checkbox" checked={props.checked} onChange={props.onChange} />
