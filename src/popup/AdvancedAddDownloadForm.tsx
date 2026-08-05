@@ -1,5 +1,5 @@
 import "./advanced-add-download-form.scss";
-import { PureComponent } from "react";
+import { useEffect, useState } from "react";
 import classNames from "classnames";
 import TextareaAutosize from "react-textarea-autosize";
 
@@ -12,156 +12,126 @@ export interface Props {
   client: PopupClient;
 }
 
-export interface State {
-  selectedPath: string | undefined;
-  downloadUrl: string;
-  ftpUsername: string;
-  ftpPassword: string;
-  unzipPassword: string;
-  unzipEnabled: boolean;
-}
+export function AdvancedAddDownloadForm(props: Props) {
+  const [selectedPath, setSelectedPath] = useState<string | undefined>(undefined);
+  const [downloadUrl, setDownloadUrl] = useState("");
+  const [ftpUsername, setFtpUsername] = useState("");
+  const [ftpPassword, setFtpPassword] = useState("");
+  const [unzipPassword, setUnzipPassword] = useState("");
+  const [unzipEnabled, setUnzipEnabled] = useState(true);
 
-export class AdvancedAddDownloadForm extends PureComponent<Props, State> {
-  state: State = {
-    selectedPath: undefined,
-    downloadUrl: "",
-    ftpUsername: "",
-    ftpPassword: "",
-    unzipPassword: "",
-    unzipEnabled: true,
-  };
+  useEffect(() => {
+    async function updateIsUnzipEnabled() {
+      let enabled: boolean;
 
-  private async updateIsUnzipEnabled() {
-    let unzipEnabled: boolean;
-
-    try {
-      const response = await this.props.client.getConfig();
-      if (!response.success) {
-        unzipEnabled = false;
-      } else {
-        unzipEnabled = response.result.unzip_service_enabled;
+      try {
+        const response = await props.client.getConfig();
+        enabled = response.success ? response.result.unzip_service_enabled : false;
+      } catch {
+        enabled = false;
       }
-    } catch (e) {
-      unzipEnabled = false;
+
+      setUnzipEnabled(enabled);
+      if (!enabled) {
+        setUnzipPassword("");
+      }
     }
 
-    this.setState({ unzipEnabled });
-    if (!unzipEnabled) {
-      this.setState({ unzipPassword: "" });
-    }
-  }
+    updateIsUnzipEnabled();
+  }, [props.client]);
 
-  componentDidMount() {
-    this.updateIsUnzipEnabled();
-  }
+  const hasDownloadUrl = downloadUrl.length > 0;
 
-  componentDidUpdate(prevProps: Props) {
-    if (this.props.client !== prevProps.client) {
-      this.updateIsUnzipEnabled();
-    }
-  }
-
-  render() {
-    const hasDownloadUrl = this.state.downloadUrl.length > 0;
-
-    return (
-      <div className="advanced-add-download-form">
-        <TextareaAutosize
-          className="url-input input-field card"
-          minRows={2}
-          maxRows={5}
-          value={this.state.downloadUrl}
+  return (
+    <div className="advanced-add-download-form">
+      <TextareaAutosize
+        className="url-input input-field card"
+        minRows={2}
+        maxRows={5}
+        value={downloadUrl}
+        onChange={(e) => {
+          setDownloadUrl(e.currentTarget.value);
+        }}
+        placeholder={browser.i18n.getMessage("URLs_to_download_one_per_line")}
+      />
+      <div className="sibling-inputs">
+        <input
+          type="text"
+          className="input-field"
+          value={ftpUsername}
           onChange={(e) => {
-            this.setState({ downloadUrl: e.currentTarget.value });
+            setFtpUsername(e.currentTarget.value);
           }}
-          placeholder={browser.i18n.getMessage("URLs_to_download_one_per_line")}
+          placeholder={browser.i18n.getMessage("FTP_username")}
         />
-        <div className="sibling-inputs">
-          <input
-            type="text"
-            className="input-field"
-            value={this.state.ftpUsername}
-            onChange={(e) => {
-              this.setState({ ftpUsername: e.currentTarget.value });
-            }}
-            placeholder={browser.i18n.getMessage("FTP_username")}
-          />
-          <input
-            type="password"
-            className="input-field"
-            value={this.state.ftpPassword}
-            onChange={(e) => {
-              this.setState({ ftpPassword: e.currentTarget.value });
-            }}
-            placeholder={browser.i18n.getMessage("FTP_password")}
-          />
-        </div>
         <input
           type="password"
           className="input-field"
-          value={this.state.unzipPassword}
+          value={ftpPassword}
           onChange={(e) => {
-            this.setState({ unzipPassword: e.currentTarget.value });
+            setFtpPassword(e.currentTarget.value);
           }}
-          disabled={!this.state.unzipEnabled}
-          title={
-            this.state.unzipEnabled
-              ? undefined
-              : browser.i18n.getMessage("Auto_Extract_service_is_disabled_in_Download_Station")
-          }
-          placeholder={browser.i18n.getMessage("Unzip_password")}
+          placeholder={browser.i18n.getMessage("FTP_password")}
         />
-        <div className="download-path card">
-          <div className="path-display" title={this.state.selectedPath}>
-            {browser.i18n.getMessage("Download_to")}
-            <span className={classNames("path", { faded: !this.state.selectedPath })}>
-              {this.state.selectedPath
-                ? this.state.selectedPath.split("/").at(-1)
-                : browser.i18n.getMessage("default_location")}
-            </span>
-          </div>
-          <PathSelector
-            onSelectPath={this.setSelectedPath}
-            selectedPath={this.state.selectedPath}
-            client={this.props.client}
-          />
-        </div>
-        <div className="buttons">
-          <button
-            onClick={this.props.onClose}
-            title={browser.i18n.getMessage("Dont_add_a_new_task")}
-          >
-            <span className="fa fa-lg fa-times" /> {browser.i18n.getMessage("Cancel")}
-          </button>
-          <button
-            onClick={this.addDownload}
-            title={browser.i18n.getMessage("Download_the_above_URL_to_the_specified_location")}
-            disabled={!hasDownloadUrl}
-            className={classNames({ disabled: !hasDownloadUrl })}
-          >
-            <span className="fa fa-lg fa-plus" /> {browser.i18n.getMessage("Add")}
-          </button>
-        </div>
       </div>
-    );
-  }
-
-  private addDownload = () => {
-    let urls = this.state.downloadUrl
-      .split("\n")
-      .map((url) => url.trim())
-      // The cheapest of checks. Actual invalid URLs will be caught later.
-      .filter((url) => startsWithAnyProtocol(url, ALL_DOWNLOADABLE_PROTOCOLS));
-    this.props.client.createTasks(urls, {
-      path: this.state.selectedPath,
-      ftpPassword: this.state.ftpPassword.trim() || undefined,
-      ftpUsername: this.state.ftpUsername.trim() || undefined,
-      unzipPassword: this.state.unzipPassword.trim() || undefined,
-    });
-    this.props.onClose();
-  };
-
-  private setSelectedPath = (selectedPath: string | undefined) => {
-    this.setState({ selectedPath });
-  };
+      <input
+        type="password"
+        className="input-field"
+        value={unzipPassword}
+        onChange={(e) => {
+          setUnzipPassword(e.currentTarget.value);
+        }}
+        disabled={!unzipEnabled}
+        title={
+          unzipEnabled
+            ? undefined
+            : browser.i18n.getMessage("Auto_Extract_service_is_disabled_in_Download_Station")
+        }
+        placeholder={browser.i18n.getMessage("Unzip_password")}
+      />
+      <div className="download-path card">
+        <div className="path-display" title={selectedPath}>
+          {browser.i18n.getMessage("Download_to")}
+          <span className={classNames("path", { faded: !selectedPath })}>
+            {selectedPath
+              ? selectedPath.split("/").at(-1)
+              : browser.i18n.getMessage("default_location")}
+          </span>
+        </div>
+        {/* The setter from useState is stable, which is what keeps DirectoryTree's memoization
+            effective all the way down from here. */}
+        <PathSelector
+          onSelectPath={setSelectedPath}
+          selectedPath={selectedPath}
+          client={props.client}
+        />
+      </div>
+      <div className="buttons">
+        <button onClick={props.onClose} title={browser.i18n.getMessage("Dont_add_a_new_task")}>
+          <span className="fa fa-lg fa-times" /> {browser.i18n.getMessage("Cancel")}
+        </button>
+        <button
+          onClick={() => {
+            const urls = downloadUrl
+              .split("\n")
+              .map((url) => url.trim())
+              // The cheapest of checks. Actual invalid URLs will be caught later.
+              .filter((url) => startsWithAnyProtocol(url, ALL_DOWNLOADABLE_PROTOCOLS));
+            props.client.createTasks(urls, {
+              path: selectedPath,
+              ftpPassword: ftpPassword.trim() || undefined,
+              ftpUsername: ftpUsername.trim() || undefined,
+              unzipPassword: unzipPassword.trim() || undefined,
+            });
+            props.onClose();
+          }}
+          title={browser.i18n.getMessage("Download_the_above_URL_to_the_specified_location")}
+          disabled={!hasDownloadUrl}
+          className={classNames({ disabled: !hasDownloadUrl })}
+        >
+          <span className="fa fa-lg fa-plus" /> {browser.i18n.getMessage("Add")}
+        </button>
+      </div>
+    </div>
+  );
 }
