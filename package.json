@@ -12,7 +12,7 @@
     "dist": "rm -rf dist && parcel build manifest.json --no-source-maps",
     "package": "npm run dist && npm run check:dist && npm run zip",
     "zip": "rm -f addon.zip && cd dist && zip -qr ../addon.zip . -x '**/*.map' -x '**/.DS_Store'",
-    "zip-sources": "rm -f sources.zip && zip -qr sources.zip . -x '*.zip' -x 'dist/*' -x 'node_modules/*' -x '**/.DS_Store' -x '.git/*' -x '.cache/*' -x '.parcel-cache/*' -x '.vscode/*' -x '.github/*' -x '.circleci/*'"
+    "zip-sources": "rm -f sources.zip && git archive --format=zip -o sources.zip HEAD"
   },
   "repository": {
     "type": "git",
