@@ -1,5 +1,3 @@
-import { default as uniqueId } from "lodash/uniqueId";
-
 export type NotificationType = "regular" | "success" | "failure";
 
 const TYPE_TO_FILE_SUFFIX: Record<NotificationType, string> = {
@@ -12,7 +10,8 @@ export function notify(
   title: string,
   message?: string,
   type: NotificationType = "regular",
-  id: string = uniqueId("notification-"),
+  // Don't use a file-local counter so if this gets unloaded/reloaded it won't clash.
+  id: string = `notification-${crypto.randomUUID()}`,
 ) {
   browser.notifications.create(id, {
     type: "basic",
