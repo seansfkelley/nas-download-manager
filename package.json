@@ -5,6 +5,8 @@
   "scripts": {
     "test": "jest",
     "lint": "prettier --check \"src/**/*\" \"test/**/*\" && tsc -p src --noemit",
+    "lint:ext": "web-ext lint --source-dir dist",
+    "dev": "web-ext run --source-dir dist --target firefox-desktop",
     "watch": "parcel watch manifest.json --no-hmr",
     "build": "rm -rf dist .parcel-cache && parcel build manifest.json --no-source-maps",
     "zip": "rm -f addon.zip && cd dist && zip -qr ../addon.zip . -x '**/*.map' -x '**/.DS_Store'",
@@ -23,7 +25,9 @@
     "staticOutPath": "icons"
   },
   "browserslist": [
-    "since 2021-06"
+    "last 2 Firefox versions",
+    "Firefox ESR",
+    "last 2 Chrome versions"
   ],
   "devDependencies": {
     "@parcel/config-webextension": "^2.16.4",
@@ -43,7 +47,8 @@
     "sass": "^1.22.10",
     "semver": "^7.3.4",
     "ts-jest": "^29.4.12",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "web-ext": "^10.6.0"
   },
   "dependencies": {
     "classnames": "^2.3.1",
