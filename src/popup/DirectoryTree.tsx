@@ -1,4 +1,4 @@
-import "./directory-tree.scss";
+import "./directory-tree.css";
 import { memo, useState, type ReactNode } from "react";
 import classNames from "classnames";
 

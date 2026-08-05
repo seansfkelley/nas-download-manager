@@ -1,0 +1,30 @@
+/*
+Custom properties inherit from :root at runtime, so component stylesheets reference these without
+importing anything. Only the two entry points pull this file in.
+*/
+:root {
+  --color-error: #c23030;
+  --color-warning: #d99e0b;
+  --color-success: #0d8050;
+  --color-loading: #137cbd;
+  --color-selected: var(--color-loading);
+  --color-indeterminate: #888;
+  --color-background: #fbfbfb;
+
+  --color-text: #111;
+  --color-text-faded: #444;
+  /* Was lighten(), which adds to HSL lightness; this is the same operation spelled in CSS. */
+  --color-text-very-faded: hsl(from var(--color-text-faded) h s calc(l + 30));
+}
+
+.intent-error {
+  color: var(--color-error);
+}
+
+.intent-warning {
+  color: var(--color-warning);
+}
+
+.intent-success {
+  color: var(--color-success);
+}

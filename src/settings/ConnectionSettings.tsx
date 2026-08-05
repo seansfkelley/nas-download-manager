@@ -1,4 +1,4 @@
-import "./connection-settings.scss";
+import "./connection-settings.css";
 
 import { useId, useState } from "react";
 

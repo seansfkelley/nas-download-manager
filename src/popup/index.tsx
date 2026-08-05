@@ -1,4 +1,4 @@
-import "./index.scss";
+import "./index.css";
 import "../common/init/nonContentContext";
 import { createRoot } from "react-dom/client";
 

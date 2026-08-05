@@ -1,4 +1,4 @@
-import "./task.scss";
+import "./task.css";
 import { useState, type ReactNode } from "react";
 import { default as startCase } from "lodash/startCase";
 import { default as upperCase } from "lodash/upperCase";

@@ -1,5 +1,3 @@
-@import "colors";
-
 .advanced-add-download-form {
   display: flex;
   flex-direction: column;
@@ -55,7 +53,7 @@
         margin-left: 3px;
 
         &.faded {
-          color: lighten($color-text-faded, 30%);
+          color: var(--color-text-very-faded);
         }
       }
     }

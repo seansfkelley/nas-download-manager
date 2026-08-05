@@ -1,4 +1,4 @@
-import "./fatal-error.scss";
+import "./fatal-error.css";
 import type { ErrorInfo } from "react";
 
 import { NonIdealState } from "../common/components/NonIdealState";

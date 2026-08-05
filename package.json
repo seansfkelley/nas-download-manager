@@ -33,7 +33,6 @@
   ],
   "devDependencies": {
     "@parcel/config-webextension": "^2.16.4",
-    "@parcel/transformer-sass": "^2.16.4",
     "@types/firefox-webext-browser": "^143.0.0",
     "@types/glob": "^5.0.33",
     "@types/jest": "^30.0.0",
@@ -47,7 +46,6 @@
     "parcel": "^2.16.4",
     "parcel-reporter-static-files-copy": "1.5.3",
     "prettier": "^3.9.6",
-    "sass": "^1.22.10",
     "semver": "^7.3.4",
     "ts-jest": "^29.4.12",
     "typescript": "^6.0.3",

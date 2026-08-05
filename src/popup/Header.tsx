@@ -1,4 +1,4 @@
-import "./header.scss";
+import "./header.css";
 import classNames from "classnames";
 
 import { disabledPropAndClassName } from "../common/classnameUtil";

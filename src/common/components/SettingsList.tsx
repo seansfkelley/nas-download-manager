@@ -1,4 +1,4 @@
-import "./settings-list.scss";
+import "./settings-list.css";
 
 import type { PropsWithChildren } from "react";
 

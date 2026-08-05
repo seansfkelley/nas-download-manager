@@ -1,0 +1,11 @@
+@import "../common/theme.css";
+@import "../common/fields.css";
+@import "../common/controls.css";
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  padding: 4px 2px;
+}

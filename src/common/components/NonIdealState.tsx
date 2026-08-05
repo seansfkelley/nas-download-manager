@@ -1,4 +1,4 @@
-import "./non-ideal-state.scss";
+import "./non-ideal-state.css";
 import type { PropsWithChildren } from "react";
 import classNames from "classnames";
 
