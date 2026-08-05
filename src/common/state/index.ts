@@ -18,8 +18,8 @@ export function getHostUrl(settings: ConnectionSettings) {
 }
 
 export async function maybeMigrateState() {
-  // Deliberately not getStoredState: this reads the pre-migration contents, whose shape is whatever
-  // an older version of the extension last wrote, and is not yet a State.
+  // Bypass State.get; we don't know what shape this is at runtime and don't want to lie to the
+  // typechecker!
   const updated = migrateState(await browser.storage.local.get(null));
   await browser.storage.local.clear();
   return State.set(updated);
