@@ -1,4 +1,3 @@
-import "../common/init/commonContext";
 import { AddTasks } from "../common/apis/messages";
 import { onStoredStateChange } from "../common/state/listen";
 import { DOWNLOAD_ONLY_PROTOCOLS, startsWithAnyProtocol } from "../common/apis/protocols";
