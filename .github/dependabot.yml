@@ -1,0 +1,8 @@
+version: 2
+updates:
+  # The workflow pins actions to commit SHAs, which is what makes them safe and also what makes
+  # them invisible when they go stale. This is the thing that moves them.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
