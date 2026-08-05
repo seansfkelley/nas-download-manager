@@ -6,7 +6,6 @@ import { default as throttle } from "lodash/throttle";
 import type { DownloadStationTask } from "../common/apis/synology/DownloadStation/Task";
 import type { VisibleTaskSettings, TaskSortType, BadgeDisplayType } from "../common/state";
 import { sortTasks, filterTasks } from "../common/filtering";
-import { useUpdateEffect } from "../common/hooks/useUpdateEffect";
 import { TaskFilterSettingsForm } from "../common/components/TaskFilterSettingsForm";
 import { NonIdealState } from "../common/components/NonIdealState";
 import type { PopupClient } from "./popupClient";
@@ -37,22 +36,14 @@ export function Popup(props: Props) {
   const [isAddingDownload, setIsAddingDownload] = useState(false);
   const [isShowingDisplaySettings, setIsShowingDisplaySettings] = useState(false);
   const [isClearingCompletedTasks, setIsClearingCompletedTasks] = useState(false);
-  // Bleh. If a popup grows larger in Firefox, it will leave it as such until the DOM changes and causes
-  // a relayout. Therefore, after collapsing the filter panel, we want to force a layout to make it the right
-  // size again. Unfortunately we can't do that by just reading a layout property like offsetHeight, we have
-  // to actually change the DOM, hence we render this invisible nonce whenever we toggle the panel.
+  // Bleh. If a popup grows larger in Firefox, it will leave it as such until the DOM changes and
+  // causes a relayout. Collapsing the filter panel only flips a class, and it does so at the start
+  // of the animation while the panel is still full height, so nothing mutates once it has actually
+  // shrunk. Reading a layout property like offsetHeight is not enough; the DOM has to change. Hence
+  // this nonce, bumped when the panel finishes animating and rendered as an attribute nobody reads.
   const [firefoxRerenderNonce, setFirefoxRerenderNonce] = useState(0);
 
   const bodyRef = useRef<HTMLDivElement | null>(null);
-
-  useUpdateEffect(() => {
-    const timeout = setTimeout(() => {
-      setFirefoxRerenderNonce((nonce) => nonce + 1);
-    }, 350);
-    return () => {
-      clearTimeout(timeout);
-    };
-  }, [isShowingDisplaySettings]);
 
   // Memoized so that throttling actually accumulates across scroll events instead of being reset
   // by every render.
@@ -163,7 +154,7 @@ export function Popup(props: Props) {
     : undefined;
 
   return (
-    <div className="popup">
+    <div className="popup" data-relayout={firefoxRerenderNonce}>
       <Header
         isAddingDownload={isAddingDownload}
         onClickAddDownload={
@@ -193,6 +184,12 @@ export function Popup(props: Props) {
         className={classNames("display-settings", {
           "is-visible": isShowingDisplaySettings,
         })}
+        // Any transition finishing here means the panel has settled at its new size. Deliberately
+        // not filtered by property name: firing a few extra times is free, and silently doing
+        // nothing because the animated property was renamed in the scss is not.
+        onTransitionEnd={() => {
+          setFirefoxRerenderNonce((nonce) => nonce + 1);
+        }}
       >
         <h4 className="title">{browser.i18n.getMessage("Task_Display_Settings")}</h4>
         <TaskFilterSettingsForm
@@ -225,7 +222,6 @@ export function Popup(props: Props) {
         tasksLastInitiatedFetchTimestamp={props.tasksLastInitiatedFetchTimestamp}
         tasksLastCompletedFetchTimestamp={props.tasksLastCompletedFetchTimestamp}
       />
-      <div style={{ display: "none" }}>{firefoxRerenderNonce}</div>
     </div>
   );
 }
