@@ -1,5 +1,4 @@
-import { PureComponent } from "react";
-import { default as isEqual } from "lodash/isEqual";
+import { useMemoDeep } from "../common/hooks/useMemoDeep";
 import type {
   Settings,
   VisibleTaskSettings,
@@ -8,61 +7,40 @@ import type {
   BadgeDisplayType,
 } from "../common/state";
 import { Popup } from "./Popup";
-import { getClient, PopupClient } from "./popupClient";
+import { getClient } from "./popupClient";
 
 interface Props {
   state: ExtensionState;
   updateSettings: (settings: Settings) => void;
 }
 
-interface State {
-  client: PopupClient | undefined;
-}
+export function PopupWrapper(props: Props) {
+  const connection = props.state.settings.connection;
+  const client = useMemoDeep(() => getClient(connection), [connection]);
 
-export class PopupWrapper extends PureComponent<Props> {
-  state: State = {
-    client: getClient(this.props.state.settings.connection),
-  };
-
-  render() {
-    return (
-      <Popup
-        tasks={this.props.state.tasks}
-        taskFetchFailureReason={this.props.state.taskFetchFailureReason}
-        tasksLastInitiatedFetchTimestamp={this.props.state.tasksLastInitiatedFetchTimestamp}
-        tasksLastCompletedFetchTimestamp={this.props.state.tasksLastCompletedFetchTimestamp}
-        visibleTasks={this.props.state.settings.visibleTasks}
-        changeVisibleTasks={this.changeVisibleTasks}
-        taskSort={this.props.state.settings.taskSortType}
-        changeTaskSort={this.changeSortType}
-        badgeDisplay={this.props.state.settings.badgeDisplayType}
-        changeBadgeDisplay={this.changeBadgeDisplay}
-        showInactiveTasks={this.props.state.settings.showInactiveTasks}
-        changeShowInactiveTasks={this.changeShowInactiveTasks}
-        client={this.state.client}
-      />
-    );
-  }
-
-  private changeVisibleTasks = (visibleTasks: VisibleTaskSettings) => {
-    this.props.updateSettings({ ...this.props.state.settings, visibleTasks });
-  };
-
-  private changeSortType = (taskSortType: TaskSortType) => {
-    this.props.updateSettings({ ...this.props.state.settings, taskSortType });
-  };
-
-  private changeBadgeDisplay = (badgeDisplayType: BadgeDisplayType) => {
-    this.props.updateSettings({ ...this.props.state.settings, badgeDisplayType });
-  };
-
-  private changeShowInactiveTasks = (showInactiveTasks: boolean) => {
-    this.props.updateSettings({ ...this.props.state.settings, showInactiveTasks });
-  };
-
-  UNSAFE_componentWillReceiveProps(nextProps: Props) {
-    if (!isEqual(this.props.state.settings.connection, nextProps.state.settings.connection)) {
-      this.setState({ client: getClient(nextProps.state.settings.connection) });
-    }
-  }
+  return (
+    <Popup
+      tasks={props.state.tasks}
+      taskFetchFailureReason={props.state.taskFetchFailureReason}
+      tasksLastInitiatedFetchTimestamp={props.state.tasksLastInitiatedFetchTimestamp}
+      tasksLastCompletedFetchTimestamp={props.state.tasksLastCompletedFetchTimestamp}
+      visibleTasks={props.state.settings.visibleTasks}
+      changeVisibleTasks={(visibleTasks: VisibleTaskSettings) => {
+        props.updateSettings({ ...props.state.settings, visibleTasks });
+      }}
+      taskSort={props.state.settings.taskSortType}
+      changeTaskSort={(taskSortType: TaskSortType) => {
+        props.updateSettings({ ...props.state.settings, taskSortType });
+      }}
+      badgeDisplay={props.state.settings.badgeDisplayType}
+      changeBadgeDisplay={(badgeDisplayType: BadgeDisplayType) => {
+        props.updateSettings({ ...props.state.settings, badgeDisplayType });
+      }}
+      showInactiveTasks={props.state.settings.showInactiveTasks}
+      changeShowInactiveTasks={(showInactiveTasks: boolean) => {
+        props.updateSettings({ ...props.state.settings, showInactiveTasks });
+      }}
+      client={client}
+    />
+  );
 }

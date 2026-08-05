@@ -1,11 +1,11 @@
 /.*
 *.zip
 *.log
-*.md
 package-lock.json
 dist/
 lib/
 icons/
 icon-sources/
+node_modules/
 screenshots/
 vendor/

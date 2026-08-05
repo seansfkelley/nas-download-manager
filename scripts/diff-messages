@@ -35,7 +35,7 @@ if (missingKeys.length === 0 && outdatedKeys.length === 0) {
       "messages.json file and watch out for missing/extra commas messing up your syntax!",
     );
     console.error();
-    missingKeys.forEach(k => {
+    missingKeys.forEach((k) => {
       console.log(`"${k}": ${JSON.stringify(defaultMessages[k], null, 2)},`);
     });
   }
@@ -53,6 +53,6 @@ if (missingKeys.length === 0 && outdatedKeys.length === 0) {
     );
     console.error("them to match changes since they were originally written.");
     console.error();
-    outdatedKeys.forEach(key => console.log(`- ${key}`));
+    outdatedKeys.forEach((key) => console.log(`- ${key}`));
   }
 }

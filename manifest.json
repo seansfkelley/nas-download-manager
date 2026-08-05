@@ -4,27 +4,19 @@
   "version": "0.12.2",
   "description": "__MSG_Add_and_manage_Download_Station_tasks_on_your_Synology_DiskStation__",
   "default_locale": "en",
-  "background": {
-    "scripts": [
-      "src/background/index.ts"
-    ]
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{b17c0686-033c-4d03-b526-b16c99998c98}"
+    }
   },
-  "permissions": [
-    "contextMenus",
-    "storage",
-    "notifications",
-    "http://*/*",
-    "https://*/*"
-  ],
+  "background": {
+    "scripts": ["src/background/index.ts"]
+  },
+  "permissions": ["contextMenus", "storage", "notifications", "http://*/*", "https://*/*"],
   "content_scripts": [
     {
-      "matches": [
-        "http://*/*",
-        "https://*/*"
-      ],
-      "js": [
-        "src/content/index.ts"
-      ]
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["src/content/index.ts"]
     }
   ],
   "browser_action": {

@@ -525,7 +525,7 @@
     "description": "Error message on Synology API call failure."
   },
   "Session_interrupted_by_duplicate_login": {
-    "message": "登录会话被重复登录关闭", 
+    "message": "登录会话被重复登录关闭",
     "description": "Error message on Synology API call failure."
   },
   "SID_not_found": {
