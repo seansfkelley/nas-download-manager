@@ -16,9 +16,6 @@ interface Props {
 
 export function PopupWrapper(props: Props) {
   const connection = props.state.settings.connection;
-
-  // Deep because AdvancedAddDownloadForm refetches its config whenever the client identity changes,
-  // and a plain useMemo would hand it a new one on every poll.
   const client = useMemoDeep(() => getClient(connection), [connection]);
 
   return (
