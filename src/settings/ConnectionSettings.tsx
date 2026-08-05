@@ -1,7 +1,6 @@
 import "./connection-settings.scss";
 
-import { PureComponent } from "react";
-import { default as uniqueId } from "lodash/uniqueId";
+import { useId, useState } from "react";
 
 import {
   Protocol,
@@ -26,173 +25,149 @@ interface Props {
   saveConnectionSettings: (settings: ConnectionSettingsWithMandatoryPassword) => void;
 }
 
-interface State {
-  changedSettings: Partial<ConnectionSettingsWithMandatoryPassword>;
-  loginStatus: Status;
-}
+export function ConnectionSettings(props: Props) {
+  const [changedSettings, setChangedSettings] = useState<
+    Partial<ConnectionSettingsWithMandatoryPassword>
+  >({});
+  const [loginStatus, setLoginStatus] = useState<Status>("none");
+  const checkboxId = useId();
 
-export class ConnectionSettings extends PureComponent<Props, State> {
-  state: State = {
-    changedSettings: {},
-    loginStatus: "none",
-  };
+  const canEditFields = loginStatus !== "in-progress";
+  const mergedSettings = { ...props.connectionSettings, ...changedSettings };
 
-  render() {
-    const canEditFields = this.state.loginStatus !== "in-progress";
-    const checkboxId = uniqueId("checkbox-id-");
-    const mergedSettings = this.getMergedSettings();
-
-    return (
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          assert(mergedSettings.password != null);
-          this.testConnectionAndSave(mergedSettings as ConnectionSettingsWithMandatoryPassword);
-        }}
-        className="connection-settings"
-      >
-        <SettingsList>
-          <li className="label-and-input host-settings">
-            <span className="label">{browser.i18n.getMessage("Host")}</span>
-            <div className="input">
-              <select
-                {...disabledPropAndClassName(!canEditFields)}
-                value={mergedSettings.protocol}
-                onChange={(e) => {
-                  this.setSetting("protocol", e.currentTarget.value as Protocol);
-                }}
-                ref={kludgeRefSetClassname("protocol-setting")}
-              >
-                {PROTOCOLS.map((protocol) => (
-                  <option key={protocol} value={protocol}>
-                    {protocol}
-                  </option>
-                ))}
-              </select>
-              <span>://</span>
-              <input
-                type="text"
-                {...disabledPropAndClassName(!canEditFields)}
-                placeholder={browser.i18n.getMessage("hostname_or_IP_address")}
-                value={mergedSettings.hostname}
-                onChange={(e) => {
-                  this.setSetting("hostname", e.currentTarget.value.trim());
-                }}
-                ref={kludgeRefSetClassname("host-setting")}
-              />
-              <span>:</span>
-              <input
-                {...disabledPropAndClassName(!canEditFields)}
-                type="number"
-                value={mergedSettings.port === 0 ? "" : mergedSettings.port}
-                onChange={(e) => {
-                  const port = +(e.currentTarget.value.replace(/[^0-9]/g, "") || 0);
-                  this.setSetting("port", port);
-                }}
-                ref={kludgeRefSetClassname("port-setting")}
-              />
-            </div>
-          </li>
-
-          <li className="label-and-input">
-            <span className="label">{browser.i18n.getMessage("Username")}</span>
-            <div className="input">
-              <input
-                type="text"
-                {...disabledPropAndClassName(!canEditFields)}
-                value={mergedSettings.username}
-                onChange={(e) => {
-                  this.setSetting("username", e.currentTarget.value);
-                }}
-              />
-            </div>
-          </li>
-
-          <li className="label-and-input">
-            <span className="label">{browser.i18n.getMessage("Password")}</span>
-            <div className="input">
-              <input
-                type="password"
-                {...disabledPropAndClassName(!canEditFields)}
-                value={mergedSettings.password ?? ""}
-                onChange={(e) => {
-                  this.setSetting("password", e.currentTarget.value);
-                }}
-              />
-            </div>
-          </li>
-
-          <li className="label-and-input remember-me">
-            <input
-              type="checkbox"
-              {...disabledPropAndClassName(!canEditFields)}
-              id={checkboxId}
-              checked={mergedSettings.rememberPassword}
-              onChange={() => {
-                this.setSetting("rememberPassword", !mergedSettings.rememberPassword);
-              }}
-            />
-            <label htmlFor={checkboxId}>{browser.i18n.getMessage("Remember_Password")}</label>
-          </li>
-
-          <li>
-            <LoginStatus status={this.state.loginStatus} />
-            <button
-              type="submit"
-              {...disabledPropAndClassName(
-                !canEditFields ||
-                  !mergedSettings.protocol ||
-                  !mergedSettings.hostname ||
-                  !mergedSettings.port ||
-                  !mergedSettings.username ||
-                  !mergedSettings.password ||
-                  this.state.loginStatus === "in-progress" ||
-                  (this.state.loginStatus !== "none" &&
-                    !ClientRequestResult.isConnectionFailure(this.state.loginStatus) &&
-                    this.state.loginStatus.success),
-              )}
-            >
-              {browser.i18n.getMessage("Login")}
-            </button>
-          </li>
-        </SettingsList>
-      </form>
-    );
-  }
-
-  private getMergedSettings() {
-    return {
-      ...this.props.connectionSettings,
-      ...this.state.changedSettings,
-    };
-  }
-
-  private setSetting<K extends keyof ConnectionSettingsWithMandatoryPassword>(
+  function setSetting<K extends keyof ConnectionSettingsWithMandatoryPassword>(
     key: K,
     value: ConnectionSettingsWithMandatoryPassword[K],
   ) {
-    this.setState({
-      loginStatus: "none",
-      changedSettings: {
-        ...this.state.changedSettings,
-        [key]: value,
-      },
-    });
+    setLoginStatus("none");
+    setChangedSettings((settings) => ({ ...settings, [key]: value }));
   }
 
-  private testConnectionAndSave = async (settings: ConnectionSettingsWithMandatoryPassword) => {
-    this.setState({
-      loginStatus: "in-progress",
-    });
+  async function testConnectionAndSave(settings: ConnectionSettingsWithMandatoryPassword) {
+    setLoginStatus("in-progress");
 
     const result = await testConnection(settings);
 
-    this.setState({
-      loginStatus: result,
-    });
+    setLoginStatus(result);
 
     if (!ClientRequestResult.isConnectionFailure(result) && result.success) {
-      this.props.saveConnectionSettings(settings);
+      props.saveConnectionSettings(settings);
     }
-  };
+  }
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        assert(mergedSettings.password != null);
+        testConnectionAndSave(mergedSettings as ConnectionSettingsWithMandatoryPassword);
+      }}
+      className="connection-settings"
+    >
+      <SettingsList>
+        <li className="label-and-input host-settings">
+          <span className="label">{browser.i18n.getMessage("Host")}</span>
+          <div className="input">
+            <select
+              {...disabledPropAndClassName(!canEditFields)}
+              value={mergedSettings.protocol}
+              onChange={(e) => {
+                setSetting("protocol", e.currentTarget.value as Protocol);
+              }}
+              ref={kludgeRefSetClassname("protocol-setting")}
+            >
+              {PROTOCOLS.map((protocol) => (
+                <option key={protocol} value={protocol}>
+                  {protocol}
+                </option>
+              ))}
+            </select>
+            <span>://</span>
+            <input
+              type="text"
+              {...disabledPropAndClassName(!canEditFields)}
+              placeholder={browser.i18n.getMessage("hostname_or_IP_address")}
+              value={mergedSettings.hostname}
+              onChange={(e) => {
+                setSetting("hostname", e.currentTarget.value.trim());
+              }}
+              ref={kludgeRefSetClassname("host-setting")}
+            />
+            <span>:</span>
+            <input
+              {...disabledPropAndClassName(!canEditFields)}
+              type="number"
+              value={mergedSettings.port === 0 ? "" : mergedSettings.port}
+              onChange={(e) => {
+                const port = +(e.currentTarget.value.replace(/[^0-9]/g, "") || 0);
+                setSetting("port", port);
+              }}
+              ref={kludgeRefSetClassname("port-setting")}
+            />
+          </div>
+        </li>
+
+        <li className="label-and-input">
+          <span className="label">{browser.i18n.getMessage("Username")}</span>
+          <div className="input">
+            <input
+              type="text"
+              {...disabledPropAndClassName(!canEditFields)}
+              value={mergedSettings.username}
+              onChange={(e) => {
+                setSetting("username", e.currentTarget.value);
+              }}
+            />
+          </div>
+        </li>
+
+        <li className="label-and-input">
+          <span className="label">{browser.i18n.getMessage("Password")}</span>
+          <div className="input">
+            <input
+              type="password"
+              {...disabledPropAndClassName(!canEditFields)}
+              value={mergedSettings.password ?? ""}
+              onChange={(e) => {
+                setSetting("password", e.currentTarget.value);
+              }}
+            />
+          </div>
+        </li>
+
+        <li className="label-and-input remember-me">
+          <input
+            type="checkbox"
+            {...disabledPropAndClassName(!canEditFields)}
+            id={checkboxId}
+            checked={mergedSettings.rememberPassword}
+            onChange={() => {
+              setSetting("rememberPassword", !mergedSettings.rememberPassword);
+            }}
+          />
+          <label htmlFor={checkboxId}>{browser.i18n.getMessage("Remember_Password")}</label>
+        </li>
+
+        <li>
+          <LoginStatus status={loginStatus} />
+          <button
+            type="submit"
+            {...disabledPropAndClassName(
+              !canEditFields ||
+                !mergedSettings.protocol ||
+                !mergedSettings.hostname ||
+                !mergedSettings.port ||
+                !mergedSettings.username ||
+                !mergedSettings.password ||
+                (loginStatus !== "none" &&
+                  !ClientRequestResult.isConnectionFailure(loginStatus) &&
+                  loginStatus.success),
+            )}
+          >
+            {browser.i18n.getMessage("Login")}
+          </button>
+        </li>
+      </SettingsList>
+    </form>
+  );
 }

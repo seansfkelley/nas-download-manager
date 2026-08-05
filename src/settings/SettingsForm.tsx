@@ -1,5 +1,5 @@
 import "./settings-form.scss";
-import { PureComponent } from "react";
+import { useState } from "react";
 
 import {
   State as ExtensionState,
@@ -30,11 +30,6 @@ export interface Props {
   clearError: () => void;
 }
 
-interface State {
-  savesFailed: boolean;
-  rawPollingInterval: string;
-}
-
 const POLL_MIN_INTERVAL = 15;
 const POLL_DEFAULT_INTERVAL = 60;
 const POLL_STEP = 15;
@@ -43,139 +38,51 @@ function isValidPollingInterval(stringValue: string) {
   return !isNaN(+stringValue) && +stringValue >= POLL_MIN_INTERVAL;
 }
 
-export class SettingsForm extends PureComponent<Props, State> {
-  state: State = {
-    savesFailed: false,
-    rawPollingInterval:
-      this.props.extensionState.settings.notifications.completionPollingInterval.toString() ||
+export function SettingsForm(props: Props) {
+  const [savesFailed, setSavesFailed] = useState(false);
+  const [rawPollingInterval, setRawPollingInterval] = useState(
+    () =>
+      props.extensionState.settings.notifications.completionPollingInterval.toString() ||
       POLL_DEFAULT_INTERVAL.toString(),
-  };
+  );
 
-  render() {
-    return (
-      <div className="settings-form">
-        {this.state.savesFailed ? (
-          <div className="intent-error cannot-save">
-            {browser.i18n.getMessage("Cannot_save_settings_This_is_a_bug_please_file_an_issue")}
-          </div>
-        ) : null}
+  async function saveSettings(settings: Partial<Settings>) {
+    const success = await props.saveSettings({
+      ...typesafePick(props.extensionState.settings, ...SETTING_NAMES),
+      ...settings,
+    });
 
-        <header>
-          <h3>{browser.i18n.getMessage("Connection")}</h3>
-          <p>
-            {browser.i18n.getMessage(
-              "Please_note_that_QuickConnect_IDs_and_twofactor_authentication_are_not_currently_supported",
-            )}
-          </p>
-        </header>
-
-        <ConnectionSettingsComponent
-          connectionSettings={this.props.extensionState.settings.connection}
-          saveConnectionSettings={this.updateConnectionSettings}
-        />
-
-        <div className="horizontal-separator" />
-
-        <header>
-          <h3>{browser.i18n.getMessage("Task_Display_Settings")}</h3>
-          <p>{browser.i18n.getMessage("Display_these_task_types_in_the_popup_menu")}</p>
-        </header>
-
-        <TaskFilterSettingsForm
-          visibleTasks={this.props.extensionState.settings.visibleTasks}
-          taskSortType={this.props.extensionState.settings.taskSortType}
-          badgeDisplayType={this.props.extensionState.settings.badgeDisplayType}
-          showInactiveTasks={this.props.extensionState.settings.showInactiveTasks}
-          updateTaskTypeVisibility={this.updateTaskTypeVisibility}
-          updateTaskSortType={this.updateTaskSortType}
-          updateBadgeDisplayType={this.updateBadgeDisplayType}
-          updateShowInactiveTasks={this.updateShowInactiveTasks}
-        />
-
-        <div className="horizontal-separator" />
-
-        <header>
-          <h3>{browser.i18n.getMessage("Miscellaneous")}</h3>
-        </header>
-
-        <SettingsList>
-          <SettingsListCheckbox
-            checked={this.props.extensionState.settings.notifications.enableFeedbackNotifications}
-            onChange={() => {
-              this.setNotificationSetting(
-                "enableFeedbackNotifications",
-                !this.props.extensionState.settings.notifications.enableFeedbackNotifications,
-              );
-            }}
-            label={browser.i18n.getMessage("Notify_when_adding_downloads")}
-          />
-          <SettingsListCheckbox
-            checked={this.props.extensionState.settings.notifications.enableCompletionNotifications}
-            onChange={() => {
-              this.setNotificationSetting(
-                "enableCompletionNotifications",
-                !this.props.extensionState.settings.notifications.enableCompletionNotifications,
-              );
-            }}
-            label={browser.i18n.getMessage("Notify_when_downloads_complete")}
-          />
-
-          <li>
-            <span className="indent">
-              {browser.i18n.getMessage("Check_for_completed_downloads_every")}
-            </span>
-            <input
-              type="number"
-              {...disabledPropAndClassName(
-                !this.props.extensionState.settings.notifications.enableCompletionNotifications,
-              )}
-              min={POLL_MIN_INTERVAL}
-              step={POLL_STEP}
-              value={this.state.rawPollingInterval}
-              ref={kludgeRefSetClassname("polling-interval")}
-              onChange={(e) => {
-                const rawPollingInterval = e.currentTarget.value;
-                this.setState({ rawPollingInterval });
-                if (isValidPollingInterval(rawPollingInterval)) {
-                  this.setNotificationSetting("completionPollingInterval", +rawPollingInterval);
-                }
-              }}
-            />
-            {browser.i18n.getMessage("seconds")}
-            {isValidPollingInterval(this.state.rawPollingInterval) ? undefined : (
-              <span className="intent-error wrong-polling-interval">
-                {browser.i18n.getMessage("at_least_15")}
-              </span>
-            )}
-          </li>
-
-          <SettingsListCheckbox
-            checked={this.props.extensionState.settings.shouldHandleDownloadLinks}
-            onChange={() => {
-              this.setShouldHandleDownloadLinks(
-                !this.props.extensionState.settings.shouldHandleDownloadLinks,
-              );
-            }}
-            label={browser.i18n.getMessage("Handle_opening_downloadable_link_types_ZprotocolsZ", [
-              DOWNLOAD_ONLY_PROTOCOLS.join(", "),
-            ])}
-          />
-        </SettingsList>
-
-        {this.maybeRenderDebuggingOutputAndSeparator()}
-      </div>
-    );
+    setSavesFailed((failed) => failed || !success);
   }
 
-  private maybeRenderDebuggingOutputAndSeparator() {
-    if (this.props.lastSevereError) {
+  function setNotificationSetting<K extends keyof NotificationSettings>(
+    key: K,
+    value: NotificationSettings[K],
+  ) {
+    saveSettings({
+      notifications: {
+        ...props.extensionState.settings.notifications,
+        [key]: value,
+      },
+    });
+  }
+
+  async function updateConnectionSettings(
+    connection: Overwrite<ConnectionSettings, { password: string }>,
+  ) {
+    if (connection.rememberPassword) {
+      await saveSettings({ connection });
+    } else {
+      await saveSettings({ connection: { ...connection, password: undefined } });
+    }
+    await SetLoginPassword.send(connection.password);
+  }
+
+  function maybeRenderDebuggingOutputAndSeparator() {
+    if (props.lastSevereError) {
       const formattedDebugLogs = `${
-        this.props.lastSevereError
-      }\n\nRedacted extension state: ${JSON.stringify(
-        redactState(this.props.extensionState),
-        null,
-        2,
-      )}`;
+        props.lastSevereError
+      }\n\nRedacted extension state: ${JSON.stringify(redactState(props.extensionState), null, 2)}`;
 
       return (
         <>
@@ -203,9 +110,7 @@ export class SettingsForm extends PureComponent<Props, State> {
             </li>
 
             <li>
-              <button onClick={this.props.clearError}>
-                {browser.i18n.getMessage("Clear_output")}
-              </button>
+              <button onClick={props.clearError}>{browser.i18n.getMessage("Clear_output")}</button>
             </li>
           </SettingsList>
         </>
@@ -215,64 +120,130 @@ export class SettingsForm extends PureComponent<Props, State> {
     }
   }
 
-  private updateTaskTypeVisibility = (taskType: keyof VisibleTaskSettings, visibility: boolean) => {
-    this.saveSettings({
-      visibleTasks: {
-        ...this.props.extensionState.settings.visibleTasks,
-        [taskType]: visibility,
-      },
-    });
-  };
+  return (
+    <div className="settings-form">
+      {savesFailed ? (
+        <div className="intent-error cannot-save">
+          {browser.i18n.getMessage("Cannot_save_settings_This_is_a_bug_please_file_an_issue")}
+        </div>
+      ) : null}
 
-  private updateTaskSortType = (taskSortType: TaskSortType) => {
-    this.saveSettings({ taskSortType });
-  };
+      <header>
+        <h3>{browser.i18n.getMessage("Connection")}</h3>
+        <p>
+          {browser.i18n.getMessage(
+            "Please_note_that_QuickConnect_IDs_and_twofactor_authentication_are_not_currently_supported",
+          )}
+        </p>
+      </header>
 
-  private updateBadgeDisplayType = (badgeDisplayType: BadgeDisplayType) => {
-    this.saveSettings({ badgeDisplayType });
-  };
+      <ConnectionSettingsComponent
+        connectionSettings={props.extensionState.settings.connection}
+        saveConnectionSettings={updateConnectionSettings}
+      />
 
-  private updateShowInactiveTasks = (showInactiveTasks: boolean) => {
-    this.saveSettings({ showInactiveTasks });
-  };
+      <div className="horizontal-separator" />
 
-  private updateConnectionSettings = async (
-    connection: Overwrite<ConnectionSettings, { password: string }>,
-  ) => {
-    if (connection.rememberPassword) {
-      await this.saveSettings({ connection });
-    } else {
-      await this.saveSettings({ connection: { ...connection, password: undefined } });
-    }
-    await SetLoginPassword.send(connection.password);
-  };
+      <header>
+        <h3>{browser.i18n.getMessage("Task_Display_Settings")}</h3>
+        <p>{browser.i18n.getMessage("Display_these_task_types_in_the_popup_menu")}</p>
+      </header>
 
-  private setNotificationSetting<K extends keyof NotificationSettings>(
-    key: K,
-    value: NotificationSettings[K],
-  ) {
-    this.saveSettings({
-      notifications: {
-        ...this.props.extensionState.settings.notifications,
-        [key]: value,
-      },
-    });
-  }
+      <TaskFilterSettingsForm
+        visibleTasks={props.extensionState.settings.visibleTasks}
+        taskSortType={props.extensionState.settings.taskSortType}
+        badgeDisplayType={props.extensionState.settings.badgeDisplayType}
+        showInactiveTasks={props.extensionState.settings.showInactiveTasks}
+        updateTaskTypeVisibility={(taskType: keyof VisibleTaskSettings, visibility: boolean) => {
+          saveSettings({
+            visibleTasks: {
+              ...props.extensionState.settings.visibleTasks,
+              [taskType]: visibility,
+            },
+          });
+        }}
+        updateTaskSortType={(taskSortType: TaskSortType) => {
+          saveSettings({ taskSortType });
+        }}
+        updateBadgeDisplayType={(badgeDisplayType: BadgeDisplayType) => {
+          saveSettings({ badgeDisplayType });
+        }}
+        updateShowInactiveTasks={(showInactiveTasks: boolean) => {
+          saveSettings({ showInactiveTasks });
+        }}
+      />
 
-  private setShouldHandleDownloadLinks(shouldHandleDownloadLinks: boolean) {
-    this.saveSettings({
-      shouldHandleDownloadLinks,
-    });
-  }
+      <div className="horizontal-separator" />
 
-  private saveSettings = async (settings: Partial<Settings>) => {
-    const success = await this.props.saveSettings({
-      ...typesafePick(this.props.extensionState.settings, ...SETTING_NAMES),
-      ...settings,
-    });
+      <header>
+        <h3>{browser.i18n.getMessage("Miscellaneous")}</h3>
+      </header>
 
-    this.setState({
-      savesFailed: this.state.savesFailed || !success,
-    });
-  };
+      <SettingsList>
+        <SettingsListCheckbox
+          checked={props.extensionState.settings.notifications.enableFeedbackNotifications}
+          onChange={() => {
+            setNotificationSetting(
+              "enableFeedbackNotifications",
+              !props.extensionState.settings.notifications.enableFeedbackNotifications,
+            );
+          }}
+          label={browser.i18n.getMessage("Notify_when_adding_downloads")}
+        />
+        <SettingsListCheckbox
+          checked={props.extensionState.settings.notifications.enableCompletionNotifications}
+          onChange={() => {
+            setNotificationSetting(
+              "enableCompletionNotifications",
+              !props.extensionState.settings.notifications.enableCompletionNotifications,
+            );
+          }}
+          label={browser.i18n.getMessage("Notify_when_downloads_complete")}
+        />
+
+        <li>
+          <span className="indent">
+            {browser.i18n.getMessage("Check_for_completed_downloads_every")}
+          </span>
+          <input
+            type="number"
+            {...disabledPropAndClassName(
+              !props.extensionState.settings.notifications.enableCompletionNotifications,
+            )}
+            min={POLL_MIN_INTERVAL}
+            step={POLL_STEP}
+            value={rawPollingInterval}
+            ref={kludgeRefSetClassname("polling-interval")}
+            onChange={(e) => {
+              const interval = e.currentTarget.value;
+              setRawPollingInterval(interval);
+              if (isValidPollingInterval(interval)) {
+                setNotificationSetting("completionPollingInterval", +interval);
+              }
+            }}
+          />
+          {browser.i18n.getMessage("seconds")}
+          {isValidPollingInterval(rawPollingInterval) ? undefined : (
+            <span className="intent-error wrong-polling-interval">
+              {browser.i18n.getMessage("at_least_15")}
+            </span>
+          )}
+        </li>
+
+        <SettingsListCheckbox
+          checked={props.extensionState.settings.shouldHandleDownloadLinks}
+          onChange={() => {
+            saveSettings({
+              shouldHandleDownloadLinks: !props.extensionState.settings.shouldHandleDownloadLinks,
+            });
+          }}
+          label={browser.i18n.getMessage("Handle_opening_downloadable_link_types_ZprotocolsZ", [
+            DOWNLOAD_ONLY_PROTOCOLS.join(", "),
+          ])}
+        />
+      </SettingsList>
+
+      {maybeRenderDebuggingOutputAndSeparator()}
+    </div>
+  );
 }
