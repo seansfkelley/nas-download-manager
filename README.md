@@ -54,7 +54,7 @@ Please note that development is not actively supported on Windows. Some of the b
 
 ### Prerequisites
 
-Dependencies are managed with npm, which ships with [Node](https://nodejs.org/).
+Dependencies are managed with npm, which ships with [Node](https://nodejs.org/). The Node version is pinned in `.nvmrc`; run `nvm use` if you have [nvm](https://github.com/nvm-sh/nvm).
 
 ### Actively Developing the Extension
 
@@ -74,9 +74,13 @@ Please note that while the build tasks will auto-recompile, the browser may not 
     npm run watch
     ```
 
-3. In your browser, navigate to the extension debugging page and open `manifest.json`.
+3. In a second terminal, launch a browser with the extension already installed.
 
-    **Firefox**: `about:debugging` > This Firefox > Load Temporary Add-on...
+    ```
+    npm run dev
+    ```
+
+    This uses [web-ext](https://extensionworkshop.com/documentation/develop/web-ext-command-reference/), which opens a scratch Firefox profile with the extension loaded and reloads it as files change. To load it by hand instead, open `about:debugging` > This Firefox > Load Temporary Add-on... and select `dist/manifest.json`.
 
     ~~**Chrome**: `about:extensions` > Enable "Developer mode" > Load unpacked~~
 
