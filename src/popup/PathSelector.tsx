@@ -1,6 +1,5 @@
 import "./path-selector.scss";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useUpdateEffect } from "../common/hooks/useUpdateEffect";
 import type { MessageResponse, Directory } from "../common/apis/messages";
 import {
   DirectoryTree,
@@ -47,8 +46,8 @@ export function PathSelector(props: Props) {
     }
   }
 
-  // Both loaders are held stable so that DirectoryTree's memoization keeps working; see the note
-  // there. Neither reads the tree, so the client is their only dependency.
+  // Held stable so that DirectoryTree's memoization keeps working; see the note there. It does not
+  // read the tree, so the client is its only dependency.
   const loadNestedDirectory = useCallback(
     async (path: string) => {
       const stashedRequestVersion = (requestVersionByPath.current[path] =
@@ -63,26 +62,19 @@ export function PathSelector(props: Props) {
     [props.client],
   );
 
-  const loadTopLevelDirectories = useCallback(async () => {
+  useEffect(() => {
+    // Clearing the selection is a no-op on mount, where it is already unset.
+    props.onSelectPath(undefined);
     setDirectoryTree((tree) => recursivelyUpdateDirectoryTree(tree, ROOT_PATH, "unloaded"));
 
     const stashedRequestVersion = (requestVersionByPath.current[ROOT_PATH] =
       (requestVersionByPath.current[ROOT_PATH] || 0) + 1);
 
-    const response = await props.client.listDirectories();
-
-    if (stashedRequestVersion === requestVersionByPath.current[ROOT_PATH]) {
-      updateTreeWithResponse(ROOT_PATH, response);
-    }
-  }, [props.client]);
-
-  useEffect(() => {
-    loadTopLevelDirectories();
-  }, [loadTopLevelDirectories]);
-
-  // Not on mount, where there is no stale selection to clear.
-  useUpdateEffect(() => {
-    props.onSelectPath(undefined);
+    props.client.listDirectories().then((response) => {
+      if (stashedRequestVersion === requestVersionByPath.current[ROOT_PATH]) {
+        updateTreeWithResponse(ROOT_PATH, response);
+      }
+    });
   }, [props.client]);
 
   function renderContent() {
