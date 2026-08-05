@@ -80,7 +80,9 @@ Please note that while the build tasks will auto-recompile, the browser may not 
    npm run dev
    ```
 
-   This uses [web-ext](https://extensionworkshop.com/documentation/develop/web-ext-command-reference/), which opens a scratch Firefox profile with the extension loaded and reloads it as files change. To load it by hand instead, open `about:debugging` > This Firefox > Load Temporary Add-on... and select `dist/manifest.json`.
+   This uses [web-ext](https://extensionworkshop.com/documentation/develop/web-ext-command-reference/), which opens Firefox with the extension loaded and reloads it as files change. To load it by hand instead, open `about:debugging` > This Firefox > Load Temporary Add-on... and select `dist/manifest.json`.
+
+   It runs against a dedicated profile in `.firefox-profile`, created on first use and ignored by git, so the connection settings you enter survive between runs instead of needing to be re-entered every time. Note that this means your NAS password is stored there unencrypted, the same way Firefox stores it for the installed extension. Delete the directory to start from a clean slate.
 
    ~~**Chrome**: `about:extensions` > Enable "Developer mode" > Load unpacked~~
 
