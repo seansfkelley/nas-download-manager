@@ -64,46 +64,46 @@ Please note that while the build tasks will auto-recompile, the browser may not 
 
 1. Install dependencies.
 
-    ```
-    npm install
-    ```
+   ```
+   npm install
+   ```
 
 2. Start a build to watch files and auto-recompile code on change.
 
-    ```
-    npm run watch
-    ```
+   ```
+   npm run watch
+   ```
 
 3. In a second terminal, launch a browser with the extension already installed.
 
-    ```
-    npm run dev
-    ```
+   ```
+   npm run dev
+   ```
 
-    This uses [web-ext](https://extensionworkshop.com/documentation/develop/web-ext-command-reference/), which opens a scratch Firefox profile with the extension loaded and reloads it as files change. To load it by hand instead, open `about:debugging` > This Firefox > Load Temporary Add-on... and select `dist/manifest.json`.
+   This uses [web-ext](https://extensionworkshop.com/documentation/develop/web-ext-command-reference/), which opens a scratch Firefox profile with the extension loaded and reloads it as files change. To load it by hand instead, open `about:debugging` > This Firefox > Load Temporary Add-on... and select `dist/manifest.json`.
 
-    ~~**Chrome**: `about:extensions` > Enable "Developer mode" > Load unpacked~~
+   ~~**Chrome**: `about:extensions` > Enable "Developer mode" > Load unpacked~~
 
 ### Packing the Extension for Distribution
 
 1. Install dependencies.
 
-    ```
-    npm install
-    ```
+   ```
+   npm install
+   ```
 
 2. Build the extension, check it against the validation rules addons.mozilla.org applies, and zip it
    into a file suitable for distribution.
 
-    ```
-    npm run package
-    ```
+   ```
+   npm run package
+   ```
 
 3. _(Optional)_ Zip all source code into a file suitable for distribution.
 
-    ```
-    npm run zip-sources
-    ```
+   ```
+   npm run zip-sources
+   ```
 
 ### Translating the Extension
 

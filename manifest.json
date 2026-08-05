@@ -10,26 +10,13 @@
     }
   },
   "background": {
-    "scripts": [
-      "src/background/index.ts"
-    ]
+    "scripts": ["src/background/index.ts"]
   },
-  "permissions": [
-    "contextMenus",
-    "storage",
-    "notifications",
-    "http://*/*",
-    "https://*/*"
-  ],
+  "permissions": ["contextMenus", "storage", "notifications", "http://*/*", "https://*/*"],
   "content_scripts": [
     {
-      "matches": [
-        "http://*/*",
-        "https://*/*"
-      ],
-      "js": [
-        "src/content/index.ts"
-      ]
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["src/content/index.ts"]
     }
   ],
   "browser_action": {
