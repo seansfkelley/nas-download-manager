@@ -1,8 +1,15 @@
 {
   "extends": "../src/tsconfig.json",
   "compilerOptions": {
-    "module": "commonjs",
+    // Jest runs CommonJS, which cannot pair with the source config's "bundler" resolution.
+    // "node16" emits CommonJS here because package.json has no "type": "module". node10 would
+    // also work but does not understand package "exports" and stops functioning in TypeScript 7.
+    "module": "node16",
+    "moduleResolution": "node16",
+    // ts-jest builds its own file list, which loses the automatic @types inclusion that tsc does.
+    "types": ["jest", "node"],
     "rootDir": ".."
   },
-  "include": ["."]
+  // The ambient declarations under src/ are not reachable from the test files' imports.
+  "include": [".", "../src/**/*.d.ts"]
 }

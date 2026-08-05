@@ -1,14 +1,11 @@
 {
   "compilerOptions": {
-    "module": "es2015",
-    "moduleResolution": "node",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    // Raised to es2022 once Parcel 2 lands: Parcel 1 bundles a terser too old to parse the
+    // optional chaining and nullish coalescing that a higher target stops downleveling.
     "target": "es2017",
     "jsx": "react",
-    "rootDir": ".",
-    "outDir": "../lib",
-    "sourceMap": true,
-    "declaration": true,
-    "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
