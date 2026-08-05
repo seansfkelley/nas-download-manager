@@ -1,4 +1,4 @@
-import "./popup.scss";
+import "./popup.css";
 import { useMemo, useRef, useState } from "react";
 import classNames from "classnames";
 import { default as throttle } from "lodash/throttle";

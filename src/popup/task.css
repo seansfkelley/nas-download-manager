@@ -1,5 +1,3 @@
-@import "colors";
-
 .task {
   padding: 8px;
 
@@ -26,7 +24,7 @@
 
       .status {
         font-size: 0.8em;
-        color: $color-text-faded;
+        color: var(--color-text-faded);
 
         .error-icon {
           margin-right: 3px;
@@ -35,7 +33,7 @@
     }
 
     .remove-button {
-      color: $color-error;
+      color: var(--color-error);
     }
 
     .remove-button,
@@ -69,19 +67,19 @@
       border-radius: inherit;
 
       &.in-progress {
-        background-color: $color-loading;
+        background-color: var(--color-loading);
       }
 
       &.completed {
-        background-color: $color-success;
+        background-color: var(--color-success);
       }
 
       &.errored {
-        background-color: $color-error;
+        background-color: var(--color-error);
       }
 
       &.unknown {
-        background-color: $color-indeterminate;
+        background-color: var(--color-indeterminate);
       }
     }
 

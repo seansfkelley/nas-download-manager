@@ -1,4 +1,4 @@
-import "./advanced-add-download-form.scss";
+import "./advanced-add-download-form.css";
 import { useEffect, useState } from "react";
 import classNames from "classnames";
 import TextareaAutosize from "react-textarea-autosize";

@@ -1,8 +1,6 @@
-@import "colors";
-
 .directory-tree {
-  $icon-size: 20px;
-  $icon-text-margin: 3px;
+  --icon-size: 20px;
+  --icon-text-margin: 3px;
 
   &:not(:last-child) {
     margin-top: 1px;
@@ -12,7 +10,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    height: $icon-size;
+    height: var(--icon-size);
 
     .name {
       flex: 1;
@@ -20,21 +18,21 @@
       overflow: hidden;
       text-overflow: ellipsis;
       border-radius: 2px;
-      padding: 2px $icon-text-margin;
+      padding: 2px var(--icon-text-margin);
 
       &:hover {
         color: white;
-        background-color: $color-selected;
+        background-color: var(--color-selected);
         cursor: pointer;
       }
     }
 
     .directory-icon-wrapper {
-      width: $icon-size;
-      height: $icon-size;
+      width: var(--icon-size);
+      height: var(--icon-size);
       transition: background-color 100ms;
       border-radius: 2px;
-      line-height: $icon-size;
+      line-height: var(--icon-size);
       text-align: center;
 
       &.placeholder .fa {
@@ -59,18 +57,18 @@
       }
 
       &.disabled {
-        color: $color-text-faded;
+        color: var(--color-text-faded);
       }
     }
 
     &.is-selected .name {
       color: white;
-      background-color: $color-selected;
+      background-color: var(--color-selected);
     }
   }
 
   > .children {
-    padding: 2px 0 2px $icon-size + $icon-text-margin;
+    padding: 2px 0 2px calc(var(--icon-size) + var(--icon-text-margin));
 
     &.loaded {
       margin: 0;
@@ -78,7 +76,7 @@
 
     &.loading {
       font-style: italic;
-      color: lighten($color-text-faded, 30%);
+      color: var(--color-text-very-faded);
     }
   }
 }
