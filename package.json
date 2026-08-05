@@ -6,10 +6,11 @@
     "test": "jest",
     "lint": "prettier --check \"src/**/*\" \"test/**/*\"",
     "typecheck": "tsc -p src --noemit && tsc -p test --noemit",
-    "lint:ext": "web-ext lint --source-dir dist",
+    "check:dist": "web-ext lint --source-dir dist",
     "dev": "web-ext run --source-dir dist --target firefox-desktop",
     "watch": "parcel watch manifest.json --no-hmr",
-    "build": "rm -rf dist && parcel build manifest.json --no-source-maps",
+    "dist": "rm -rf dist && parcel build manifest.json --no-source-maps",
+    "package": "npm run dist && npm run check:dist && npm run zip",
     "zip": "rm -f addon.zip && cd dist && zip -qr ../addon.zip . -x '**/*.map' -x '**/.DS_Store'",
     "zip-sources": "rm -f sources.zip && zip -qr sources.zip . -x '*.zip' -x 'dist/*' -x 'node_modules/*' -x '**/.DS_Store' -x '.git/*' -x '.cache/*' -x '.parcel-cache/*' -x '.vscode/*' -x '.github/*' -x '.circleci/*'"
   },
