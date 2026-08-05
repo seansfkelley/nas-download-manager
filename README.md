@@ -115,7 +115,7 @@ In order to add the new language, base your translation file off the English mes
 
 1. Copy `_locales/en/messages.json` into a new file at `_locales/<your language code>/messages.json`.
 2. Edit the `message` field in each item with your translation.
-3. In `src/common/moment.ts`, add a new import line like `import "moment/locale/<your language code>";`.
+3. In `src/common/format.ts`, add your language code to `TRANSLATED_LOCALES` so that relative times ("updated 5 minutes ago") are rendered in it too. A test checks this list against `_locales/`.
 4. Load (or reload) the extension to test it out. You may need to remove the extension entirely and then re-add it for changes to be reflected.
 5. Open a pull request!
 
