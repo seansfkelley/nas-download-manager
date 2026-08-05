@@ -1,11 +1,12 @@
 import "./popup.scss";
-import { PureComponent } from "react";
+import { useMemo, useRef, useState } from "react";
 import classNames from "classnames";
 import { default as throttle } from "lodash/throttle";
 
 import type { DownloadStationTask } from "../common/apis/synology/DownloadStation/Task";
 import type { VisibleTaskSettings, TaskSortType, BadgeDisplayType } from "../common/state";
 import { sortTasks, filterTasks } from "../common/filtering";
+import { useUpdateEffect } from "../common/hooks/useUpdateEffect";
 import { TaskFilterSettingsForm } from "../common/components/TaskFilterSettingsForm";
 import { NonIdealState } from "../common/components/NonIdealState";
 import type { PopupClient } from "./popupClient";
@@ -31,119 +32,40 @@ export interface Props {
   client?: PopupClient;
 }
 
-interface State {
-  isShowingDropShadow: boolean;
-  isAddingDownload: boolean;
-  isShowingDisplaySettings: boolean;
-  isClearingCompletedTasks: boolean;
+export function Popup(props: Props) {
+  const [isShowingDropShadow, setIsShowingDropShadow] = useState(false);
+  const [isAddingDownload, setIsAddingDownload] = useState(false);
+  const [isShowingDisplaySettings, setIsShowingDisplaySettings] = useState(false);
+  const [isClearingCompletedTasks, setIsClearingCompletedTasks] = useState(false);
   // Bleh. If a popup grows larger in Firefox, it will leave it as such until the DOM changes and causes
   // a relayout. Therefore, after collapsing the filter panel, we want to force a layout to make it the right
   // size again. Unfortunately we can't do that by just reading a layout property like offsetHeight, we have
   // to actually change the DOM, hence we render this invisible nonce whenever we toggle the panel.
-  firefoxRerenderNonce: number;
-}
+  const [firefoxRerenderNonce, setFirefoxRerenderNonce] = useState(0);
 
-export class Popup extends PureComponent<Props, State> {
-  private bodyRef?: HTMLElement;
+  const bodyRef = useRef<HTMLDivElement | null>(null);
 
-  state: State = {
-    isShowingDropShadow: false,
-    isAddingDownload: false,
-    isShowingDisplaySettings: false,
-    isClearingCompletedTasks: false,
-    firefoxRerenderNonce: 0,
-  };
+  useUpdateEffect(() => {
+    const timeout = setTimeout(() => {
+      setFirefoxRerenderNonce((nonce) => nonce + 1);
+    }, 350);
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [isShowingDisplaySettings]);
 
-  render() {
-    const completedTaskIds = this.props.tasks
-      .filter((t) => t.status === "finished")
-      .map((t) => t.id);
-    const onClickClearTasks = this.props.client
-      ? async () => {
-          this.setState({ isClearingCompletedTasks: true });
-          await this.props.client!.deleteTasks(completedTaskIds);
-          this.setState({ isClearingCompletedTasks: false });
-        }
-      : undefined;
+  // Memoized so that throttling actually accumulates across scroll events instead of being reset
+  // by every render.
+  const onBodyScroll = useMemo(
+    () =>
+      throttle(() => {
+        setIsShowingDropShadow(bodyRef.current != null && bodyRef.current.scrollTop !== 0);
+      }, 200),
+    [],
+  );
 
-    return (
-      <div className="popup">
-        <Header
-          isAddingDownload={this.state.isAddingDownload}
-          onClickAddDownload={
-            // This is a bit of an abstraction break-y hack. I don't like the way this.props.client
-            // is non-null if there is a hostname and that's used to indicate if the connection is
-            // in a good state. You should not be able to add downloads if there's no password!
-            this.props.client != null && this.props.taskFetchFailureReason !== "login-required"
-              ? () => {
-                  this.setState({
-                    isAddingDownload: !this.state.isAddingDownload,
-                    isShowingDisplaySettings: false,
-                  });
-                }
-              : undefined
-          }
-          completedTaskCount={completedTaskIds.length}
-          onClickClearTasks={this.state.isClearingCompletedTasks ? "pending" : onClickClearTasks}
-          onClickOpenDownloadStationUi={this.props.client?.openDownloadStationUi}
-          isShowingDisplaySettings={this.state.isShowingDisplaySettings}
-          onClickDisplaySettings={() => {
-            this.setState({
-              isShowingDisplaySettings: !this.state.isShowingDisplaySettings,
-              isAddingDownload: false,
-            });
-          }}
-          isMissingConfig={this.props.taskFetchFailureReason === "missing-config"}
-          showDropShadow={this.state.isShowingDropShadow}
-          disabledLogo={this.props.taskFetchFailureReason != null}
-        />
-        <div
-          className={classNames("display-settings", {
-            "is-visible": this.state.isShowingDisplaySettings,
-          })}
-        >
-          <h4 className="title">{browser.i18n.getMessage("Task_Display_Settings")}</h4>
-          <TaskFilterSettingsForm
-            visibleTasks={this.props.visibleTasks}
-            taskSortType={this.props.taskSort}
-            badgeDisplayType={this.props.badgeDisplay}
-            showInactiveTasks={this.props.showInactiveTasks}
-            updateTaskTypeVisibility={this.updateTaskTypeVisibility}
-            updateTaskSortType={this.props.changeTaskSort}
-            updateBadgeDisplayType={this.props.changeBadgeDisplay}
-            updateShowInactiveTasks={this.props.changeShowInactiveTasks}
-          />
-        </div>
-        <div
-          className={classNames("popup-body", { "with-foreground": this.state.isAddingDownload })}
-          onScroll={this.onBodyScroll}
-          ref={(e) => {
-            this.bodyRef = e ?? undefined;
-          }}
-        >
-          {this.renderTaskList()}
-          {this.maybeRenderAddDownloadOverlay()}
-        </div>
-        <Footer
-          tasks={this.props.tasks}
-          taskFetchFailureReason={this.props.taskFetchFailureReason}
-          tasksLastInitiatedFetchTimestamp={this.props.tasksLastInitiatedFetchTimestamp}
-          tasksLastCompletedFetchTimestamp={this.props.tasksLastCompletedFetchTimestamp}
-        />
-        <div style={{ display: "none" }}>{this.state.firefoxRerenderNonce}</div>
-      </div>
-    );
-  }
-
-  private updateTaskTypeVisibility = (taskType: keyof VisibleTaskSettings, visibility: boolean) => {
-    this.props.changeVisibleTasks({
-      ...this.props.visibleTasks,
-      [taskType]: visibility,
-    });
-  };
-
-  private renderTaskList() {
-    if (this.props.taskFetchFailureReason === "missing-config") {
+  function renderTaskList() {
+    if (props.taskFetchFailureReason === "missing-config") {
       return (
         <NonIdealState
           icon="fa-cog"
@@ -152,26 +74,22 @@ export class Popup extends PureComponent<Props, State> {
           )}
         />
       );
-    } else if (this.props.taskFetchFailureReason === "login-required") {
-      if (!this.props.client) {
+    } else if (props.taskFetchFailureReason === "login-required") {
+      if (!props.client) {
         return <NonIdealState />;
       } else {
         return (
           <NonIdealState icon="fa-lock" text={browser.i18n.getMessage("Password_required")}>
-            <PasswordForm client={this.props.client} />
+            <PasswordForm client={props.client} />
           </NonIdealState>
         );
       }
-    } else if (this.props.tasksLastCompletedFetchTimestamp == null) {
+    } else if (props.tasksLastCompletedFetchTimestamp == null) {
       return <NonIdealState icon="fa-sync fa-spin" />;
-    } else if (this.props.tasks.length === 0) {
+    } else if (props.tasks.length === 0) {
       return <NonIdealState text={browser.i18n.getMessage("No_download_tasks")} />;
     } else {
-      const filteredTasks = filterTasks(
-        this.props.tasks,
-        this.props.visibleTasks,
-        this.props.showInactiveTasks,
-      );
+      const filteredTasks = filterTasks(props.tasks, props.visibleTasks, props.showInactiveTasks);
       if (filteredTasks.length === 0) {
         return (
           <NonIdealState
@@ -180,20 +98,20 @@ export class Popup extends PureComponent<Props, State> {
           />
         );
       } else {
-        const hiddenTaskCount = this.props.tasks.length - filteredTasks.length;
-        const deleteTask = this.props.client
-          ? (taskId: string) => this.props.client!.deleteTasks([taskId])
+        const hiddenTaskCount = props.tasks.length - filteredTasks.length;
+        const deleteTask = props.client
+          ? (taskId: string) => props.client!.deleteTasks([taskId])
           : undefined;
         return (
           <div className="download-tasks">
             <ul>
-              {sortTasks(filteredTasks, this.props.taskSort).map((task) => (
+              {sortTasks(filteredTasks, props.taskSort).map((task) => (
                 <Task
                   key={task.id}
                   task={task}
                   onDelete={deleteTask}
-                  onPause={this.props.client?.pauseTask}
-                  onResume={this.props.client?.resumeTask}
+                  onPause={props.client?.pauseTask}
+                  onResume={props.client?.resumeTask}
                 />
               ))}
             </ul>
@@ -201,7 +119,7 @@ export class Popup extends PureComponent<Props, State> {
               <div
                 className="hidden-count"
                 onClick={() => {
-                  this.setState({ isShowingDisplaySettings: true });
+                  setIsShowingDisplaySettings(true);
                 }}
               >
                 {browser.i18n.getMessage("and_ZcountZ_more_tasks_hidden_by_filters", [
@@ -215,17 +133,17 @@ export class Popup extends PureComponent<Props, State> {
     }
   }
 
-  private maybeRenderAddDownloadOverlay() {
-    if (this.state.isAddingDownload && this.props.client) {
+  function maybeRenderAddDownloadOverlay() {
+    if (isAddingDownload && props.client) {
       return (
         <div className="add-download-overlay">
           <div className="backdrop" />
           <div className="overlay-content">
             <AdvancedAddDownloadForm
               onClose={() => {
-                this.setState({ isAddingDownload: false });
+                setIsAddingDownload(false);
               }}
-              client={this.props.client}
+              client={props.client}
             />
           </div>
         </div>
@@ -235,19 +153,79 @@ export class Popup extends PureComponent<Props, State> {
     }
   }
 
-  private onBodyScroll = throttle(() => {
-    if (this.bodyRef) {
-      this.setState({ isShowingDropShadow: this.bodyRef.scrollTop !== 0 });
-    } else {
-      this.setState({ isShowingDropShadow: false });
-    }
-  }, 200);
+  const completedTaskIds = props.tasks.filter((t) => t.status === "finished").map((t) => t.id);
+  const onClickClearTasks = props.client
+    ? async () => {
+        setIsClearingCompletedTasks(true);
+        await props.client!.deleteTasks(completedTaskIds);
+        setIsClearingCompletedTasks(false);
+      }
+    : undefined;
 
-  componentDidUpdate(_prevProps: Props, prevState: State) {
-    if (prevState.isShowingDisplaySettings !== this.state.isShowingDisplaySettings) {
-      setTimeout(() => {
-        this.setState({ firefoxRerenderNonce: this.state.firefoxRerenderNonce + 1 });
-      }, 350);
-    }
-  }
+  return (
+    <div className="popup">
+      <Header
+        isAddingDownload={isAddingDownload}
+        onClickAddDownload={
+          // This is a bit of an abstraction break-y hack. I don't like the way props.client
+          // is non-null if there is a hostname and that's used to indicate if the connection is
+          // in a good state. You should not be able to add downloads if there's no password!
+          props.client != null && props.taskFetchFailureReason !== "login-required"
+            ? () => {
+                setIsAddingDownload(!isAddingDownload);
+                setIsShowingDisplaySettings(false);
+              }
+            : undefined
+        }
+        completedTaskCount={completedTaskIds.length}
+        onClickClearTasks={isClearingCompletedTasks ? "pending" : onClickClearTasks}
+        onClickOpenDownloadStationUi={props.client?.openDownloadStationUi}
+        isShowingDisplaySettings={isShowingDisplaySettings}
+        onClickDisplaySettings={() => {
+          setIsShowingDisplaySettings(!isShowingDisplaySettings);
+          setIsAddingDownload(false);
+        }}
+        isMissingConfig={props.taskFetchFailureReason === "missing-config"}
+        showDropShadow={isShowingDropShadow}
+        disabledLogo={props.taskFetchFailureReason != null}
+      />
+      <div
+        className={classNames("display-settings", {
+          "is-visible": isShowingDisplaySettings,
+        })}
+      >
+        <h4 className="title">{browser.i18n.getMessage("Task_Display_Settings")}</h4>
+        <TaskFilterSettingsForm
+          visibleTasks={props.visibleTasks}
+          taskSortType={props.taskSort}
+          badgeDisplayType={props.badgeDisplay}
+          showInactiveTasks={props.showInactiveTasks}
+          updateTaskTypeVisibility={(taskType: keyof VisibleTaskSettings, visibility: boolean) => {
+            props.changeVisibleTasks({
+              ...props.visibleTasks,
+              [taskType]: visibility,
+            });
+          }}
+          updateTaskSortType={props.changeTaskSort}
+          updateBadgeDisplayType={props.changeBadgeDisplay}
+          updateShowInactiveTasks={props.changeShowInactiveTasks}
+        />
+      </div>
+      <div
+        className={classNames("popup-body", { "with-foreground": isAddingDownload })}
+        onScroll={onBodyScroll}
+        ref={bodyRef}
+      >
+        {renderTaskList()}
+        {maybeRenderAddDownloadOverlay()}
+      </div>
+      <Footer
+        tasks={props.tasks}
+        taskFetchFailureReason={props.taskFetchFailureReason}
+        tasksLastInitiatedFetchTimestamp={props.tasksLastInitiatedFetchTimestamp}
+        tasksLastCompletedFetchTimestamp={props.tasksLastCompletedFetchTimestamp}
+      />
+      <div style={{ display: "none" }}>{firefoxRerenderNonce}</div>
+    </div>
+  );
 }
