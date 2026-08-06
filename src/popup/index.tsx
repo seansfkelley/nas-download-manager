@@ -4,11 +4,10 @@ import { createRoot } from "react-dom/client";
 
 import {
   type CachedTasks,
-  getCachedTasks,
-  onCachedTasksChange,
   onPersistentStateChange,
+  onSessionStateChange,
   PersistentState,
-  Settings,
+  type Settings,
 } from "../common/state";
 import { FatalError } from "./FatalError";
 import { FatalErrorWrapper } from "./FatalErrorWrapper";
@@ -36,33 +35,34 @@ setInterval(() => {
   PollTasks.send();
 }, 10000);
 
-// The two halves arrive separately and neither waits for the other. Tasks start out empty rather
-// than absent so that the settings half alone is enough to render, which is what makes the popup
-// come up with its chrome in place while the first poll is still in flight.
-let persistentState: PersistentState | undefined;
-let cachedTasks: CachedTasks = getCachedTasks({});
+// The two areas are subscribed to separately and arrive in whichever order they arrive in, so the
+// first delivery of each is held until the other has been seen.
+let settings: Settings | undefined;
+let cachedTasks: CachedTasks | undefined;
 
 function render() {
-  if (persistentState == null) {
+  if (settings == null || cachedTasks == null) {
     return;
   }
   ROOT.render(
-    <FatalErrorWrapper state={persistentState}>
-      <PopupWrapper
-        state={persistentState}
-        cachedTasks={cachedTasks}
-        updateSettings={updateSettings}
-      />
+    <FatalErrorWrapper settings={settings}>
+      <PopupWrapper settings={settings} cachedTasks={cachedTasks} updateSettings={updateSettings} />
     </FatalErrorWrapper>,
   );
 }
 
-onPersistentStateChange((state) => {
-  persistentState = state;
+onPersistentStateChange("settings", (state) => {
+  settings = state.settings;
   render();
 });
 
-onCachedTasksChange((tasks) => {
-  cachedTasks = tasks;
-  render();
-});
+onSessionStateChange(
+  "tasks",
+  "taskFetchFailureReason",
+  "tasksLastInitiatedFetchTimestamp",
+  "tasksLastCompletedFetchTimestamp",
+  (state) => {
+    cachedTasks = state;
+    render();
+  },
+);

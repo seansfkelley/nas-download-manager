@@ -1,9 +1,9 @@
 import { type ErrorInfo, type ReactNode, PureComponent } from "react";
-import type { PersistentState } from "../common/state";
+import type { Settings } from "../common/state";
 import { FatalError } from "./FatalError";
 
 export interface Props {
-  state: PersistentState;
+  settings: Settings;
   children: ReactNode;
 }
 
@@ -23,7 +23,7 @@ export class FatalErrorWrapper extends PureComponent<Props, State> {
         <FatalError
           error={this.state.error}
           errorInfo={this.state.errorInfo}
-          state={this.props.state}
+          settings={this.props.settings}
         />
       );
     } else {

@@ -29,12 +29,12 @@ async function saveSettings(settings: Settings): Promise<boolean> {
 // all component state, every time the stored state changed.
 const ROOT = createRoot(document.getElementById("body")!);
 
-onPersistentStateChange((state) => {
+onPersistentStateChange("settings", "lastSevereError", ({ settings, lastSevereError }) => {
   ROOT.render(
     <SettingsForm
-      extensionState={state}
+      settings={settings}
       saveSettings={saveSettings}
-      lastSevereError={state.lastSevereError}
+      lastSevereError={lastSevereError}
       clearError={clearError}
     />,
   );

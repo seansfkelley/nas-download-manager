@@ -1,12 +1,12 @@
 import "../common/init/nonContentContext";
 import {
   migrateStoredState,
-  onCachedTasksChange,
   onPersistentStateChange,
+  onSessionStateChange,
   SessionState,
 } from "../common/state";
 import { saveLastSevereError } from "../common/errorHandlers";
-import { reactToCachedTasks, reactToPersistentState } from "./onStateChange";
+import { reactToCachedTasks, reactToSettings } from "./onStateChange";
 import { createContextMenu, initializeContextMenuHandler } from "./contextMenus";
 import { initializeAlarmHandler } from "./alarms";
 import { initializeMessageHandler } from "./messages";
@@ -16,8 +16,14 @@ import { initializeMessageHandler } from "./messages";
 initializeAlarmHandler();
 initializeContextMenuHandler();
 initializeMessageHandler();
-onPersistentStateChange(reactToPersistentState);
-onCachedTasksChange(reactToCachedTasks);
+onPersistentStateChange("settings", ({ settings }) => reactToSettings(settings));
+onSessionStateChange(
+  "tasks",
+  "taskFetchFailureReason",
+  "tasksLastInitiatedFetchTimestamp",
+  "tasksLastCompletedFetchTimestamp",
+  reactToCachedTasks,
+);
 
 browser.runtime.onInstalled.addListener(async () => {
   // The only place either half of the stored state is brought up to date. onInstalled fires on

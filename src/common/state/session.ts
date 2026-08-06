@@ -17,21 +17,9 @@ export const CACHED_TASK_NAMES = typesafeUnionMembers<keyof CachedTasks>({
   tasksLastCompletedFetchTimestamp: true,
 });
 
-// The four keys are written separately as a poll progresses, so every one of them can be absent
-// independently. Readers get a complete CachedTasks and never have to know that.
-export function getCachedTasks(session: SessionState): CachedTasks {
-  return {
-    tasks: session.tasks ?? [],
-    taskFetchFailureReason: session.taskFetchFailureReason ?? null,
-    tasksLastInitiatedFetchTimestamp: session.tasksLastInitiatedFetchTimestamp ?? null,
-    tasksLastCompletedFetchTimestamp: session.tasksLastCompletedFetchTimestamp ?? null,
-  };
-}
-
-// storage.session rather than module scope, because a background context that can be suspended
-// loses module scope without warning. Its lifetime -- cleared on browser restart, never written to
-// disk -- is exactly what "remember for this session" means.
-export interface SessionState extends Partial<CachedTasks> {
+// Everything in the session that is not a cached task. Optional throughout, and stays that way in
+// both shapes below, because absent is a meaningful answer for all three.
+interface SessionBookkeeping {
   // Keyed on the connection it was obtained with, so that changing any of the credentials discards
   // it without anyone having to remember to. Reusing a session against a different DiskStation, or
   // reusing "incorrect password" against a password the user has since fixed, are both wrong, and
@@ -43,6 +31,25 @@ export interface SessionState extends Partial<CachedTasks> {
   // An array because Set does not serialize. Absent means no poll has completed yet, which is what
   // keeps the first poll from notifying about everything that finished before we were watching.
   finishedTaskIds?: string[];
+}
+
+// storage.session rather than module scope, because a background context that can be suspended
+// loses module scope without warning. Its lifetime -- cleared on browser restart, never written to
+// disk -- is exactly what "remember for this session" means.
+export interface SessionState extends Partial<CachedTasks>, SessionBookkeeping {}
+
+// What a reader gets. The four task keys are written separately as a poll progresses, so any of
+// them can be absent on its own, and every reader would otherwise spell out the same four
+// fallbacks. Their zero values say "no poll has finished", which is what a reader wants to hear.
+export interface SessionStateView extends CachedTasks, SessionBookkeeping {}
+
+export function getCachedTasks(session: SessionState): CachedTasks {
+  return {
+    tasks: session.tasks ?? [],
+    taskFetchFailureReason: session.taskFetchFailureReason ?? null,
+    tasksLastInitiatedFetchTimestamp: session.tasksLastInitiatedFetchTimestamp ?? null,
+    tasksLastCompletedFetchTimestamp: session.tasksLastCompletedFetchTimestamp ?? null,
+  };
 }
 
 // Called wherever the cached tasks are known to be about a DiskStation we are no longer talking to.
@@ -58,6 +65,11 @@ let _testSessionStateShouldAllowEmptyObject: SessionState = {};
 export namespace SessionState {
   export async function get(): Promise<SessionState> {
     return (await browser.storage.session.get(null)) as SessionState;
+  }
+
+  export async function view(): Promise<SessionStateView> {
+    const state = await get();
+    return { ...state, ...getCachedTasks(state) };
   }
 
   // Partial writes are safe because writers own disjoint keys, so two of them cannot clobber.

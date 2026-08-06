@@ -1,6 +1,5 @@
 import {
   type CachedTasks,
-  type PersistentState,
   type Settings,
   getCachedTasks,
   getCurrentPersistentState,
@@ -13,15 +12,16 @@ import { assertNever } from "../common/lang";
 import { filterTasks, matchesFilter } from "../common/filtering";
 import { getFinishedTaskIds, setFinishedTaskIds } from "./backgroundState";
 
-export function reactToPersistentState(state: PersistentState) {
-  react(state).catch(saveLastSevereError);
+// Both reactions need both areas, and a background context that can be suspended has nowhere to
+// keep the half it was not just handed, so each reads the other. Reading is not subscribing: it
+// creates no path back from a write to a wake-up.
+export function reactToSettings(settings: Settings) {
+  react(settings).catch(saveLastSevereError);
 }
 
-async function react(state: PersistentState) {
-  await setPollingEnabled(state.settings.notifications.enableCompletionNotifications);
-  // Read rather than remembered: the badge needs both halves, and a background context that can be
-  // suspended has nowhere to keep the half it was not just handed.
-  updateBadge(state.settings, getCachedTasks(await SessionState.get()));
+async function react(settings: Settings) {
+  await setPollingEnabled(settings.notifications.enableCompletionNotifications);
+  updateBadge(settings, getCachedTasks(await SessionState.get()));
 }
 
 export function reactToCachedTasks(cachedTasks: CachedTasks) {

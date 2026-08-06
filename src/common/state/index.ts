@@ -1,4 +1,4 @@
-import type { Protocol, ConnectionSettings, PersistentState } from "./migrations/latest";
+import type { Protocol, ConnectionSettings, Settings } from "./migrations/latest";
 import { typesafeMapValues } from "../lang";
 
 export * from "./constants";
@@ -19,18 +19,17 @@ export function getHostUrl(settings: ConnectionSettings) {
   }
 }
 
-export function redactState(state: PersistentState): object {
+// Settings alone, because that is all the persistent state has that a bug report can use. The error
+// itself is printed alongside this, and the version is always the current one by the time anything
+// can read it.
+export function redactSettings(settings: Settings): object {
   const sanitizedConnection: Record<keyof ConnectionSettings, boolean | Protocol> = {
-    ...typesafeMapValues(state.settings.connection, Boolean),
-    protocol: state.settings.connection.protocol,
+    ...typesafeMapValues(settings.connection, Boolean),
+    protocol: settings.connection.protocol,
   };
 
   return {
-    ...state,
-    settings: {
-      ...state.settings,
-      connection: sanitizedConnection,
-    },
-    lastSevereError: state.lastSevereError ? "(omitted for brevity)" : undefined,
+    ...settings,
+    connection: sanitizedConnection,
   };
 }

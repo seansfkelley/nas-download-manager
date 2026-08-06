@@ -3,19 +3,19 @@ import type { ErrorInfo } from "react";
 
 import { NonIdealState } from "../common/components/NonIdealState";
 import { BUG_REPORT_URL } from "../common/constants";
-import { type PersistentState, redactState } from "../common/state";
+import { type Settings, redactSettings } from "../common/state";
 
 export interface Props {
   error: unknown;
   errorInfo?: ErrorInfo | undefined;
-  state?: PersistentState;
+  settings?: Settings;
 }
 
 export function FatalError(props: Props) {
   let redactedState;
 
   try {
-    redactedState = props.state ? redactState(props.state) : undefined;
+    redactedState = props.settings ? redactSettings(props.settings) : undefined;
   } catch (e) {
     redactedState = undefined;
   }

@@ -1,7 +1,7 @@
 import { type Settings, PersistentState } from "./migrations/latest";
 import { LATEST_STATE_VERSION } from "./migrations/update";
-import { CACHED_TASK_NAMES, type CachedTasks, getCachedTasks, SessionState } from "./session";
-import { typesafeUnionMembers } from "../lang";
+import { type SessionStateView, SessionState } from "./session";
+import { typesafePick, typesafeUnionMembers } from "../lang";
 
 export const SETTING_NAMES = typesafeUnionMembers<keyof Settings>({
   connection: true,
@@ -21,55 +21,101 @@ export async function getCurrentPersistentState(): Promise<PersistentState | und
   return state.stateVersion === LATEST_STATE_VERSION ? state : undefined;
 }
 
-async function notifyPersistent(listeners: ((state: PersistentState) => void)[]) {
-  if (listeners.length === 0) {
-    return;
-  }
-  // On install and upgrade the background starts, and this reads, before runtime.onInstalled fires
-  // the migration. Declining is the whole handling: finishing the migration writes to storage,
-  // which arrives back here as a change and delivers to everyone.
-  const state = await getCurrentPersistentState();
-  if (state != null) {
-    listeners.forEach((l) => l(state));
-  }
+// Subscribers name the keys they read and are handed those, and only those. Naming them is what
+// makes it safe to write to storage from a listener: a subscriber is woken only for keys it asked
+// for, so a write to any other key cannot come back around. saveLastSevereError is the reason this
+// exists -- it writes from inside an error handler that runs off this very event, and the message
+// it writes carries a timestamp, so no two of them are ever equal.
+//
+// Five is the ceiling because that is well past what anything asks for; add a sixth when something
+// needs it.
+interface Listenable<T> {
+  <K1 extends keyof T>(key1: K1, listener: (state: Pick<T, K1>) => void): void;
+  <K1 extends keyof T, K2 extends keyof T>(
+    key1: K1,
+    key2: K2,
+    listener: (state: Pick<T, K1 | K2>) => void,
+  ): void;
+  <K1 extends keyof T, K2 extends keyof T, K3 extends keyof T>(
+    key1: K1,
+    key2: K2,
+    key3: K3,
+    listener: (state: Pick<T, K1 | K2 | K3>) => void,
+  ): void;
+  <K1 extends keyof T, K2 extends keyof T, K3 extends keyof T, K4 extends keyof T>(
+    key1: K1,
+    key2: K2,
+    key3: K3,
+    key4: K4,
+    listener: (state: Pick<T, K1 | K2 | K3 | K4>) => void,
+  ): void;
+  <
+    K1 extends keyof T,
+    K2 extends keyof T,
+    K3 extends keyof T,
+    K4 extends keyof T,
+    K5 extends keyof T,
+  >(
+    key1: K1,
+    key2: K2,
+    key3: K3,
+    key4: K4,
+    key5: K5,
+    listener: (state: Pick<T, K1 | K2 | K3 | K4 | K5>) => void,
+  ): void;
 }
 
-async function notifyCachedTasks(listeners: ((cachedTasks: CachedTasks) => void)[]) {
-  // Not merely an optimization. A content script can subscribe to the persistent half, and must
-  // never reach storage.session, which it cannot see.
-  if (listeners.length === 0) {
-    return;
-  }
-  const cachedTasks = getCachedTasks(await SessionState.get());
-  listeners.forEach((l) => l(cachedTasks));
+interface Subscription<T> {
+  keys: (keyof T)[];
+  deliver: (state: T) => void;
 }
 
-let persistentListeners: ((state: PersistentState) => void)[] = [];
-let cachedTasksListeners: ((cachedTasks: CachedTasks) => void)[] = [];
+// fetch returning undefined means "not deliverable right now" and is passed on as silence.
+function listenable<T extends object>(
+  areaName: "local" | "session",
+  fetch: () => Promise<T | undefined>,
+): Listenable<T> {
+  const subscriptions: Subscription<T>[] = [];
 
-// Registered at module load rather than on first subscription: a non-persistent background context
-// is woken for this event and drops it unless the listener exists by the end of the initial
-// evaluation, which is too early for any subscriber to have run.
-browser.storage.onChanged.addListener((changes, areaName) => {
-  if (areaName === "local") {
-    notifyPersistent(persistentListeners);
-  } else if (areaName === "session") {
-    // The rest of the session state is bookkeeping that no subscriber reads, and some of it is
-    // written from these very listeners.
-    if (CACHED_TASK_NAMES.some((name) => name in changes)) {
-      notifyCachedTasks(cachedTasksListeners);
+  async function notify(subset: Subscription<T>[]) {
+    // Not merely an optimization. A content script can subscribe to the persistent area and must
+    // never reach storage.session, which it cannot see, so nothing may fetch unspoken for.
+    if (subset.length === 0) {
+      return;
+    }
+    const state = await fetch();
+    if (state != null) {
+      subset.forEach((s) => s.deliver(state));
     }
   }
-});
 
-// Settings and the error log, and the only half a content script can have: storage.session is off
-// limits there.
-export function onPersistentStateChange(listener: (state: PersistentState) => void) {
-  persistentListeners.push(listener);
-  notifyPersistent([listener]);
+  // Registered at module load rather than on first subscription: a non-persistent background
+  // context is woken for this event and drops it unless the listener exists by the end of the
+  // initial evaluation, which is too early for any subscriber to have run.
+  browser.storage.onChanged.addListener((changes, changedArea) => {
+    if (changedArea === areaName) {
+      notify(subscriptions.filter((s) => s.keys.some((key) => (key as string) in changes)));
+    }
+  });
+
+  return (...args: unknown[]) => {
+    const keys = args.slice(0, -1) as (keyof T)[];
+    const listener = args[args.length - 1] as (state: Partial<T>) => void;
+
+    const subscription: Subscription<T> = {
+      keys,
+      deliver: (state) => listener(typesafePick(state, ...keys)),
+    };
+
+    subscriptions.push(subscription);
+    notify([subscription]);
+  };
 }
 
-export function onCachedTasksChange(listener: (cachedTasks: CachedTasks) => void) {
-  cachedTasksListeners.push(listener);
-  notifyCachedTasks([listener]);
-}
+// Settings and the error log, and the only area a content script can subscribe to.
+export const onPersistentStateChange = listenable<PersistentState>(
+  "local",
+  getCurrentPersistentState,
+);
+
+export const onSessionStateChange = listenable<SessionStateView>("session", SessionState.view);

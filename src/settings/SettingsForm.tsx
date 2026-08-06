@@ -3,12 +3,11 @@ import { useState } from "react";
 
 import {
   clearCachedTasks,
-  PersistentState,
   Settings,
   VisibleTaskSettings,
   TaskSortType,
   NotificationSettings,
-  redactState,
+  redactSettings,
   SETTING_NAMES,
   BadgeDisplayType,
   ConnectionSettings,
@@ -24,7 +23,7 @@ import { PollTasks, SetLoginPassword } from "../common/apis/messages";
 import type { Overwrite } from "../common/types";
 
 export interface Props {
-  extensionState: PersistentState;
+  settings: Settings;
   saveSettings: (settings: Settings) => Promise<boolean>;
   lastSevereError?: string;
   clearError: () => void;
@@ -35,7 +34,7 @@ export function SettingsForm(props: Props) {
 
   async function saveSettings(settings: Partial<Settings>) {
     const success = await props.saveSettings({
-      ...typesafePick(props.extensionState.settings, ...SETTING_NAMES),
+      ...typesafePick(props.settings, ...SETTING_NAMES),
       ...settings,
     });
 
@@ -48,7 +47,7 @@ export function SettingsForm(props: Props) {
   ) {
     saveSettings({
       notifications: {
-        ...props.extensionState.settings.notifications,
+        ...props.settings.notifications,
         [key]: value,
       },
     });
@@ -74,7 +73,7 @@ export function SettingsForm(props: Props) {
     if (props.lastSevereError) {
       const formattedDebugLogs = `${
         props.lastSevereError
-      }\n\nRedacted extension state: ${JSON.stringify(redactState(props.extensionState), null, 2)}`;
+      }\n\nRedacted settings: ${JSON.stringify(redactSettings(props.settings), null, 2)}`;
 
       return (
         <>
@@ -130,7 +129,7 @@ export function SettingsForm(props: Props) {
       </header>
 
       <ConnectionSettingsComponent
-        connectionSettings={props.extensionState.settings.connection}
+        connectionSettings={props.settings.connection}
         saveConnectionSettings={updateConnectionSettings}
       />
 
@@ -142,14 +141,14 @@ export function SettingsForm(props: Props) {
       </header>
 
       <TaskFilterSettingsForm
-        visibleTasks={props.extensionState.settings.visibleTasks}
-        taskSortType={props.extensionState.settings.taskSortType}
-        badgeDisplayType={props.extensionState.settings.badgeDisplayType}
-        showInactiveTasks={props.extensionState.settings.showInactiveTasks}
+        visibleTasks={props.settings.visibleTasks}
+        taskSortType={props.settings.taskSortType}
+        badgeDisplayType={props.settings.badgeDisplayType}
+        showInactiveTasks={props.settings.showInactiveTasks}
         updateTaskTypeVisibility={(taskType: keyof VisibleTaskSettings, visibility: boolean) => {
           saveSettings({
             visibleTasks: {
-              ...props.extensionState.settings.visibleTasks,
+              ...props.settings.visibleTasks,
               [taskType]: visibility,
             },
           });
@@ -173,21 +172,21 @@ export function SettingsForm(props: Props) {
 
       <SettingsList>
         <SettingsListCheckbox
-          checked={props.extensionState.settings.notifications.enableFeedbackNotifications}
+          checked={props.settings.notifications.enableFeedbackNotifications}
           onChange={() => {
             setNotificationSetting(
               "enableFeedbackNotifications",
-              !props.extensionState.settings.notifications.enableFeedbackNotifications,
+              !props.settings.notifications.enableFeedbackNotifications,
             );
           }}
           label={browser.i18n.getMessage("Notify_when_adding_downloads")}
         />
         <SettingsListCheckbox
-          checked={props.extensionState.settings.notifications.enableCompletionNotifications}
+          checked={props.settings.notifications.enableCompletionNotifications}
           onChange={() => {
             setNotificationSetting(
               "enableCompletionNotifications",
-              !props.extensionState.settings.notifications.enableCompletionNotifications,
+              !props.settings.notifications.enableCompletionNotifications,
             );
           }}
           label={browser.i18n.getMessage("Notify_when_downloads_complete")}
@@ -197,10 +196,10 @@ export function SettingsForm(props: Props) {
         />
 
         <SettingsListCheckbox
-          checked={props.extensionState.settings.shouldHandleDownloadLinks}
+          checked={props.settings.shouldHandleDownloadLinks}
           onChange={() => {
             saveSettings({
-              shouldHandleDownloadLinks: !props.extensionState.settings.shouldHandleDownloadLinks,
+              shouldHandleDownloadLinks: !props.settings.shouldHandleDownloadLinks,
             });
           }}
           label={browser.i18n.getMessage("Handle_opening_downloadable_link_types_ZprotocolsZ", [

@@ -6,8 +6,8 @@ const LEFT_MOUSE_BUTTON = 0;
 
 let enabled = true;
 
-onPersistentStateChange((state) => {
-  enabled = state.settings.shouldHandleDownloadLinks;
+onPersistentStateChange("settings", ({ settings }) => {
+  enabled = settings.shouldHandleDownloadLinks;
 });
 
 function recursivelyFindAnchorAncestor(
