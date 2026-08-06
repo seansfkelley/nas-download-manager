@@ -1,7 +1,12 @@
 import "../common/init/nonContentContext";
-import { migrateStoredState, onExtensionStateChange, SessionState } from "../common/state";
+import {
+  migrateStoredState,
+  onCachedTasksChange,
+  onPersistentStateChange,
+  SessionState,
+} from "../common/state";
 import { saveLastSevereError } from "../common/errorHandlers";
-import { onStateChange } from "./onStateChange";
+import { reactToCachedTasks, reactToPersistentState } from "./onStateChange";
 import { createContextMenu, initializeContextMenuHandler } from "./contextMenus";
 import { initializeAlarmHandler } from "./alarms";
 import { initializeMessageHandler } from "./messages";
@@ -11,7 +16,8 @@ import { initializeMessageHandler } from "./messages";
 initializeAlarmHandler();
 initializeContextMenuHandler();
 initializeMessageHandler();
-onExtensionStateChange(onStateChange);
+onPersistentStateChange(reactToPersistentState);
+onCachedTasksChange(reactToCachedTasks);
 
 browser.runtime.onInstalled.addListener(async () => {
   // The only place either half of the stored state is brought up to date. onInstalled fires on
@@ -29,10 +35,10 @@ browser.runtime.onInstalled.addListener(async () => {
   // becomes one they will accept. That means a blank popup and settings page rather than a broken
   // one, and it takes storage itself failing to get there, since migrateState handles every input.
   //
-  // Readers can beat the migration. The initial read in onExtensionStateChange above genuinely
-  // does: it is kicked off during this same module evaluation, before this listener can fire. It is
-  // handled where it happens, by declining to deliver state whose version is not current, and the
-  // write below re-delivers to everyone.
+  // Readers can beat the migration. The initial reads above genuinely do: they are kicked off
+  // during this same module evaluation, before this listener can fire. It is handled where it
+  // happens, by declining to deliver state whose version is not current, and the write below
+  // re-delivers to everyone.
   //
   // Writers could interleave. A partial write landing in that same window would put current-shaped
   // keys next to stale ones, and nothing checks. In practice every write in the background is
@@ -40,10 +46,11 @@ browser.runtime.onInstalled.addListener(async () => {
   // and settings pages have to be opened by a human, which is several orders of magnitude slower
   // than a storage round trip.
   try {
-    // The session state is thrown away rather than migrated, which is why it has no versions at all.
-    // It costs a login and a poll, both of which happen on every browser restart anyway.
-    await SessionState.clear();
     await migrateStoredState();
+    // The session state is thrown away rather than migrated, which is why it has no versions at all.
+    // It costs a login and a poll, both of which happen on every browser restart anyway. Second
+    // because clearing it is itself a change, and whoever that wakes will want current settings.
+    await SessionState.clear();
   } catch (e) {
     saveLastSevereError(e, "could not initialize stored state");
     return;

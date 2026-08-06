@@ -2,7 +2,7 @@ import "./settings-form.css";
 import { useState } from "react";
 
 import {
-  ExtensionState,
+  PersistentState,
   Settings,
   VisibleTaskSettings,
   TaskSortType,
@@ -23,7 +23,7 @@ import { SetLoginPassword } from "../common/apis/messages";
 import type { Overwrite } from "../common/types";
 
 export interface Props {
-  extensionState: ExtensionState;
+  extensionState: PersistentState;
   saveSettings: (settings: Settings) => Promise<boolean>;
   lastSevereError?: string;
   clearError: () => void;

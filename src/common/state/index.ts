@@ -1,10 +1,8 @@
-import type { Protocol, ConnectionSettings } from "./migrations/latest";
-import type { ExtensionState } from "./listenAll";
+import type { Protocol, ConnectionSettings, PersistentState } from "./migrations/latest";
 import { typesafeMapValues } from "../lang";
 
 export * from "./constants";
 export * from "./listen";
-export * from "./listenAll";
 export * from "./migrate";
 export * from "./migrations/latest";
 export * from "./session";
@@ -21,7 +19,7 @@ export function getHostUrl(settings: ConnectionSettings) {
   }
 }
 
-export function redactState(state: ExtensionState): object {
+export function redactState(state: PersistentState): object {
   const sanitizedConnection: Record<keyof ConnectionSettings, boolean | Protocol> = {
     ...typesafeMapValues(state.settings.connection, Boolean),
     protocol: state.settings.connection.protocol,
@@ -34,6 +32,5 @@ export function redactState(state: ExtensionState): object {
       connection: sanitizedConnection,
     },
     lastSevereError: state.lastSevereError ? "(omitted for brevity)" : undefined,
-    tasks: state.tasks.length,
   };
 }

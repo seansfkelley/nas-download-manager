@@ -3,12 +3,12 @@ import type { ErrorInfo } from "react";
 
 import { NonIdealState } from "../common/components/NonIdealState";
 import { BUG_REPORT_URL } from "../common/constants";
-import { type ExtensionState, redactState } from "../common/state";
+import { type PersistentState, redactState } from "../common/state";
 
 export interface Props {
   error: unknown;
   errorInfo?: ErrorInfo | undefined;
-  state?: ExtensionState;
+  state?: PersistentState;
 }
 
 export function FatalError(props: Props) {

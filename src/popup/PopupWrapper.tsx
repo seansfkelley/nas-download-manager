@@ -3,14 +3,16 @@ import type {
   Settings,
   VisibleTaskSettings,
   TaskSortType,
-  ExtensionState,
+  CachedTasks,
+  PersistentState,
   BadgeDisplayType,
 } from "../common/state";
 import { Popup } from "./Popup";
 import { getClient } from "./popupClient";
 
 interface Props {
-  state: ExtensionState;
+  state: PersistentState;
+  cachedTasks: CachedTasks;
   updateSettings: (settings: Settings) => void;
 }
 
@@ -20,10 +22,10 @@ export function PopupWrapper(props: Props) {
 
   return (
     <Popup
-      tasks={props.state.tasks}
-      taskFetchFailureReason={props.state.taskFetchFailureReason}
-      tasksLastInitiatedFetchTimestamp={props.state.tasksLastInitiatedFetchTimestamp}
-      tasksLastCompletedFetchTimestamp={props.state.tasksLastCompletedFetchTimestamp}
+      tasks={props.cachedTasks.tasks}
+      taskFetchFailureReason={props.cachedTasks.taskFetchFailureReason}
+      tasksLastInitiatedFetchTimestamp={props.cachedTasks.tasksLastInitiatedFetchTimestamp}
+      tasksLastCompletedFetchTimestamp={props.cachedTasks.tasksLastCompletedFetchTimestamp}
       visibleTasks={props.state.settings.visibleTasks}
       changeVisibleTasks={(visibleTasks: VisibleTaskSettings) => {
         props.updateSettings({ ...props.state.settings, visibleTasks });

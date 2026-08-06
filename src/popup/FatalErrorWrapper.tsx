@@ -1,9 +1,9 @@
 import { type ErrorInfo, type ReactNode, PureComponent } from "react";
-import type { ExtensionState } from "../common/state";
+import type { PersistentState } from "../common/state";
 import { FatalError } from "./FatalError";
 
 export interface Props {
-  state: ExtensionState;
+  state: PersistentState;
   children: ReactNode;
 }
 

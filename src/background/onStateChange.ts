@@ -1,4 +1,12 @@
-import { type ExtensionState, getHostUrl } from "../common/state";
+import {
+  type CachedTasks,
+  type PersistentState,
+  type Settings,
+  getCachedTasks,
+  getCurrentPersistentState,
+  getHostUrl,
+  SessionState,
+} from "../common/state";
 import { notify } from "../common/notify";
 import { saveLastSevereError } from "../common/errorHandlers";
 import { setPollingEnabled } from "./alarms";
@@ -13,22 +21,39 @@ import {
   getBackgroundContext,
 } from "./backgroundState";
 
-export function onStateChange(storedState: ExtensionState) {
-  updateBadge(storedState);
-  react(storedState).catch(saveLastSevereError);
+export function reactToPersistentState(state: PersistentState) {
+  react(state).catch(saveLastSevereError);
 }
 
-async function react(storedState: ExtensionState) {
-  await setPollingEnabled(storedState.settings.notifications.enableCompletionNotifications);
-  await maybeInvalidateCachedTasks(storedState);
-  await maybeNotifyFinishedTasks(storedState);
+async function react(state: PersistentState) {
+  await setPollingEnabled(state.settings.notifications.enableCompletionNotifications);
+  await maybeInvalidateCachedTasks(state);
+  // Read rather than remembered: the badge needs both halves, and a background context that can be
+  // suspended has nowhere to keep the half it was not just handed.
+  updateBadge(state.settings, getCachedTasks(await SessionState.get()));
+}
+
+export function reactToCachedTasks(cachedTasks: CachedTasks) {
+  reactToTasks(cachedTasks).catch(saveLastSevereError);
+}
+
+async function reactToTasks(cachedTasks: CachedTasks) {
+  // The other side of the guard in onPersistentStateChange: tasks can be delivered before the
+  // stored state is a shape the settings can be read out of.
+  const state = await getCurrentPersistentState();
+  if (state == null) {
+    return;
+  }
+
+  updateBadge(state.settings, cachedTasks);
+  await maybeNotifyFinishedTasks(state.settings, cachedTasks);
 }
 
 // The cached tasks belong to whichever DiskStation they came from, so a change of host or account
 // throws them away. This used to be inferred from the client rejecting an update to its settings;
 // with no long-lived client left to ask, the provenance is recorded in session storage instead.
-async function maybeInvalidateCachedTasks(storedState: ExtensionState) {
-  const { connection } = storedState.settings;
+async function maybeInvalidateCachedTasks(state: PersistentState) {
+  const { connection } = state.settings;
   const current = `${getHostUrl(connection)}|${connection.username}`;
   const previous = await getCachedTasksConnection();
 
@@ -43,24 +68,27 @@ async function maybeInvalidateCachedTasks(storedState: ExtensionState) {
   }
 }
 
-async function maybeNotifyFinishedTasks(storedState: ExtensionState) {
+async function maybeNotifyFinishedTasks(settings: Settings, cachedTasks: CachedTasks) {
   if (
-    storedState.tasksLastCompletedFetchTimestamp == null ||
-    storedState.taskFetchFailureReason != null
+    cachedTasks.tasksLastCompletedFetchTimestamp == null ||
+    cachedTasks.taskFetchFailureReason != null
   ) {
     return;
   }
 
-  const finishedTaskIds = storedState.tasks
+  // Sorted so that the comparison below is about membership rather than about what order the NAS
+  // happened to list them in.
+  const finishedTaskIds = cachedTasks.tasks
     .filter((t) => t.status === "finished" || t.status === "seeding")
-    .map((t) => t.id);
+    .map((t) => t.id)
+    .sort();
   const previous = await getFinishedTaskIds();
 
-  if (previous != null && storedState.settings.notifications.enableCompletionNotifications) {
+  if (previous != null && settings.notifications.enableCompletionNotifications) {
     finishedTaskIds
-      .filter((id) => !previous.has(id))
+      .filter((id) => !previous.includes(id))
       .forEach((id) => {
-        const task = storedState.tasks.find((t) => t.id === id)!;
+        const task = cachedTasks.tasks.find((t) => t.id === id)!;
         // Keyed on the task so that two overlapping reads of the baseline collapse into one
         // notification rather than showing the same finished download twice.
         notify(
@@ -72,11 +100,21 @@ async function maybeNotifyFinishedTasks(storedState: ExtensionState) {
       });
   }
 
-  await setFinishedTaskIds(finishedTaskIds);
+  // A write is an event, and this runs from a listener. Rewriting an unchanged list would wake
+  // this again to write it again, forever.
+  if (previous == null || !sameIds(previous, finishedTaskIds)) {
+    await setFinishedTaskIds(finishedTaskIds);
+  }
 }
 
-function updateBadge(storedState: ExtensionState) {
-  if (storedState.taskFetchFailureReason) {
+// Both sides are sorted, so this is the whole comparison. lodash's isEqual would do it too, and
+// drags the Function constructor into the background bundle, which web-ext lint flags as eval.
+function sameIds(a: string[], b: string[]) {
+  return a.length === b.length && a.every((id, i) => id === b[i]);
+}
+
+function updateBadge(settings: Settings, cachedTasks: CachedTasks) {
+  if (cachedTasks.taskFetchFailureReason) {
     browser.browserAction.setIcon({
       path: {
         "16": "icons/icon-16-disabled.png",
@@ -104,20 +142,20 @@ function updateBadge(storedState: ExtensionState) {
     });
 
     let taskCount;
-    if (storedState.settings.badgeDisplayType === "total") {
-      taskCount = storedState.tasks.length;
-    } else if (storedState.settings.badgeDisplayType === "filtered") {
+    if (settings.badgeDisplayType === "total") {
+      taskCount = cachedTasks.tasks.length;
+    } else if (settings.badgeDisplayType === "filtered") {
       taskCount = filterTasks(
-        storedState.tasks,
-        storedState.settings.visibleTasks,
-        storedState.settings.showInactiveTasks,
+        cachedTasks.tasks,
+        settings.visibleTasks,
+        settings.showInactiveTasks,
       ).length;
-    } else if (storedState.settings.badgeDisplayType === "completed") {
-      taskCount = storedState.tasks.filter(
+    } else if (settings.badgeDisplayType === "completed") {
+      taskCount = cachedTasks.tasks.filter(
         (t) => matchesFilter(t, "completed") || matchesFilter(t, "uploading"),
       ).length;
     } else {
-      assertNever(storedState.settings.badgeDisplayType);
+      assertNever(settings.badgeDisplayType);
       return; // Can't `return assertNever(...)` because the linter complains.
     }
 

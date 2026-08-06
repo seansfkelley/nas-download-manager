@@ -2,7 +2,14 @@ import "./index.css";
 import "../common/init/nonContentContext";
 import { createRoot } from "react-dom/client";
 
-import { onExtensionStateChange, PersistentState, Settings } from "../common/state";
+import {
+  type CachedTasks,
+  getCachedTasks,
+  onCachedTasksChange,
+  onPersistentStateChange,
+  PersistentState,
+  Settings,
+} from "../common/state";
 import { FatalError } from "./FatalError";
 import { FatalErrorWrapper } from "./FatalErrorWrapper";
 import { PopupWrapper } from "./PopupWrapper";
@@ -29,10 +36,33 @@ setInterval(() => {
   PollTasks.send();
 }, 10000);
 
-onExtensionStateChange((storedState) => {
+// The two halves arrive separately and neither waits for the other. Tasks start out empty rather
+// than absent so that the settings half alone is enough to render, which is what makes the popup
+// come up with its chrome in place while the first poll is still in flight.
+let persistentState: PersistentState | undefined;
+let cachedTasks: CachedTasks = getCachedTasks({});
+
+function render() {
+  if (persistentState == null) {
+    return;
+  }
   ROOT.render(
-    <FatalErrorWrapper state={storedState}>
-      <PopupWrapper state={storedState} updateSettings={updateSettings} />
+    <FatalErrorWrapper state={persistentState}>
+      <PopupWrapper
+        state={persistentState}
+        cachedTasks={cachedTasks}
+        updateSettings={updateSettings}
+      />
     </FatalErrorWrapper>,
   );
+}
+
+onPersistentStateChange((state) => {
+  persistentState = state;
+  render();
+});
+
+onCachedTasksChange((tasks) => {
+  cachedTasks = tasks;
+  render();
 });

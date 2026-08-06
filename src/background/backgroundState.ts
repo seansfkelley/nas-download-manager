@@ -71,8 +71,7 @@ export async function setSessionPassword(password: string) {
 }
 
 export async function getFinishedTaskIds() {
-  const { finishedTaskIds } = await SessionState.get();
-  return finishedTaskIds == null ? undefined : new Set(finishedTaskIds);
+  return (await SessionState.get()).finishedTaskIds;
 }
 
 export async function setFinishedTaskIds(finishedTaskIds: string[]) {
