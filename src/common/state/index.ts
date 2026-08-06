@@ -1,5 +1,4 @@
 import { type Protocol, type ConnectionSettings, State } from "./migrations/latest";
-import { migrateState } from "./migrations/update";
 import { typesafeMapValues } from "../lang";
 
 export * from "./constants";
@@ -15,14 +14,6 @@ export function getHostUrl(settings: ConnectionSettings) {
   } else {
     return undefined;
   }
-}
-
-export async function maybeMigrateState() {
-  // Bypass State.get; we don't know what shape this is at runtime and don't want to lie to the
-  // typechecker!
-  const updated = migrateState(await browser.storage.local.get(null));
-  await browser.storage.local.clear();
-  return State.set(updated);
 }
 
 export function redactState(state: State): object {

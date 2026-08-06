@@ -8,7 +8,7 @@ import { migrate as migrate5to6 } from "./6";
 import { migrate as migrate6to7 } from "./7";
 import { migrate as migrate7to8 } from "./8";
 
-const LATEST_STATE_VERSION: StateVersion["stateVersion"] = 8;
+export const LATEST_STATE_VERSION: StateVersion["stateVersion"] = 8;
 const MIGRATIONS: ((state: any) => any)[] = [
   migrate0to1,
   migrate1to2,
