@@ -18,21 +18,16 @@ async function fetchStateAndNotify(listeners: ((state: State) => void)[]) {
 
 let stateListeners: ((state: State) => void)[] = [];
 
-let didAttachSingletonListener = false;
-
-function attachSharedStateListener() {
-  if (!didAttachSingletonListener) {
-    didAttachSingletonListener = true;
-    browser.storage.onChanged.addListener((_changes, areaName) => {
-      if (areaName === "local") {
-        fetchStateAndNotify(stateListeners);
-      }
-    });
+// Registered at module load rather than on first subscription: a non-persistent background context
+// is woken for this event and drops it unless the listener exists by the end of the initial
+// evaluation, which is too early for any subscriber to have run.
+browser.storage.onChanged.addListener((_changes, areaName) => {
+  if (areaName === "local") {
+    fetchStateAndNotify(stateListeners);
   }
-}
+});
 
 export function onStoredStateChange(listener: (state: State) => void) {
-  attachSharedStateListener();
   stateListeners.push(listener);
   fetchStateAndNotify([listener]);
 }
