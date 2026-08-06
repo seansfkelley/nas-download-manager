@@ -43,9 +43,15 @@ export interface SessionState extends Partial<CachedTasks> {
   // An array because Set does not serialize. Absent means no poll has completed yet, which is what
   // keeps the first poll from notifying about everything that finished before we were watching.
   finishedTaskIds?: string[];
-  // What the cached tasks were fetched with, so a change of DiskStation can invalidate them.
-  cachedTasksConnection?: string;
 }
+
+// Called wherever the cached tasks are known to be about a DiskStation we are no longer talking to.
+export function clearCachedTasks() {
+  return SessionState.remove(...CACHED_TASK_NAMES);
+}
+
+// This means that we don't have to be careful about loading the zero state before anything is written.
+let _testSessionStateShouldAllowEmptyObject: SessionState = {};
 
 // No versions and no migrations, unlike the persistent state: onInstalled clears the whole area, so
 // anything found here was written by the running version.

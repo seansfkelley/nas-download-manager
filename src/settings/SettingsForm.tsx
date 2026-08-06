@@ -2,6 +2,7 @@ import "./settings-form.css";
 import { useState } from "react";
 
 import {
+  clearCachedTasks,
   PersistentState,
   Settings,
   VisibleTaskSettings,
@@ -19,7 +20,7 @@ import { SettingsList } from "../common/components/SettingsList";
 import { SettingsListCheckbox } from "../common/components/SettingsListCheckbox";
 import { ConnectionSettings as ConnectionSettingsComponent } from "./ConnectionSettings";
 import { typesafePick } from "../common/lang";
-import { SetLoginPassword } from "../common/apis/messages";
+import { PollTasks, SetLoginPassword } from "../common/apis/messages";
 import type { Overwrite } from "../common/types";
 
 export interface Props {
@@ -62,6 +63,11 @@ export function SettingsForm(props: Props) {
       await saveSettings({ connection: { ...connection, password: undefined } });
     }
     await SetLoginPassword.send(connection.password);
+    // Whatever is cached came from the DiskStation configured a moment ago. Submitting this form is
+    // the only way a connection is ever written, so it is the only moment they can go stale, and
+    // the poll refills them from the new one.
+    await clearCachedTasks();
+    PollTasks.send();
   }
 
   function maybeRenderDebuggingOutputAndSeparator() {

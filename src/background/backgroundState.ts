@@ -77,11 +77,3 @@ export async function getFinishedTaskIds() {
 export async function setFinishedTaskIds(finishedTaskIds: string[]) {
   await SessionState.set({ finishedTaskIds });
 }
-
-export async function getCachedTasksConnection() {
-  return (await SessionState.get()).cachedTasksConnection;
-}
-
-export async function setCachedTasksConnection(cachedTasksConnection: string) {
-  await SessionState.set({ cachedTasksConnection });
-}

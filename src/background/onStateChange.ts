@@ -4,22 +4,14 @@ import {
   type Settings,
   getCachedTasks,
   getCurrentPersistentState,
-  getHostUrl,
   SessionState,
 } from "../common/state";
 import { notify } from "../common/notify";
 import { saveLastSevereError } from "../common/errorHandlers";
 import { setPollingEnabled } from "./alarms";
-import { pollTasks, clearCachedTasks } from "./actions";
 import { assertNever } from "../common/lang";
 import { filterTasks, matchesFilter } from "../common/filtering";
-import {
-  getCachedTasksConnection,
-  getFinishedTaskIds,
-  setCachedTasksConnection,
-  setFinishedTaskIds,
-  getBackgroundContext,
-} from "./backgroundState";
+import { getFinishedTaskIds, setFinishedTaskIds } from "./backgroundState";
 
 export function reactToPersistentState(state: PersistentState) {
   react(state).catch(saveLastSevereError);
@@ -27,7 +19,6 @@ export function reactToPersistentState(state: PersistentState) {
 
 async function react(state: PersistentState) {
   await setPollingEnabled(state.settings.notifications.enableCompletionNotifications);
-  await maybeInvalidateCachedTasks(state);
   // Read rather than remembered: the badge needs both halves, and a background context that can be
   // suspended has nowhere to keep the half it was not just handed.
   updateBadge(state.settings, getCachedTasks(await SessionState.get()));
@@ -47,25 +38,6 @@ async function reactToTasks(cachedTasks: CachedTasks) {
 
   updateBadge(state.settings, cachedTasks);
   await maybeNotifyFinishedTasks(state.settings, cachedTasks);
-}
-
-// The cached tasks belong to whichever DiskStation they came from, so a change of host or account
-// throws them away. This used to be inferred from the client rejecting an update to its settings;
-// with no long-lived client left to ask, the provenance is recorded in session storage instead.
-async function maybeInvalidateCachedTasks(state: PersistentState) {
-  const { connection } = state.settings;
-  const current = `${getHostUrl(connection)}|${connection.username}`;
-  const previous = await getCachedTasksConnection();
-
-  if (previous !== current) {
-    await setCachedTasksConnection(current);
-    await clearCachedTasks();
-    if (previous != null) {
-      // Absent means this is the first state change of the browser session rather than a real
-      // change, and there is no reason to wake the NAS just because the browser started.
-      await pollTasks((await getBackgroundContext()).api);
-    }
-  }
 }
 
 async function maybeNotifyFinishedTasks(settings: Settings, cachedTasks: CachedTasks) {

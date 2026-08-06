@@ -1,7 +1,8 @@
 import { ClientRequestResult } from "../common/apis/synology";
 import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../common/apis/errors";
 import { MessageResponse, Message, Result } from "../common/apis/messages";
-import { addDownloadTasksAndPoll, clearCachedTasks, pollTasks } from "./actions";
+import { addDownloadTasksAndPoll, pollTasks } from "./actions";
+import { clearCachedTasks } from "../common/state";
 import { BackgroundContext, getBackgroundContext, setSessionPassword } from "./backgroundState";
 import type { DiscriminateUnion } from "../common/types";
 
