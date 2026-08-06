@@ -18,7 +18,6 @@ import { TaskFilterSettingsForm } from "../common/components/TaskFilterSettingsF
 import { SettingsList } from "../common/components/SettingsList";
 import { SettingsListCheckbox } from "../common/components/SettingsListCheckbox";
 import { ConnectionSettings as ConnectionSettingsComponent } from "./ConnectionSettings";
-import { disabledPropAndClassName, kludgeRefSetClassname } from "../common/classnameUtil";
 import { typesafePick } from "../common/lang";
 import { SetLoginPassword } from "../common/apis/messages";
 import type { Overwrite } from "../common/types";
@@ -30,21 +29,8 @@ export interface Props {
   clearError: () => void;
 }
 
-const POLL_MIN_INTERVAL = 15;
-const POLL_DEFAULT_INTERVAL = 60;
-const POLL_STEP = 15;
-
-function isValidPollingInterval(stringValue: string) {
-  return !isNaN(+stringValue) && +stringValue >= POLL_MIN_INTERVAL;
-}
-
 export function SettingsForm(props: Props) {
   const [savesFailed, setSavesFailed] = useState(false);
-  const [rawPollingInterval, setRawPollingInterval] = useState(
-    () =>
-      props.extensionState.settings.notifications.completionPollingInterval.toString() ||
-      POLL_DEFAULT_INTERVAL.toString(),
-  );
 
   async function saveSettings(settings: Partial<Settings>) {
     const success = await props.saveSettings({
@@ -199,36 +185,10 @@ export function SettingsForm(props: Props) {
             );
           }}
           label={browser.i18n.getMessage("Notify_when_downloads_complete")}
-        />
-
-        <li>
-          <span className="indent">
-            {browser.i18n.getMessage("Check_for_completed_downloads_every")}
-          </span>
-          <input
-            type="number"
-            {...disabledPropAndClassName(
-              !props.extensionState.settings.notifications.enableCompletionNotifications,
-            )}
-            min={POLL_MIN_INTERVAL}
-            step={POLL_STEP}
-            value={rawPollingInterval}
-            ref={kludgeRefSetClassname("polling-interval")}
-            onChange={(e) => {
-              const interval = e.currentTarget.value;
-              setRawPollingInterval(interval);
-              if (isValidPollingInterval(interval)) {
-                setNotificationSetting("completionPollingInterval", +interval);
-              }
-            }}
-          />
-          {browser.i18n.getMessage("seconds")}
-          {isValidPollingInterval(rawPollingInterval) ? undefined : (
-            <span className="intent-error wrong-polling-interval">
-              {browser.i18n.getMessage("at_least_15")}
-            </span>
+          subtitle={browser.i18n.getMessage(
+            "This_polls_your_NAS_every_30_seconds_and_may_keep_it_awake",
           )}
-        </li>
+        />
 
         <SettingsListCheckbox
           checked={props.extensionState.settings.shouldHandleDownloadLinks}

@@ -12,7 +12,14 @@
   "background": {
     "scripts": ["src/background/index.ts"]
   },
-  "permissions": ["contextMenus", "storage", "notifications", "http://*/*", "https://*/*"],
+  "permissions": [
+    "alarms",
+    "contextMenus",
+    "storage",
+    "notifications",
+    "http://*/*",
+    "https://*/*"
+  ],
   "content_scripts": [
     {
       "matches": ["http://*/*", "https://*/*"],

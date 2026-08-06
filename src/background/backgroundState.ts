@@ -1,12 +1,9 @@
 import { SynologyClient } from "../common/apis/synology";
-import type { NotificationSettings } from "../common/state";
 
 export interface BackgroundState {
   api: SynologyClient;
   // This starts undefined, which means we haven't fetched the list of tasks yet.
   finishedTaskIds: Set<string> | undefined;
-  lastNotificationSettings: NotificationSettings | undefined;
-  notificationInterval: number | undefined;
   showNonErrorNotifications: boolean;
   isInitializingExtension: boolean;
 }
@@ -14,8 +11,6 @@ export interface BackgroundState {
 const state: BackgroundState = {
   api: new SynologyClient({}),
   finishedTaskIds: undefined,
-  lastNotificationSettings: undefined,
-  notificationInterval: undefined,
   showNonErrorNotifications: true,
   isInitializingExtension: true,
 };

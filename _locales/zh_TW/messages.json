@@ -396,18 +396,6 @@
     "message": "下載完成時顯示通知",
     "description": "Label for option on settings page."
   },
-  "Check_for_completed_downloads_every": {
-    "message": "檢查下載是否完成間隔",
-    "description": "Prefix for inlined notification interval setting field."
-  },
-  "seconds": {
-    "message": "秒",
-    "description": "Suffix for inlined notification interval setting field."
-  },
-  "at_least_15": {
-    "message": "（最小間隔15秒）",
-    "description": "Error message when notification interval is too short."
-  },
   "Handle_opening_downloadable_link_types_ZprotocolsZ": {
     "message": "閈啟支援的下載連結類型（$PROTOCOLS$）",
     "description": "Label for option on settings page.",

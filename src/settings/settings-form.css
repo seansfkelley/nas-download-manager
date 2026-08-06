@@ -102,15 +102,6 @@ ul.settings-list {
   max-width: 80px;
 }
 
-.polling-interval {
-  width: 60px;
-  margin: 0 5px;
-}
-
-.wrong-polling-interval {
-  margin-left: 5px;
-}
-
 textarea.debugging-output {
   width: calc(100% - 20px);
   height: 3em;

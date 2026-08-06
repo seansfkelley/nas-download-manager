@@ -1,8 +1,9 @@
-import { default as isEqual } from "lodash/isEqual";
 import { getMutableStateSingleton } from "./backgroundState";
 import { SessionName } from "../common/apis/synology";
 import { getHostUrl, State } from "../common/state";
 import { notify } from "../common/notify";
+import { saveLastSevereError } from "../common/errorHandlers";
+import { setPollingEnabled } from "./alarms";
 import { pollTasks, clearCachedTasks } from "./actions";
 import { assertNever } from "../common/lang";
 import { filterTasks, matchesFilter } from "../common/filtering";
@@ -46,15 +47,9 @@ export function onStoredStateChange(storedState: State) {
     }
   }
 
-  if (!isEqual(storedState.settings.notifications, backgroundState.lastNotificationSettings)) {
-    backgroundState.lastNotificationSettings = storedState.settings.notifications;
-    clearInterval(backgroundState.notificationInterval!);
-    if (backgroundState.lastNotificationSettings.enableCompletionNotifications) {
-      backgroundState.notificationInterval = setInterval(() => {
-        pollTasks(backgroundState.api);
-      }, backgroundState.lastNotificationSettings.completionPollingInterval * 1000) as any as number;
-    }
-  }
+  setPollingEnabled(storedState.settings.notifications.enableCompletionNotifications).catch(
+    saveLastSevereError,
+  );
 
   backgroundState.showNonErrorNotifications =
     storedState.settings.notifications.enableFeedbackNotifications;

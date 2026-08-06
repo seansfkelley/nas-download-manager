@@ -1,5 +1,6 @@
 import type { DownloadStationTask } from "../src/common/apis/synology/DownloadStation/Task";
 import { State } from "../src/common/state/migrations/latest";
+import { LATEST_STATE_VERSION } from "../src/common/state/migrations/update";
 import type { State as State_2 } from "../src/common/state/migrations/2";
 
 let stored: Record<string, any>;
@@ -74,9 +75,9 @@ describe("stored state", () => {
 
     const state = await State.get();
 
-    expect(state.stateVersion).toBe(8);
+    expect(state.stateVersion).toBe(LATEST_STATE_VERSION);
     expect(state.settings.connection.hostname).toBe("hostname");
-    expect(stored.stateVersion).toBe(8);
+    expect(stored.stateVersion).toBe(LATEST_STATE_VERSION);
   });
 
   it("should drop the keys the migration abandoned", async () => {
@@ -100,7 +101,7 @@ describe("stored state", () => {
 
     await State.set({ tasks: [] });
 
-    expect(stored.stateVersion).toBe(8);
+    expect(stored.stateVersion).toBe(LATEST_STATE_VERSION);
     expect(stored.tasks).toStrictEqual([]);
     expect(stored.settings.connection.hostname).toBe("hostname");
     expect(stored.connection).toBeUndefined();
