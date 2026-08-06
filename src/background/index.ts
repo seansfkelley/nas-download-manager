@@ -23,20 +23,21 @@ browser.runtime.onInstalled.addListener(async () => {
   // already current and casts accordingly. Three known risks come with that, none of them worth
   // more machinery than this:
   //
-  // A failed migration is permanent. There is no documented retry for onInstalled, so the extension
-  // then runs against state it cannot interpret. Bailing here at least leaves a record in the
-  // debugging output rather than half-migrating and pretending otherwise.
+  // A failed migration is permanent. There is no documented retry for onInstalled, so nothing here
+  // gets a second attempt, and every state listener stays silent because the stored shape never
+  // becomes one they will accept. That means a blank popup and settings page rather than a broken
+  // one, and it takes storage itself failing to get there, since migrateState handles every input.
   //
-  // Readers can beat the migration. Anything reading between this context starting and the write
-  // below landing gets the old shape typed as the new one. The one place that genuinely races is
-  // the initial read in onStoredStateChange above, since it is kicked off during this same module
-  // evaluation; it may throw once on a shape it does not recognize, and then correct itself,
-  // because finishing the migration writes to storage and every listener re-runs on that.
+  // Readers can beat the migration. The initial read in onStoredStateChange above genuinely does:
+  // it is kicked off during this same module evaluation, before this listener can fire. It is
+  // handled where it happens, by declining to deliver state whose version is not current, and the
+  // write below re-delivers to everyone.
   //
   // Writers could interleave. A partial write landing in that same window would put current-shaped
   // keys next to stale ones, and nothing checks. In practice every write in the background is
-  // downstream of a read, and the popup and settings pages have to be opened by a human, which is
-  // several orders of magnitude slower than a storage round trip.
+  // downstream of a read, so nothing writes before the migration has been delivered, and the popup
+  // and settings pages have to be opened by a human, which is several orders of magnitude slower
+  // than a storage round trip.
   try {
     await migrateStoredState();
   } catch (e) {

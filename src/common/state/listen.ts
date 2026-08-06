@@ -1,4 +1,5 @@
 import { type Settings, State } from "./migrations/latest";
+import { LATEST_STATE_VERSION } from "./migrations/update";
 import { typesafeUnionMembers } from "../lang";
 
 export const SETTING_NAMES = typesafeUnionMembers<keyof Settings>({
@@ -13,7 +14,13 @@ export const SETTING_NAMES = typesafeUnionMembers<keyof Settings>({
 
 async function fetchStateAndNotify(listeners: ((state: State) => void)[]) {
   const state = await State.get();
-  listeners.forEach((l) => l(state));
+  // On install and upgrade the background starts, and this reads, before runtime.onInstalled fires
+  // the migration. Declining is the whole handling: finishing the migration writes to storage,
+  // which arrives back here as a change and delivers to everyone. State.get's cast is a promise
+  // that state looks like this, and this is the one place in a position to keep it.
+  if (state.stateVersion === LATEST_STATE_VERSION) {
+    listeners.forEach((l) => l(state));
+  }
 }
 
 let stateListeners: ((state: State) => void)[] = [];
