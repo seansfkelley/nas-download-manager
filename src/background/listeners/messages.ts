@@ -110,7 +110,7 @@ const MESSAGE_HANDLERS: MessageHandlers = {
 
 async function handleMessage(m: Message) {
   try {
-    return MESSAGE_HANDLERS[m.type](m as any);
+    return await MESSAGE_HANDLERS[m.type](m as any);
   } catch (error) {
     saveLastSevereError(error);
   }

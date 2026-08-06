@@ -19,16 +19,11 @@ const NO_SUCH_METHOD_ERROR_CODE = 103;
 const NO_PERMISSIONS_ERROR_CODE = 105;
 const SESSION_TIMEOUT_ERROR_CODE = 106;
 
-// These fields uniquely identify a session, which we can use to determine if we are able to reuse
-// auth tokens for future requests or have to log in again.
-export interface SynologySessionKey {
+export interface SynologyClientSettings {
   baseUrl: string;
   account: string;
-  session: SessionName;
-}
-
-export interface SynologyClientSettings extends SynologySessionKey {
   passwd: string;
+  session: SessionName;
 }
 
 const SETTING_NAME_KEYS = typesafeUnionMembers<keyof SynologyClientSettings>({

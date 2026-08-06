@@ -1,4 +1,4 @@
-import type { SynologyAuthResult, ConnectionFailure, SynologySessionKey } from "../apis/synology";
+import type { SynologyAuthResult, SynologyClientSettings } from "../apis/synology";
 import type { DownloadStationTask } from "../apis/synology/DownloadStation/Task";
 import { typesafeUnionMembers } from "../lang";
 
@@ -12,7 +12,7 @@ export interface TaskState {
 
 export interface SessionState extends TaskState {
   auth?: {
-    key: SynologySessionKey;
+    key: SynologyClientSettings;
     result: SynologyAuthResult;
   };
   // Only set when "remember password" is off. Used to re-login while this browser session is still

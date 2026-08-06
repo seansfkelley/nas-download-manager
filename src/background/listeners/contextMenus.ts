@@ -29,9 +29,9 @@ export function initializeContextMenuListener() {
         (await PersistentState.get())?.settings.notifications.enableFeedbackNotifications ?? false;
 
       if (data.linkUrl) {
-        return addDownloadTasksAndPoll(client, showNonErrorNotifications, [data.linkUrl]);
+        return await addDownloadTasksAndPoll(client, showNonErrorNotifications, [data.linkUrl]);
       } else if (data.srcUrl) {
-        return addDownloadTasksAndPoll(client, showNonErrorNotifications, [data.srcUrl]);
+        return await addDownloadTasksAndPoll(client, showNonErrorNotifications, [data.srcUrl]);
       } else if (data.selectionText) {
         let urls = data.selectionText
           .split("\n")
@@ -46,7 +46,7 @@ export function initializeContextMenuListener() {
             "failure",
           );
         } else {
-          return addDownloadTasksAndPoll(client, showNonErrorNotifications, urls);
+          return await addDownloadTasksAndPoll(client, showNonErrorNotifications, urls);
         }
       } else {
         notify(

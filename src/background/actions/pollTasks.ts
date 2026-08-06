@@ -1,25 +1,14 @@
 import { SynologyClient, ClientRequestResult } from "../../common/apis/synology";
 import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../../common/apis/errors";
-import { type TaskState, SessionState } from "../../common/state";
+import { SessionState } from "../../common/state";
 import { saveLastSevereError } from "../../common/errorHandlers";
 import { assertNever } from "../../common/lang";
 
-function setCachedTasks(cachedTasks: Partial<TaskState>) {
-  return SessionState.set({
-    tasksLastCompletedFetchTimestamp: Date.now(),
-    ...cachedTasks,
-  });
-}
-
 export async function pollTasks(api: SynologyClient): Promise<void> {
-  const cachedTasksInit: Partial<TaskState> = {
-    tasksLastInitiatedFetchTimestamp: Date.now(),
-  };
-
   console.log("polling for tasks...");
 
   try {
-    await SessionState.set(cachedTasksInit);
+    await SessionState.set({ tasksLastInitiatedFetchTimestamp: Date.now() });
 
     let response;
 
@@ -42,30 +31,36 @@ export async function pollTasks(api: SynologyClient): Promise<void> {
     if (ClientRequestResult.isConnectionFailure(response)) {
       if (response.type === "missing-config") {
         if (response.which === "other") {
-          await setCachedTasks({
+          await SessionState.set({
+            tasksLastCompletedFetchTimestamp: Date.now(),
             taskFetchFailureReason: "missing-config",
           });
         } else if (response.which === "password") {
-          await setCachedTasks({
+          await SessionState.set({
+            tasksLastCompletedFetchTimestamp: Date.now(),
             taskFetchFailureReason: "login-required",
           });
         } else {
           assertNever(response.which);
         }
       } else {
-        await setCachedTasks({
+        await SessionState.set({
+          tasksLastCompletedFetchTimestamp: Date.now(),
           taskFetchFailureReason: {
             failureMessage: getErrorForConnectionFailure(response),
           },
         });
       }
     } else if (response.success) {
-      await setCachedTasks({
+      await SessionState.set({
         tasks: response.data.tasks,
-        taskFetchFailureReason: null,
+        tasksLastCompletedFetchTimestamp: Date.now(),
+        // TODO: Test that this works, or if I have to call remove.
+        taskFetchFailureReason: undefined,
       });
     } else {
-      await setCachedTasks({
+      await SessionState.set({
+        tasksLastCompletedFetchTimestamp: Date.now(),
         taskFetchFailureReason: {
           failureMessage: getErrorForFailedResponse(response),
         },

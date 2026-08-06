@@ -1,7 +1,7 @@
 import { SynologyClient, SessionName, SynologySessionKey } from "../common/apis/synology";
 import { saveLastSevereError } from "../common/errorHandlers";
 import { getHostUrl, PersistentState, SessionState } from "../common/state";
-import { isEqual } from "lodash";
+import isEqual from "lodash/isEqual";
 
 export async function getSynologyClient(): Promise<SynologyClient> {
   const [state, session] = await Promise.all([PersistentState.get(), SessionState.get()]);
@@ -12,31 +12,42 @@ export async function getSynologyClient(): Promise<SynologyClient> {
     settings: { connection },
   } = state;
 
-  const password = connection.password ?? session.password;
-  if (password == null) {
-    return new SynologyClient({}, undefined, undefined);
-  }
-
   let baseUrl = getHostUrl(connection);
   if (baseUrl == null) {
-    return new SynologyClient({}, undefined, undefined);
+    return new SynologyClient(
+      // Make sure it reports the best error possible given what we have.
+      { account: connection.username, session: SessionName.DownloadStation },
+      undefined,
+      undefined,
+    );
   }
 
-  const sessionKey: SynologySessionKey = {
+  const password = connection.password ?? session.password;
+  if (password == null) {
+    return new SynologyClient(
+      // Make sure it reports the best error possible given what we have.
+      { baseUrl, account: connection.username, session: SessionName.DownloadStation },
+      undefined,
+      undefined,
+    );
+  }
+
+  const settings: SynologySessionKey = {
     baseUrl,
     account: connection.username,
+    passwd: password,
     session: SessionName.DownloadStation,
   };
 
   return new SynologyClient(
-    { ...sessionKey, passwd: password },
-    session.auth != null && isEqual(session.auth.key, sessionKey) ? session.auth.result : undefined,
+    settings,
+    session.auth != null && isEqual(session.auth.key, settings) ? session.auth.result : undefined,
     async (result) => {
       try {
         if (result == null) {
           await SessionState.remove("auth");
         } else {
-          await SessionState.set({ auth: { key: sessionKey, result } });
+          await SessionState.set({ auth: { key: settings, result } });
         }
       } catch (error) {
         saveLastSevereError(error);
