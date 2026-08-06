@@ -33,13 +33,9 @@ const REFUSED: AuthResult = {
   error: { code: 400 },
 };
 
-function flushMicrotasks() {
-  return new Promise((resolve) => setTimeout(resolve, 0));
-}
-
-function makeClient(auth?: AuthResult) {
+function makeClient(auth?: AuthResult, settings = SETTINGS) {
   const changes: (AuthResult | undefined)[] = [];
-  const client = new SynologyClient(SETTINGS, auth, (a) => changes.push(a));
+  const client = new SynologyClient(settings, auth, (a) => changes.push(a));
   return { client, changes };
 }
 
@@ -102,42 +98,15 @@ describe("SynologyClient auth", () => {
   });
 
   it("should not report an unconfigured client as an auth result", async () => {
-    const { client, changes } = makeClient();
-    client.partiallyUpdateSettings({ passwd: "" });
+    const { client, changes } = makeClient(undefined, { ...SETTINGS, passwd: "" });
 
     const result = await client.Auth.Login();
 
     expect(result).toStrictEqual({ type: "missing-config", which: "password" });
     expect(login).not.toHaveBeenCalled();
-    // A missing-config is not an auth result, because it stops being true as soon as the settings
-    // do, and there was no earlier result for the settings change to discard.
+    // A missing-config is not an auth result: it stops being true as soon as the settings do, and
+    // settings only change by building a different client.
     expect(changes).toStrictEqual([]);
-  });
-
-  it("should discard the auth result when the connection settings change", async () => {
-    const { client, changes } = makeClient(SESSION);
-
-    expect(client.partiallyUpdateSettings({ baseUrl: "https://elsewhere:5001" })).toBe(true);
-
-    expect(changes).toStrictEqual([undefined]);
-
-    // partiallyUpdateSettings does not await the logout it kicks off.
-    await flushMicrotasks();
-    // Not asserting which baseUrl this went to: partiallyUpdateSettings applies the new settings
-    // before logging out, so the old session's logout is addressed to the new host.
-    expect(logout).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.objectContaining({ sid: "sid" }),
-    );
-  });
-
-  it("should keep the auth result when the settings are unchanged", async () => {
-    const { client, changes } = makeClient(SESSION);
-
-    expect(client.partiallyUpdateSettings({ account: SETTINGS.account })).toBe(false);
-
-    expect(changes).toStrictEqual([]);
-    expect(logout).not.toHaveBeenCalled();
   });
 
   it("should discard the auth result on logout", async () => {
@@ -146,6 +115,7 @@ describe("SynologyClient auth", () => {
     await client.Auth.Logout();
 
     expect(changes).toStrictEqual([undefined]);
+    expect(logout).toHaveBeenCalledWith(SETTINGS.baseUrl, expect.objectContaining({ sid: "sid" }));
   });
 
   it("should say so rather than logging out when there is nothing to log out of", async () => {

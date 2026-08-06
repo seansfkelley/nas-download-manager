@@ -87,10 +87,11 @@ export class SynologyClient {
   // Only ever a login in flight, so that concurrent requests share one. The settled result lives in
   // auth, which is what makes it something a caller can hand us back later.
   private loginPromise: Promise<AuthResult> | undefined;
-  private settingsVersion: number = 0;
 
   constructor(
-    private settings: Partial<SynologyClientSettings>,
+    // Fixed for the client's lifetime. Changing where or who we connect as means a new client, and
+    // callers build one per use anyway, so there is nothing to reconfigure.
+    private readonly settings: Partial<SynologyClientSettings>,
     // An auth result from an earlier client, so a context that lost its module scope picks up where
     // that one left off instead of logging in again. Undefined when there is nothing to pick up,
     // which is also what it becomes on logout.
@@ -104,18 +105,6 @@ export class SynologyClient {
     if (this.auth !== auth) {
       this.auth = auth;
       this.onAuthChange(auth);
-    }
-  }
-
-  public partiallyUpdateSettings(settings: Partial<SynologyClientSettings>) {
-    const updatedSettings = { ...this.settings, ...settings };
-    if (SETTING_NAME_KEYS.some((k) => updatedSettings[k] !== this.settings[k])) {
-      this.settingsVersion++;
-      this.settings = updatedSettings;
-      this.maybeLogout();
-      return true;
-    } else {
-      return false;
     }
   }
 
@@ -223,8 +212,6 @@ export class SynologyClient {
       options: T,
       shouldRetryRoutineFailures: boolean = true,
     ): Promise<ClientRequestResult<U>> => {
-      const versionAtInit = this.settingsVersion;
-
       const maybeLogoutAndRetry = async (
         result: ConnectionFailure | RestApiFailureResponse,
       ): Promise<ClientRequestResult<U>> => {
@@ -249,16 +236,12 @@ export class SynologyClient {
 
         const loginResult = await this.maybeLogin();
 
-        if (this.settingsVersion !== versionAtInit) {
-          return await wrappedFunction(options);
-        } else if (ClientRequestResult.isConnectionFailure(loginResult) || !loginResult.success) {
+        if (ClientRequestResult.isConnectionFailure(loginResult) || !loginResult.success) {
           return await maybeLogoutAndRetry(loginResult);
         } else {
           const response = await fn(this.settings.baseUrl!, loginResult.data.sid, options);
 
-          if (this.settingsVersion !== versionAtInit) {
-            return await wrappedFunction(options);
-          } else if (response.success) {
+          if (response.success) {
             return response;
           } else {
             return await maybeLogoutAndRetry(response);
@@ -287,7 +270,6 @@ export class SynologyClient {
         return settings;
       } else {
         try {
-          // TODO: This should do the same settings-version-checking that `this.proxy` does.
           return await fn(settings.baseUrl, options);
         } catch (e) {
           return ConnectionFailure.from(e);

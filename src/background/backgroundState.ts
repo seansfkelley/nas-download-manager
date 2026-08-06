@@ -81,8 +81,16 @@ export async function getBackgroundContext(): Promise<BackgroundContext> {
   };
 }
 
+// Returns whether this actually changes the password the next client will be built with, mirroring
+// the choice getBackgroundContext makes. With "remember password" on, the settings page has already
+// written it to storage.local by the time this runs, so the answer is usually no.
 export async function setSessionPassword(password: string) {
+  const [{ settings }, session] = await Promise.all([State.get(), getSessionState()]);
+  const previous = settings.connection.rememberPassword
+    ? settings.connection.password
+    : session.password;
   await browser.storage.session.set({ password });
+  return previous !== password;
 }
 
 export async function getFinishedTaskIds() {

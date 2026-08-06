@@ -98,14 +98,15 @@ const MESSAGE_HANDLERS: MessageHandlers = {
     }
   },
   "set-login-password": async (m, state) => {
+    // Always reset the session, and do it first, while this client still holds the one the old
+    // password established. Nothing after this can log out of it: clients are built per use, and
+    // the stored auth is keyed on the password, so the next one starts from nothing.
+    await state.api.Auth.Logout();
     // Session storage rather than the client, which does not outlive this message: with "remember
     // password" off this is the only place the password exists.
-    await setSessionPassword(m.password);
-    if (state.api.partiallyUpdateSettings({ passwd: m.password })) {
+    if (await setSessionPassword(m.password)) {
       await clearCachedTasks();
     }
-    // Always reset the session!
-    await state.api.Auth.Logout();
   },
 };
 
