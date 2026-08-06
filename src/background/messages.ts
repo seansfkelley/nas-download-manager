@@ -2,7 +2,7 @@ import { ClientRequestResult } from "../common/apis/synology";
 import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../common/apis/errors";
 import { MessageResponse, Message, Result } from "../common/apis/messages";
 import { addDownloadTasksAndPoll, clearCachedTasks, pollTasks } from "./actions";
-import { BackgroundContext, setSessionPassword, withBackgroundContext } from "./backgroundState";
+import { BackgroundContext, getBackgroundContext, setSessionPassword } from "./backgroundState";
 import type { DiscriminateUnion } from "../common/types";
 
 type MessageHandler<T extends Message, U extends Result[keyof Result]> = (
@@ -109,10 +109,14 @@ const MESSAGE_HANDLERS: MessageHandlers = {
   },
 };
 
+async function handleMessage(m: Message) {
+  return MESSAGE_HANDLERS[m.type](m as any, await getBackgroundContext());
+}
+
 export function initializeMessageHandler() {
   browser.runtime.onMessage.addListener((m) => {
     if (Message.is(m)) {
-      return withBackgroundContext(async (context) => MESSAGE_HANDLERS[m.type](m as any, context));
+      return handleMessage(m);
     } else {
       console.error("received unhandleable message", m);
       return undefined;

@@ -1,11 +1,22 @@
-import { SynologyClient, SessionName } from "../common/apis/synology";
+import {
+  type AuthResult,
+  ClientRequestResult,
+  SynologyClient,
+  SessionName,
+} from "../common/apis/synology";
+import type { ConnectionSettings } from "../common/state";
 import { getHostUrl, State } from "../common/state";
+import { saveLastSevereError } from "../common/errorHandlers";
 
 // storage.session rather than module scope, because a background context that can be suspended
 // loses module scope without warning. Its lifetime -- cleared on browser restart, never written to
 // disk -- is exactly what "remember for this session" means.
 interface SessionState {
-  sid?: string;
+  // Keyed on the connection it was obtained with, so that changing any of the credentials discards
+  // it without anyone having to remember to. Reusing a session against a different DiskStation, or
+  // reusing "incorrect password" against a password the user has since fixed, are both wrong, and
+  // both are unreachable if the key has to match.
+  auth?: { connection: string; result: AuthResult };
   // Only set when "remember password" is off, where the password deliberately never reaches
   // storage.local and would otherwise be lost along with module scope.
   password?: string;
@@ -20,43 +31,56 @@ function getSessionState(): Promise<SessionState> {
   return browser.storage.session.get(null) as Promise<SessionState>;
 }
 
+// Every credential the NAS checks, so that changing any of them invalidates the auth result. The
+// password is in here too, which is why this cannot be the same key the cached tasks use.
+function authKey(connection: ConnectionSettings, password: string | undefined) {
+  return JSON.stringify([getHostUrl(connection), connection.username, password]);
+}
+
+// storage.session cannot hold the Error or Response that a ConnectionFailure carries around. Only
+// the type is ever read -- getErrorForConnectionFailure switches on it alone -- so the payload is
+// dropped rather than worked around.
+function storable(result: AuthResult): AuthResult {
+  return ClientRequestResult.isConnectionFailure(result) ? { ...result, error: undefined } : result;
+}
+
 export interface BackgroundContext {
   api: SynologyClient;
   showNonErrorNotifications: boolean;
 }
 
-// Everything a handler used to read off the mutable singleton, rebuilt from storage each time. The
-// client is handed back afterwards so its session outlives this context; forgetting to do that
-// costs a login round trip on every single request, which is why it is a wrapper and not a getter.
-export async function withBackgroundContext<T>(
-  fn: (context: BackgroundContext) => T | Promise<T>,
-): Promise<T> {
+// Everything a handler used to read off the mutable singleton, rebuilt from storage each time.
+export async function getBackgroundContext(): Promise<BackgroundContext> {
   const [{ settings }, session] = await Promise.all([State.get(), getSessionState()]);
   const { connection } = settings;
+  const password = connection.rememberPassword ? connection.password : session.password;
+  const key = authKey(connection, password);
 
   const api = new SynologyClient(
     {
       baseUrl: getHostUrl(connection),
       account: connection.username,
-      passwd: connection.rememberPassword ? connection.password : session.password,
+      passwd: password,
       session: SessionName.DownloadStation,
     },
-    session.sid,
+    {
+      auth: session.auth?.connection === key ? session.auth.result : undefined,
+      // Written as it changes rather than collected at the end of the request: there is no end to
+      // hook, because the context that made the request may not be alive to see it finish.
+      onAuthChange: (result) => {
+        const write =
+          result == null
+            ? browser.storage.session.remove("auth")
+            : browser.storage.session.set({ auth: { connection: key, result: storable(result) } });
+        write.catch(saveLastSevereError);
+      },
+    },
   );
 
-  try {
-    return await fn({
-      api,
-      showNonErrorNotifications: settings.notifications.enableFeedbackNotifications,
-    });
-  } finally {
-    const sid = await api.getSid();
-    if (sid == null) {
-      await browser.storage.session.remove("sid");
-    } else {
-      await browser.storage.session.set({ sid });
-    }
-  }
+  return {
+    api,
+    showNonErrorNotifications: settings.notifications.enableFeedbackNotifications,
+  };
 }
 
 export async function setSessionPassword(password: string) {

@@ -68,6 +68,21 @@ const ConnectionFailure = {
 
 export type ClientRequestResult<T> = RestApiResponse<T> | ConnectionFailure;
 
+// Everything logging in can tell us: a session, a refusal ("no such username or incorrect
+// password", "two-step verification needed"), or a failure to reach the NAS at all. A refusal is
+// worth keeping for the same reason a session is -- it saves asking the NAS a question it has
+// already answered.
+export type AuthResult = ClientRequestResult<AuthLoginResponse>;
+
+export interface SynologyClientOptions {
+  // An auth result from an earlier client, so a context that lost its module scope picks up where
+  // that one left off instead of logging in again.
+  auth?: AuthResult;
+  // Called whenever the auth result changes, including when it is discarded, so a caller can
+  // persist it without knowing which of the client's several paths changed it.
+  onAuthChange?: (auth: AuthResult | undefined) => void;
+}
+
 export const ClientRequestResult = {
   isConnectionFailure: (result: ClientRequestResult<unknown>): result is ConnectionFailure => {
     return (
@@ -78,34 +93,25 @@ export const ClientRequestResult = {
 };
 
 export class SynologyClient {
-  private loginPromise: Promise<ClientRequestResult<AuthLoginResponse>> | undefined;
+  private auth: AuthResult | undefined;
+  // Only ever a login in flight, so that concurrent requests share one. The settled result lives in
+  // auth, which is what makes it something a caller can hand us back later.
+  private loginPromise: Promise<AuthResult> | undefined;
   private settingsVersion: number = 0;
+  private onAuthChange: ((auth: AuthResult | undefined) => void) | undefined;
 
   constructor(
     private settings: Partial<SynologyClientSettings>,
-    sid?: string,
+    { auth, onAuthChange }: SynologyClientOptions = {},
   ) {
-    if (sid != null) {
-      // Pre-resolving the login is what lets a background context that lost its module scope resume
-      // an existing session instead of logging in again. The meta is synthetic because there was no
-      // response to take it from; it is only ever read off failures.
-      this.loginPromise = Promise.resolve({
-        success: true,
-        data: { sid },
-        meta: { apiGroup: "Auth", method: "login", version: 2 },
-      });
-    }
+    this.auth = auth;
+    this.onAuthChange = onAuthChange;
   }
 
-  // The session this client is currently using, if any, so it can be handed back to storage. A
-  // stale sid costs one wasted round trip rather than a failed request, because proxy retries on
-  // session-timeout and no-permissions by clearing the login and logging back in.
-  public async getSid(): Promise<string | undefined> {
-    const result = await this.loginPromise;
-    if (result == null || ClientRequestResult.isConnectionFailure(result) || !result.success) {
-      return undefined;
-    } else {
-      return result.data.sid;
+  private setAuth(auth: AuthResult | undefined) {
+    if (this.auth !== auth) {
+      this.auth = auth;
+      this.onAuthChange?.(auth);
     }
   }
 
@@ -136,10 +142,14 @@ export class SynologyClient {
     }
   }
 
-  private maybeLogin = async (request?: BaseRequest) => {
+  private maybeLogin = async (request?: BaseRequest): Promise<AuthResult> => {
     const settings = this.getValidatedSettings();
     if (isConnectionFailure(settings)) {
+      // Deliberately not stored as the auth result. This says something about the settings rather
+      // than about a session, and it stops being true the moment the settings do.
       return settings;
+    } else if (this.auth != null) {
+      return this.auth;
     } else if (!this.loginPromise) {
       const { baseUrl, ...restSettings } = settings;
       this.loginPromise = Auth.Login(baseUrl, {
@@ -163,7 +173,12 @@ export class SynologyClient {
             return response;
           }
         })
-        .catch((e) => ConnectionFailure.from(e));
+        .catch((e) => ConnectionFailure.from(e))
+        .then((result) => {
+          this.loginPromise = undefined;
+          this.setAuth(result);
+          return result;
+        });
     }
 
     return this.loginPromise;
@@ -179,9 +194,10 @@ export class SynologyClient {
   private maybeLogout = async (
     request?: BaseRequest,
   ): Promise<ClientRequestResult<{}> | "not-logged-in"> => {
-    const stashedLoginPromise = this.loginPromise;
+    const stashedLoginPromise = this.auth != null ? Promise.resolve(this.auth) : this.loginPromise;
     const settings = this.getValidatedSettings();
     this.loginPromise = undefined;
+    this.setAuth(undefined);
 
     if (!stashedLoginPromise) {
       return "not-logged-in" as const;
@@ -227,6 +243,7 @@ export class SynologyClient {
             result.error.code === NO_PERMISSIONS_ERROR_CODE)
         ) {
           this.loginPromise = undefined;
+          this.setAuth(undefined);
           return wrappedFunction(options, false);
         } else {
           return result;

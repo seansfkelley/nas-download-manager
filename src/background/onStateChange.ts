@@ -10,7 +10,7 @@ import {
   getFinishedTaskIds,
   setCachedTasksConnection,
   setFinishedTaskIds,
-  withBackgroundContext,
+  getBackgroundContext,
 } from "./backgroundState";
 
 export function onStoredStateChange(storedState: State) {
@@ -38,7 +38,7 @@ async function maybeInvalidateCachedTasks(storedState: State) {
     if (previous != null) {
       // Absent means this is the first state change of the browser session rather than a real
       // change, and there is no reason to wake the NAS just because the browser started.
-      await withBackgroundContext(({ api }) => pollTasks(api));
+      await pollTasks((await getBackgroundContext()).api);
     }
   }
 }

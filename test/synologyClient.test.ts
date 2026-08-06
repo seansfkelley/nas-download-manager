@@ -1,5 +1,5 @@
 import { Auth } from "../src/common/apis/synology/Auth";
-import { SynologyClient } from "../src/common/apis/synology/client";
+import { type AuthResult, SynologyClient } from "../src/common/apis/synology/client";
 import { SessionName } from "../src/common/apis/synology/shared";
 
 jest.mock("../src/common/apis/synology/Auth", () => ({
@@ -20,15 +20,30 @@ const SETTINGS = {
   session: SessionName.DownloadStation,
 };
 
-function loginResponse(sid: string) {
-  return {
-    success: true as const,
-    data: { sid },
-    meta: { apiGroup: "Auth", method: "login", version: 2 },
-  };
+const SESSION: AuthResult = {
+  success: true,
+  data: { sid: "sid" },
+  meta: { apiGroup: "Auth", method: "login", version: 2 },
+};
+
+const REFUSED: AuthResult = {
+  success: false,
+  meta: { apiGroup: "Auth", method: "login", version: 2 },
+  // "No such username or incorrect password".
+  error: { code: 400 },
+};
+
+function flushMicrotasks() {
+  return new Promise((resolve) => setTimeout(resolve, 0));
 }
 
-describe("SynologyClient sessions", () => {
+function makeClient(auth?: AuthResult) {
+  const changes: (AuthResult | undefined)[] = [];
+  const client = new SynologyClient(SETTINGS, { auth, onAuthChange: (a) => changes.push(a) });
+  return { client, changes };
+}
+
+describe("SynologyClient auth", () => {
   beforeEach(() => {
     login.mockReset();
     logout.mockReset();
@@ -39,62 +54,106 @@ describe("SynologyClient sessions", () => {
     });
   });
 
-  it("should report no session before logging in", async () => {
-    const client = new SynologyClient(SETTINGS);
-    await expect(client.getSid()).resolves.toBeUndefined();
-    expect(login).not.toHaveBeenCalled();
+  it("should log in when it has no auth result", async () => {
+    login.mockResolvedValue(SESSION);
+    const { client, changes } = makeClient();
+
+    await expect(client.Auth.Login()).resolves.toStrictEqual(SESSION);
+
+    expect(login).toHaveBeenCalledTimes(1);
+    expect(changes).toStrictEqual([SESSION]);
   });
 
-  it("should resume a session it was constructed with, without logging in", async () => {
-    const client = new SynologyClient(SETTINGS, "restored-sid");
+  it("should resume a session it was given without logging in", async () => {
+    const { client, changes } = makeClient(SESSION);
 
-    await expect(client.getSid()).resolves.toBe("restored-sid");
-    await expect(client.Auth.Login()).resolves.toStrictEqual(loginResponse("restored-sid"));
+    await expect(client.Auth.Login()).resolves.toStrictEqual(SESSION);
+
     expect(login).not.toHaveBeenCalled();
+    expect(changes).toStrictEqual([]);
   });
 
-  it("should report the session established by a login", async () => {
-    login.mockResolvedValue(loginResponse("fresh-sid"));
-    const client = new SynologyClient(SETTINGS);
+  it("should not retry a login the NAS already refused", async () => {
+    const { client, changes } = makeClient(REFUSED);
+
+    await expect(client.Auth.Login()).resolves.toStrictEqual(REFUSED);
+
+    expect(login).not.toHaveBeenCalled();
+    expect(changes).toStrictEqual([]);
+  });
+
+  it("should report a refusal as the auth result rather than throwing it away", async () => {
+    login.mockResolvedValue(REFUSED);
+    const { client, changes } = makeClient();
 
     await client.Auth.Login();
 
-    await expect(client.getSid()).resolves.toBe("fresh-sid");
+    expect(changes).toStrictEqual([REFUSED]);
   });
 
-  it("should report no session when the login failed", async () => {
-    login.mockResolvedValue({
-      success: false,
-      meta: { apiGroup: "Auth", method: "login", version: 2 },
-      error: { code: 400 },
-    });
-    const client = new SynologyClient(SETTINGS);
+  it("should share one login between concurrent callers", async () => {
+    login.mockResolvedValue(SESSION);
+    const { client, changes } = makeClient();
 
-    await client.Auth.Login();
+    await Promise.all([client.Auth.Login(), client.Auth.Login(), client.Auth.Login()]);
 
-    await expect(client.getSid()).resolves.toBeUndefined();
+    expect(login).toHaveBeenCalledTimes(1);
+    expect(changes).toStrictEqual([SESSION]);
   });
 
-  it("should discard a resumed session when the connection settings change", async () => {
-    const client = new SynologyClient(SETTINGS, "restored-sid");
+  it("should not report an unconfigured client as an auth result", async () => {
+    const { client, changes } = makeClient();
+    client.partiallyUpdateSettings({ passwd: "" });
+
+    const result = await client.Auth.Login();
+
+    expect(result).toStrictEqual({ type: "missing-config", which: "password" });
+    expect(login).not.toHaveBeenCalled();
+    // A missing-config is not an auth result, because it stops being true as soon as the settings
+    // do, and there was no earlier result for the settings change to discard.
+    expect(changes).toStrictEqual([]);
+  });
+
+  it("should discard the auth result when the connection settings change", async () => {
+    const { client, changes } = makeClient(SESSION);
 
     expect(client.partiallyUpdateSettings({ baseUrl: "https://elsewhere:5001" })).toBe(true);
 
-    await expect(client.getSid()).resolves.toBeUndefined();
+    expect(changes).toStrictEqual([undefined]);
+
+    // partiallyUpdateSettings does not await the logout it kicks off.
+    await flushMicrotasks();
     // Not asserting which baseUrl this went to: partiallyUpdateSettings applies the new settings
     // before logging out, so the old session's logout is addressed to the new host.
     expect(logout).toHaveBeenCalledWith(
       expect.any(String),
-      expect.objectContaining({ sid: "restored-sid" }),
+      expect.objectContaining({ sid: "sid" }),
     );
   });
 
-  it("should keep a resumed session when the settings are unchanged", async () => {
-    const client = new SynologyClient(SETTINGS, "restored-sid");
+  it("should keep the auth result when the settings are unchanged", async () => {
+    const { client, changes } = makeClient(SESSION);
 
     expect(client.partiallyUpdateSettings({ account: SETTINGS.account })).toBe(false);
 
-    await expect(client.getSid()).resolves.toBe("restored-sid");
+    expect(changes).toStrictEqual([]);
     expect(logout).not.toHaveBeenCalled();
+  });
+
+  it("should discard the auth result on logout", async () => {
+    const { client, changes } = makeClient(SESSION);
+
+    await client.Auth.Logout();
+
+    expect(changes).toStrictEqual([undefined]);
+  });
+
+  it("should say so rather than logging out when there is nothing to log out of", async () => {
+    const { client, changes } = makeClient();
+
+    await expect(client.Auth.Logout()).resolves.toBe("not-logged-in");
+
+    expect(logout).not.toHaveBeenCalled();
+    expect(changes).toStrictEqual([]);
   });
 });

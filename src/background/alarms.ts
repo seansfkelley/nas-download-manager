@@ -1,4 +1,4 @@
-import { withBackgroundContext } from "./backgroundState";
+import { getBackgroundContext } from "./backgroundState";
 import { saveLastSevereError } from "../common/errorHandlers";
 import { pollTasks } from "./actions";
 
@@ -23,7 +23,9 @@ export async function setPollingEnabled(enabled: boolean) {
 export function initializeAlarmHandler() {
   browser.alarms.onAlarm.addListener((alarm) => {
     if (alarm.name === POLL_ALARM_NAME) {
-      withBackgroundContext(({ api }) => pollTasks(api)).catch(saveLastSevereError);
+      getBackgroundContext()
+        .then(({ api }) => pollTasks(api))
+        .catch(saveLastSevereError);
     }
   });
 }
