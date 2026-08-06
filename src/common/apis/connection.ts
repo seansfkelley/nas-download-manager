@@ -4,12 +4,18 @@ import { ClientRequestResult, SessionName, SynologyClient } from "./synology";
 export async function testConnection(
   settings: ConnectionSettings,
 ): Promise<ClientRequestResult<{}>> {
-  const api = new SynologyClient({
-    baseUrl: getHostUrl(settings),
-    account: settings.username,
-    passwd: settings.password,
-    session: SessionName.DownloadStation,
-  });
+  const api = new SynologyClient(
+    {
+      baseUrl: getHostUrl(settings),
+      account: settings.username,
+      passwd: settings.password,
+      session: SessionName.DownloadStation,
+    },
+    // This client exists to answer one question and is thrown away, so it starts with no session
+    // and nobody is interested in the one it establishes.
+    undefined,
+    () => {},
+  );
 
   const loginResult = await api.Auth.Login({ timeout: 30000 });
   if (!ClientRequestResult.isConnectionFailure(loginResult) && loginResult.success) {

@@ -74,15 +74,6 @@ export type ClientRequestResult<T> = RestApiResponse<T> | ConnectionFailure;
 // already answered.
 export type AuthResult = ClientRequestResult<AuthLoginResponse>;
 
-export interface SynologyClientOptions {
-  // An auth result from an earlier client, so a context that lost its module scope picks up where
-  // that one left off instead of logging in again.
-  auth?: AuthResult;
-  // Called whenever the auth result changes, including when it is discarded, so a caller can
-  // persist it without knowing which of the client's several paths changed it.
-  onAuthChange?: (auth: AuthResult | undefined) => void;
-}
-
 export const ClientRequestResult = {
   isConnectionFailure: (result: ClientRequestResult<unknown>): result is ConnectionFailure => {
     return (
@@ -93,25 +84,26 @@ export const ClientRequestResult = {
 };
 
 export class SynologyClient {
-  private auth: AuthResult | undefined;
   // Only ever a login in flight, so that concurrent requests share one. The settled result lives in
   // auth, which is what makes it something a caller can hand us back later.
   private loginPromise: Promise<AuthResult> | undefined;
   private settingsVersion: number = 0;
-  private onAuthChange: ((auth: AuthResult | undefined) => void) | undefined;
 
   constructor(
     private settings: Partial<SynologyClientSettings>,
-    { auth, onAuthChange }: SynologyClientOptions = {},
-  ) {
-    this.auth = auth;
-    this.onAuthChange = onAuthChange;
-  }
+    // An auth result from an earlier client, so a context that lost its module scope picks up where
+    // that one left off instead of logging in again. Undefined when there is nothing to pick up,
+    // which is also what it becomes on logout.
+    private auth: AuthResult | undefined,
+    // Called whenever the auth result changes, including when it is discarded, so a caller can
+    // persist it without knowing which of the client's several paths changed it.
+    private onAuthChange: (auth: AuthResult | undefined) => void,
+  ) {}
 
   private setAuth(auth: AuthResult | undefined) {
     if (this.auth !== auth) {
       this.auth = auth;
-      this.onAuthChange?.(auth);
+      this.onAuthChange(auth);
     }
   }
 

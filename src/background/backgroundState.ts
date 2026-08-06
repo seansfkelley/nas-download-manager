@@ -63,17 +63,15 @@ export async function getBackgroundContext(): Promise<BackgroundContext> {
       passwd: password,
       session: SessionName.DownloadStation,
     },
-    {
-      auth: session.auth?.connection === key ? session.auth.result : undefined,
-      // Written as it changes rather than collected at the end of the request: there is no end to
-      // hook, because the context that made the request may not be alive to see it finish.
-      onAuthChange: (result) => {
-        const write =
-          result == null
-            ? browser.storage.session.remove("auth")
-            : browser.storage.session.set({ auth: { connection: key, result: storable(result) } });
-        write.catch(saveLastSevereError);
-      },
+    session.auth?.connection === key ? session.auth.result : undefined,
+    // Written as it changes rather than collected at the end of the request: there is no end to
+    // hook, because the context that made the request may not be alive to see it finish.
+    (result) => {
+      const write =
+        result == null
+          ? browser.storage.session.remove("auth")
+          : browser.storage.session.set({ auth: { connection: key, result: storable(result) } });
+      write.catch(saveLastSevereError);
     },
   );
 

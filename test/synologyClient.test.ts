@@ -39,7 +39,7 @@ function flushMicrotasks() {
 
 function makeClient(auth?: AuthResult) {
   const changes: (AuthResult | undefined)[] = [];
-  const client = new SynologyClient(SETTINGS, { auth, onAuthChange: (a) => changes.push(a) });
+  const client = new SynologyClient(SETTINGS, auth, (a) => changes.push(a));
   return { client, changes };
 }
 
