@@ -5,9 +5,11 @@ export * from "./constants";
 export * from "./listen";
 export * from "./migrate";
 export * from "./migrations/latest";
-// Named explicitly because the wildcard above silently drops it. Parcel drops namespaces from
+export * from "./session";
+// Named explicitly because the wildcards above silently drop them. Parcel drops namespaces from
 // wildcard exports for some reason, and we use namespace merging for ergonomics.
 export { State } from "./migrations/latest";
+export { SessionState } from "./session";
 
 export function getHostUrl(settings: ConnectionSettings) {
   if (settings.protocol && settings.hostname && settings.port) {

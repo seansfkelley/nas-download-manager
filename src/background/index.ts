@@ -1,5 +1,5 @@
 import "../common/init/nonContentContext";
-import { migrateStoredState, onStoredStateChange } from "../common/state";
+import { migrateStoredState, onStoredStateChange, SessionState } from "../common/state";
 import { saveLastSevereError } from "../common/errorHandlers";
 import { onStoredStateChange as onStoredStateChangeListener } from "./onStateChange";
 import { createContextMenu, initializeContextMenuHandler } from "./contextMenus";
@@ -39,9 +39,13 @@ browser.runtime.onInstalled.addListener(async () => {
   // and settings pages have to be opened by a human, which is several orders of magnitude slower
   // than a storage round trip.
   try {
+    // The session state has no versions to migrate between because of this: throwing the whole area
+    // away on install means every read of it is a read of what this version wrote. It costs a login
+    // and a poll, both of which happen on browser restart anyway.
+    await SessionState.clear();
     await migrateStoredState();
   } catch (e) {
-    saveLastSevereError(e, "could not migrate stored state");
+    saveLastSevereError(e, "could not initialize stored state");
     return;
   }
 
