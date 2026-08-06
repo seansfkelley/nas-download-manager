@@ -1,4 +1,3 @@
-import type { RequestManager } from "../requestManager";
 import { SynologyClient, ClientRequestResult } from "../../common/apis/synology";
 import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../../common/apis/errors";
 import { type CachedTasks, State } from "../../common/state";
@@ -12,14 +11,12 @@ function setCachedTasks(cachedTasks: Partial<CachedTasks>) {
   });
 }
 
-export async function pollTasks(api: SynologyClient, manager: RequestManager): Promise<void> {
-  const token = manager.startNewRequest();
-
+export async function pollTasks(api: SynologyClient): Promise<void> {
   const cachedTasksInit: Partial<CachedTasks> = {
     tasksLastInitiatedFetchTimestamp: Date.now(),
   };
 
-  console.log(`(${token}) polling for tasks...`);
+  console.log("polling for tasks...");
 
   try {
     await State.set(cachedTasksInit);
@@ -41,12 +38,7 @@ export async function pollTasks(api: SynologyClient, manager: RequestManager): P
       return;
     }
 
-    if (!manager.isRequestLatest(token)) {
-      console.log(`(${token}) poll result outdated; ignoring`, response);
-      return;
-    } else {
-      console.log(`(${token}) poll result still relevant; continuing...`, response);
-    }
+    console.log("poll finished", response);
 
     if (ClientRequestResult.isConnectionFailure(response)) {
       if (response.type === "missing-config") {

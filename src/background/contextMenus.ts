@@ -26,19 +26,9 @@ export function initializeContextMenuHandler() {
     const state = getMutableStateSingleton();
 
     if (data.linkUrl) {
-      addDownloadTasksAndPoll(
-        state.api,
-        state.pollRequestManager,
-        state.showNonErrorNotifications,
-        [data.linkUrl],
-      );
+      addDownloadTasksAndPoll(state.api, state.showNonErrorNotifications, [data.linkUrl]);
     } else if (data.srcUrl) {
-      addDownloadTasksAndPoll(
-        state.api,
-        state.pollRequestManager,
-        state.showNonErrorNotifications,
-        [data.srcUrl],
-      );
+      addDownloadTasksAndPoll(state.api, state.showNonErrorNotifications, [data.srcUrl]);
     } else if (data.selectionText) {
       let urls = data.selectionText
         .split("\n")
@@ -53,12 +43,7 @@ export function initializeContextMenuHandler() {
           "failure",
         );
       } else {
-        addDownloadTasksAndPoll(
-          state.api,
-          state.pollRequestManager,
-          state.showNonErrorNotifications,
-          urls,
-        );
+        addDownloadTasksAndPoll(state.api, state.showNonErrorNotifications, urls);
       }
     } else {
       notify(

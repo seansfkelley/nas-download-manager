@@ -41,7 +41,7 @@ export function onStoredStateChange(storedState: State) {
     if (!backgroundState.isInitializingExtension) {
       // Don't use await because we want this to fire in the background.
       clearCachePromise.then(() => {
-        pollTasks(backgroundState.api, backgroundState.pollRequestManager);
+        pollTasks(backgroundState.api);
       });
     }
   }
@@ -51,7 +51,7 @@ export function onStoredStateChange(storedState: State) {
     clearInterval(backgroundState.notificationInterval!);
     if (backgroundState.lastNotificationSettings.enableCompletionNotifications) {
       backgroundState.notificationInterval = setInterval(() => {
-        pollTasks(backgroundState.api, backgroundState.pollRequestManager);
+        pollTasks(backgroundState.api);
       }, backgroundState.lastNotificationSettings.completionPollingInterval * 1000) as any as number;
     }
   }
