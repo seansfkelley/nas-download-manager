@@ -1,5 +1,5 @@
-import { type TaskState, type Settings, SessionState } from "../common/state";
-import { notify } from "../common/notify";
+import { type TaskState, type Settings, SessionState } from "../../common/state";
+import { notify } from "../../common/notify";
 import isEqual from "lodash/isEqual";
 
 export async function maybeNotifyFinishedTasks(
@@ -20,13 +20,12 @@ export async function maybeNotifyFinishedTasks(
     return;
   }
 
-  if (settings.notifications.enableCompletionNotifications) {
+  if (previous != null && settings.notifications.enableCompletionNotifications) {
     const previousSet = new Set(previous);
     for (const id of finishedTaskIds) {
       if (!previousSet.has(id)) {
         // Lazily do a linear scan because we should only be getting 1-2 finished downloads in a
         // single batch.
-
         const task = tasks.find((t) => t.id === id)!;
 
         notify(

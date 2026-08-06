@@ -1,4 +1,4 @@
-import type { AuthResult } from "../apis/synology";
+import type { SynologyAuthResult, ConnectionFailure, SynologySessionKey } from "../apis/synology";
 import type { DownloadStationTask } from "../apis/synology/DownloadStation/Task";
 import { typesafeUnionMembers } from "../lang";
 
@@ -11,17 +11,14 @@ export interface TaskState {
 }
 
 export interface SessionState extends TaskState {
-  // TODO: This probably does not need to be keyed like this.
-  // Keyed on the connection it was obtained with, so that changing any of the credentials discards
-  // it without anyone having to remember to. Reusing a session against a different DiskStation, or
-  // reusing "incorrect password" against a password the user has since fixed, are both wrong, and
-  // both are unreachable if the key has to match.
-  auth?: { connection: string; result: AuthResult };
-  // Only set when "remember password" is off, where the password deliberately never reaches
-  // storage.local and would otherwise be lost along with module scope.
+  auth?: {
+    key: SynologySessionKey;
+    result: SynologyAuthResult;
+  };
+  // Only set when "remember password" is off. Used to re-login while this browser session is still
+  // active, which is the what the user would expect even if "remember password" is not set.
   password?: string;
-  // An array because Set does not serialize. Absent means no poll has completed yet, which is what
-  // keeps the first poll from notifying about everything that finished before we were watching.
+  // Used to control completion notifications. Undefined means no poll was done.
   finishedTaskIds?: string[];
 }
 

@@ -1,5 +1,4 @@
 import { PersistentState } from "./migrations/latest";
-import { LATEST_STATE_VERSION } from "./migrations/update";
 import { SessionState } from "./session";
 import { typesafePick } from "../lang";
 
@@ -68,12 +67,7 @@ function listenable<T extends object>(
 
 export const onPersistentStateChange = listenable<PersistentState>(
   browser.storage.local,
-  async () => {
-    const state = await PersistentState.get();
-    // Silently drop notifications until we've migrated, which is controlled elsewhere. Migration
-    // will write, so we will be triggered again.
-    return state.stateVersion === LATEST_STATE_VERSION ? state : undefined;
-  },
+  PersistentState.get,
 );
 
 export const onSessionStateChange = listenable<SessionState>(

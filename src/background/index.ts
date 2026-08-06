@@ -8,12 +8,12 @@ import {
   TaskState,
 } from "../common/state";
 import { saveLastSevereError } from "../common/errorHandlers";
-import { createContextMenu, initializeContextMenuListener } from "./contextMenus";
+import { createContextMenu, initializeContextMenuListener } from "./listeners/contextMenus";
 import {
   initializeCompletionPollingListener,
   setCompletionPollingEnabled,
 } from "./listeners/completionNotifications";
-import { initializeMessageListener } from "./messages";
+import { initializeMessageListener } from "./listeners/messages";
 import { updateBadge } from "./listeners/updateBadge";
 import { maybeNotifyFinishedTasks } from "./listeners/maybeNotifyFinishedTasks";
 

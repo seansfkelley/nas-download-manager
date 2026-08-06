@@ -1,3 +1,4 @@
+import isEqual from "lodash/isEqual";
 import { typesafeUnionMembers } from "../../lang";
 import { Auth, AuthLoginResponse } from "./Auth";
 import { DownloadStation } from "./DownloadStation";
@@ -18,11 +19,16 @@ const NO_SUCH_METHOD_ERROR_CODE = 103;
 const NO_PERMISSIONS_ERROR_CODE = 105;
 const SESSION_TIMEOUT_ERROR_CODE = 106;
 
-export interface SynologyClientSettings {
+// These fields uniquely identify a session, which we can use to determine if we are able to reuse
+// auth tokens for future requests or have to log in again.
+export interface SynologySessionKey {
   baseUrl: string;
   account: string;
-  passwd: string;
   session: SessionName;
+}
+
+export interface SynologyClientSettings extends SynologySessionKey {
+  passwd: string;
 }
 
 const SETTING_NAME_KEYS = typesafeUnionMembers<keyof SynologyClientSettings>({
@@ -43,7 +49,9 @@ export type ConnectionFailure =
         | "probable-wrong-url-or-no-connection-or-cert-error"
         | "timeout"
         | "unknown";
-      error: any;
+      // This doesn't store the error so that it remains safely JSON-serializable. This can be a
+      // problem if we were to try to store this in browser.storage, some of which might throw with
+      // non-JSONifiable values.
     };
 
 function isConnectionFailure(
@@ -53,26 +61,20 @@ function isConnectionFailure(
 }
 
 const ConnectionFailure = {
-  from: (error: any): ConnectionFailure => {
+  from: (error: unknown): ConnectionFailure => {
     if (error instanceof BadResponseError && error.response.status === 400) {
-      return { type: "probable-wrong-protocol", error };
+      return { type: "probable-wrong-protocol" };
     } else if (error instanceof NetworkError) {
-      return { type: "probable-wrong-url-or-no-connection-or-cert-error", error };
+      return { type: "probable-wrong-url-or-no-connection-or-cert-error" };
     } else if (error instanceof TimeoutError) {
-      return { type: "timeout", error };
+      return { type: "timeout" };
     } else {
-      return { type: "unknown", error };
+      return { type: "unknown" };
     }
   },
 };
 
 export type ClientRequestResult<T> = RestApiResponse<T> | ConnectionFailure;
-
-// Everything logging in can tell us: a session, a refusal ("no such username or incorrect
-// password", "two-step verification needed"), or a failure to reach the NAS at all. A refusal is
-// worth keeping for the same reason a session is -- it saves asking the NAS a question it has
-// already answered.
-export type AuthResult = ClientRequestResult<AuthLoginResponse>;
 
 export const ClientRequestResult = {
   isConnectionFailure: (result: ClientRequestResult<unknown>): result is ConnectionFailure => {
@@ -83,28 +85,26 @@ export const ClientRequestResult = {
   },
 };
 
+export type SynologyAuthResult = ClientRequestResult<AuthLoginResponse>;
+
 export class SynologyClient {
   // Only ever a login in flight, so that concurrent requests share one. The settled result lives in
   // auth, which is what makes it something a caller can hand us back later.
-  private loginPromise: Promise<AuthResult> | undefined;
+  private loginPromise: Promise<SynologyAuthResult> | undefined;
 
   constructor(
-    // Fixed for the client's lifetime. Changing where or who we connect as means a new client, and
-    // callers build one per use anyway, so there is nothing to reconfigure.
+    // Fixed for the client's lifetime. New auth settings means make a new client.
     private readonly settings: Partial<SynologyClientSettings>,
-    // An auth result from an earlier client, so a context that lost its module scope picks up where
-    // that one left off instead of logging in again. Undefined when there is nothing to pick up,
-    // which is also what it becomes on logout.
-    private auth: AuthResult | undefined,
-    // Called whenever the auth result changes, including when it is discarded, so a caller can
-    // persist it without knowing which of the client's several paths changed it.
-    private onAuthChange: (auth: AuthResult | undefined) => void,
+    // Reuse auth from a previous client, if available, to avoid additional login round-trips.
+    private auth: SynologyAuthResult | undefined,
+    // Whenever we auth, call back so any future clients can reuse it.
+    private onAuthChange: ((auth: SynologyAuthResult | undefined) => void) | undefined,
   ) {}
 
-  private setAuth(auth: AuthResult | undefined) {
-    if (this.auth !== auth) {
+  private setAuth(auth: SynologyAuthResult | undefined) {
+    if (!isEqual(this.auth, auth)) {
       this.auth = auth;
-      this.onAuthChange(auth);
+      this.onAuthChange?.(auth);
     }
   }
 
@@ -123,11 +123,9 @@ export class SynologyClient {
     }
   }
 
-  private maybeLogin = async (request?: BaseRequest): Promise<AuthResult> => {
+  private maybeLogin = async (request?: BaseRequest): Promise<SynologyAuthResult> => {
     const settings = this.getValidatedSettings();
     if (isConnectionFailure(settings)) {
-      // Deliberately not stored as the auth result. This says something about the settings rather
-      // than about a session, and it stops being true the moment the settings do.
       return settings;
     } else if (this.auth != null) {
       return this.auth;

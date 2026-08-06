@@ -30,10 +30,10 @@ interface AnyState {
 export namespace PersistentState {
   export async function get(): Promise<LatestState | undefined> {
     let state = (await browser.storage.local.get(ALL_STORED_STATE_NAMES)) as AnyState;
-    if (state.stateVersion != LATEST_STATE_VERSION) {
-      return undefined;
-    } else {
+    if (state.stateVersion == LATEST_STATE_VERSION) {
       return state as LatestState;
+    } else {
+      return undefined;
     }
   }
 

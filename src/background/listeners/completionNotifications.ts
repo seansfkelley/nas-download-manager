@@ -1,6 +1,6 @@
-import { getBackgroundContext } from "../backgroundState";
 import { saveLastSevereError } from "../../common/errorHandlers";
 import { pollTasks } from "../actions";
+import { getSynologyClient } from "../getSynologyClient";
 
 const POLL_ALARM_NAME = "poll-tasks";
 
@@ -18,11 +18,14 @@ export async function setCompletionPollingEnabled(enabled: boolean) {
 }
 
 export function initializeCompletionPollingListener() {
-  browser.alarms.onAlarm.addListener((alarm) => {
+  browser.alarms.onAlarm.addListener(async (alarm) => {
     if (alarm.name === POLL_ALARM_NAME) {
-      getBackgroundContext()
-        .then(({ api }) => pollTasks(api))
-        .catch(saveLastSevereError);
+      try {
+        let client = await getSynologyClient();
+        await pollTasks(client);
+      } catch (error) {
+        saveLastSevereError(error);
+      }
     }
   });
 }

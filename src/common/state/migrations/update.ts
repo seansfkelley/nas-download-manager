@@ -28,8 +28,12 @@ interface AnyStateVersion {
   stateVersion: number;
 }
 
-function isVersioned(state: any): state is AnyStateVersion {
-  return state && (state as AnyStateVersion).stateVersion != null;
+function isVersioned(state: unknown): state is AnyStateVersion {
+  return (
+    state != null &&
+    (state as AnyStateVersion).stateVersion != null &&
+    typeof (state as AnyStateVersion).stateVersion === "number"
+  );
 }
 
 function getStartingVersion(state: any) {
