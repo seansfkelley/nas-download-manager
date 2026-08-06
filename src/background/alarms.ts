@@ -1,4 +1,5 @@
-import { getMutableStateSingleton } from "./backgroundState";
+import { withBackgroundContext } from "./backgroundState";
+import { saveLastSevereError } from "../common/errorHandlers";
 import { pollTasks } from "./actions";
 
 const POLL_ALARM_NAME = "poll-tasks";
@@ -22,7 +23,7 @@ export async function setPollingEnabled(enabled: boolean) {
 export function initializeAlarmHandler() {
   browser.alarms.onAlarm.addListener((alarm) => {
     if (alarm.name === POLL_ALARM_NAME) {
-      pollTasks(getMutableStateSingleton().api);
+      withBackgroundContext(({ api }) => pollTasks(api)).catch(saveLastSevereError);
     }
   });
 }

@@ -2,12 +2,12 @@ import { ClientRequestResult } from "../common/apis/synology";
 import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../common/apis/errors";
 import { MessageResponse, Message, Result } from "../common/apis/messages";
 import { addDownloadTasksAndPoll, clearCachedTasks, pollTasks } from "./actions";
-import { BackgroundState, getMutableStateSingleton } from "./backgroundState";
+import { BackgroundContext, setSessionPassword, withBackgroundContext } from "./backgroundState";
 import type { DiscriminateUnion } from "../common/types";
 
 type MessageHandler<T extends Message, U extends Result[keyof Result]> = (
   m: T,
-  state: BackgroundState,
+  state: BackgroundContext,
 ) => Promise<U>;
 
 type MessageHandlers = {
@@ -98,6 +98,9 @@ const MESSAGE_HANDLERS: MessageHandlers = {
     }
   },
   "set-login-password": async (m, state) => {
+    // Session storage rather than the client, which does not outlive this message: with "remember
+    // password" off this is the only place the password exists.
+    await setSessionPassword(m.password);
     if (state.api.partiallyUpdateSettings({ passwd: m.password })) {
       await clearCachedTasks();
     }
@@ -109,7 +112,7 @@ const MESSAGE_HANDLERS: MessageHandlers = {
 export function initializeMessageHandler() {
   browser.runtime.onMessage.addListener((m) => {
     if (Message.is(m)) {
-      return MESSAGE_HANDLERS[m.type](m as any, getMutableStateSingleton());
+      return withBackgroundContext(async (context) => MESSAGE_HANDLERS[m.type](m as any, context));
     } else {
       console.error("received unhandleable message", m);
       return undefined;

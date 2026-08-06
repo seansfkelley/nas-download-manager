@@ -1,5 +1,3 @@
-import { getMutableStateSingleton } from "./backgroundState";
-import { SessionName } from "../common/apis/synology";
 import { getHostUrl, State } from "../common/state";
 import { notify } from "../common/notify";
 import { saveLastSevereError } from "../common/errorHandlers";
@@ -7,53 +5,77 @@ import { setPollingEnabled } from "./alarms";
 import { pollTasks, clearCachedTasks } from "./actions";
 import { assertNever } from "../common/lang";
 import { filterTasks, matchesFilter } from "../common/filtering";
-
-const START_TIME = Date.now();
+import {
+  getCachedTasksConnection,
+  getFinishedTaskIds,
+  setCachedTasksConnection,
+  setFinishedTaskIds,
+  withBackgroundContext,
+} from "./backgroundState";
 
 export function onStoredStateChange(storedState: State) {
-  const backgroundState = getMutableStateSingleton();
+  updateBadge(storedState);
+  react(storedState).catch(saveLastSevereError);
+}
 
-  let didUpdateSettings = backgroundState.api.partiallyUpdateSettings({
-    baseUrl: getHostUrl(storedState.settings.connection),
-    account: storedState.settings.connection.username,
-    session: SessionName.DownloadStation,
-    // Do NOT set password from here. It might not be set because of the "remember me" feature, so
-    // we could erroneously overwrite it. Instead, read it once at startup time (if configured), and
-    // otherwise, wait for an imperative login request message to be handled elsewhere.
-  });
+async function react(storedState: State) {
+  await setPollingEnabled(storedState.settings.notifications.enableCompletionNotifications);
+  await maybeInvalidateCachedTasks(storedState);
+  await maybeNotifyFinishedTasks(storedState);
+}
 
-  if (backgroundState.isInitializingExtension && storedState.settings.connection.rememberPassword) {
-    // Note the ordering here: avoid short-circuiting.
-    didUpdateSettings =
-      backgroundState.api.partiallyUpdateSettings({
-        passwd: storedState.settings.connection.password,
-      }) || didUpdateSettings;
-  }
+// The cached tasks belong to whichever DiskStation they came from, so a change of host or account
+// throws them away. This used to be inferred from the client rejecting an update to its settings;
+// with no long-lived client left to ask, the provenance is recorded in session storage instead.
+async function maybeInvalidateCachedTasks(storedState: State) {
+  const { connection } = storedState.settings;
+  const current = `${getHostUrl(connection)}|${connection.username}`;
+  const previous = await getCachedTasksConnection();
 
-  if (didUpdateSettings) {
-    const clearCachePromise = clearCachedTasks();
-
-    // This is a little bit of a hack, but basically: onStoredStateChange eagerly fires this
-    // listener when it initializes. That first time through, the client gets initialized for the
-    // first time, and so we necessarily clear and reload. However, if the user hasn't configured
-    // notifications, we should try to avoid pinging the NAS, since we know we're opening in the
-    // background. If notifications are enabled, those'll still get set up and we'll starting
-    // pinging in the background.
-    if (!backgroundState.isInitializingExtension) {
-      // Don't use await because we want this to fire in the background.
-      clearCachePromise.then(() => {
-        pollTasks(backgroundState.api);
-      });
+  if (previous !== current) {
+    await setCachedTasksConnection(current);
+    await clearCachedTasks();
+    if (previous != null) {
+      // Absent means this is the first state change of the browser session rather than a real
+      // change, and there is no reason to wake the NAS just because the browser started.
+      await withBackgroundContext(({ api }) => pollTasks(api));
     }
   }
+}
 
-  setPollingEnabled(storedState.settings.notifications.enableCompletionNotifications).catch(
-    saveLastSevereError,
-  );
+async function maybeNotifyFinishedTasks(storedState: State) {
+  if (
+    storedState.tasksLastCompletedFetchTimestamp == null ||
+    storedState.taskFetchFailureReason != null
+  ) {
+    return;
+  }
 
-  backgroundState.showNonErrorNotifications =
-    storedState.settings.notifications.enableFeedbackNotifications;
+  const finishedTaskIds = storedState.tasks
+    .filter((t) => t.status === "finished" || t.status === "seeding")
+    .map((t) => t.id);
+  const previous = await getFinishedTaskIds();
 
+  if (previous != null && storedState.settings.notifications.enableCompletionNotifications) {
+    finishedTaskIds
+      .filter((id) => !previous.has(id))
+      .forEach((id) => {
+        const task = storedState.tasks.find((t) => t.id === id)!;
+        // Keyed on the task so that two overlapping reads of the baseline collapse into one
+        // notification rather than showing the same finished download twice.
+        notify(
+          `${task.title}`,
+          browser.i18n.getMessage("Download_finished"),
+          "regular",
+          `task-finished-${task.id}`,
+        );
+      });
+  }
+
+  await setFinishedTaskIds(finishedTaskIds);
+}
+
+function updateBadge(storedState: State) {
   if (storedState.taskFetchFailureReason) {
     browser.browserAction.setIcon({
       path: {
@@ -105,28 +127,4 @@ export function onStoredStateChange(storedState: State) {
 
     browser.browserAction.setBadgeBackgroundColor({ color: [0, 217, 0, 255] });
   }
-
-  if (
-    storedState.tasksLastCompletedFetchTimestamp != null &&
-    storedState.tasksLastCompletedFetchTimestamp > START_TIME &&
-    storedState.taskFetchFailureReason == null
-  ) {
-    const updatedFinishedTaskIds = storedState.tasks
-      .filter((t) => t.status === "finished" || t.status === "seeding")
-      .map((t) => t.id);
-    if (
-      backgroundState.finishedTaskIds != null &&
-      storedState.settings.notifications.enableCompletionNotifications
-    ) {
-      updatedFinishedTaskIds
-        .filter((id) => !backgroundState.finishedTaskIds!.has(id))
-        .forEach((id) => {
-          const task = storedState.tasks.find((t) => t.id === id)!;
-          notify(`${task.title}`, browser.i18n.getMessage("Download_finished"));
-        });
-    }
-    backgroundState.finishedTaskIds = new Set(updatedFinishedTaskIds);
-  }
-
-  backgroundState.isInitializingExtension = false;
 }
