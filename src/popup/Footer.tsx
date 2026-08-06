@@ -1,9 +1,9 @@
 import "./footer.css";
 import classNames from "classnames";
-import type { CachedTasks } from "../common/state";
+import type { TaskState } from "../common/state";
 import { formatMetric1024, formatRelativeTime } from "../common/format";
 
-export interface Props extends CachedTasks {}
+export interface Props extends TaskState {}
 
 export function Footer(props: Props) {
   if (

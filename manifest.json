@@ -10,6 +10,7 @@
     }
   },
   "background": {
+    "persistent": false,
     "scripts": ["src/background/index.ts"]
   },
   "permissions": [

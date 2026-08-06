@@ -2,24 +2,16 @@ import type { AuthResult } from "../apis/synology";
 import type { DownloadStationTask } from "../apis/synology/DownloadStation/Task";
 import { typesafeUnionMembers } from "../lang";
 
-// A snapshot of what the NAS was doing, which is worth nothing once it is a browser session old.
-export interface CachedTasks {
-  tasks: DownloadStationTask[];
-  taskFetchFailureReason: "missing-config" | "login-required" | { failureMessage: string } | null;
-  tasksLastInitiatedFetchTimestamp: number | null;
-  tasksLastCompletedFetchTimestamp: number | null;
+// Split only for convenience; a lot of the frontend does not care one whit about the other fields.
+export interface TaskState {
+  tasks?: DownloadStationTask[];
+  taskFetchFailureReason?: "missing-config" | "login-required" | { failureMessage: string };
+  tasksLastInitiatedFetchTimestamp?: number;
+  tasksLastCompletedFetchTimestamp?: number;
 }
 
-export const CACHED_TASK_NAMES = typesafeUnionMembers<keyof CachedTasks>({
-  tasks: true,
-  taskFetchFailureReason: true,
-  tasksLastInitiatedFetchTimestamp: true,
-  tasksLastCompletedFetchTimestamp: true,
-});
-
-// Everything in the session that is not a cached task. Optional throughout, and stays that way in
-// both shapes below, because absent is a meaningful answer for all three.
-interface SessionBookkeeping {
+export interface SessionState extends TaskState {
+  // TODO: This probably does not need to be keyed like this.
   // Keyed on the connection it was obtained with, so that changing any of the credentials discards
   // it without anyone having to remember to. Reusing a session against a different DiskStation, or
   // reusing "incorrect password" against a password the user has since fixed, are both wrong, and
@@ -33,32 +25,19 @@ interface SessionBookkeeping {
   finishedTaskIds?: string[];
 }
 
-// storage.session rather than module scope, because a background context that can be suspended
-// loses module scope without warning. Its lifetime -- cleared on browser restart, never written to
-// disk -- is exactly what "remember for this session" means.
-export interface SessionState extends Partial<CachedTasks>, SessionBookkeeping {}
+// This means that we don't have to be careful about loading the zero state before anything is written.
+let _testSessionStateShouldAllowEmptyObject: SessionState = {};
 
-// What a reader gets. The four task keys are written separately as a poll progresses, so any of
-// them can be absent on its own, and every reader would otherwise spell out the same four
-// fallbacks. Their zero values say "no poll has finished", which is what a reader wants to hear.
-export interface SessionStateView extends CachedTasks, SessionBookkeeping {}
+const CACHED_TASK_NAMES = typesafeUnionMembers<keyof TaskState>({
+  tasks: true,
+  taskFetchFailureReason: true,
+  tasksLastInitiatedFetchTimestamp: true,
+  tasksLastCompletedFetchTimestamp: true,
+});
 
-export function getCachedTasks(session: SessionState): CachedTasks {
-  return {
-    tasks: session.tasks ?? [],
-    taskFetchFailureReason: session.taskFetchFailureReason ?? null,
-    tasksLastInitiatedFetchTimestamp: session.tasksLastInitiatedFetchTimestamp ?? null,
-    tasksLastCompletedFetchTimestamp: session.tasksLastCompletedFetchTimestamp ?? null,
-  };
-}
-
-// Called wherever the cached tasks are known to be about a DiskStation we are no longer talking to.
 export function clearCachedTasks() {
   return SessionState.remove(...CACHED_TASK_NAMES);
 }
-
-// This means that we don't have to be careful about loading the zero state before anything is written.
-let _testSessionStateShouldAllowEmptyObject: SessionState = {};
 
 // No versions and no migrations, unlike the persistent state: onInstalled clears the whole area, so
 // anything found here was written by the running version.
@@ -67,13 +46,7 @@ export namespace SessionState {
     return (await browser.storage.session.get(null)) as SessionState;
   }
 
-  export async function view(): Promise<SessionStateView> {
-    const state = await get();
-    return { ...state, ...getCachedTasks(state) };
-  }
-
-  // Partial writes are safe because writers own disjoint keys, so two of them cannot clobber.
-  export function set(state: SessionState): Promise<void> {
+  export function set(state: Partial<SessionState>): Promise<void> {
     return browser.storage.session.set(state);
   }
 

@@ -2,6 +2,7 @@
 // refuses a merged declaration whose parts are not all exported (TS2395).
 import type { State as LatestState } from "./10";
 import { typesafeUnionMembers } from "../../lang";
+import { LATEST_STATE_VERSION } from "./update";
 
 export type {
   Protocol,
@@ -22,15 +23,20 @@ export const ALL_STORED_STATE_NAMES = typesafeUnionMembers<keyof LatestState>({
   stateVersion: true,
 });
 
-// Type-safe read/write pair that comes for free with importing the type. Both assume the stored
-// state is already the latest shape; migrateStoredState is what makes that true, and it runs from
-// runtime.onInstalled.
+interface AnyState {
+  stateVersion?: unknown;
+}
+
 export namespace PersistentState {
-  export async function get(): Promise<LatestState> {
-    return (await browser.storage.local.get(ALL_STORED_STATE_NAMES)) as LatestState;
+  export async function get(): Promise<LatestState | undefined> {
+    let state = (await browser.storage.local.get(ALL_STORED_STATE_NAMES)) as AnyState;
+    if (state.stateVersion != LATEST_STATE_VERSION) {
+      return undefined;
+    } else {
+      return state as LatestState;
+    }
   }
 
-  // Partial writes are safe because writers own disjoint keys, so two of them cannot clobber.
   export function set(state: Partial<LatestState>): Promise<void> {
     return browser.storage.local.set(state);
   }

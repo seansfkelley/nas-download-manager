@@ -1,10 +1,10 @@
 import { SynologyClient, ClientRequestResult } from "../../common/apis/synology";
 import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../../common/apis/errors";
-import { type CachedTasks, SessionState } from "../../common/state";
+import { type TaskState, SessionState } from "../../common/state";
 import { saveLastSevereError } from "../../common/errorHandlers";
 import { assertNever } from "../../common/lang";
 
-function setCachedTasks(cachedTasks: Partial<CachedTasks>) {
+function setCachedTasks(cachedTasks: Partial<TaskState>) {
   return SessionState.set({
     tasksLastCompletedFetchTimestamp: Date.now(),
     ...cachedTasks,
@@ -12,7 +12,7 @@ function setCachedTasks(cachedTasks: Partial<CachedTasks>) {
 }
 
 export async function pollTasks(api: SynologyClient): Promise<void> {
-  const cachedTasksInit: Partial<CachedTasks> = {
+  const cachedTasksInit: Partial<TaskState> = {
     tasksLastInitiatedFetchTimestamp: Date.now(),
   };
 

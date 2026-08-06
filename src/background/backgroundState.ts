@@ -26,6 +26,7 @@ export interface BackgroundContext {
   showNonErrorNotifications: boolean;
 }
 
+// TODO: Get rid of this somehow.
 // Everything a handler used to read off the mutable singleton, rebuilt from storage each time.
 export async function getBackgroundContext(): Promise<BackgroundContext> {
   const [{ settings }, session] = await Promise.all([PersistentState.get(), SessionState.get()]);
@@ -68,12 +69,4 @@ export async function setSessionPassword(password: string) {
     : session.password;
   await SessionState.set({ password });
   return previous !== password;
-}
-
-export async function getFinishedTaskIds() {
-  return (await SessionState.get()).finishedTaskIds;
-}
-
-export async function setFinishedTaskIds(finishedTaskIds: string[]) {
-  await SessionState.set({ finishedTaskIds });
 }

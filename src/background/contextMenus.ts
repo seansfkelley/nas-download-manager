@@ -5,8 +5,6 @@ import { notify } from "../common/notify";
 import { addDownloadTasksAndPoll } from "./actions";
 import { ALL_DOWNLOADABLE_PROTOCOLS, startsWithAnyProtocol } from "../common/apis/protocols";
 
-// Stable rather than generated, so creating the item is idempotent and the click handler can tell
-// which item fired.
 const MENU_ITEM_ID = "download-with-download-station";
 
 export function createContextMenu() {
@@ -18,7 +16,7 @@ export function createContextMenu() {
   });
 }
 
-export function initializeContextMenuHandler() {
+export function initializeContextMenuListener() {
   browser.contextMenus.onClicked.addListener((data) => {
     if (data.menuItemId !== MENU_ITEM_ID) {
       return;

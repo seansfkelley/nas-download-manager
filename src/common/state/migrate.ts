@@ -1,9 +1,7 @@
 import { ALL_STORED_STATE_NAMES, type PersistentState } from "./migrations/latest";
 import { LATEST_STATE_VERSION, migrateState } from "./migrations/update";
 
-// Bypasses PersistentState.get, which would lie to the typechecker: what is on disk here is
-// whatever shape the version that wrote it used.
-export async function migrateStoredState() {
+export async function migratePersistentState() {
   const stored = await browser.storage.local.get(null);
   if (stored.stateVersion === LATEST_STATE_VERSION) {
     return;
@@ -11,8 +9,9 @@ export async function migrateStoredState() {
 
   await browser.storage.local.set(migrateState(stored));
 
-  // Not a clear() before the write, which would leave the profile empty if anything between the two
-  // failed. Removing afterwards means the worst case is a few dead keys nobody reads.
+  // Don't clear() to be safe. Selectively remove dead keys so if something happens, in the worst
+  // case, that data is merely abandoned rather than accidentally clearing everything without
+  // replacement.
   const abandoned = Object.keys(stored).filter(
     (key) => !ALL_STORED_STATE_NAMES.includes(key as keyof PersistentState),
   );

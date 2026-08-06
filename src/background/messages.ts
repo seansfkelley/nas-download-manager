@@ -115,7 +115,7 @@ async function handleMessage(m: Message) {
   return MESSAGE_HANDLERS[m.type](m as any, await getBackgroundContext());
 }
 
-export function initializeMessageHandler() {
+export function initializeMessageListener() {
   browser.runtime.onMessage.addListener((m) => {
     if (Message.is(m)) {
       return handleMessage(m);

@@ -3,7 +3,7 @@ import "../common/init/nonContentContext";
 import { createRoot } from "react-dom/client";
 
 import {
-  type CachedTasks,
+  type TaskState,
   onPersistentStateChange,
   onSessionStateChange,
   PersistentState,
@@ -38,7 +38,7 @@ setInterval(() => {
 // The two areas are subscribed to separately and arrive in whichever order they arrive in, so the
 // first delivery of each is held until the other has been seen.
 let settings: Settings | undefined;
-let cachedTasks: CachedTasks | undefined;
+let cachedTasks: TaskState | undefined;
 
 function render() {
   if (settings == null || cachedTasks == null) {

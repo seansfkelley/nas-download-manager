@@ -3,7 +3,7 @@ import type {
   Settings,
   VisibleTaskSettings,
   TaskSortType,
-  CachedTasks,
+  TaskState,
   BadgeDisplayType,
 } from "../common/state";
 import { Popup } from "./Popup";
@@ -11,7 +11,7 @@ import { getClient } from "./popupClient";
 
 interface Props {
   settings: Settings;
-  cachedTasks: CachedTasks;
+  cachedTasks: TaskState;
   updateSettings: (settings: Settings) => void;
 }
 
