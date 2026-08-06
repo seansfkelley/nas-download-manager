@@ -81,7 +81,33 @@ export class SynologyClient {
   private loginPromise: Promise<ClientRequestResult<AuthLoginResponse>> | undefined;
   private settingsVersion: number = 0;
 
-  constructor(private settings: Partial<SynologyClientSettings>) {}
+  constructor(
+    private settings: Partial<SynologyClientSettings>,
+    sid?: string,
+  ) {
+    if (sid != null) {
+      // Pre-resolving the login is what lets a background context that lost its module scope resume
+      // an existing session instead of logging in again. The meta is synthetic because there was no
+      // response to take it from; it is only ever read off failures.
+      this.loginPromise = Promise.resolve({
+        success: true,
+        data: { sid },
+        meta: { apiGroup: "Auth", method: "login", version: 2 },
+      });
+    }
+  }
+
+  // The session this client is currently using, if any, so it can be handed back to storage. A
+  // stale sid costs one wasted round trip rather than a failed request, because proxy retries on
+  // session-timeout and no-permissions by clearing the login and logging back in.
+  public async getSid(): Promise<string | undefined> {
+    const result = await this.loginPromise;
+    if (result == null || ClientRequestResult.isConnectionFailure(result) || !result.success) {
+      return undefined;
+    } else {
+      return result.data.sid;
+    }
+  }
 
   public partiallyUpdateSettings(settings: Partial<SynologyClientSettings>) {
     const updatedSettings = { ...this.settings, ...settings };
