@@ -2,7 +2,7 @@ import "./index.css";
 import "../common/init/nonContentContext";
 import { createRoot } from "react-dom/client";
 
-import { Logging, onStoredStateChange, State, Settings } from "../common/state";
+import { Logging, onExtensionStateChange, PersistentState, Settings } from "../common/state";
 import { SettingsForm } from "./SettingsForm";
 import { saveLastSevereError } from "../common/errorHandlers";
 
@@ -10,13 +10,13 @@ function clearError() {
   const clearedError: Logging = {
     lastSevereError: undefined,
   };
-  State.set(clearedError);
+  PersistentState.set(clearedError);
 }
 
 async function saveSettings(settings: Settings): Promise<boolean> {
   console.log("persisting settings...");
   try {
-    await State.set({ settings });
+    await PersistentState.set({ settings });
     console.log("done persisting settings");
     return true;
   } catch (e) {
@@ -29,7 +29,7 @@ async function saveSettings(settings: Settings): Promise<boolean> {
 // all component state, every time the stored state changed.
 const ROOT = createRoot(document.getElementById("body")!);
 
-onStoredStateChange((state) => {
+onExtensionStateChange((state) => {
   ROOT.render(
     <SettingsForm
       extensionState={state}

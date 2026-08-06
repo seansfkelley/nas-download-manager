@@ -2,7 +2,7 @@ import "./index.css";
 import "../common/init/nonContentContext";
 import { createRoot } from "react-dom/client";
 
-import { onStoredStateChange, State, Settings } from "../common/state";
+import { onExtensionStateChange, PersistentState, Settings } from "../common/state";
 import { FatalError } from "./FatalError";
 import { FatalErrorWrapper } from "./FatalErrorWrapper";
 import { PopupWrapper } from "./PopupWrapper";
@@ -21,7 +21,7 @@ const ROOT = createRoot(document.getElementById("body")!, {
 });
 
 function updateSettings(settings: Settings) {
-  State.set({ settings });
+  PersistentState.set({ settings });
 }
 
 PollTasks.send();
@@ -29,7 +29,7 @@ setInterval(() => {
   PollTasks.send();
 }, 10000);
 
-onStoredStateChange((storedState) => {
+onExtensionStateChange((storedState) => {
   ROOT.render(
     <FatalErrorWrapper state={storedState}>
       <PopupWrapper state={storedState} updateSettings={updateSettings} />

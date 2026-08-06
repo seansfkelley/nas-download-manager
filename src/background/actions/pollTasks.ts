@@ -1,11 +1,11 @@
 import { SynologyClient, ClientRequestResult } from "../../common/apis/synology";
 import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../../common/apis/errors";
-import { type CachedTasks, State } from "../../common/state";
+import { type CachedTasks, SessionState } from "../../common/state";
 import { saveLastSevereError } from "../../common/errorHandlers";
 import { assertNever } from "../../common/lang";
 
 function setCachedTasks(cachedTasks: Partial<CachedTasks>) {
-  return State.set({
+  return SessionState.set({
     tasksLastCompletedFetchTimestamp: Date.now(),
     ...cachedTasks,
   });
@@ -19,14 +19,13 @@ export async function pollTasks(api: SynologyClient): Promise<void> {
   console.log("polling for tasks...");
 
   try {
-    await State.set(cachedTasksInit);
+    await SessionState.set(cachedTasksInit);
 
     let response;
 
     try {
-      // HELLO THERE
-      //
-      // When changing what this requests, you almost certainly want to update STATE_VERSION.
+      // Changing what this requests used to mean bumping the state version. It no longer does:
+      // what comes back is session state, which install throws away wholesale.
       response = await api.DownloadStation.Task.List({
         offset: 0,
         limit: -1,

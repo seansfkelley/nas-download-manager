@@ -88,10 +88,6 @@ describe("migrating stored state", () => {
       "lastSevereError",
       "settings",
       "stateVersion",
-      "taskFetchFailureReason",
-      "tasks",
-      "tasksLastCompletedFetchTimestamp",
-      "tasksLastInitiatedFetchTimestamp",
     ]);
   });
 

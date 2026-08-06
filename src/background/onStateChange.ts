@@ -1,4 +1,4 @@
-import { getHostUrl, State } from "../common/state";
+import { type ExtensionState, getHostUrl } from "../common/state";
 import { notify } from "../common/notify";
 import { saveLastSevereError } from "../common/errorHandlers";
 import { setPollingEnabled } from "./alarms";
@@ -13,12 +13,12 @@ import {
   getBackgroundContext,
 } from "./backgroundState";
 
-export function onStoredStateChange(storedState: State) {
+export function onStateChange(storedState: ExtensionState) {
   updateBadge(storedState);
   react(storedState).catch(saveLastSevereError);
 }
 
-async function react(storedState: State) {
+async function react(storedState: ExtensionState) {
   await setPollingEnabled(storedState.settings.notifications.enableCompletionNotifications);
   await maybeInvalidateCachedTasks(storedState);
   await maybeNotifyFinishedTasks(storedState);
@@ -27,7 +27,7 @@ async function react(storedState: State) {
 // The cached tasks belong to whichever DiskStation they came from, so a change of host or account
 // throws them away. This used to be inferred from the client rejecting an update to its settings;
 // with no long-lived client left to ask, the provenance is recorded in session storage instead.
-async function maybeInvalidateCachedTasks(storedState: State) {
+async function maybeInvalidateCachedTasks(storedState: ExtensionState) {
   const { connection } = storedState.settings;
   const current = `${getHostUrl(connection)}|${connection.username}`;
   const previous = await getCachedTasksConnection();
@@ -43,7 +43,7 @@ async function maybeInvalidateCachedTasks(storedState: State) {
   }
 }
 
-async function maybeNotifyFinishedTasks(storedState: State) {
+async function maybeNotifyFinishedTasks(storedState: ExtensionState) {
   if (
     storedState.tasksLastCompletedFetchTimestamp == null ||
     storedState.taskFetchFailureReason != null
@@ -75,7 +75,7 @@ async function maybeNotifyFinishedTasks(storedState: State) {
   await setFinishedTaskIds(finishedTaskIds);
 }
 
-function updateBadge(storedState: State) {
+function updateBadge(storedState: ExtensionState) {
   if (storedState.taskFetchFailureReason) {
     browser.browserAction.setIcon({
       path: {

@@ -11,6 +11,7 @@ import type { State as State_6 } from "../src/common/state/migrations/6";
 import type { State as State_7 } from "../src/common/state/migrations/7";
 import type { State as State_8 } from "../src/common/state/migrations/8";
 import type { State as State_9 } from "../src/common/state/migrations/9";
+import type { State as State_10 } from "../src/common/state/migrations/10";
 
 interface PreVersioningState_0 {
   connection: {
@@ -60,7 +61,7 @@ const DUMMY_TASK: DownloadStationTask = {
   status: "downloading",
 };
 
-function testMigration<T>(before: T, after: State_9) {
+function testMigration<T>(before: T, after: State_10) {
   const originalBefore = cloneDeep(before);
   const transitioned = migrateState(before);
 
@@ -122,12 +123,8 @@ describe("state versioning", () => {
           badgeDisplayType: "total",
           showInactiveTasks: true,
         },
-        tasks: [],
-        taskFetchFailureReason: null,
-        tasksLastCompletedFetchTimestamp: null,
-        tasksLastInitiatedFetchTimestamp: null,
         lastSevereError: undefined,
-        stateVersion: 9,
+        stateVersion: 10,
       },
     );
   });
@@ -188,12 +185,8 @@ describe("state versioning", () => {
           showInactiveTasks: true,
         },
 
-        tasks: [],
-        taskFetchFailureReason: null,
-        tasksLastCompletedFetchTimestamp: null,
-        tasksLastInitiatedFetchTimestamp: null,
         lastSevereError: undefined,
-        stateVersion: 9,
+        stateVersion: 10,
       },
     );
   });
@@ -228,12 +221,8 @@ describe("state versioning", () => {
           showInactiveTasks: true,
         },
 
-        tasks: [],
-        taskFetchFailureReason: null,
-        tasksLastCompletedFetchTimestamp: null,
-        tasksLastInitiatedFetchTimestamp: null,
         lastSevereError: undefined,
-        stateVersion: 9,
+        stateVersion: 10,
       },
     );
   });
@@ -265,12 +254,8 @@ describe("state versioning", () => {
         badgeDisplayType: "total",
         showInactiveTasks: true,
       },
-      tasks: [],
-      taskFetchFailureReason: null,
-      tasksLastCompletedFetchTimestamp: null,
-      tasksLastInitiatedFetchTimestamp: null,
       lastSevereError: undefined,
-      stateVersion: 9,
+      stateVersion: 10,
     });
   });
 
@@ -330,12 +315,8 @@ describe("state versioning", () => {
           badgeDisplayType: "total",
           showInactiveTasks: true,
         },
-        tasks: [],
-        taskFetchFailureReason: null,
-        tasksLastCompletedFetchTimestamp: null,
-        tasksLastInitiatedFetchTimestamp: null,
         lastSevereError: undefined,
-        stateVersion: 9,
+        stateVersion: 10,
       },
     );
   });
@@ -397,12 +378,8 @@ describe("state versioning", () => {
           badgeDisplayType: "total",
           showInactiveTasks: true,
         },
-        tasks: [DUMMY_TASK],
-        taskFetchFailureReason: "missing-config",
-        tasksLastCompletedFetchTimestamp: 0,
-        tasksLastInitiatedFetchTimestamp: 0,
         lastSevereError: undefined,
-        stateVersion: 9,
+        stateVersion: 10,
       },
     );
   });
@@ -462,12 +439,8 @@ describe("state versioning", () => {
           badgeDisplayType: "total",
           showInactiveTasks: true,
         },
-        tasks: [DUMMY_TASK],
-        taskFetchFailureReason: "missing-config",
-        tasksLastCompletedFetchTimestamp: 0,
-        tasksLastInitiatedFetchTimestamp: 0,
         lastSevereError: undefined,
-        stateVersion: 9,
+        stateVersion: 10,
       },
     );
   });
@@ -529,12 +502,8 @@ describe("state versioning", () => {
           badgeDisplayType: "total",
           showInactiveTasks: true,
         },
-        tasks: [DUMMY_TASK],
-        taskFetchFailureReason: "missing-config",
-        tasksLastCompletedFetchTimestamp: 0,
-        tasksLastInitiatedFetchTimestamp: 0,
         lastSevereError: undefined,
-        stateVersion: 9,
+        stateVersion: 10,
       },
     );
   });
@@ -597,12 +566,8 @@ describe("state versioning", () => {
           showInactiveTasks: true,
           shouldHandleDownloadLinks: true,
         },
-        tasks: [DUMMY_TASK],
-        taskFetchFailureReason: "missing-config",
-        tasksLastCompletedFetchTimestamp: 0,
-        tasksLastInitiatedFetchTimestamp: 0,
         lastSevereError: undefined,
-        stateVersion: 9,
+        stateVersion: 10,
       },
     );
   });
@@ -667,12 +632,8 @@ describe("state versioning", () => {
           showInactiveTasks: true,
           shouldHandleDownloadLinks: true,
         },
-        tasks: [DUMMY_TASK],
-        taskFetchFailureReason: "missing-config",
-        tasksLastCompletedFetchTimestamp: 0,
-        tasksLastInitiatedFetchTimestamp: 0,
         lastSevereError: undefined,
-        stateVersion: 9,
+        stateVersion: 10,
       },
     );
   });
@@ -737,12 +698,8 @@ describe("state versioning", () => {
           showInactiveTasks: true,
           shouldHandleDownloadLinks: true,
         },
-        tasks: [DUMMY_TASK],
-        taskFetchFailureReason: "missing-config",
-        tasksLastCompletedFetchTimestamp: 0,
-        tasksLastInitiatedFetchTimestamp: 0,
         lastSevereError: undefined,
-        stateVersion: 9,
+        stateVersion: 10,
       },
     );
   });
@@ -808,12 +765,8 @@ describe("state versioning", () => {
           showInactiveTasks: true,
           shouldHandleDownloadLinks: true,
         },
-        tasks: [DUMMY_TASK],
-        taskFetchFailureReason: "missing-config",
-        tasksLastCompletedFetchTimestamp: 0,
-        tasksLastInitiatedFetchTimestamp: 0,
         lastSevereError: undefined,
-        stateVersion: 9,
+        stateVersion: 10,
       },
     );
   });
@@ -880,6 +833,40 @@ describe("state versioning", () => {
           showInactiveTasks: true,
           shouldHandleDownloadLinks: true,
         },
+        lastSevereError: undefined,
+        stateVersion: 10,
+      },
+    );
+  });
+
+  it("should drop the cached tasks when upgrading from 9 to 10", () => {
+    testMigration<State_9>(
+      {
+        settings: {
+          connection: {
+            protocol: "https",
+            hostname: "hostname",
+            port: 0,
+            username: "username",
+            password: "password",
+            rememberPassword: true,
+          },
+          visibleTasks: {
+            downloading: true,
+            uploading: true,
+            completed: true,
+            errored: true,
+            other: true,
+          },
+          notifications: {
+            enableCompletionNotifications: true,
+            enableFeedbackNotifications: true,
+          },
+          taskSortType: "name-asc",
+          badgeDisplayType: "total",
+          showInactiveTasks: true,
+          shouldHandleDownloadLinks: true,
+        },
         tasks: [DUMMY_TASK],
         taskFetchFailureReason: "missing-config",
         tasksLastCompletedFetchTimestamp: 0,
@@ -887,11 +874,40 @@ describe("state versioning", () => {
         lastSevereError: undefined,
         stateVersion: 9,
       },
+      {
+        settings: {
+          connection: {
+            protocol: "https",
+            hostname: "hostname",
+            port: 0,
+            username: "username",
+            password: "password",
+            rememberPassword: true,
+          },
+          visibleTasks: {
+            downloading: true,
+            uploading: true,
+            completed: true,
+            errored: true,
+            other: true,
+          },
+          notifications: {
+            enableCompletionNotifications: true,
+            enableFeedbackNotifications: true,
+          },
+          taskSortType: "name-asc",
+          badgeDisplayType: "total",
+          showInactiveTasks: true,
+          shouldHandleDownloadLinks: true,
+        },
+        lastSevereError: undefined,
+        stateVersion: 10,
+      },
     );
   });
 
   it("should do nothing when the state is already latest", () => {
-    const before: State_9 = {
+    const before: State_10 = {
       settings: {
         connection: {
           protocol: "https",
@@ -917,12 +933,8 @@ describe("state versioning", () => {
         showInactiveTasks: true,
         shouldHandleDownloadLinks: true,
       },
-      tasks: [DUMMY_TASK],
-      taskFetchFailureReason: "missing-config",
-      tasksLastCompletedFetchTimestamp: 0,
-      tasksLastInitiatedFetchTimestamp: 0,
       lastSevereError: undefined,
-      stateVersion: 9,
+      stateVersion: 10,
     };
 
     expect(migrateState(before)).toBe(before);

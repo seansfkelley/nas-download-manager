@@ -1,4 +1,4 @@
-import type { State, StateVersion } from "./latest";
+import type { PersistentState, StateVersion } from "./latest";
 import { migrate as migrate0to1 } from "./1";
 import { migrate as migrate1to2 } from "./2";
 import { migrate as migrate2to3 } from "./3";
@@ -8,8 +8,9 @@ import { migrate as migrate5to6 } from "./6";
 import { migrate as migrate6to7 } from "./7";
 import { migrate as migrate7to8 } from "./8";
 import { migrate as migrate8to9 } from "./9";
+import { migrate as migrate9to10 } from "./10";
 
-export const LATEST_STATE_VERSION: StateVersion["stateVersion"] = 9;
+export const LATEST_STATE_VERSION: StateVersion["stateVersion"] = 10;
 const MIGRATIONS: ((state: any) => any)[] = [
   migrate0to1,
   migrate1to2,
@@ -20,6 +21,7 @@ const MIGRATIONS: ((state: any) => any)[] = [
   migrate6to7,
   migrate7to8,
   migrate8to9,
+  migrate9to10,
 ];
 
 interface AnyStateVersion {
@@ -46,7 +48,7 @@ function getStartingVersion(state: any) {
   }
 }
 
-export function migrateState(state: any | null): State {
+export function migrateState(state: any | null): PersistentState {
   let version = getStartingVersion(state);
 
   if (version > LATEST_STATE_VERSION) {

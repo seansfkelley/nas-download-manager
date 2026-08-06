@@ -1,7 +1,7 @@
 import "../common/init/nonContentContext";
-import { migrateStoredState, onStoredStateChange, SessionState } from "../common/state";
+import { migrateStoredState, onExtensionStateChange, SessionState } from "../common/state";
 import { saveLastSevereError } from "../common/errorHandlers";
-import { onStoredStateChange as onStoredStateChangeListener } from "./onStateChange";
+import { onStateChange } from "./onStateChange";
 import { createContextMenu, initializeContextMenuHandler } from "./contextMenus";
 import { initializeAlarmHandler } from "./alarms";
 import { initializeMessageHandler } from "./messages";
@@ -11,25 +11,26 @@ import { initializeMessageHandler } from "./messages";
 initializeAlarmHandler();
 initializeContextMenuHandler();
 initializeMessageHandler();
-onStoredStateChange(onStoredStateChangeListener);
+onExtensionStateChange(onStateChange);
 
 browser.runtime.onInstalled.addListener(async () => {
-  // The only place stored state is migrated. onInstalled fires on install and on update, which is
-  // exactly when the stored shape can change: updating the extension tears every context down, so
-  // nothing can be running against one shape while another is written. It does not fire on browser
-  // restart or on a background wake, and it does not need to.
+  // The only place either half of the stored state is brought up to date. onInstalled fires on
+  // install and on update, which is exactly when the stored shape can change: updating the
+  // extension tears every context down, so nothing can be running against one shape while another
+  // is written. It does not fire on browser restart or on a background wake, and it does not need
+  // to.
   //
-  // Everything else -- State.get, State.set, every partial write -- assumes the stored state is
-  // already current and casts accordingly. Three known risks come with that, none of them worth
-  // more machinery than this:
+  // Everything else -- PersistentState.get, PersistentState.set, every partial write -- assumes the
+  // stored state is already current and casts accordingly. Three known risks come with that, none
+  // of them worth more machinery than this:
   //
   // A failed migration is permanent. There is no documented retry for onInstalled, so nothing here
   // gets a second attempt, and every state listener stays silent because the stored shape never
   // becomes one they will accept. That means a blank popup and settings page rather than a broken
   // one, and it takes storage itself failing to get there, since migrateState handles every input.
   //
-  // Readers can beat the migration. The initial read in onStoredStateChange above genuinely does:
-  // it is kicked off during this same module evaluation, before this listener can fire. It is
+  // Readers can beat the migration. The initial read in onExtensionStateChange above genuinely
+  // does: it is kicked off during this same module evaluation, before this listener can fire. It is
   // handled where it happens, by declining to deliver state whose version is not current, and the
   // write below re-delivers to everyone.
   //
@@ -39,9 +40,8 @@ browser.runtime.onInstalled.addListener(async () => {
   // and settings pages have to be opened by a human, which is several orders of magnitude slower
   // than a storage round trip.
   try {
-    // The session state has no versions to migrate between because of this: throwing the whole area
-    // away on install means every read of it is a read of what this version wrote. It costs a login
-    // and a poll, both of which happen on browser restart anyway.
+    // The session state is thrown away rather than migrated, which is why it has no versions at all.
+    // It costs a login and a poll, both of which happen on every browser restart anyway.
     await SessionState.clear();
     await migrateStoredState();
   } catch (e) {

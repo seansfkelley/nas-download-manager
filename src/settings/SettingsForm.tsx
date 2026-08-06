@@ -2,7 +2,7 @@ import "./settings-form.css";
 import { useState } from "react";
 
 import {
-  State as ExtensionState,
+  ExtensionState,
   Settings,
   VisibleTaskSettings,
   TaskSortType,

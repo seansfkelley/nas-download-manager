@@ -1,9 +1,37 @@
 import type { AuthResult } from "../apis/synology";
+import type { DownloadStationTask } from "../apis/synology/DownloadStation/Task";
+import { typesafeUnionMembers } from "../lang";
+
+// A snapshot of what the NAS was doing, which is worth nothing once it is a browser session old.
+export interface CachedTasks {
+  tasks: DownloadStationTask[];
+  taskFetchFailureReason: "missing-config" | "login-required" | { failureMessage: string } | null;
+  tasksLastInitiatedFetchTimestamp: number | null;
+  tasksLastCompletedFetchTimestamp: number | null;
+}
+
+export const CACHED_TASK_NAMES = typesafeUnionMembers<keyof CachedTasks>({
+  tasks: true,
+  taskFetchFailureReason: true,
+  tasksLastInitiatedFetchTimestamp: true,
+  tasksLastCompletedFetchTimestamp: true,
+});
+
+// The four keys are written separately as a poll progresses, so every one of them can be absent
+// independently. Readers get a complete CachedTasks and never have to know that.
+export function getCachedTasks(session: SessionState): CachedTasks {
+  return {
+    tasks: session.tasks ?? [],
+    taskFetchFailureReason: session.taskFetchFailureReason ?? null,
+    tasksLastInitiatedFetchTimestamp: session.tasksLastInitiatedFetchTimestamp ?? null,
+    tasksLastCompletedFetchTimestamp: session.tasksLastCompletedFetchTimestamp ?? null,
+  };
+}
 
 // storage.session rather than module scope, because a background context that can be suspended
 // loses module scope without warning. Its lifetime -- cleared on browser restart, never written to
 // disk -- is exactly what "remember for this session" means.
-export interface SessionState {
+export interface SessionState extends Partial<CachedTasks> {
   // Keyed on the connection it was obtained with, so that changing any of the credentials discards
   // it without anyone having to remember to. Reusing a session against a different DiskStation, or
   // reusing "incorrect password" against a password the user has since fixed, are both wrong, and

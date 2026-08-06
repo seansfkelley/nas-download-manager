@@ -3,7 +3,7 @@ import type {
   Settings,
   VisibleTaskSettings,
   TaskSortType,
-  State as ExtensionState,
+  ExtensionState,
   BadgeDisplayType,
 } from "../common/state";
 import { Popup } from "./Popup";

@@ -5,7 +5,7 @@ import {
   SessionName,
 } from "../common/apis/synology";
 import type { ConnectionSettings } from "../common/state";
-import { getHostUrl, SessionState, State } from "../common/state";
+import { getHostUrl, PersistentState, SessionState } from "../common/state";
 import { saveLastSevereError } from "../common/errorHandlers";
 
 // Every credential the NAS checks, so that changing any of them invalidates the auth result. The
@@ -28,7 +28,7 @@ export interface BackgroundContext {
 
 // Everything a handler used to read off the mutable singleton, rebuilt from storage each time.
 export async function getBackgroundContext(): Promise<BackgroundContext> {
-  const [{ settings }, session] = await Promise.all([State.get(), SessionState.get()]);
+  const [{ settings }, session] = await Promise.all([PersistentState.get(), SessionState.get()]);
   const { connection } = settings;
   const password = connection.rememberPassword ? connection.password : session.password;
   const key = authKey(connection, password);
@@ -62,7 +62,7 @@ export async function getBackgroundContext(): Promise<BackgroundContext> {
 // the choice getBackgroundContext makes. With "remember password" on, the settings page has already
 // written it to storage.local by the time this runs, so the answer is usually no.
 export async function setSessionPassword(password: string) {
-  const [{ settings }, session] = await Promise.all([State.get(), SessionState.get()]);
+  const [{ settings }, session] = await Promise.all([PersistentState.get(), SessionState.get()]);
   const previous = settings.connection.rememberPassword
     ? settings.connection.password
     : session.password;

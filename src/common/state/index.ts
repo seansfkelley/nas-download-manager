@@ -1,14 +1,16 @@
-import { type Protocol, type ConnectionSettings, State } from "./migrations/latest";
+import type { Protocol, ConnectionSettings } from "./migrations/latest";
+import type { ExtensionState } from "./listenAll";
 import { typesafeMapValues } from "../lang";
 
 export * from "./constants";
 export * from "./listen";
+export * from "./listenAll";
 export * from "./migrate";
 export * from "./migrations/latest";
 export * from "./session";
 // Named explicitly because the wildcards above silently drop them. Parcel drops namespaces from
 // wildcard exports for some reason, and we use namespace merging for ergonomics.
-export { State } from "./migrations/latest";
+export { PersistentState } from "./migrations/latest";
 export { SessionState } from "./session";
 
 export function getHostUrl(settings: ConnectionSettings) {
@@ -19,7 +21,7 @@ export function getHostUrl(settings: ConnectionSettings) {
   }
 }
 
-export function redactState(state: State): object {
+export function redactState(state: ExtensionState): object {
   const sanitizedConnection: Record<keyof ConnectionSettings, boolean | Protocol> = {
     ...typesafeMapValues(state.settings.connection, Boolean),
     protocol: state.settings.connection.protocol,

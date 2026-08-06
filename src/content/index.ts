@@ -1,12 +1,12 @@
 import { AddTasks } from "../common/apis/messages";
-import { onStoredStateChange } from "../common/state/listen";
+import { onPersistentStateChange } from "../common/state/listen";
 import { DOWNLOAD_ONLY_PROTOCOLS, startsWithAnyProtocol } from "../common/apis/protocols";
 
 const LEFT_MOUSE_BUTTON = 0;
 
 let enabled = true;
 
-onStoredStateChange((state) => {
+onPersistentStateChange((state) => {
   enabled = state.settings.shouldHandleDownloadLinks;
 });
 
