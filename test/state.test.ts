@@ -1,5 +1,5 @@
 import type { DownloadStationTask } from "../src/common/apis/synology/DownloadStation/Task";
-import { State } from "../src/common/state/migrations/latest";
+import { migrateStoredState } from "../src/common/state/migrate";
 import { LATEST_STATE_VERSION } from "../src/common/state/migrations/update";
 import type { State as State_2 } from "../src/common/state/migrations/2";
 
@@ -67,23 +67,22 @@ const STATE_2: State_2 = {
   stateVersion: 2,
 };
 
-describe("stored state", () => {
+describe("migrating stored state", () => {
   beforeEach(install);
 
-  it("should migrate on read", async () => {
+  it("should bring a stale profile fully current", async () => {
     Object.assign(stored, STATE_2);
 
-    const state = await State.get();
+    await migrateStoredState();
 
-    expect(state.stateVersion).toBe(LATEST_STATE_VERSION);
-    expect(state.settings.connection.hostname).toBe("hostname");
     expect(stored.stateVersion).toBe(LATEST_STATE_VERSION);
+    expect(stored.settings.connection.hostname).toBe("hostname");
   });
 
   it("should drop the keys the migration abandoned", async () => {
     Object.assign(stored, STATE_2, { neverHeardOfIt: true });
 
-    await State.get();
+    await migrateStoredState();
 
     expect(Object.keys(stored).sort()).toStrictEqual([
       "lastSevereError",
@@ -96,24 +95,32 @@ describe("stored state", () => {
     ]);
   });
 
-  it("should bring a stale state current before writing a partial into it", async () => {
-    Object.assign(stored, STATE_2);
-
-    await State.set({ tasks: [] });
+  it("should populate an empty profile", async () => {
+    await migrateStoredState();
 
     expect(stored.stateVersion).toBe(LATEST_STATE_VERSION);
-    expect(stored.tasks).toStrictEqual([]);
-    expect(stored.settings.connection.hostname).toBe("hostname");
-    expect(stored.connection).toBeUndefined();
+    expect(stored.settings).not.toBeNil();
   });
 
-  it("should leave the other keys alone when writing a partial into a current state", async () => {
-    await State.set({});
+  it("should leave an already-current profile alone", async () => {
+    await migrateStoredState();
     const { settings } = stored;
 
-    await State.set({ tasks: [DUMMY_TASK] });
+    await migrateStoredState();
 
     expect(stored.settings).toBe(settings);
-    expect(stored.tasks).toStrictEqual([DUMMY_TASK]);
+  });
+
+  it("should not write anything when it fails", async () => {
+    Object.assign(stored, STATE_2);
+    const originalKeys = Object.keys(stored).sort();
+    (globalThis as any).browser.storage.local.set = () => Promise.reject(new Error("nope"));
+
+    await expect(migrateStoredState()).rejects.toThrow("nope");
+
+    // The whole-object write is the first write, so a failure there leaves the profile as it was
+    // rather than half-migrated. This is what lets the caller bail and report.
+    expect(Object.keys(stored).sort()).toStrictEqual(originalKeys);
+    expect(stored.stateVersion).toBe(2);
   });
 });

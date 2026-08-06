@@ -3,6 +3,7 @@ import { typesafeMapValues } from "../lang";
 
 export * from "./constants";
 export * from "./listen";
+export * from "./migrate";
 export * from "./migrations/latest";
 // Named explicitly because the wildcard above silently drops it. Parcel drops namespaces from
 // wildcard exports for some reason, and we use namespace merging for ergonomics.
