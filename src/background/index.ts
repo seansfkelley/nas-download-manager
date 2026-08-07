@@ -1,5 +1,10 @@
 import "../common/init/nonContentContext";
-import { reactToPersistentState, PersistentState, SessionState } from "../common/state";
+import {
+  reactToPersistentState,
+  PersistentState,
+  SessionState,
+  reactToSessionState,
+} from "../common/state";
 import { saveLastSevereError } from "../common/errorHandlers";
 import { initializeContextMenus } from "./contextMenus";
 import { initializeMessageHandler } from "./messages";
@@ -22,10 +27,26 @@ initializeMessageHandler();
       await updateCredentials(settings);
       await updateBackgroundSettings(settings);
 
-      let sessionState = await SessionState.get();
+      const sessionState = await SessionState.get();
       await updateBadge(settings, sessionState);
       await maybeNotifyCompletedDownloads(settings, sessionState);
     });
+
+    reactToSessionState(
+      "tasks",
+      "taskFetchFailureReason",
+      "tasksLastCompletedFetchTimestamp",
+      "finishedTaskIds",
+      async (sessionState) => {
+        const persistentState = await PersistentState.get();
+        if (persistentState == null) {
+          console.warn("skipping background update: persistent state not yet migrated");
+        } else {
+          await updateBadge(persistentState.settings, sessionState);
+          await maybeNotifyCompletedDownloads(persistentState.settings, sessionState);
+        }
+      },
+    );
   } catch (error) {
     saveLastSevereError(error);
   }

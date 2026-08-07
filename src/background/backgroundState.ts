@@ -3,15 +3,12 @@ import type { NotificationSettings } from "../common/state";
 
 export interface BackgroundState {
   api: SynologyClient;
-  // This starts undefined, which means we haven't fetched the list of tasks yet.
-  finishedTaskIds: Set<string> | undefined;
   lastNotificationSettings: NotificationSettings | undefined;
   notificationInterval: number | undefined;
 }
 
 const state: BackgroundState = {
   api: new SynologyClient({}),
-  finishedTaskIds: undefined,
   lastNotificationSettings: undefined,
   notificationInterval: undefined,
 };

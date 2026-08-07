@@ -1,35 +1,43 @@
+import isEqual from "lodash/isEqual";
 import { notify } from "../../common/notify";
-import { Settings, TaskState } from "../../common/state";
-import { getMutableStateSingleton } from "../backgroundState";
-
-const START_TIME = Date.now();
+import { Settings, SessionState } from "../../common/state";
 
 export async function maybeNotifyCompletedDownloads(
   settings: Settings,
-  { tasks, taskFetchFailureReason, tasksLastCompletedFetchTimestamp }: TaskState,
+  {
+    tasks,
+    taskFetchFailureReason,
+    tasksLastCompletedFetchTimestamp,
+    finishedTaskIds,
+  }: Pick<
+    SessionState,
+    "tasks" | "taskFetchFailureReason" | "tasksLastCompletedFetchTimestamp" | "finishedTaskIds"
+  >,
 ) {
-  let backgroundState = getMutableStateSingleton();
-
-  if (
-    tasks != null &&
-    tasksLastCompletedFetchTimestamp != null &&
-    tasksLastCompletedFetchTimestamp > START_TIME &&
-    taskFetchFailureReason == null
-  ) {
+  // No baseline means nothing has been seen finished this session, which is what the old
+  // module-scope start timestamp approximated back when the background page never unloaded.
+  if (tasks != null && tasksLastCompletedFetchTimestamp != null && taskFetchFailureReason == null) {
     const updatedFinishedTaskIds = tasks
       .filter((t) => t.status === "finished" || t.status === "seeding")
       .map((t) => t.id);
-    if (
-      backgroundState.finishedTaskIds != null &&
-      settings.notifications.enableCompletionNotifications
-    ) {
-      updatedFinishedTaskIds
-        .filter((id) => !backgroundState.finishedTaskIds!.has(id))
-        .forEach((id) => {
-          const task = tasks.find((t) => t.id === id)!;
-          notify(`${task.title}`, browser.i18n.getMessage("Download_finished"));
-        });
+
+    if (finishedTaskIds != null) {
+      const alreadyFinishedTaskIds = new Set(finishedTaskIds);
+
+      if (settings.notifications.enableCompletionNotifications) {
+        for (const id of updatedFinishedTaskIds) {
+          if (!alreadyFinishedTaskIds.has(id)) {
+            // Linear scan should be fine; this loop body should be hit extremely rarely.
+            const task = tasks.find((t) => t.id === id)!;
+            notify(`${task.title}`, browser.i18n.getMessage("Download_finished"));
+          }
+        }
+      }
     }
-    backgroundState.finishedTaskIds = new Set(updatedFinishedTaskIds);
+
+    // Watch out for event trigger cycles!
+    if (!isEqual(updatedFinishedTaskIds.toSorted(), finishedTaskIds?.toSorted())) {
+      await SessionState.set({ finishedTaskIds: updatedFinishedTaskIds });
+    }
   }
 }
