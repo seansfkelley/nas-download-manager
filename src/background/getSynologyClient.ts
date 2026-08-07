@@ -3,6 +3,32 @@ import { saveLastSevereError } from "../common/errorHandlers";
 import { getHostUrl, PersistentState, SessionState } from "../common/state";
 import isEqual from "lodash/isEqual";
 
+export interface SynologyToken {
+  sid: string;
+}
+
+export async function issueDiskStationRequest<T>(
+  fn: (token: SynologyToken) => Promise<T>,
+): Promise<T> {
+  const [persistentState, sessionState] = await Promise.all([
+    PersistentState.get(),
+    SessionState.get(),
+  ]);
+
+  // TODO: Clean this up.
+  if (persistentState == null) {
+    throw new Error("did not migrate yet");
+  }
+
+  const {
+    settings: { connection },
+  } = persistentState;
+}
+
+function getLoginCreds() {}
+
+export async function loginToDiskStation(state: SessionState): Promise<SynologyToken> {}
+
 export async function getSynologyClient(): Promise<SynologyClient> {
   const [state, session] = await Promise.all([PersistentState.get(), SessionState.get()]);
   if (state == null) {
