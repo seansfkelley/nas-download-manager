@@ -15,6 +15,4 @@ export async function updateBackgroundSettings(settings: Settings) {
       }, backgroundState.lastNotificationSettings.completionPollingInterval * 1000) as any as number;
     }
   }
-
-  backgroundState.showNonErrorNotifications = settings.notifications.enableFeedbackNotifications;
 }

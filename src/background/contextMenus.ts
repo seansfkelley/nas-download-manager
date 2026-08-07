@@ -13,9 +13,9 @@ export function initializeContextMenus() {
       const state = getMutableStateSingleton();
 
       if (data.linkUrl) {
-        addDownloadTasksAndFetch(state.api, state.showNonErrorNotifications, [data.linkUrl]);
+        addDownloadTasksAndFetch(state.api, [data.linkUrl]);
       } else if (data.srcUrl) {
-        addDownloadTasksAndFetch(state.api, state.showNonErrorNotifications, [data.srcUrl]);
+        addDownloadTasksAndFetch(state.api, [data.srcUrl]);
       } else if (data.selectionText) {
         let urls = data.selectionText
           .split("\n")
@@ -30,7 +30,7 @@ export function initializeContextMenus() {
             "failure",
           );
         } else {
-          addDownloadTasksAndFetch(state.api, state.showNonErrorNotifications, urls);
+          addDownloadTasksAndFetch(state.api, urls);
         }
       } else {
         notify(

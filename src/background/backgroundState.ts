@@ -7,7 +7,6 @@ export interface BackgroundState {
   finishedTaskIds: Set<string> | undefined;
   lastNotificationSettings: NotificationSettings | undefined;
   notificationInterval: number | undefined;
-  showNonErrorNotifications: boolean;
 }
 
 const state: BackgroundState = {
@@ -15,7 +14,6 @@ const state: BackgroundState = {
   finishedTaskIds: undefined,
   lastNotificationSettings: undefined,
   notificationInterval: undefined,
-  showNonErrorNotifications: true,
 };
 
 export function getMutableStateSingleton() {

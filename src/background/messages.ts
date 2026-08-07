@@ -44,7 +44,7 @@ function toMessageResponse<T, U>(
 
 const MESSAGE_HANDLERS: MessageHandlers = {
   "add-tasks": (m, state) => {
-    return addDownloadTasksAndFetch(state.api, state.showNonErrorNotifications, m.urls, m.options);
+    return addDownloadTasksAndFetch(state.api, m.urls, m.options);
   },
   "fetch-tasks": (_m, state) => {
     return fetchTasks(state.api);
