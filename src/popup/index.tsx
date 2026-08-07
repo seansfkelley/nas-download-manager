@@ -27,7 +27,7 @@ function updateSettings(settings: Settings) {
 PollTasks.send();
 setInterval(() => {
   PollTasks.send();
-}, 10000);
+}, 3000);
 
 reactToPersistentState("settings", "lastSevereError", async ({ settings, lastSevereError }) => {
   const sessionState = await SessionState.get();

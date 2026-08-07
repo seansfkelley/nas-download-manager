@@ -15,7 +15,8 @@ initializeMessageHandler();
 (async () => {
   try {
     const updated = migrateState(await browser.storage.local.get(null));
-    PersistentState.set(updated);
+    await PersistentState.set(updated);
+    console.log("successfully migrated persistent state");
 
     reactToPersistentState("settings", async ({ settings }) => {
       await updateCredentials(settings);

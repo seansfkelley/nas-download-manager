@@ -18,18 +18,18 @@ let _testSessionStateShouldAllowEmptyObject: SessionState = {};
 // anything found here was written by the running version.
 export namespace SessionState {
   export async function get(): Promise<SessionState> {
-    return (await browser.storage.session.get(null)) as SessionState;
+    let state = (await browser.storage.session.get(null)) as SessionState;
+    console.log("fetched session state");
+    return state;
   }
 
-  export function set(state: Partial<SessionState>): Promise<void> {
-    return browser.storage.session.set(state);
+  export async function set(state: Partial<SessionState>): Promise<void> {
+    await browser.storage.session.set(state);
+    console.log("set session state for keys:", Object.keys(state));
   }
 
-  export function remove(...keys: (keyof SessionState)[]): Promise<void> {
-    return browser.storage.session.remove(keys);
-  }
-
-  export function clear(): Promise<void> {
-    return browser.storage.session.clear();
+  export async function clear(): Promise<void> {
+    await browser.storage.session.clear();
+    console.log("cleared session state");
   }
 }

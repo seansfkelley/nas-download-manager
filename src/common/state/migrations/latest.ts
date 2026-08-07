@@ -31,13 +31,16 @@ export namespace PersistentState {
   export async function get(): Promise<LatestState | undefined> {
     let state = (await browser.storage.local.get(ALL_STORED_STATE_NAMES)) as AnyState;
     if (state.stateVersion == LATEST_STATE_VERSION) {
+      console.log("fetched persistent state");
       return state as LatestState;
     } else {
+      console.warn("failed to fetch persistent state: not yet migrated");
       return undefined;
     }
   }
 
-  export function set(state: Partial<LatestState>): Promise<void> {
-    return browser.storage.local.set(state);
+  export async function set(state: Partial<LatestState>): Promise<void> {
+    await browser.storage.local.set(state);
+    console.log("set persistent state for keys:", Object.keys(state));
   }
 }

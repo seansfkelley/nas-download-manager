@@ -40,7 +40,7 @@ interface Reactable<T> {
 
 // "React" means it's called for initial state as well as every change. Plan accordingly.
 function reactable<T extends object>(
-  area: browser.storage.StorageArea,
+  areaName: "local" | "session" | "sync",
   // If fetch returns undefined, the callback is not called.
   fetch: () => Promise<T | undefined>,
 ): Reactable<T> {
@@ -56,22 +56,23 @@ function reactable<T extends object>(
     }
 
     // This line must be hit at module initialization time to correctly register itself.
-    area.onChanged.addListener(async (changes) => {
-      if (Object.keys(changes).some((k) => keys.has(k as unknown as keyof T))) {
+    browser.storage[areaName].onChanged.addListener(async (changes) => {
+      let changedKeys = Object.keys(changes);
+      let triggeringKeys = changedKeys.filter((k) => keys.has(k as unknown as keyof T));
+      if (triggeringKeys.length > 0) {
+        console.log(`triggering listener for browser.storage.${areaName} due to change`, {
+          listeningKeys: keys,
+          changedKeys,
+          triggeringKeys,
+        });
         notify();
       }
     });
 
+    console.log(`triggering listener for browser.storage.${areaName} for initial load`);
     notify();
   };
 }
 
-export const reactToPersistentState = reactable<PersistentState>(
-  browser.storage.local,
-  PersistentState.get,
-);
-
-export const reactToSessionState = reactable<SessionState>(
-  browser.storage.session,
-  SessionState.get,
-);
+export const reactToPersistentState = reactable<PersistentState>("local", PersistentState.get);
+export const reactToSessionState = reactable<SessionState>("session", SessionState.get);
