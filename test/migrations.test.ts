@@ -11,6 +11,7 @@ import type { State as State_6 } from "../src/common/state/migrations/6";
 import type { State as State_7 } from "../src/common/state/migrations/7";
 import type { State as State_8 } from "../src/common/state/migrations/8";
 import type { State as State_9 } from "../src/common/state/migrations/9";
+import type { State as State_10 } from "../src/common/state/migrations/10";
 
 interface PreVersioningState_0 {
   connection: {
@@ -60,7 +61,7 @@ const DUMMY_TASK: DownloadStationTask = {
   status: "downloading",
 };
 
-function testMigration<T>(before: T, after: State_9) {
+function testMigration<T>(before: T, after: State_10) {
   const originalBefore = cloneDeep(before);
   const transitioned = migrateState(before);
 
@@ -116,7 +117,6 @@ describe("state versioning", () => {
           notifications: {
             enableCompletionNotifications: true,
             enableFeedbackNotifications: true,
-            completionPollingInterval: 0,
           },
           shouldHandleDownloadLinks: true,
           taskSortType: "name-asc",
@@ -124,7 +124,7 @@ describe("state versioning", () => {
           showInactiveTasks: true,
         },
         lastSevereError: undefined,
-        stateVersion: 9,
+        stateVersion: 10,
       },
     );
   });
@@ -178,7 +178,6 @@ describe("state versioning", () => {
           notifications: {
             enableCompletionNotifications: true,
             enableFeedbackNotifications: true,
-            completionPollingInterval: 0,
           },
           shouldHandleDownloadLinks: true,
           taskSortType: "name-asc",
@@ -186,7 +185,7 @@ describe("state versioning", () => {
           showInactiveTasks: true,
         },
         lastSevereError: undefined,
-        stateVersion: 9,
+        stateVersion: 10,
       },
     );
   });
@@ -214,7 +213,6 @@ describe("state versioning", () => {
           notifications: {
             enableCompletionNotifications: false,
             enableFeedbackNotifications: true,
-            completionPollingInterval: 60,
           },
           shouldHandleDownloadLinks: true,
           taskSortType: "name-asc",
@@ -222,7 +220,7 @@ describe("state versioning", () => {
           showInactiveTasks: true,
         },
         lastSevereError: undefined,
-        stateVersion: 9,
+        stateVersion: 10,
       },
     );
   });
@@ -248,7 +246,6 @@ describe("state versioning", () => {
         notifications: {
           enableCompletionNotifications: false,
           enableFeedbackNotifications: true,
-          completionPollingInterval: 60,
         },
         shouldHandleDownloadLinks: true,
         taskSortType: "name-asc",
@@ -256,7 +253,7 @@ describe("state versioning", () => {
         showInactiveTasks: true,
       },
       lastSevereError: undefined,
-      stateVersion: 9,
+      stateVersion: 10,
     });
   });
 
@@ -310,7 +307,6 @@ describe("state versioning", () => {
           notifications: {
             enableCompletionNotifications: true,
             enableFeedbackNotifications: true,
-            completionPollingInterval: 0,
           },
           shouldHandleDownloadLinks: true,
           taskSortType: "name-asc",
@@ -318,7 +314,7 @@ describe("state versioning", () => {
           showInactiveTasks: true,
         },
         lastSevereError: undefined,
-        stateVersion: 9,
+        stateVersion: 10,
       },
     );
   });
@@ -374,7 +370,6 @@ describe("state versioning", () => {
           notifications: {
             enableCompletionNotifications: true,
             enableFeedbackNotifications: true,
-            completionPollingInterval: 0,
           },
           shouldHandleDownloadLinks: true,
           taskSortType: "name-asc",
@@ -382,7 +377,7 @@ describe("state versioning", () => {
           showInactiveTasks: true,
         },
         lastSevereError: undefined,
-        stateVersion: 9,
+        stateVersion: 10,
       },
     );
   });
@@ -436,7 +431,6 @@ describe("state versioning", () => {
           notifications: {
             enableCompletionNotifications: true,
             enableFeedbackNotifications: true,
-            completionPollingInterval: 0,
           },
           shouldHandleDownloadLinks: true,
           taskSortType: "name-asc",
@@ -444,7 +438,7 @@ describe("state versioning", () => {
           showInactiveTasks: true,
         },
         lastSevereError: undefined,
-        stateVersion: 9,
+        stateVersion: 10,
       },
     );
   });
@@ -500,7 +494,6 @@ describe("state versioning", () => {
           notifications: {
             enableCompletionNotifications: true,
             enableFeedbackNotifications: true,
-            completionPollingInterval: 0,
           },
           shouldHandleDownloadLinks: true,
           taskSortType: "name-asc",
@@ -508,7 +501,7 @@ describe("state versioning", () => {
           showInactiveTasks: true,
         },
         lastSevereError: undefined,
-        stateVersion: 9,
+        stateVersion: 10,
       },
     );
   });
@@ -565,7 +558,6 @@ describe("state versioning", () => {
           notifications: {
             enableCompletionNotifications: true,
             enableFeedbackNotifications: true,
-            completionPollingInterval: 0,
           },
           taskSortType: "name-asc",
           badgeDisplayType: "total",
@@ -573,7 +565,7 @@ describe("state versioning", () => {
           shouldHandleDownloadLinks: true,
         },
         lastSevereError: undefined,
-        stateVersion: 9,
+        stateVersion: 10,
       },
     );
   });
@@ -632,7 +624,6 @@ describe("state versioning", () => {
           notifications: {
             enableCompletionNotifications: true,
             enableFeedbackNotifications: true,
-            completionPollingInterval: 0,
           },
           taskSortType: "name-asc",
           badgeDisplayType: "total",
@@ -640,7 +631,7 @@ describe("state versioning", () => {
           shouldHandleDownloadLinks: true,
         },
         lastSevereError: undefined,
-        stateVersion: 9,
+        stateVersion: 10,
       },
     );
   });
@@ -699,7 +690,6 @@ describe("state versioning", () => {
           notifications: {
             enableCompletionNotifications: true,
             enableFeedbackNotifications: true,
-            completionPollingInterval: 0,
           },
           taskSortType: "name-asc",
           badgeDisplayType: "total",
@@ -707,7 +697,7 @@ describe("state versioning", () => {
           shouldHandleDownloadLinks: true,
         },
         lastSevereError: undefined,
-        stateVersion: 9,
+        stateVersion: 10,
       },
     );
   });
@@ -767,7 +757,6 @@ describe("state versioning", () => {
           notifications: {
             enableCompletionNotifications: true,
             enableFeedbackNotifications: true,
-            completionPollingInterval: 0,
           },
           taskSortType: "name-asc",
           badgeDisplayType: "total",
@@ -775,7 +764,7 @@ describe("state versioning", () => {
           shouldHandleDownloadLinks: true,
         },
         lastSevereError: undefined,
-        stateVersion: 9,
+        stateVersion: 10,
       },
     );
   });
@@ -836,6 +825,40 @@ describe("state versioning", () => {
           notifications: {
             enableCompletionNotifications: true,
             enableFeedbackNotifications: true,
+          },
+          shouldHandleDownloadLinks: true,
+          taskSortType: "name-asc",
+          badgeDisplayType: "total",
+          showInactiveTasks: true,
+        },
+        lastSevereError: undefined,
+        stateVersion: 10,
+      },
+    );
+  });
+
+  it("should drop the polling interval when upgrading from 9 to 10", () => {
+    testMigration<State_9>(
+      {
+        settings: {
+          connection: {
+            protocol: "https",
+            hostname: "hostname",
+            port: 0,
+            username: "username",
+            password: "password",
+            rememberPassword: true,
+          },
+          visibleTasks: {
+            downloading: true,
+            uploading: true,
+            completed: true,
+            errored: true,
+            other: true,
+          },
+          notifications: {
+            enableCompletionNotifications: true,
+            enableFeedbackNotifications: true,
             completionPollingInterval: 0,
           },
           shouldHandleDownloadLinks: true,
@@ -846,11 +869,40 @@ describe("state versioning", () => {
         lastSevereError: undefined,
         stateVersion: 9,
       },
+      {
+        settings: {
+          connection: {
+            protocol: "https",
+            hostname: "hostname",
+            port: 0,
+            username: "username",
+            password: "password",
+            rememberPassword: true,
+          },
+          visibleTasks: {
+            downloading: true,
+            uploading: true,
+            completed: true,
+            errored: true,
+            other: true,
+          },
+          notifications: {
+            enableCompletionNotifications: true,
+            enableFeedbackNotifications: true,
+          },
+          shouldHandleDownloadLinks: true,
+          taskSortType: "name-asc",
+          badgeDisplayType: "total",
+          showInactiveTasks: true,
+        },
+        lastSevereError: undefined,
+        stateVersion: 10,
+      },
     );
   });
 
   it("should do nothing when the state is already latest", () => {
-    const before: State_9 = {
+    const before: State_10 = {
       settings: {
         connection: {
           protocol: "https",
@@ -870,7 +922,6 @@ describe("state versioning", () => {
         notifications: {
           enableCompletionNotifications: true,
           enableFeedbackNotifications: true,
-          completionPollingInterval: 0,
         },
         taskSortType: "name-asc",
         badgeDisplayType: "total",
@@ -878,7 +929,7 @@ describe("state versioning", () => {
         shouldHandleDownloadLinks: true,
       },
       lastSevereError: undefined,
-      stateVersion: 9,
+      stateVersion: 10,
     };
 
     expect(migrateState(before)).toBe(before);

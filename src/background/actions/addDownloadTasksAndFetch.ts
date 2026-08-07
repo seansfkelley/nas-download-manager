@@ -8,16 +8,16 @@ import { getErrorForFailedResponse } from "../../common/apis/errors";
 import { saveLastSevereError } from "../../common/errorHandlers";
 import { assertNever } from "../../common/lang";
 import { notify } from "../../common/notify";
+import { PersistentState } from "../../common/state";
 import {
   ALL_DOWNLOADABLE_PROTOCOLS,
   EMULE_PROTOCOL,
   startsWithAnyProtocol,
 } from "../../common/apis/protocols";
 import { resolveUrl, ResolvedUrl, sanitizeUrlForSynology, guessFileNameFromUrl } from "./urls";
-import { pollTasks } from "./pollTasks";
+import { fetchTasks } from "./fetchTasks";
 import type { UnionByDiscriminant } from "../../common/types";
 import type { AddTaskOptions } from "../../common/apis/messages";
-import type { RequestManager } from "../requestManager";
 
 type ArrayifyValues<T extends Record<string, any>> = {
   [K in keyof T]: T[K][];
@@ -56,8 +56,7 @@ function reportUnexpectedError(
 
 async function addOneTask(
   api: SynologyClient,
-  pollRequestManager: RequestManager,
-  showNonErrorNotifications: boolean,
+  enableFeedbackNotifications: boolean,
   url: string,
   { path, ftpUsername, ftpPassword, unzipPassword }: AddTaskOptions,
 ) {
@@ -75,7 +74,7 @@ async function addOneTask(
         notificationId,
       );
     } else if (result.success) {
-      if (showNonErrorNotifications) {
+      if (enableFeedbackNotifications) {
         notify(
           browser.i18n.getMessage("Download_added"),
           filename || url,
@@ -110,7 +109,7 @@ async function addOneTask(
     }
   }
 
-  const notificationId = showNonErrorNotifications
+  const notificationId = enableFeedbackNotifications
     ? notify(browser.i18n.getMessage("Adding_download"), guessFileNameFromUrl(url) ?? url)
     : undefined;
 
@@ -134,7 +133,7 @@ async function addOneTask(
         ...commonCreateOptionsV1,
       });
       await reportTaskAddResult(result, guessFileNameFromUrl(url));
-      await pollTasks(api, pollRequestManager);
+      await fetchTasks(api);
     } catch (e) {
       reportUnexpectedError(notificationId, e, "error while adding direct-download task");
     }
@@ -167,7 +166,7 @@ async function addOneTask(
           });
         }
         await reportTaskAddResult(result, resolvedUrl.filename);
-        await pollTasks(api, pollRequestManager);
+        await fetchTasks(api);
       }
     } catch (e) {
       reportUnexpectedError(notificationId, e, "error while adding metadata-file task");
@@ -188,12 +187,11 @@ async function addOneTask(
 
 async function addMultipleTasks(
   api: SynologyClient,
-  pollRequestManager: RequestManager,
-  showNonErrorNotifications: boolean,
+  enableFeedbackNotifications: boolean,
   urls: string[],
   { path, ftpUsername, ftpPassword, unzipPassword }: AddTaskOptions,
 ) {
-  const notificationId = showNonErrorNotifications
+  const notificationId = enableFeedbackNotifications
     ? notify(
         browser.i18n.getMessage("Adding_ZcountZ_downloads", [urls.length]),
         browser.i18n.getMessage("Please_be_patient_this_may_take_some_time"),
@@ -326,16 +324,17 @@ async function addMultipleTasks(
     );
   }
 
-  pollTasks(api, pollRequestManager);
+  fetchTasks(api);
 }
 
-export async function addDownloadTasksAndPoll(
+export async function addDownloadTasksAndFetch(
   api: SynologyClient,
-  pollRequestManager: RequestManager,
-  showNonErrorNotifications: boolean,
   urls: string[],
   options?: AddTaskOptions,
 ): Promise<void> {
+  const enableFeedbackNotifications =
+    (await PersistentState.get())?.settings.notifications.enableFeedbackNotifications ?? false;
+
   const normalizedOptions = {
     ...options,
     // TODO: This seems wrong. Shouldn't this be ... ? path.slice(1) : path?
@@ -349,20 +348,8 @@ export async function addDownloadTasksAndPoll(
       "failure",
     );
   } else if (urls.length === 1) {
-    await addOneTask(
-      api,
-      pollRequestManager,
-      showNonErrorNotifications,
-      urls[0],
-      normalizedOptions,
-    );
+    await addOneTask(api, enableFeedbackNotifications, urls[0], normalizedOptions);
   } else {
-    await addMultipleTasks(
-      api,
-      pollRequestManager,
-      showNonErrorNotifications,
-      urls,
-      normalizedOptions,
-    );
+    await addMultipleTasks(api, enableFeedbackNotifications, urls, normalizedOptions);
   }
 }

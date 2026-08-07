@@ -8,8 +8,14 @@ export interface TaskState {
   tasksLastCompletedFetchTimestamp?: number;
 }
 
-// Other stuff here soon.
-export interface SessionState extends TaskState {}
+export interface SessionState extends TaskState {
+  // Identifies the most recently initiated task fetch, so that a fetch can discard its own results
+  // if a newer one has started in the meantime.
+  latestTaskFetchId?: string;
+  // Undefined means we haven't yet seen a task list this session, so there's nothing to compare
+  // against to decide which completions are new.
+  finishedTaskIds?: string[];
+}
 
 // This means that we don't have to be careful about loading the zero state before anything is written.
 let _testSessionStateShouldAllowEmptyObject: SessionState = {};

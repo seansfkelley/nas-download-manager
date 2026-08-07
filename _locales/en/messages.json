@@ -396,17 +396,9 @@
     "message": "Notify when downloads complete",
     "description": "Label for option on settings page."
   },
-  "Check_for_completed_downloads_every": {
-    "message": "Check for completed downloads every",
-    "description": "Prefix for inlined notification interval setting field."
-  },
-  "seconds": {
-    "message": "seconds",
-    "description": "Suffix for inlined notification interval setting field."
-  },
-  "at_least_15": {
-    "message": "(at least 15)",
-    "description": "Error message when notification interval is too short."
+  "Checking_for_completed_downloads_will_prevent_your_NAS_from_sleeping": {
+    "message": "Checking for completed downloads will prevent your NAS from sleeping.",
+    "description": "Subtitle for the download completion notification option on the settings page."
   },
   "Handle_opening_downloadable_link_types_ZprotocolsZ": {
     "message": "Handle opening downloadable link types ($PROTOCOLS$)",

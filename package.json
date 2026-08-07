@@ -36,7 +36,7 @@
     "@types/firefox-webext-browser": "^143.0.0",
     "@types/glob": "^5.0.33",
     "@types/jest": "^30.0.0",
-    "@types/lodash": "^4.14.141",
+    "@types/lodash": "^4.17.25",
     "@types/node": "^26.1.2",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",

@@ -38,10 +38,6 @@ ul.settings-list {
     display: flex;
     align-items: center;
     justify-content: flex-start;
-
-    .indent {
-      margin-left: 20px;
-    }
   }
 }
 
@@ -100,15 +96,6 @@ ul.settings-list {
 .port-setting {
   width: 80px;
   max-width: 80px;
-}
-
-.polling-interval {
-  width: 60px;
-  margin: 0 5px;
-}
-
-.wrong-polling-interval {
-  margin-left: 5px;
 }
 
 textarea.debugging-output {

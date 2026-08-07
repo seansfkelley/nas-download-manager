@@ -1,6 +1,6 @@
 // Aliased because the exported namespace below also claims the name State, and TypeScript refuses a
 // merged declaration whose parts are not all exported (TS2395).
-import type { State as LatestState } from "./9";
+import type { State as LatestState } from "./10";
 import { typesafeUnionMembers } from "../../lang";
 import { LATEST_STATE_VERSION } from "./update";
 
@@ -15,7 +15,7 @@ export type {
   StateVersion,
   BadgeDisplayType,
   State as PersistentState,
-} from "./9";
+} from "./10";
 
 export const ALL_STORED_STATE_NAMES = typesafeUnionMembers<keyof LatestState>({
   settings: true,

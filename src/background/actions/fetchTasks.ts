@@ -1,4 +1,3 @@
-import type { RequestManager } from "../requestManager";
 import { SynologyClient, ClientRequestResult } from "../../common/apis/synology";
 import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../../common/apis/errors";
 import { type TaskState, SessionState } from "../../common/state";
@@ -12,17 +11,16 @@ function setCachedTasks(cachedTasks: Partial<TaskState>) {
   });
 }
 
-export async function pollTasks(api: SynologyClient, manager: RequestManager): Promise<void> {
-  const token = manager.startNewRequest();
+export async function fetchTasks(api: SynologyClient): Promise<void> {
+  const fetchId = crypto.randomUUID();
 
-  const cachedTasksInit: Partial<TaskState> = {
-    tasksLastInitiatedFetchTimestamp: Date.now(),
-  };
-
-  console.log(`(${token}) polling for tasks...`);
+  console.log(`(${fetchId}) fetching tasks...`);
 
   try {
-    await SessionState.set(cachedTasksInit);
+    await SessionState.set({
+      tasksLastInitiatedFetchTimestamp: Date.now(),
+      latestTaskFetchId: fetchId,
+    });
 
     let response;
 
@@ -38,11 +36,13 @@ export async function pollTasks(api: SynologyClient, manager: RequestManager): P
       return;
     }
 
-    if (!manager.isRequestLatest(token)) {
-      console.log(`(${token}) poll result outdated; ignoring`, response);
+    // Naive "compare and swap". We aren't doing HFT here, so this is enough to avoid confusing
+    // states where a stale fetch clobbers a newer fetch that completed first.
+    if ((await SessionState.get()).latestTaskFetchId !== fetchId) {
+      console.log(`(${fetchId}) fetch result outdated; ignoring`, response);
       return;
     } else {
-      console.log(`(${token}) poll result still relevant; continuing...`, response);
+      console.log(`(${fetchId}) fetch result still relevant; continuing...`, response);
     }
 
     if (ClientRequestResult.isConnectionFailure(response)) {

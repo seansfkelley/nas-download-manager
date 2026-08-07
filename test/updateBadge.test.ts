@@ -21,7 +21,6 @@ const SETTINGS: Settings = {
   notifications: {
     enableCompletionNotifications: false,
     enableFeedbackNotifications: true,
-    completionPollingInterval: 60,
   },
   shouldHandleDownloadLinks: true,
   taskSortType: "name-asc",
