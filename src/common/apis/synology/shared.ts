@@ -1,4 +1,5 @@
 import { stringify } from "query-string";
+
 import { typesafePick } from "../../lang";
 
 export class BadResponseError extends Error {

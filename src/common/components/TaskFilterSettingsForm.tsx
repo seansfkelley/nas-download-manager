@@ -1,6 +1,8 @@
 import "./task-filter-settings-form.css";
 
 import type { ChangeEvent } from "react";
+
+import { recordKeys } from "../lang";
 import {
   VisibleTaskSettings,
   TaskSortType,
@@ -9,7 +11,7 @@ import {
   BadgeDisplayType,
   ORDERED_BADGE_DISPLAY_TYPE_NAMES,
 } from "../state";
-import { recordKeys } from "../lang";
+
 import { SettingsList } from "./SettingsList";
 import { SettingsListCheckbox } from "./SettingsListCheckbox";
 

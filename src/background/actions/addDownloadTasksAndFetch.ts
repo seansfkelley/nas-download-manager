@@ -1,23 +1,24 @@
+import { getErrorForFailedResponse } from "../../common/apis/errors";
+import type { AddTaskOptions } from "../../common/apis/messages";
+import {
+  ALL_DOWNLOADABLE_PROTOCOLS,
+  EMULE_PROTOCOL,
+  startsWithAnyProtocol,
+} from "../../common/apis/protocols";
 import {
   SynologyClient,
   ClientRequestResult,
   DownloadStation2,
   FormFile,
 } from "../../common/apis/synology";
-import { getErrorForFailedResponse } from "../../common/apis/errors";
 import { saveLastSevereError } from "../../common/errorHandlers";
 import { assertNever } from "../../common/lang";
 import { notify } from "../../common/notify";
 import { PersistentState } from "../../common/state";
-import {
-  ALL_DOWNLOADABLE_PROTOCOLS,
-  EMULE_PROTOCOL,
-  startsWithAnyProtocol,
-} from "../../common/apis/protocols";
-import { resolveUrl, ResolvedUrl, sanitizeUrlForSynology, guessFileNameFromUrl } from "./urls";
-import { fetchTasks } from "./fetchTasks";
 import type { UnionByDiscriminant } from "../../common/types";
-import type { AddTaskOptions } from "../../common/apis/messages";
+
+import { fetchTasks } from "./fetchTasks";
+import { resolveUrl, ResolvedUrl, sanitizeUrlForSynology, guessFileNameFromUrl } from "./urls";
 
 type ArrayifyValues<T extends Record<string, any>> = {
   [K in keyof T]: T[K][];

@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
+
 import { sync as globSync } from "glob";
 
 interface I18nMessage {
@@ -144,8 +145,8 @@ describe("i18n", () => {
             });
 
             expect(placeholderContents.sort().map((p) => p.replace("$", ""))).toStrictEqual(
-              (Array.apply(null, new Array(placeholderContents.length)) as undefined[]).map(
-                (_value, index) => (index + 1).toString(),
+              Array.from({ length: placeholderContents.length }, (_value, index) =>
+                (index + 1).toString(),
               ),
             );
           }

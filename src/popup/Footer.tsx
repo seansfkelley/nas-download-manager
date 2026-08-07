@@ -1,7 +1,8 @@
 import "./footer.css";
 import classNames from "classnames";
-import type { TaskState } from "../common/state";
+
 import { formatMetric1024, formatRelativeTime } from "../common/format";
+import type { TaskState } from "../common/state";
 
 export interface Props extends TaskState {}
 

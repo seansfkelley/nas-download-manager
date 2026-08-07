@@ -1,4 +1,5 @@
 import { ConnectionSettings, getHostUrl } from "../state";
+
 import { ClientRequestResult, SessionName, SynologyClient } from "./synology";
 
 export async function testConnection(

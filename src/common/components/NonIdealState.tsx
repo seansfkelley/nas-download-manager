@@ -1,6 +1,6 @@
 import "./non-ideal-state.css";
-import type { PropsWithChildren } from "react";
 import classNames from "classnames";
+import type { PropsWithChildren } from "react";
 
 export interface Props {
   icon?: string;

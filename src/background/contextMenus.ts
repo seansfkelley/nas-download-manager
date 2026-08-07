@@ -1,8 +1,8 @@
-import { getMutableStateSingleton } from "./backgroundState";
+import { ALL_DOWNLOADABLE_PROTOCOLS, startsWithAnyProtocol } from "../common/apis/protocols";
 import { notify } from "../common/notify";
 
 import { addDownloadTasksAndFetch } from "./actions";
-import { ALL_DOWNLOADABLE_PROTOCOLS, startsWithAnyProtocol } from "../common/apis/protocols";
+import { getMutableStateSingleton } from "./backgroundState";
 
 export function initializeContextMenus() {
   browser.contextMenus.create({
@@ -17,7 +17,7 @@ export function initializeContextMenus() {
       } else if (data.srcUrl) {
         addDownloadTasksAndFetch(state.api, [data.srcUrl]);
       } else if (data.selectionText) {
-        let urls = data.selectionText
+        const urls = data.selectionText
           .split("\n")
           .map((url) => url.trim())
           // The cheapest of checks. Actual invalid URLs will be caught later.

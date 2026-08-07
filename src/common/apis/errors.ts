@@ -1,5 +1,6 @@
-import type { ConnectionFailure, RestApiFailureResponse } from "./synology";
 import { assertNever } from "../lang";
+
+import type { ConnectionFailure, RestApiFailureResponse } from "./synology";
 
 const DOWNLOADSTATION_TASK_ERRORS: Record<string, string> = {
   400: browser.i18n.getMessage("File_upload_failed"),

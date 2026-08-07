@@ -1,4 +1,5 @@
 import isEqual from "lodash/isEqual";
+
 import { notify } from "../../common/notify";
 import { Settings, SessionState } from "../../common/state";
 

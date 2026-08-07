@@ -1,5 +1,5 @@
-import type { DownloadStationTask } from "../src/common/apis/synology/DownloadStation/Task";
 import { updateBadge } from "../src/background/listeners/updateBadge";
+import type { DownloadStationTask } from "../src/common/apis/synology/DownloadStation/Task";
 import type { Settings } from "../src/common/state/migrations/latest";
 
 const SETTINGS: Settings = {

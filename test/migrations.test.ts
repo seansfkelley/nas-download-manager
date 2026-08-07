@@ -1,8 +1,8 @@
 import { cloneDeep } from "lodash";
 
 import type { DownloadStationTask } from "../src/common/apis/synology/DownloadStation/Task";
-import { migrateState } from "../src/common/state/migrations/update";
 import type { State as State_1 } from "../src/common/state/migrations/1";
+import type { State as State_10 } from "../src/common/state/migrations/10";
 import type { State as State_2 } from "../src/common/state/migrations/2";
 import type { State as State_3 } from "../src/common/state/migrations/3";
 import type { State as State_4 } from "../src/common/state/migrations/4";
@@ -11,7 +11,7 @@ import type { State as State_6 } from "../src/common/state/migrations/6";
 import type { State as State_7 } from "../src/common/state/migrations/7";
 import type { State as State_8 } from "../src/common/state/migrations/8";
 import type { State as State_9 } from "../src/common/state/migrations/9";
-import type { State as State_10 } from "../src/common/state/migrations/10";
+import { migrateState } from "../src/common/state/migrations/update";
 
 interface PreVersioningState_0 {
   connection: {

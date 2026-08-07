@@ -1,8 +1,8 @@
-import { SynologyClient, ClientRequestResult } from "../../common/apis/synology";
 import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../../common/apis/errors";
-import { type TaskState, SessionState } from "../../common/state";
+import { SynologyClient, ClientRequestResult } from "../../common/apis/synology";
 import { saveLastSevereError } from "../../common/errorHandlers";
 import { assertNever } from "../../common/lang";
+import { type TaskState, SessionState } from "../../common/state";
 
 function setCachedTasks(cachedTasks: Partial<TaskState>) {
   return SessionState.set({

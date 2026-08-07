@@ -1,5 +1,6 @@
-import { type ConnectionSettings, Settings } from "./migrations/latest";
 import { typesafeMapValues } from "../lang";
+
+import { type ConnectionSettings, Settings } from "./migrations/latest";
 
 export * from "./constants";
 export * from "./listen";

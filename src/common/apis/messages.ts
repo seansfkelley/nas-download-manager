@@ -1,4 +1,5 @@
 import type { DiscriminateUnion, OmitStrict } from "../types";
+
 import type { DownloadStationInfoConfig } from "./synology/DownloadStation/Info";
 
 export interface SuccessMessageResponse<T> {
@@ -162,6 +163,7 @@ export const SetLoginPassword = makeMessageOperations("set-login-password", (pas
   password,
 }));
 
+/* eslint-disable no-useless-assignment -- that is the point; only tsc reads this block. */
 {
   // Compile-time check to make sure that these two different types that have to match, do.
   let _message: Message["type"] = null as unknown as keyof Result;
@@ -171,3 +173,4 @@ export const SetLoginPassword = makeMessageOperations("set-login-password", (pas
   _message = _result;
   _result = _message;
 }
+/* eslint-enable no-useless-assignment */

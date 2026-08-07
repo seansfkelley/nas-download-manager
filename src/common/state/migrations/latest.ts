@@ -1,7 +1,8 @@
 // Aliased because the exported namespace below also claims the name State, and TypeScript refuses a
 // merged declaration whose parts are not all exported (TS2395).
-import type { State as LatestState } from "./10";
 import { typesafeUnionMembers } from "../../lang";
+
+import type { State as LatestState } from "./10";
 import { LATEST_STATE_VERSION } from "./update";
 
 export type {
@@ -29,7 +30,7 @@ interface AnyState {
 
 export namespace PersistentState {
   export async function get(): Promise<LatestState | undefined> {
-    let state = (await browser.storage.local.get(ALL_STORED_STATE_NAMES)) as AnyState;
+    const state = (await browser.storage.local.get(ALL_STORED_STATE_NAMES)) as AnyState;
     if (state.stateVersion == LATEST_STATE_VERSION) {
       console.log("fetched persistent state");
       return state as LatestState;

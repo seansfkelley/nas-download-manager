@@ -17,7 +17,7 @@ export function FatalError(props: Props) {
 
   try {
     redactedSettings = props.settings != null ? redactSettings(props.settings) : undefined;
-  } catch (e) {
+  } catch {
     redactedSettings = undefined;
   }
 

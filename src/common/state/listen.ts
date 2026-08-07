@@ -1,6 +1,7 @@
+import { typesafePick } from "../lang";
+
 import { PersistentState } from "./migrations/latest";
 import { SessionState } from "./session";
-import { typesafePick } from "../lang";
 
 interface Reactable<T> {
   <K1 extends keyof T>(key1: K1, listener: (state: Pick<T, K1>) => void | Promise<void>): void;
@@ -57,8 +58,8 @@ function reactable<T extends object>(
 
     // This line must be hit at module initialization time to correctly register itself.
     browser.storage[areaName].onChanged.addListener(async (changes) => {
-      let changedKeys = Object.keys(changes);
-      let triggeringKeys = changedKeys.filter((k) => keys.has(k as unknown as keyof T));
+      const changedKeys = Object.keys(changes);
+      const triggeringKeys = changedKeys.filter((k) => keys.has(k as unknown as keyof T));
       if (triggeringKeys.length > 0) {
         console.log(`triggering listener for browser.storage.${areaName} due to change`, {
           listeningKeys: keys,

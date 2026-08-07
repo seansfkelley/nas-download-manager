@@ -1,4 +1,4 @@
-import { type Logging, PersistentState } from "./state";
+import { PersistentState } from "./state";
 
 export function saveLastSevereError(e: any | undefined, message?: string) {
   console.error(message || "unhandled error", e);

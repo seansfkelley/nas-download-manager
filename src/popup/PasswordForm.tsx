@@ -1,8 +1,10 @@
 import "./password-form.css";
 
 import { useState } from "react";
-import type { PopupClient } from "./popupClient";
+
 import { LoginStatus, Status } from "../common/components/LoginStatus";
+
+import type { PopupClient } from "./popupClient";
 
 export interface Props {
   client: PopupClient;

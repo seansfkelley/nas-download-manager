@@ -1,6 +1,12 @@
 import "./settings-form.css";
 import { useState } from "react";
 
+import { SetLoginPassword } from "../common/apis/messages";
+import { DOWNLOAD_ONLY_PROTOCOLS } from "../common/apis/protocols";
+import { SettingsList } from "../common/components/SettingsList";
+import { SettingsListCheckbox } from "../common/components/SettingsListCheckbox";
+import { TaskFilterSettingsForm } from "../common/components/TaskFilterSettingsForm";
+import { BUG_REPORT_URL } from "../common/constants";
 import {
   Settings,
   VisibleTaskSettings,
@@ -10,14 +16,9 @@ import {
   ConnectionSettings,
   redactSettings,
 } from "../common/state";
-import { BUG_REPORT_URL } from "../common/constants";
-import { DOWNLOAD_ONLY_PROTOCOLS } from "../common/apis/protocols";
-import { TaskFilterSettingsForm } from "../common/components/TaskFilterSettingsForm";
-import { SettingsList } from "../common/components/SettingsList";
-import { SettingsListCheckbox } from "../common/components/SettingsListCheckbox";
-import { ConnectionSettings as ConnectionSettingsComponent } from "./ConnectionSettings";
-import { SetLoginPassword } from "../common/apis/messages";
 import type { Overwrite } from "../common/types";
+
+import { ConnectionSettings as ConnectionSettingsComponent } from "./ConnectionSettings";
 
 export interface Props {
   settings: Settings;

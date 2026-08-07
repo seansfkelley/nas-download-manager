@@ -1,19 +1,20 @@
 import "./popup.css";
-import { useMemo, useRef, useState } from "react";
 import classNames from "classnames";
 import { default as throttle } from "lodash/throttle";
+import { useMemo, useRef, useState } from "react";
 
 import type { DownloadStationTask } from "../common/apis/synology/DownloadStation/Task";
-import type { VisibleTaskSettings, TaskSortType, BadgeDisplayType } from "../common/state";
-import { sortTasks, filterTasks } from "../common/filtering";
-import { TaskFilterSettingsForm } from "../common/components/TaskFilterSettingsForm";
 import { NonIdealState } from "../common/components/NonIdealState";
-import type { PopupClient } from "./popupClient";
+import { TaskFilterSettingsForm } from "../common/components/TaskFilterSettingsForm";
+import { sortTasks, filterTasks } from "../common/filtering";
+import type { VisibleTaskSettings, TaskSortType, BadgeDisplayType } from "../common/state";
+
 import { AdvancedAddDownloadForm } from "./AdvancedAddDownloadForm";
-import { Header } from "./Header";
 import { Footer } from "./Footer";
-import { Task } from "./Task";
+import { Header } from "./Header";
 import { PasswordForm } from "./PasswordForm";
+import { Task } from "./Task";
+import type { PopupClient } from "./popupClient";
 
 export interface Props {
   tasks: DownloadStationTask[];
@@ -50,6 +51,7 @@ export function Popup(props: Props) {
   // by every render.
   const onBodyScroll = useMemo(
     () =>
+      // eslint-disable-next-line react-hooks/refs -- the throttled callback only runs on scroll.
       throttle(() => {
         setIsShowingDropShadow(bodyRef.current != null && bodyRef.current.scrollTop !== 0);
       }, 200),

@@ -1,10 +1,10 @@
 import "./login-status.css";
 
-import { useEffect, useState } from "react";
 import classNames from "classnames";
+import { useEffect, useState } from "react";
 
-import { ClientRequestResult } from "../apis/synology";
 import { getErrorForConnectionFailure, getErrorForFailedResponse } from "../apis/errors";
+import { ClientRequestResult } from "../apis/synology";
 import { assertNever } from "../lang";
 
 export type Status = "none" | "in-progress" | ClientRequestResult<unknown>;
@@ -25,6 +25,7 @@ export function LoginStatus({ status }: Props) {
         clearTimeout(timeout);
       };
     } else {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- known; should derive instead.
       setIsSlow(false);
       return () => {}; // appease linter
     }

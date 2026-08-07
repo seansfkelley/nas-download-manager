@@ -2,18 +2,18 @@ import "./connection-settings.css";
 
 import { useId, useState } from "react";
 
+import { testConnection } from "../common/apis/connection";
+import { ClientRequestResult } from "../common/apis/synology";
+import { disabledPropAndClassName, kludgeRefSetClassname } from "../common/classnameUtil";
+import { LoginStatus, Status } from "../common/components/LoginStatus";
+import { SettingsList } from "../common/components/SettingsList";
+import { assert } from "../common/lang";
 import {
   Protocol,
   PROTOCOLS,
   ConnectionSettings as ConnectionSettingsObject,
 } from "../common/state";
-import { ClientRequestResult } from "../common/apis/synology";
-import { SettingsList } from "../common/components/SettingsList";
-import { disabledPropAndClassName, kludgeRefSetClassname } from "../common/classnameUtil";
 import type { Overwrite } from "../common/types";
-import { assert } from "../common/lang";
-import { testConnection } from "../common/apis/connection";
-import { LoginStatus, Status } from "../common/components/LoginStatus";
 
 type ConnectionSettingsWithMandatoryPassword = Overwrite<
   ConnectionSettingsObject,

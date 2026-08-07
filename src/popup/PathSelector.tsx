@@ -1,6 +1,8 @@
 import "./path-selector.css";
 import { useCallback, useEffect, useRef, useState } from "react";
+
 import type { MessageResponse, Directory } from "../common/apis/messages";
+
 import {
   DirectoryTree,
   DirectoryTreeFile,
@@ -65,6 +67,7 @@ export function PathSelector(props: Props) {
   useEffect(() => {
     // Clearing the selection is a no-op on mount, where it is already unset.
     props.onSelectPath(undefined);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- known; should reset via key instead.
     setDirectoryTree((tree) => recursivelyUpdateDirectoryTree(tree, ROOT_PATH, "unloaded"));
 
     const stashedRequestVersion = (requestVersionByPath.current[ROOT_PATH] =

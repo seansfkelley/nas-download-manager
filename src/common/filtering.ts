@@ -1,5 +1,6 @@
-import { default as sortBy } from "lodash/sortBy";
 import { default as partition } from "lodash/partition";
+import { default as sortBy } from "lodash/sortBy";
+
 import {
   DownloadStationTask,
   DownloadStationTaskNormalStatus,
@@ -7,8 +8,9 @@ import {
   ALL_TASK_ERROR_STATUSES,
   ALL_TASK_NORMAL_STATUSES,
 } from "../common/apis/synology/DownloadStation/Task";
-import type { VisibleTaskSettings, TaskSortType } from "./state";
+
 import { assertNever, recordKeys } from "./lang";
+import type { VisibleTaskSettings, TaskSortType } from "./state";
 
 const EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES: {
   [K in "downloading" | "uploading" | "completed"]: DownloadStationTaskNormalStatus[];
@@ -22,6 +24,7 @@ const EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES: {
   // Compile-time unit test.
   const _1: keyof VisibleTaskSettings =
     null as any as keyof typeof EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES;
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- exists only for tsc.
   _1;
 }
 

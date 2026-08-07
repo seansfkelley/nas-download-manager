@@ -6,6 +6,7 @@ import type {
   BadgeDisplayType,
   TaskState,
 } from "../common/state";
+
 import { Popup } from "./Popup";
 import { getClient } from "./popupClient";
 

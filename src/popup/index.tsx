@@ -2,6 +2,7 @@ import "./index.css";
 import "../common/init/nonContentContext";
 import { createRoot } from "react-dom/client";
 
+import { FetchTasks } from "../common/apis/messages";
 import {
   Settings,
   PersistentState,
@@ -9,10 +10,10 @@ import {
   SessionState,
   reactToSessionState,
 } from "../common/state";
+
 import { FatalError } from "./FatalError";
 import { FatalErrorWrapper } from "./FatalErrorWrapper";
 import { PopupWrapper } from "./PopupWrapper";
-import { FetchTasks } from "../common/apis/messages";
 
 const ROOT = createRoot(document.getElementById("body")!, {
   onUncaughtError: (error) => {

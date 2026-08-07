@@ -1,9 +1,10 @@
-import { ClientRequestResult } from "../common/apis/synology";
 import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../common/apis/errors";
 import { MessageResponse, Message, Result } from "../common/apis/messages";
+import { ClientRequestResult } from "../common/apis/synology";
+import type { DiscriminateUnion } from "../common/types";
+
 import { addDownloadTasksAndFetch, clearCachedTasks, fetchTasks } from "./actions";
 import { BackgroundState, getMutableStateSingleton } from "./backgroundState";
-import type { DiscriminateUnion } from "../common/types";
 
 type MessageHandler<T extends Message, U extends Result[keyof Result]> = (
   m: T,
@@ -37,6 +38,7 @@ function toMessageResponse<T, U>(
     return {
       success: true,
       // Non-null assert: extract exists iff we are type-parameterized to something other than undefined.
+      // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
       result: extract?.(response.data)!,
     };
   }

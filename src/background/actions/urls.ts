@@ -1,4 +1,5 @@
 import { parse as parseQueryString } from "query-string";
+
 import {
   ALL_DOWNLOADABLE_PROTOCOLS,
   AUTO_DOWNLOAD_TORRENT_FILE_PROTOCOLS,
@@ -105,7 +106,7 @@ async function getMetadataFileType(
     : undefined;
 }
 
-export const EMULE_FILENAME_REGEX = /\|file\|([^\|]+)\|/;
+export const EMULE_FILENAME_REGEX = /\|file\|([^|]+)\|/;
 
 export function guessFileNameFromUrl(url: string): string | undefined {
   if (startsWithAnyProtocol(url, MAGNET_PROTOCOL)) {
