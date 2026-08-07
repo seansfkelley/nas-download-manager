@@ -1,12 +1,10 @@
-import { type CachedTasks, State } from "../../common/state";
+import { SessionState, TaskState } from "../../common/state";
 
 export function clearCachedTasks() {
-  const emptyState: CachedTasks = {
-    tasks: [],
-    taskFetchFailureReason: null,
-    tasksLastCompletedFetchTimestamp: null,
-    tasksLastInitiatedFetchTimestamp: null,
-  };
-
-  return State.set(emptyState);
+  return SessionState.set({
+    tasks: undefined,
+    taskFetchFailureReason: undefined,
+    tasksLastCompletedFetchTimestamp: undefined,
+    tasksLastInitiatedFetchTimestamp: undefined,
+  } satisfies Record<keyof TaskState, undefined>);
 }

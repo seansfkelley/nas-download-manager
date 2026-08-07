@@ -3,21 +3,22 @@ import type { ErrorInfo } from "react";
 
 import { NonIdealState } from "../common/components/NonIdealState";
 import { BUG_REPORT_URL } from "../common/constants";
-import { State as ExtensionState, redactState } from "../common/state";
+import { redactSettings, Settings } from "../common/state";
 
 export interface Props {
   error: unknown;
   errorInfo?: ErrorInfo | undefined;
-  state?: ExtensionState;
+  settings?: Settings;
+  lastSevereError?: string;
 }
 
 export function FatalError(props: Props) {
-  let redactedState;
+  let redactedSettings;
 
   try {
-    redactedState = props.state ? redactState(props.state) : undefined;
+    redactedSettings = props.settings != null ? redactSettings(props.settings) : undefined;
   } catch (e) {
-    redactedState = undefined;
+    redactedSettings = undefined;
   }
 
   const formattedError =
@@ -27,11 +28,13 @@ export function FatalError(props: Props) {
         }`
       : JSON.stringify(props.error, null, 2);
 
-  const formattedDebugLogs = `${
-    redactedState
-      ? "Redacted extension state: " + JSON.stringify(redactedState, null, 2)
-      : "(no state provided)"
-  }
+  const formattedDebugLogs = `${props.lastSevereError ?? "(no severe error provided)"}
+
+${
+  redactedSettings
+    ? "Redacted extension settings: " + JSON.stringify(redactedSettings, null, 2)
+    : "(no state provided)"
+}
 
 ${formattedError}
 

@@ -1,12 +1,12 @@
 import type { RequestManager } from "../requestManager";
 import { SynologyClient, ClientRequestResult } from "../../common/apis/synology";
 import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../../common/apis/errors";
-import { type CachedTasks, State } from "../../common/state";
+import { type TaskState, SessionState } from "../../common/state";
 import { saveLastSevereError } from "../../common/errorHandlers";
 import { assertNever } from "../../common/lang";
 
-function setCachedTasks(cachedTasks: Partial<CachedTasks>) {
-  return State.set({
+function setCachedTasks(cachedTasks: Partial<TaskState>) {
+  return SessionState.set({
     tasksLastCompletedFetchTimestamp: Date.now(),
     ...cachedTasks,
   });
@@ -15,21 +15,18 @@ function setCachedTasks(cachedTasks: Partial<CachedTasks>) {
 export async function pollTasks(api: SynologyClient, manager: RequestManager): Promise<void> {
   const token = manager.startNewRequest();
 
-  const cachedTasksInit: Partial<CachedTasks> = {
+  const cachedTasksInit: Partial<TaskState> = {
     tasksLastInitiatedFetchTimestamp: Date.now(),
   };
 
   console.log(`(${token}) polling for tasks...`);
 
   try {
-    await State.set(cachedTasksInit);
+    await SessionState.set(cachedTasksInit);
 
     let response;
 
     try {
-      // HELLO THERE
-      //
-      // When changing what this requests, you almost certainly want to update STATE_VERSION.
       response = await api.DownloadStation.Task.List({
         offset: 0,
         limit: -1,
@@ -71,7 +68,7 @@ export async function pollTasks(api: SynologyClient, manager: RequestManager): P
     } else if (response.success) {
       await setCachedTasks({
         tasks: response.data.tasks,
-        taskFetchFailureReason: null,
+        taskFetchFailureReason: undefined, // This works as expected in Firefox. TODO: Test Chrome.
       });
     } else {
       await setCachedTasks({

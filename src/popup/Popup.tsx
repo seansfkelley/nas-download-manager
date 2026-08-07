@@ -17,9 +17,10 @@ import { PasswordForm } from "./PasswordForm";
 
 export interface Props {
   tasks: DownloadStationTask[];
-  taskFetchFailureReason: "missing-config" | "login-required" | { failureMessage: string } | null;
-  tasksLastInitiatedFetchTimestamp: number | null;
-  tasksLastCompletedFetchTimestamp: number | null;
+  taskFetchFailureReason:
+    "missing-config" | "login-required" | { failureMessage: string } | undefined;
+  tasksLastInitiatedFetchTimestamp: number | undefined;
+  tasksLastCompletedFetchTimestamp: number | undefined;
   visibleTasks: VisibleTaskSettings;
   changeVisibleTasks: (visibleTasks: VisibleTaskSettings) => void;
   taskSort: TaskSortType;
@@ -217,7 +218,7 @@ export function Popup(props: Props) {
         {maybeRenderAddDownloadOverlay()}
       </div>
       <Footer
-        tasks={props.tasks}
+        tasks={props.tasks ?? []}
         taskFetchFailureReason={props.taskFetchFailureReason}
         tasksLastInitiatedFetchTimestamp={props.tasksLastInitiatedFetchTimestamp}
         tasksLastCompletedFetchTimestamp={props.tasksLastCompletedFetchTimestamp}
