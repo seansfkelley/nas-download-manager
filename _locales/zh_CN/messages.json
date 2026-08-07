@@ -397,18 +397,6 @@
     "message": "下载完成时显示通知",
     "description": "Label for option on settings page."
   },
-  "Check_for_completed_downloads_every": {
-    "message": "定期检查任务状态于",
-    "description": "Prefix for inlined notification interval setting field."
-  },
-  "seconds": {
-    "message": "秒",
-    "description": "Suffix for inlined notification interval setting field."
-  },
-  "at_least_15": {
-    "message": "（最小间隔15秒）",
-    "description": "Error message when notification interval is too short."
-  },
   "Handle_opening_downloadable_link_types_ZprotocolsZ": {
     "message": "响应支持的浏览器下载协议（$PROTOCOLS$）",
     "description": "Label for option on settings page.",

@@ -56,7 +56,6 @@ const SETTINGS: PersistentState["settings"] = {
   notifications: {
     enableCompletionNotifications: false,
     enableFeedbackNotifications: true,
-    completionPollingInterval: 60,
   },
   shouldHandleDownloadLinks: true,
   taskSortType: "name-asc",
@@ -67,7 +66,7 @@ const SETTINGS: PersistentState["settings"] = {
 const PERSISTENT_STATE: PersistentState = {
   settings: SETTINGS,
   lastSevereError: "error",
-  stateVersion: 9,
+  stateVersion: 10,
 };
 
 describe("state listeners", () => {
@@ -99,7 +98,7 @@ describe("state listeners", () => {
       reactToPersistentState("settings", "stateVersion", listener);
       await flush();
 
-      expect(listener).toHaveBeenCalledWith({ settings: SETTINGS, stateVersion: 9 });
+      expect(listener).toHaveBeenCalledWith({ settings: SETTINGS, stateVersion: 10 });
     });
 
     it("should read only the keys that make up the persistent state", async () => {

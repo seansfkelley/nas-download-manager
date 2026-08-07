@@ -373,18 +373,6 @@
     "message": "Notifier quand les téléchargements sont achevés",
     "description": "Label for option on settings page."
   },
-  "Check_for_completed_downloads_every": {
-    "message": "Vérifier l'achèvement des téléchargements toutes les",
-    "description": "Prefix for inlined notification interval setting field."
-  },
-  "seconds": {
-    "message": "secondes",
-    "description": "Suffix for inlined notification interval setting field."
-  },
-  "at_least_15": {
-    "message": "(au moins 15)",
-    "description": "Error message when notification interval is too short."
-  },
   "Handle_opening_downloadable_link_types_ZprotocolsZ": {
     "message": "Gérer l'ouverture des types de liens téléchargeables ($PROTOCOLS$)",
     "description": "Label for option on settings page.",

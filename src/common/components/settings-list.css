@@ -8,4 +8,10 @@ ul.settings-list {
     align-items: center;
     justify-content: flex-start;
   }
+
+  .subtitle {
+    display: block;
+    font-size: 0.9em;
+    color: #999;
+  }
 }

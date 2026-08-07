@@ -11,11 +11,20 @@ import { initializeMessageHandler } from "./messages";
 import { migrateState } from "../common/state/migrations/update";
 import { updateCredentials } from "./listeners/updateCredentials";
 import { updateBadge } from "./listeners/updateBadge";
-import { updateBackgroundSettings } from "./listeners/updateBackgroundSettings";
+import { POLL_TASKS_ALARM, updateBackgroundPollAlarm } from "./listeners/updateBackgroundPollAlarm";
 import { maybeNotifyCompletedDownloads } from "./listeners/maybeNotifyCompletedDownloads";
+import { getMutableStateSingleton } from "./backgroundState";
+import { fetchTasks } from "./actions";
 
 initializeContextMenus();
 initializeMessageHandler();
+
+browser.alarms.onAlarm.addListener((alarm) => {
+  if (alarm.name === POLL_TASKS_ALARM) {
+    console.log("poll alarm fired");
+    fetchTasks(getMutableStateSingleton().api);
+  }
+});
 
 (async () => {
   try {
@@ -25,7 +34,7 @@ initializeMessageHandler();
 
     reactToPersistentState("settings", async ({ settings }) => {
       await updateCredentials(settings);
-      await updateBackgroundSettings(settings);
+      await updateBackgroundPollAlarm(settings);
 
       const sessionState = await SessionState.get();
       await updateBadge(settings, sessionState);
