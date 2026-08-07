@@ -1,7 +1,7 @@
 import isEqual from "lodash/isEqual";
 import { Settings } from "../../common/state";
 import { getMutableStateSingleton } from "../backgroundState";
-import { pollTasks } from "../actions";
+import { fetchTasks } from "../actions";
 
 export async function updateBackgroundSettings(settings: Settings) {
   let backgroundState = getMutableStateSingleton();
@@ -11,7 +11,7 @@ export async function updateBackgroundSettings(settings: Settings) {
     clearInterval(backgroundState.notificationInterval!);
     if (backgroundState.lastNotificationSettings.enableCompletionNotifications) {
       backgroundState.notificationInterval = setInterval(() => {
-        pollTasks(backgroundState.api, backgroundState.pollRequestManager);
+        fetchTasks(backgroundState.api, backgroundState.pollRequestManager);
       }, backgroundState.lastNotificationSettings.completionPollingInterval * 1000) as any as number;
     }
   }

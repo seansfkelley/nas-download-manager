@@ -35,8 +35,8 @@ export interface AddTaskOptions {
   unzipPassword?: string;
 }
 
-export interface PollTasks {
-  type: "poll-tasks";
+export interface FetchTasks {
+  type: "fetch-tasks";
 }
 
 export interface PauseTask {
@@ -75,7 +75,7 @@ export interface SetLoginPassword {
 
 export type Message =
   | AddTasks
-  | PollTasks
+  | FetchTasks
   | PauseTask
   | ResumeTask
   | DeleteTasks
@@ -87,7 +87,7 @@ const MESSAGE_TYPES: Record<Message["type"], true> = {
   "add-tasks": true,
   "delete-tasks": true,
   "pause-task": true,
-  "poll-tasks": true,
+  "fetch-tasks": true,
   "resume-task": true,
   "get-config": true,
   "list-directories": true,
@@ -104,7 +104,7 @@ export const Message = {
 
 export type Result = {
   "add-tasks": void;
-  "poll-tasks": void;
+  "fetch-tasks": void;
   "pause-task": MessageResponse;
   "resume-task": MessageResponse;
   "delete-tasks": MessageResponse;
@@ -138,7 +138,7 @@ export const AddTasks = makeMessageOperations(
   }),
 );
 
-export const PollTasks = makeMessageOperations("poll-tasks", () => ({}));
+export const FetchTasks = makeMessageOperations("fetch-tasks", () => ({}));
 
 export const PauseTask = makeMessageOperations("pause-task", (taskId: string) => ({
   taskId,

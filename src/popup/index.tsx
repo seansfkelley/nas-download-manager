@@ -12,7 +12,7 @@ import {
 import { FatalError } from "./FatalError";
 import { FatalErrorWrapper } from "./FatalErrorWrapper";
 import { PopupWrapper } from "./PopupWrapper";
-import { PollTasks } from "../common/apis/messages";
+import { FetchTasks } from "../common/apis/messages";
 
 const ROOT = createRoot(document.getElementById("body")!, {
   onUncaughtError: (error) => {
@@ -24,9 +24,9 @@ function updateSettings(settings: Settings) {
   PersistentState.set({ settings });
 }
 
-PollTasks.send();
+FetchTasks.send();
 setInterval(() => {
-  PollTasks.send();
+  FetchTasks.send();
 }, 3000);
 
 reactToPersistentState("settings", "lastSevereError", async ({ settings, lastSevereError }) => {

@@ -12,14 +12,14 @@ function setCachedTasks(cachedTasks: Partial<TaskState>) {
   });
 }
 
-export async function pollTasks(api: SynologyClient, manager: RequestManager): Promise<void> {
+export async function fetchTasks(api: SynologyClient, manager: RequestManager): Promise<void> {
   const token = manager.startNewRequest();
 
   const cachedTasksInit: Partial<TaskState> = {
     tasksLastInitiatedFetchTimestamp: Date.now(),
   };
 
-  console.log(`(${token}) polling for tasks...`);
+  console.log(`(${token}) fetching tasks...`);
 
   try {
     await SessionState.set(cachedTasksInit);

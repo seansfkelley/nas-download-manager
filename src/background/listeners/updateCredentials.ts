@@ -1,6 +1,6 @@
 import { SessionName } from "../../common/apis/synology";
 import { getHostUrl, Settings } from "../../common/state";
-import { clearCachedTasks, pollTasks } from "../actions";
+import { clearCachedTasks, fetchTasks } from "../actions";
 import { getMutableStateSingleton } from "../backgroundState";
 
 let isInitializingExtension = true;
@@ -37,7 +37,7 @@ export async function updateCredentials(settings: Settings) {
     if (!isInitializingExtension) {
       // Don't use await because we want this to fire in the background.
       clearCachePromise.then(() => {
-        pollTasks(backgroundState.api, backgroundState.pollRequestManager);
+        fetchTasks(backgroundState.api, backgroundState.pollRequestManager);
       });
     }
   }
