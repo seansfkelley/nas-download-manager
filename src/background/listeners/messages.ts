@@ -1,7 +1,7 @@
 import { ClientRequestResult } from "../../common/apis/synology";
 import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../../common/apis/errors";
 import { MessageResponse, Message, Result } from "../../common/apis/messages";
-import { addDownloadTasksAndPoll, pollTasks } from "../actions";
+import { addDownloadTasksAndPoll, fetchTasksIntoStorage } from "../actions";
 import { clearCachedTasks, PersistentState, SessionState } from "../../common/state";
 import { getSynologyClient } from "../getSynologyClient";
 import type { DiscriminateUnion } from "../../common/types";
@@ -50,13 +50,13 @@ const MESSAGE_HANDLERS: MessageHandlers = {
   },
   "poll-tasks": async () => {
     let client = await getSynologyClient();
-    return pollTasks(client);
+    return fetchTasksIntoStorage(client);
   },
   "pause-task": async ({ taskId }) => {
     let client = await getSynologyClient();
     const response = toMessageResponse(await client.DownloadStation.Task.Pause({ id: [taskId] }));
     if (response.success) {
-      await pollTasks(client);
+      await fetchTasksIntoStorage(client);
     }
     return response;
   },
@@ -64,7 +64,7 @@ const MESSAGE_HANDLERS: MessageHandlers = {
     let client = await getSynologyClient();
     const response = toMessageResponse(await client.DownloadStation.Task.Resume({ id: [taskId] }));
     if (response.success) {
-      await pollTasks(client);
+      await fetchTasksIntoStorage(client);
     }
     return response;
   },
@@ -74,7 +74,7 @@ const MESSAGE_HANDLERS: MessageHandlers = {
       await client.DownloadStation.Task.Delete({ id: taskIds, force_complete: false }),
     );
     if (response.success) {
-      await pollTasks(client);
+      await fetchTasksIntoStorage(client);
     }
     return response;
   },

@@ -14,7 +14,7 @@ import {
   startsWithAnyProtocol,
 } from "../../common/apis/protocols";
 import { resolveUrl, ResolvedUrl, sanitizeUrlForSynology, guessFileNameFromUrl } from "./urls";
-import { pollTasks } from "./pollTasks";
+import { fetchTasksIntoStorage } from "./fetchTasksIntoStorage";
 import type { UnionByDiscriminant } from "../../common/types";
 import type { AddTaskOptions } from "../../common/apis/messages";
 
@@ -132,7 +132,7 @@ async function addOneTask(
         ...commonCreateOptionsV1,
       });
       await reportTaskAddResult(result, guessFileNameFromUrl(url));
-      await pollTasks(api);
+      await fetchTasksIntoStorage(api);
     } catch (e) {
       reportUnexpectedError(notificationId, e, "error while adding direct-download task");
     }
@@ -165,7 +165,7 @@ async function addOneTask(
           });
         }
         await reportTaskAddResult(result, resolvedUrl.filename);
-        await pollTasks(api);
+        await fetchTasksIntoStorage(api);
       }
     } catch (e) {
       reportUnexpectedError(notificationId, e, "error while adding metadata-file task");
@@ -323,7 +323,7 @@ async function addMultipleTasks(
     );
   }
 
-  pollTasks(api);
+  fetchTasksIntoStorage(api);
 }
 
 export async function addDownloadTasksAndPoll(

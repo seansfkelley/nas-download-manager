@@ -4,8 +4,8 @@ import { createRoot } from "react-dom/client";
 
 import {
   type TaskState,
-  onPersistentStateChange,
-  onSessionStateChange,
+  reactToPersistentState,
+  reactToSessionState,
   PersistentState,
   type Settings,
 } from "../common/state";
@@ -51,12 +51,12 @@ function render() {
   );
 }
 
-onPersistentStateChange("settings", (state) => {
+reactToPersistentState("settings", (state) => {
   settings = state.settings;
   render();
 });
 
-onSessionStateChange(
+reactToSessionState(
   "tasks",
   "taskFetchFailureReason",
   "tasksLastInitiatedFetchTimestamp",

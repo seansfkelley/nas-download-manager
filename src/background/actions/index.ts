@@ -1,2 +1,2 @@
 export * from "./addDownloadTasksAndPoll";
-export * from "./pollTasks";
+export * from "./fetchTasksIntoStorage";

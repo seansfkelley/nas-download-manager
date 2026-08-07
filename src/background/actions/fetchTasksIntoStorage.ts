@@ -4,7 +4,7 @@ import { SessionState } from "../../common/state";
 import { saveLastSevereError } from "../../common/errorHandlers";
 import { assertNever } from "../../common/lang";
 
-export async function pollTasks(api: SynologyClient): Promise<void> {
+export async function fetchTasksIntoStorage(api: SynologyClient): Promise<void> {
   console.log("polling for tasks...");
 
   try {

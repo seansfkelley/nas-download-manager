@@ -2,7 +2,7 @@ import "./index.css";
 import "../common/init/nonContentContext";
 import { createRoot } from "react-dom/client";
 
-import { Logging, onPersistentStateChange, PersistentState, Settings } from "../common/state";
+import { Logging, reactToPersistentState, PersistentState, Settings } from "../common/state";
 import { SettingsForm } from "./SettingsForm";
 import { saveLastSevereError } from "../common/errorHandlers";
 
@@ -29,7 +29,7 @@ async function saveSettings(settings: Settings): Promise<boolean> {
 // all component state, every time the stored state changed.
 const ROOT = createRoot(document.getElementById("body")!);
 
-onPersistentStateChange("settings", "lastSevereError", ({ settings, lastSevereError }) => {
+reactToPersistentState("settings", "lastSevereError", ({ settings, lastSevereError }) => {
   ROOT.render(
     <SettingsForm
       settings={settings}

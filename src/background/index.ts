@@ -1,8 +1,8 @@
 import "../common/init/nonContentContext";
 import {
   migratePersistentState,
-  onPersistentStateChange,
-  onSessionStateChange,
+  reactToPersistentState,
+  reactToSessionState,
   PersistentState,
   SessionState,
   TaskState,
@@ -11,7 +11,7 @@ import { saveLastSevereError } from "../common/errorHandlers";
 import { createContextMenu, initializeContextMenuListener } from "./listeners/contextMenus";
 import {
   initializeCompletionPollingListener,
-  setCompletionPollingEnabled,
+  ensureCompletionPollingState,
 } from "./listeners/completionNotifications";
 import { initializeMessageListener } from "./listeners/messages";
 import { updateBadge } from "./listeners/updateBadge";
@@ -22,15 +22,16 @@ initializeCompletionPollingListener();
 initializeContextMenuListener();
 initializeMessageListener();
 
-onPersistentStateChange("settings", async ({ settings }) => {
+reactToPersistentState("settings", async ({ settings }) => {
   try {
-    await setCompletionPollingEnabled(settings.notifications.enableCompletionNotifications);
+    await ensureCompletionPollingState(settings.notifications.enableCompletionNotifications);
     updateBadge(settings, await SessionState.get());
   } catch (error) {
     saveLastSevereError(error);
   }
 });
-onSessionStateChange(
+
+reactToSessionState(
   "tasks",
   "taskFetchFailureReason",
   "tasksLastInitiatedFetchTimestamp",

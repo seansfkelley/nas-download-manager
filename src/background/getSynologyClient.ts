@@ -1,4 +1,4 @@
-import { SynologyClient, SessionName, SynologySessionKey } from "../common/apis/synology";
+import { SynologyClient, SessionName, SynologyClientSettings } from "../common/apis/synology";
 import { saveLastSevereError } from "../common/errorHandlers";
 import { getHostUrl, PersistentState, SessionState } from "../common/state";
 import isEqual from "lodash/isEqual";
@@ -32,7 +32,7 @@ export async function getSynologyClient(): Promise<SynologyClient> {
     );
   }
 
-  const settings: SynologySessionKey = {
+  const settings: SynologyClientSettings = {
     baseUrl,
     account: connection.username,
     passwd: password,

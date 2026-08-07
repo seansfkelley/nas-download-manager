@@ -2,7 +2,7 @@ import { PersistentState } from "./migrations/latest";
 import { SessionState } from "./session";
 import { typesafePick } from "../lang";
 
-interface Listenable<T> {
+interface Reactable<T> {
   <K1 extends keyof T>(key1: K1, listener: (state: Pick<T, K1>) => Promise<void>): void;
   <K1 extends keyof T, K2 extends keyof T>(
     key1: K1,
@@ -38,19 +38,20 @@ interface Listenable<T> {
   ): void;
 }
 
-function listenable<T extends object>(
+// "React" means it's called for initial state as well as every change. Plan accordingly.
+function reactable<T extends object>(
   area: browser.storage.StorageArea,
-  // If fetch returns undefined, the listener is not called.
+  // If fetch returns undefined, the callback is not called.
   fetch: () => Promise<T | undefined>,
-): Listenable<T> {
+): Reactable<T> {
   return (...args: unknown[]) => {
     const keys = new Set(args.slice(0, -1) as (keyof T)[]);
-    const listener = args[args.length - 1] as (state: Partial<T>) => void;
+    const callback = args[args.length - 1] as (state: Partial<T>) => void;
 
     async function notify() {
       const state = await fetch();
       if (state != null) {
-        listener(typesafePick(state, ...keys));
+        callback(typesafePick(state, ...keys));
       }
     }
 
@@ -65,12 +66,12 @@ function listenable<T extends object>(
   };
 }
 
-export const onPersistentStateChange = listenable<PersistentState>(
+export const reactToPersistentState = reactable<PersistentState>(
   browser.storage.local,
   PersistentState.get,
 );
 
-export const onSessionStateChange = listenable<SessionState>(
+export const reactToSessionState = reactable<SessionState>(
   browser.storage.session,
   SessionState.get,
 );
