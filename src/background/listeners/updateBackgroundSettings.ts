@@ -11,7 +11,7 @@ export async function updateBackgroundSettings(settings: Settings) {
     clearInterval(backgroundState.notificationInterval!);
     if (backgroundState.lastNotificationSettings.enableCompletionNotifications) {
       backgroundState.notificationInterval = setInterval(() => {
-        fetchTasks(backgroundState.api, backgroundState.pollRequestManager);
+        fetchTasks(backgroundState.api);
       }, backgroundState.lastNotificationSettings.completionPollingInterval * 1000) as any as number;
     }
   }

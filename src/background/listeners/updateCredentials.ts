@@ -37,7 +37,7 @@ export async function updateCredentials(settings: Settings) {
     if (!isInitializingExtension) {
       // Don't use await because we want this to fire in the background.
       clearCachePromise.then(() => {
-        fetchTasks(backgroundState.api, backgroundState.pollRequestManager);
+        fetchTasks(backgroundState.api);
       });
     }
   }

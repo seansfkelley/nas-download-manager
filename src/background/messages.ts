@@ -44,23 +44,17 @@ function toMessageResponse<T, U>(
 
 const MESSAGE_HANDLERS: MessageHandlers = {
   "add-tasks": (m, state) => {
-    return addDownloadTasksAndPoll(
-      state.api,
-      state.pollRequestManager,
-      state.showNonErrorNotifications,
-      m.urls,
-      m.options,
-    );
+    return addDownloadTasksAndPoll(state.api, state.showNonErrorNotifications, m.urls, m.options);
   },
   "fetch-tasks": (_m, state) => {
-    return fetchTasks(state.api, state.pollRequestManager);
+    return fetchTasks(state.api);
   },
   "pause-task": async (m, state) => {
     const response = toMessageResponse(
       await state.api.DownloadStation.Task.Pause({ id: [m.taskId] }),
     );
     if (response.success) {
-      await fetchTasks(state.api, state.pollRequestManager);
+      await fetchTasks(state.api);
     }
     return response;
   },
@@ -69,7 +63,7 @@ const MESSAGE_HANDLERS: MessageHandlers = {
       await state.api.DownloadStation.Task.Resume({ id: [m.taskId] }),
     );
     if (response.success) {
-      await fetchTasks(state.api, state.pollRequestManager);
+      await fetchTasks(state.api);
     }
     return response;
   },
@@ -78,7 +72,7 @@ const MESSAGE_HANDLERS: MessageHandlers = {
       await state.api.DownloadStation.Task.Delete({ id: m.taskIds, force_complete: false }),
     );
     if (response.success) {
-      await fetchTasks(state.api, state.pollRequestManager);
+      await fetchTasks(state.api);
     }
     return response;
   },

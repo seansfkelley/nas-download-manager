@@ -17,7 +17,6 @@ import { resolveUrl, ResolvedUrl, sanitizeUrlForSynology, guessFileNameFromUrl }
 import { fetchTasks } from "./fetchTasks";
 import type { UnionByDiscriminant } from "../../common/types";
 import type { AddTaskOptions } from "../../common/apis/messages";
-import type { RequestManager } from "../requestManager";
 
 type ArrayifyValues<T extends Record<string, any>> = {
   [K in keyof T]: T[K][];
@@ -56,7 +55,6 @@ function reportUnexpectedError(
 
 async function addOneTask(
   api: SynologyClient,
-  pollRequestManager: RequestManager,
   showNonErrorNotifications: boolean,
   url: string,
   { path, ftpUsername, ftpPassword, unzipPassword }: AddTaskOptions,
@@ -134,7 +132,7 @@ async function addOneTask(
         ...commonCreateOptionsV1,
       });
       await reportTaskAddResult(result, guessFileNameFromUrl(url));
-      await fetchTasks(api, pollRequestManager);
+      await fetchTasks(api);
     } catch (e) {
       reportUnexpectedError(notificationId, e, "error while adding direct-download task");
     }
@@ -167,7 +165,7 @@ async function addOneTask(
           });
         }
         await reportTaskAddResult(result, resolvedUrl.filename);
-        await fetchTasks(api, pollRequestManager);
+        await fetchTasks(api);
       }
     } catch (e) {
       reportUnexpectedError(notificationId, e, "error while adding metadata-file task");
@@ -188,7 +186,6 @@ async function addOneTask(
 
 async function addMultipleTasks(
   api: SynologyClient,
-  pollRequestManager: RequestManager,
   showNonErrorNotifications: boolean,
   urls: string[],
   { path, ftpUsername, ftpPassword, unzipPassword }: AddTaskOptions,
@@ -326,12 +323,11 @@ async function addMultipleTasks(
     );
   }
 
-  fetchTasks(api, pollRequestManager);
+  fetchTasks(api);
 }
 
 export async function addDownloadTasksAndPoll(
   api: SynologyClient,
-  pollRequestManager: RequestManager,
   showNonErrorNotifications: boolean,
   urls: string[],
   options?: AddTaskOptions,
@@ -349,20 +345,8 @@ export async function addDownloadTasksAndPoll(
       "failure",
     );
   } else if (urls.length === 1) {
-    await addOneTask(
-      api,
-      pollRequestManager,
-      showNonErrorNotifications,
-      urls[0],
-      normalizedOptions,
-    );
+    await addOneTask(api, showNonErrorNotifications, urls[0], normalizedOptions);
   } else {
-    await addMultipleTasks(
-      api,
-      pollRequestManager,
-      showNonErrorNotifications,
-      urls,
-      normalizedOptions,
-    );
+    await addMultipleTasks(api, showNonErrorNotifications, urls, normalizedOptions);
   }
 }
