@@ -1,13 +1,13 @@
-import { type Protocol, type ConnectionSettings, State } from "./migrations/latest";
-import { migrateState } from "./migrations/update";
+import { type ConnectionSettings, Settings } from "./migrations/latest";
 import { typesafeMapValues } from "../lang";
 
 export * from "./constants";
 export * from "./listen";
+export * from "./session";
 export * from "./migrations/latest";
 // Named explicitly because the wildcard above silently drops it. Parcel drops namespaces from
 // wildcard exports for some reason, and we use namespace merging for ergonomics.
-export { State } from "./migrations/latest";
+export { PersistentState } from "./migrations/latest";
 
 export function getHostUrl(settings: ConnectionSettings) {
   if (settings.protocol && settings.hostname && settings.port) {
@@ -17,27 +17,14 @@ export function getHostUrl(settings: ConnectionSettings) {
   }
 }
 
-export async function maybeMigrateState() {
-  // Bypass State.get; we don't know what shape this is at runtime and don't want to lie to the
-  // typechecker!
-  const updated = migrateState(await browser.storage.local.get(null));
-  await browser.storage.local.clear();
-  return State.set(updated);
-}
-
-export function redactState(state: State): object {
-  const sanitizedConnection: Record<keyof ConnectionSettings, boolean | Protocol> = {
-    ...typesafeMapValues(state.settings.connection, Boolean),
-    protocol: state.settings.connection.protocol,
+export function redactSettings(settings: Settings): object {
+  const sanitizedConnection = {
+    ...typesafeMapValues(settings.connection, Boolean),
+    protocol: settings.connection.protocol,
   };
 
   return {
-    ...state,
-    settings: {
-      ...state.settings,
-      connection: sanitizedConnection,
-    },
-    lastSevereError: state.lastSevereError ? "(omitted for brevity)" : undefined,
-    tasks: state.tasks.length,
+    ...settings,
+    connection: sanitizedConnection,
   };
 }

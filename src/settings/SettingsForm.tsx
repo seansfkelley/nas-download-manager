@@ -2,15 +2,13 @@ import "./settings-form.css";
 import { useState } from "react";
 
 import {
-  State as ExtensionState,
   Settings,
   VisibleTaskSettings,
   TaskSortType,
   NotificationSettings,
-  redactState,
-  SETTING_NAMES,
   BadgeDisplayType,
   ConnectionSettings,
+  redactSettings,
 } from "../common/state";
 import { BUG_REPORT_URL } from "../common/constants";
 import { DOWNLOAD_ONLY_PROTOCOLS } from "../common/apis/protocols";
@@ -19,12 +17,11 @@ import { SettingsList } from "../common/components/SettingsList";
 import { SettingsListCheckbox } from "../common/components/SettingsListCheckbox";
 import { ConnectionSettings as ConnectionSettingsComponent } from "./ConnectionSettings";
 import { disabledPropAndClassName, kludgeRefSetClassname } from "../common/classnameUtil";
-import { typesafePick } from "../common/lang";
 import { SetLoginPassword } from "../common/apis/messages";
 import type { Overwrite } from "../common/types";
 
 export interface Props {
-  extensionState: ExtensionState;
+  settings: Settings;
   saveSettings: (settings: Settings) => Promise<boolean>;
   lastSevereError?: string;
   clearError: () => void;
@@ -42,13 +39,13 @@ export function SettingsForm(props: Props) {
   const [savesFailed, setSavesFailed] = useState(false);
   const [rawPollingInterval, setRawPollingInterval] = useState(
     () =>
-      props.extensionState.settings.notifications.completionPollingInterval.toString() ||
+      props.settings.notifications.completionPollingInterval.toString() ||
       POLL_DEFAULT_INTERVAL.toString(),
   );
 
   async function saveSettings(settings: Partial<Settings>) {
     const success = await props.saveSettings({
-      ...typesafePick(props.extensionState.settings, ...SETTING_NAMES),
+      ...props.settings,
       ...settings,
     });
 
@@ -61,7 +58,7 @@ export function SettingsForm(props: Props) {
   ) {
     saveSettings({
       notifications: {
-        ...props.extensionState.settings.notifications,
+        ...props.settings.notifications,
         [key]: value,
       },
     });
@@ -82,7 +79,7 @@ export function SettingsForm(props: Props) {
     if (props.lastSevereError) {
       const formattedDebugLogs = `${
         props.lastSevereError
-      }\n\nRedacted extension state: ${JSON.stringify(redactState(props.extensionState), null, 2)}`;
+      }\n\nRedacted extension settings: ${JSON.stringify(redactSettings(props.settings), null, 2)}`;
 
       return (
         <>
@@ -138,7 +135,7 @@ export function SettingsForm(props: Props) {
       </header>
 
       <ConnectionSettingsComponent
-        connectionSettings={props.extensionState.settings.connection}
+        connectionSettings={props.settings.connection}
         saveConnectionSettings={updateConnectionSettings}
       />
 
@@ -150,14 +147,14 @@ export function SettingsForm(props: Props) {
       </header>
 
       <TaskFilterSettingsForm
-        visibleTasks={props.extensionState.settings.visibleTasks}
-        taskSortType={props.extensionState.settings.taskSortType}
-        badgeDisplayType={props.extensionState.settings.badgeDisplayType}
-        showInactiveTasks={props.extensionState.settings.showInactiveTasks}
+        visibleTasks={props.settings.visibleTasks}
+        taskSortType={props.settings.taskSortType}
+        badgeDisplayType={props.settings.badgeDisplayType}
+        showInactiveTasks={props.settings.showInactiveTasks}
         updateTaskTypeVisibility={(taskType: keyof VisibleTaskSettings, visibility: boolean) => {
           saveSettings({
             visibleTasks: {
-              ...props.extensionState.settings.visibleTasks,
+              ...props.settings.visibleTasks,
               [taskType]: visibility,
             },
           });
@@ -181,21 +178,21 @@ export function SettingsForm(props: Props) {
 
       <SettingsList>
         <SettingsListCheckbox
-          checked={props.extensionState.settings.notifications.enableFeedbackNotifications}
+          checked={props.settings.notifications.enableFeedbackNotifications}
           onChange={() => {
             setNotificationSetting(
               "enableFeedbackNotifications",
-              !props.extensionState.settings.notifications.enableFeedbackNotifications,
+              !props.settings.notifications.enableFeedbackNotifications,
             );
           }}
           label={browser.i18n.getMessage("Notify_when_adding_downloads")}
         />
         <SettingsListCheckbox
-          checked={props.extensionState.settings.notifications.enableCompletionNotifications}
+          checked={props.settings.notifications.enableCompletionNotifications}
           onChange={() => {
             setNotificationSetting(
               "enableCompletionNotifications",
-              !props.extensionState.settings.notifications.enableCompletionNotifications,
+              !props.settings.notifications.enableCompletionNotifications,
             );
           }}
           label={browser.i18n.getMessage("Notify_when_downloads_complete")}
@@ -208,7 +205,7 @@ export function SettingsForm(props: Props) {
           <input
             type="number"
             {...disabledPropAndClassName(
-              !props.extensionState.settings.notifications.enableCompletionNotifications,
+              !props.settings.notifications.enableCompletionNotifications,
             )}
             min={POLL_MIN_INTERVAL}
             step={POLL_STEP}
@@ -231,10 +228,10 @@ export function SettingsForm(props: Props) {
         </li>
 
         <SettingsListCheckbox
-          checked={props.extensionState.settings.shouldHandleDownloadLinks}
+          checked={props.settings.shouldHandleDownloadLinks}
           onChange={() => {
             saveSettings({
-              shouldHandleDownloadLinks: !props.extensionState.settings.shouldHandleDownloadLinks,
+              shouldHandleDownloadLinks: !props.settings.shouldHandleDownloadLinks,
             });
           }}
           label={browser.i18n.getMessage("Handle_opening_downloadable_link_types_ZprotocolsZ", [

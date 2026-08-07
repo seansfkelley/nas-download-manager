@@ -1,4 +1,4 @@
-import { type Logging, State } from "./state";
+import { type Logging, PersistentState } from "./state";
 
 export function saveLastSevereError(e: any | undefined, message?: string) {
   console.error(message || "unhandled error", e);
@@ -14,8 +14,5 @@ ${e.stack ? "Error stack trace: " + e.stack.trim() : "(no error stack)"}`
 
   formattedError = `Error generated at ${new Date().toLocaleString()}\n\n${formattedError}`;
 
-  const logging: Logging = {
-    lastSevereError: formattedError,
-  };
-  State.set(logging);
+  PersistentState.set({ lastSevereError: formattedError });
 }

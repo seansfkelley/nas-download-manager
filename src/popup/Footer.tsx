@@ -1,9 +1,9 @@
 import "./footer.css";
 import classNames from "classnames";
-import type { CachedTasks } from "../common/state";
+import type { TaskState } from "../common/state";
 import { formatMetric1024, formatRelativeTime } from "../common/format";
 
-export interface Props extends CachedTasks {}
+export interface Props extends TaskState {}
 
 export function Footer(props: Props) {
   if (
@@ -13,14 +13,10 @@ export function Footer(props: Props) {
     return null;
   }
 
-  const totalDownloadSpeed = props.tasks.reduce(
-    (acc, t) => acc + t.additional!.transfer!.speed_download,
-    0,
-  );
-  const totalUploadSpeed = props.tasks.reduce(
-    (acc, t) => acc + t.additional!.transfer!.speed_upload,
-    0,
-  );
+  const totalDownloadSpeed =
+    props.tasks?.reduce((acc, t) => acc + t.additional!.transfer!.speed_download, 0) ?? 0;
+  const totalUploadSpeed =
+    props.tasks?.reduce((acc, t) => acc + t.additional!.transfer!.speed_upload, 0) ?? 0;
 
   let tooltip: string;
   let text: string | undefined = undefined;

@@ -3,42 +3,43 @@ import type {
   Settings,
   VisibleTaskSettings,
   TaskSortType,
-  State as ExtensionState,
   BadgeDisplayType,
+  TaskState,
 } from "../common/state";
 import { Popup } from "./Popup";
 import { getClient } from "./popupClient";
 
 interface Props {
-  state: ExtensionState;
+  settings: Settings;
+  tasks: TaskState;
   updateSettings: (settings: Settings) => void;
 }
 
 export function PopupWrapper(props: Props) {
-  const connection = props.state.settings.connection;
+  const connection = props.settings.connection;
   const client = useMemoDeep(() => getClient(connection), [connection]);
 
   return (
     <Popup
-      tasks={props.state.tasks}
-      taskFetchFailureReason={props.state.taskFetchFailureReason}
-      tasksLastInitiatedFetchTimestamp={props.state.tasksLastInitiatedFetchTimestamp}
-      tasksLastCompletedFetchTimestamp={props.state.tasksLastCompletedFetchTimestamp}
-      visibleTasks={props.state.settings.visibleTasks}
+      tasks={props.tasks.tasks ?? []}
+      taskFetchFailureReason={props.tasks.taskFetchFailureReason}
+      tasksLastInitiatedFetchTimestamp={props.tasks.tasksLastInitiatedFetchTimestamp}
+      tasksLastCompletedFetchTimestamp={props.tasks.tasksLastCompletedFetchTimestamp}
+      visibleTasks={props.settings.visibleTasks}
       changeVisibleTasks={(visibleTasks: VisibleTaskSettings) => {
-        props.updateSettings({ ...props.state.settings, visibleTasks });
+        props.updateSettings({ ...props.settings, visibleTasks });
       }}
-      taskSort={props.state.settings.taskSortType}
+      taskSort={props.settings.taskSortType}
       changeTaskSort={(taskSortType: TaskSortType) => {
-        props.updateSettings({ ...props.state.settings, taskSortType });
+        props.updateSettings({ ...props.settings, taskSortType });
       }}
-      badgeDisplay={props.state.settings.badgeDisplayType}
+      badgeDisplay={props.settings.badgeDisplayType}
       changeBadgeDisplay={(badgeDisplayType: BadgeDisplayType) => {
-        props.updateSettings({ ...props.state.settings, badgeDisplayType });
+        props.updateSettings({ ...props.settings, badgeDisplayType });
       }}
-      showInactiveTasks={props.state.settings.showInactiveTasks}
+      showInactiveTasks={props.settings.showInactiveTasks}
       changeShowInactiveTasks={(showInactiveTasks: boolean) => {
-        props.updateSettings({ ...props.state.settings, showInactiveTasks });
+        props.updateSettings({ ...props.settings, showInactiveTasks });
       }}
       client={client}
     />

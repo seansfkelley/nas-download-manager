@@ -1,13 +1,13 @@
 import { AddTasks } from "../common/apis/messages";
-import { onStoredStateChange } from "../common/state/listen";
 import { DOWNLOAD_ONLY_PROTOCOLS, startsWithAnyProtocol } from "../common/apis/protocols";
+import { reactToPersistentState } from "../common/state";
 
 const LEFT_MOUSE_BUTTON = 0;
 
 let enabled = true;
 
-onStoredStateChange((state) => {
-  enabled = state.settings.shouldHandleDownloadLinks;
+reactToPersistentState("settings", ({ settings }) => {
+  enabled = settings.shouldHandleDownloadLinks;
 });
 
 function recursivelyFindAnchorAncestor(

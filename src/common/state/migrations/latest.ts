@@ -1,36 +1,40 @@
 // Aliased because the exported namespace below also claims the name State, and TypeScript refuses a
 // merged declaration whose parts are not all exported (TS2395).
-import type { State as LatestState } from "./8";
+import type { State as LatestState } from "./9";
 import { typesafeUnionMembers } from "../../lang";
+import { LATEST_STATE_VERSION } from "./update";
 
 export type {
   Protocol,
   VisibleTaskSettings,
   TaskSortType,
-  CachedTasks,
   NotificationSettings,
   Settings,
   ConnectionSettings,
   Logging,
   StateVersion,
   BadgeDisplayType,
-  State,
-} from "./8";
+  State as PersistentState,
+} from "./9";
 
-const ALL_STORED_STATE_NAMES = typesafeUnionMembers<keyof LatestState>({
+export const ALL_STORED_STATE_NAMES = typesafeUnionMembers<keyof LatestState>({
   settings: true,
-  tasks: true,
-  taskFetchFailureReason: true,
-  tasksLastInitiatedFetchTimestamp: true,
-  tasksLastCompletedFetchTimestamp: true,
   lastSevereError: true,
   stateVersion: true,
 });
 
-// Type-safe read/write pair that comes for free with importing the type.
-export namespace State {
-  export async function get(): Promise<LatestState> {
-    return (await browser.storage.local.get(ALL_STORED_STATE_NAMES)) as LatestState;
+interface AnyState {
+  stateVersion?: unknown;
+}
+
+export namespace PersistentState {
+  export async function get(): Promise<LatestState | undefined> {
+    let state = (await browser.storage.local.get(ALL_STORED_STATE_NAMES)) as AnyState;
+    if (state.stateVersion == LATEST_STATE_VERSION) {
+      return state as LatestState;
+    } else {
+      return undefined;
+    }
   }
 
   export function set(state: Partial<LatestState>): Promise<void> {
