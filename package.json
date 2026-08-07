@@ -4,7 +4,7 @@
   "description": "An open source browser extension for adding/managing download tasks to your Synology DiskStation.",
   "scripts": {
     "test": "jest",
-    "lint": "prettier --check .",
+    "lint": "prettier --check . && eslint .",
     "typecheck": "tsc -p src --noemit && tsc -p test --noemit",
     "check:dist": "web-ext lint --source-dir dist",
     "dev": "web-ext run --source-dir dist --target firefox-desktop --firefox-profile ./.firefox-profile --profile-create-if-missing --keep-profile-changes --devtools --url about:debugging#/runtime/this-firefox",
@@ -32,6 +32,7 @@
     "last 2 Chrome versions"
   ],
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@parcel/config-webextension": "^2.16.4",
     "@types/firefox-webext-browser": "^143.0.0",
     "@types/glob": "^5.0.33",
@@ -40,7 +41,12 @@
     "@types/node": "^26.1.2",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
+    "eslint": "^10.8.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import-x": "^4.17.1",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "glob": "^7.1.2",
+    "globals": "^17.9.0",
     "jest": "^30.4.2",
     "jest-extended": "^6.0.0",
     "parcel": "^2.16.4",
@@ -49,6 +55,7 @@
     "semver": "^7.3.4",
     "ts-jest": "^29.4.12",
     "typescript": "^6.0.3",
+    "typescript-eslint": "^8.66.0",
     "web-ext": "^10.6.0"
   },
   "dependencies": {
