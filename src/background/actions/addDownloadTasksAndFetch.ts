@@ -326,7 +326,7 @@ async function addMultipleTasks(
   fetchTasks(api);
 }
 
-export async function addDownloadTasksAndPoll(
+export async function addDownloadTasksAndFetch(
   api: SynologyClient,
   showNonErrorNotifications: boolean,
   urls: string[],

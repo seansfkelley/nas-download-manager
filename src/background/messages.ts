@@ -1,7 +1,7 @@
 import { ClientRequestResult } from "../common/apis/synology";
 import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../common/apis/errors";
 import { MessageResponse, Message, Result } from "../common/apis/messages";
-import { addDownloadTasksAndPoll, clearCachedTasks, fetchTasks } from "./actions";
+import { addDownloadTasksAndFetch, clearCachedTasks, fetchTasks } from "./actions";
 import { BackgroundState, getMutableStateSingleton } from "./backgroundState";
 import type { DiscriminateUnion } from "../common/types";
 
@@ -44,7 +44,7 @@ function toMessageResponse<T, U>(
 
 const MESSAGE_HANDLERS: MessageHandlers = {
   "add-tasks": (m, state) => {
-    return addDownloadTasksAndPoll(state.api, state.showNonErrorNotifications, m.urls, m.options);
+    return addDownloadTasksAndFetch(state.api, state.showNonErrorNotifications, m.urls, m.options);
   },
   "fetch-tasks": (_m, state) => {
     return fetchTasks(state.api);
