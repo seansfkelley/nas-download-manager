@@ -1,10 +1,5 @@
 import { testConnection } from "../common/apis/connection";
-import {
-  MessageResponse,
-  AddTaskOptions,
-  Directory,
-  SetLoginPassword,
-} from "../common/apis/messages";
+import { MessageResponse, AddTaskOptions, Directory, Login } from "../common/apis/messages";
 import {
   AddTasks,
   PauseTask,
@@ -47,7 +42,7 @@ export function getClient(settings: ConnectionSettings): PopupClient | undefined
       testConnectionAndLogin: async (password: string) => {
         const result = await testConnection({ ...settings, password });
         if (!ClientRequestResult.isConnectionFailure(result) && result.success) {
-          await SetLoginPassword.send(password);
+          await Login.send(password);
         }
         return result;
       },

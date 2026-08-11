@@ -69,8 +69,8 @@ export interface Directory {
   path: string;
 }
 
-export interface SetLoginPassword {
-  type: "set-login-password";
+export interface Login {
+  type: "login";
   password: string;
 }
 
@@ -82,7 +82,7 @@ export type Message =
   | DeleteTasks
   | GetConfig
   | ListDirectories
-  | SetLoginPassword;
+  | Login;
 
 const MESSAGE_TYPES: Record<Message["type"], true> = {
   "add-tasks": true,
@@ -92,7 +92,7 @@ const MESSAGE_TYPES: Record<Message["type"], true> = {
   "resume-task": true,
   "get-config": true,
   "list-directories": true,
-  "set-login-password": true,
+  login: true,
 };
 
 export const Message = {
@@ -111,7 +111,7 @@ export type Result = {
   "delete-tasks": MessageResponse;
   "get-config": MessageResponse<DownloadStationInfoConfig>;
   "list-directories": MessageResponse<Directory[]>;
-  "set-login-password": void;
+  login: void;
 };
 
 function makeMessageOperations<T extends Message["type"], U extends any[]>(
@@ -159,7 +159,7 @@ export const ListDirectories = makeMessageOperations("list-directories", (path?:
   path,
 }));
 
-export const SetLoginPassword = makeMessageOperations("set-login-password", (password: string) => ({
+export const Login = makeMessageOperations("login", (password: string) => ({
   password,
 }));
 

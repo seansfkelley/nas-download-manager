@@ -17,7 +17,6 @@ import { migrateState } from "../common/state/migrations/update";
 import { fetchTasks } from "./actions";
 import { initializeContextMenus } from "./contextMenus";
 import { notifyForCompletedDownloads } from "./listeners/notifyForCompletedDownloads";
-import { refetchTasksOnConnectionChange } from "./listeners/refetchTasksOnConnectionChange";
 import { POLL_TASKS_ALARM, updateBackgroundPollAlarm } from "./listeners/updateBackgroundPollAlarm";
 import { updateBadge } from "./listeners/updateBadge";
 import { initializeMessageHandler } from "./messages";
@@ -81,7 +80,6 @@ browser.alarms.onAlarm.addListener((alarm) => {
 
     reactToPersistentState("settings", async ({ settings }) => {
       try {
-        await refetchTasksOnConnectionChange(client);
         await updateBackgroundPollAlarm(client, settings);
 
         const sessionState = await SessionState.get();
