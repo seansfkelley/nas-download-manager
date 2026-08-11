@@ -10,7 +10,9 @@
     "esModuleInterop": true,
     // The global `browser` namespace comes from an ambient declaration that nothing imports, so it
     // has to be named here. Automatic @types inclusion does not pick it up for this project.
-    "types": ["firefox-webext-browser"]
+    "types": ["firefox-webext-browser"],
+    // The linter recommends this as superior to the consistent-return rule.
+    "noImplicitReturns": true
   },
   "exclude": ["node_modules", "lib"]
 }
