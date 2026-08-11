@@ -1,6 +1,6 @@
 import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../common/apis/errors";
 import { MessageResponse, Message, Result } from "../common/apis/messages";
-import { ClientRequestResult, ConnectionFailure, SynologyClient } from "../common/apis/synology";
+import { ClientRequestResult, SynologyClient } from "../common/apis/synology";
 import { SessionState } from "../common/state";
 import type { DiscriminateUnion } from "../common/types";
 
@@ -98,18 +98,11 @@ function messageHandlers(client: SynologyClient): MessageHandlers {
       }
     },
     "set-login-password": async (m) => {
-      const settings = await client.getSettings();
-      const didPasswordChange = ConnectionFailure.is(settings) || settings.passwd !== m.password;
-
-      // Always reset the session! Do it before storing the new password, so that the logout still
-      // resolves the credentials that established the session it is ending.
-      await client.Auth.Logout();
+      // Dump this on the floor; it is a best-effort and we don't want to block on it.
+      client.Auth.Logout();
 
       await SessionState.set({ password: m.password });
-
-      if (didPasswordChange) {
-        await clearCachedTasks();
-      }
+      await clearCachedTasks();
     },
   };
 }

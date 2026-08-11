@@ -17,7 +17,7 @@ import { migrateState } from "../common/state/migrations/update";
 import { fetchTasks } from "./actions";
 import { initializeContextMenus } from "./contextMenus";
 import { notifyForCompletedDownloads } from "./listeners/notifyForCompletedDownloads";
-import { refetchOnConnectionChange } from "./listeners/refetchOnConnectionChange";
+import { refetchTasksOnConnectionChange } from "./listeners/refetchTasksOnConnectionChange";
 import { POLL_TASKS_ALARM, updateBackgroundPollAlarm } from "./listeners/updateBackgroundPollAlarm";
 import { updateBadge } from "./listeners/updateBadge";
 import { initializeMessageHandler } from "./messages";
@@ -42,17 +42,11 @@ async function getStoredAuth(settings: SynologyClientSettings): Promise<Synology
     : undefined;
 }
 
-// A login that started under superseded settings must not clobber the current session's auth. Must
-// never throw: the client awaits this, and a failed write should not fail the request that caused it.
+// Since we construct the client as a singleton, we defer the read/write lifecycle of this to it
+// completely since we don't need to reconcile multiple readers and writers.
 async function onAuthChange(settings: SynologyClientSettings, auth: SynologyAuth | undefined) {
   try {
-    const currentSettings = await getClientSettings();
-    if (
-      ConnectionFailure.is(currentSettings) ||
-      !SynologyClientSettings.isEqual(currentSettings, settings)
-    ) {
-      console.log("discarding auth change belonging to superseded settings");
-    } else if (auth == null) {
+    if (auth == null) {
       await SessionState.set({ auth: undefined });
     } else {
       await SessionState.set({ auth: { settings, auth } });
@@ -87,7 +81,7 @@ browser.alarms.onAlarm.addListener((alarm) => {
 
     reactToPersistentState("settings", async ({ settings }) => {
       try {
-        await refetchOnConnectionChange(client);
+        await refetchTasksOnConnectionChange(client);
         await updateBackgroundPollAlarm(client, settings);
 
         const sessionState = await SessionState.get();

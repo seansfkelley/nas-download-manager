@@ -258,23 +258,18 @@ export class SynologyClient {
     await this.clearAuth(settings);
 
     if (inflight != null) {
-      // Drop it on the floor; at this point, we're just trying to help out the NAS to allow it to
-      // clear any session tokens, but we ourselves don't care.
-      inflight.then((response) => {
-        const abandoned = toSynologyAuth(response);
-        if (SynologyAuth.isSuccess(abandoned)) {
-          return Auth.Logout(settings.baseUrl, {
-            ...request,
-            sid: abandoned.sid,
-            session: settings.session,
-          });
-        } else {
-          return undefined;
-        }
-      });
-    }
-
-    if (lastKnownAuth == null) {
+      const response = await inflight;
+      const abandoned = toSynologyAuth(response);
+      if (SynologyAuth.isSuccess(abandoned)) {
+        return Auth.Logout(settings.baseUrl, {
+          ...request,
+          sid: abandoned.sid,
+          session: settings.session,
+        });
+      } else {
+        return response;
+      }
+    } else if (lastKnownAuth == null) {
       return "not-logged-in" as const;
     } else if (SynologyAuth.isSuccess(lastKnownAuth)) {
       return await Auth.Logout(settings.baseUrl, {
@@ -311,7 +306,6 @@ export class SynologyClient {
           (await this.getStoredAuth(settings)) ?? toSynologyAuth(await this.maybeLogIn(settings));
 
         if (!SynologyAuth.isSuccess(auth)) {
-          // A stored failure is one we already decided retrying cannot fix.
           if (shouldRetryTransientFailures && !LoginFailure.requiresUserIntervention(auth)) {
             await this.clearAuth(settings);
             return await wrappedFunction(options, false);
