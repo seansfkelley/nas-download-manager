@@ -1,9 +1,10 @@
+import { SynologyClient } from "../../common/apis/synology";
 import { Settings } from "../../common/state";
 import { fetchTasks } from "../actions";
 
 export const POLL_TASKS_ALARM = "poll-tasks";
 
-export async function updateBackgroundPollAlarm(settings: Settings) {
+export async function updateBackgroundPollAlarm(client: SynologyClient, settings: Settings) {
   if (!settings.notifications.enableCompletionNotifications) {
     console.log("cancelling polling alarm");
     await browser.alarms.clear(POLL_TASKS_ALARM);
@@ -17,7 +18,7 @@ export async function updateBackgroundPollAlarm(settings: Settings) {
       });
 
       // delayInMinutes=0 doesn't seem to work, so just kick off a check now.
-      await fetchTasks();
+      await fetchTasks(client);
     }
   }
 }

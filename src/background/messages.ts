@@ -1,11 +1,10 @@
 import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../common/apis/errors";
 import { MessageResponse, Message, Result } from "../common/apis/messages";
-import { ClientRequestResult, ConnectionFailure } from "../common/apis/synology";
+import { ClientRequestResult, ConnectionFailure, SynologyClient } from "../common/apis/synology";
 import { SessionState } from "../common/state";
 import type { DiscriminateUnion } from "../common/types";
 
 import { addDownloadTasksAndFetch, clearCachedTasks, fetchTasks } from "./actions";
-import { client, getClientSettings } from "./client";
 
 type MessageHandler<T extends Message, U extends Result[keyof Result]> = (m: T) => Promise<U>;
 
@@ -42,79 +41,84 @@ function toMessageResponse<T, U>(
   }
 }
 
-const MESSAGE_HANDLERS: MessageHandlers = {
-  "add-tasks": (m) => {
-    return addDownloadTasksAndFetch(m.urls, m.options);
-  },
-  "fetch-tasks": () => {
-    return fetchTasks();
-  },
-  "pause-task": async (m) => {
-    const response = toMessageResponse(await client.DownloadStation.Task.Pause({ id: [m.taskId] }));
-    if (response.success) {
-      await fetchTasks();
-    }
-    return response;
-  },
-  "resume-task": async (m) => {
-    const response = toMessageResponse(
-      await client.DownloadStation.Task.Resume({ id: [m.taskId] }),
-    );
-    if (response.success) {
-      await fetchTasks();
-    }
-    return response;
-  },
-  "delete-tasks": async (m) => {
-    const response = toMessageResponse(
-      await client.DownloadStation.Task.Delete({ id: m.taskIds, force_complete: false }),
-    );
-    if (response.success) {
-      await fetchTasks();
-    }
-    return response;
-  },
-  "get-config": async () => {
-    return toMessageResponse(await client.DownloadStation.Info.GetConfig(), (data) => data);
-  },
-  "list-directories": async (m) => {
-    const { path } = m;
-    if (path) {
-      return toMessageResponse(
-        await client.FileStation.List.list({
-          folder_path: path,
-          sort_by: "name",
-          filetype: "dir",
-        }),
-        (data) => data.files,
+function messageHandlers(client: SynologyClient): MessageHandlers {
+  return {
+    "add-tasks": (m) => {
+      return addDownloadTasksAndFetch(client, m.urls, m.options);
+    },
+    "fetch-tasks": () => {
+      return fetchTasks(client);
+    },
+    "pause-task": async (m) => {
+      const response = toMessageResponse(
+        await client.DownloadStation.Task.Pause({ id: [m.taskId] }),
       );
-    } else {
-      return toMessageResponse(
-        await client.FileStation.List.list_share({ sort_by: "name" }),
-        (data) => data.shares,
+      if (response.success) {
+        await fetchTasks(client);
+      }
+      return response;
+    },
+    "resume-task": async (m) => {
+      const response = toMessageResponse(
+        await client.DownloadStation.Task.Resume({ id: [m.taskId] }),
       );
-    }
-  },
-  "set-login-password": async (m) => {
-    const settings = await getClientSettings();
-    const didPasswordChange = ConnectionFailure.is(settings) || settings.passwd !== m.password;
+      if (response.success) {
+        await fetchTasks(client);
+      }
+      return response;
+    },
+    "delete-tasks": async (m) => {
+      const response = toMessageResponse(
+        await client.DownloadStation.Task.Delete({ id: m.taskIds, force_complete: false }),
+      );
+      if (response.success) {
+        await fetchTasks(client);
+      }
+      return response;
+    },
+    "get-config": async () => {
+      return toMessageResponse(await client.DownloadStation.Info.GetConfig(), (data) => data);
+    },
+    "list-directories": async (m) => {
+      const { path } = m;
+      if (path) {
+        return toMessageResponse(
+          await client.FileStation.List.list({
+            folder_path: path,
+            sort_by: "name",
+            filetype: "dir",
+          }),
+          (data) => data.files,
+        );
+      } else {
+        return toMessageResponse(
+          await client.FileStation.List.list_share({ sort_by: "name" }),
+          (data) => data.shares,
+        );
+      }
+    },
+    "set-login-password": async (m) => {
+      const settings = await client.getSettings();
+      const didPasswordChange = ConnectionFailure.is(settings) || settings.passwd !== m.password;
 
-    // Always reset the session! Do it before storing the new password, so that the logout still
-    // resolves the credentials that established the session it is ending.
-    await client.Auth.Logout();
+      // Always reset the session! Do it before storing the new password, so that the logout still
+      // resolves the credentials that established the session it is ending.
+      await client.Auth.Logout();
 
-    await SessionState.set({ password: m.password });
+      await SessionState.set({ password: m.password });
 
-    if (didPasswordChange) {
-      await clearCachedTasks();
-    }
-  },
-};
+      if (didPasswordChange) {
+        await clearCachedTasks();
+      }
+    },
+  };
+}
 
-export function initializeMessageHandler() {
+export function initializeMessageHandler(client: SynologyClient) {
+  const handlers = messageHandlers(client);
   browser.runtime.onMessage.addListener((m) => {
     if (Message.is(m)) {
-      return MESSAGE_HANDLERS[m.type](m as any);
+      return handlers[m.type](m as any);
     } else {
       console.error("received unhandleable message", m);
       return undefined;

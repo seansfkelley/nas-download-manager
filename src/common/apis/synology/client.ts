@@ -163,7 +163,7 @@ export class SynologyClient {
     | undefined;
 
   constructor(
-    private getSettings: () => Promise<SynologyClientSettings | ConnectionFailure>,
+    public getSettings: () => Promise<SynologyClientSettings | ConnectionFailure>,
     private getStoredAuth: (settings: SynologyClientSettings) => Promise<SynologyAuth | undefined>,
     private onAuthChange: (
       settings: SynologyClientSettings,

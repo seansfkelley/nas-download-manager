@@ -1,18 +1,19 @@
 import { ALL_DOWNLOADABLE_PROTOCOLS, startsWithAnyProtocol } from "../common/apis/protocols";
+import { SynologyClient } from "../common/apis/synology";
 import { notify } from "../common/notify";
 
 import { addDownloadTasksAndFetch } from "./actions";
 
-export function initializeContextMenus() {
+export function initializeContextMenus(client: SynologyClient) {
   browser.contextMenus.create({
     enabled: true,
     title: browser.i18n.getMessage("Download_with_DownloadStation"),
     contexts: ["link", "audio", "video", "image", "selection"],
     onclick: (data) => {
       if (data.linkUrl) {
-        addDownloadTasksAndFetch([data.linkUrl]);
+        addDownloadTasksAndFetch(client, [data.linkUrl]);
       } else if (data.srcUrl) {
-        addDownloadTasksAndFetch([data.srcUrl]);
+        addDownloadTasksAndFetch(client, [data.srcUrl]);
       } else if (data.selectionText) {
         const urls = data.selectionText
           .split("\n")
@@ -27,7 +28,7 @@ export function initializeContextMenus() {
             "failure",
           );
         } else {
-          addDownloadTasksAndFetch(urls);
+          addDownloadTasksAndFetch(client, urls);
         }
       } else {
         notify(

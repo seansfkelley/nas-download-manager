@@ -1,9 +1,8 @@
 import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../../common/apis/errors";
-import { ClientRequestResult } from "../../common/apis/synology";
+import { ClientRequestResult, SynologyClient } from "../../common/apis/synology";
 import { saveLastSevereError } from "../../common/errorHandlers";
 import { assertNever } from "../../common/lang";
 import { type TaskState, SessionState } from "../../common/state";
-import { client } from "../client";
 
 function setCachedTasks(cachedTasks: Partial<TaskState>) {
   return SessionState.set({
@@ -12,7 +11,7 @@ function setCachedTasks(cachedTasks: Partial<TaskState>) {
   });
 }
 
-export async function fetchTasks(): Promise<void> {
+export async function fetchTasks(client: SynologyClient): Promise<void> {
   const fetchId = crypto.randomUUID();
 
   console.log(`(${fetchId}) fetching tasks...`);

@@ -10,13 +10,13 @@ import {
   DownloadStation2,
   FormFile,
   ConnectionFailure,
+  SynologyClient,
 } from "../../common/apis/synology";
 import { saveLastSevereError } from "../../common/errorHandlers";
 import { assertNever } from "../../common/lang";
 import { notify } from "../../common/notify";
 import { PersistentState } from "../../common/state";
 import type { UnionByDiscriminant } from "../../common/types";
-import { client, getClientSettings } from "../client";
 
 import { fetchTasks } from "./fetchTasks";
 import { resolveUrl, ResolvedUrl, sanitizeUrlForSynology, guessFileNameFromUrl } from "./urls";
@@ -27,7 +27,7 @@ type ArrayifyValues<T extends Record<string, any>> = {
 
 type ResolvedUrlByType = ArrayifyValues<UnionByDiscriminant<ResolvedUrl, "type">>;
 
-async function checkIfEMuleShouldBeEnabled(urls: string[]) {
+async function checkIfEMuleShouldBeEnabled(client: SynologyClient, urls: string[]) {
   if (urls.some((url) => startsWithAnyProtocol(url, EMULE_PROTOCOL))) {
     const result = await client.DownloadStation.Info.GetConfig();
     if (ClientRequestResult.isConnectionFailure(result)) {
@@ -57,6 +57,7 @@ function reportUnexpectedError(
 }
 
 async function addOneTask(
+  client: SynologyClient,
   enableFeedbackNotifications: boolean,
   url: string,
   { path, ftpUsername, ftpPassword, unzipPassword }: AddTaskOptions,
@@ -86,7 +87,7 @@ async function addOneTask(
     } else {
       let shouldEMuleBeEnabled;
       try {
-        shouldEMuleBeEnabled = await checkIfEMuleShouldBeEnabled([url]);
+        shouldEMuleBeEnabled = await checkIfEMuleShouldBeEnabled(client, [url]);
       } catch (e) {
         reportUnexpectedError(notificationId, e, "error while checking emule settings");
         return;
@@ -134,7 +135,7 @@ async function addOneTask(
         ...commonCreateOptionsV1,
       });
       await reportTaskAddResult(result, guessFileNameFromUrl(url));
-      await fetchTasks();
+      await fetchTasks(client);
     } catch (e) {
       reportUnexpectedError(notificationId, e, "error while adding direct-download task");
     }
@@ -167,7 +168,7 @@ async function addOneTask(
           });
         }
         await reportTaskAddResult(result, resolvedUrl.filename);
-        await fetchTasks();
+        await fetchTasks(client);
       }
     } catch (e) {
       reportUnexpectedError(notificationId, e, "error while adding metadata-file task");
@@ -187,6 +188,7 @@ async function addOneTask(
 }
 
 async function addMultipleTasks(
+  client: SynologyClient,
   enableFeedbackNotifications: boolean,
   urls: string[],
   { path, ftpUsername, ftpPassword, unzipPassword }: AddTaskOptions,
@@ -324,10 +326,11 @@ async function addMultipleTasks(
     );
   }
 
-  fetchTasks();
+  fetchTasks(client);
 }
 
 export async function addDownloadTasksAndFetch(
+  client: SynologyClient,
   urls: string[],
   options?: AddTaskOptions,
 ): Promise<void> {
@@ -349,8 +352,8 @@ export async function addDownloadTasksAndFetch(
     return;
   }
 
-  // The client would report this itself, but only per-request and in less specific words.
-  const settings = await getClientSettings();
+  // The client would report this itself, but only per-request and in less specific words, so pre-empt it.
+  const settings = await client.getSettings();
 
   if (ConnectionFailure.is(settings)) {
     notify(
@@ -359,8 +362,8 @@ export async function addDownloadTasksAndFetch(
       "failure",
     );
   } else if (urls.length === 1) {
-    await addOneTask(enableFeedbackNotifications, urls[0], normalizedOptions);
+    await addOneTask(client, enableFeedbackNotifications, urls[0], normalizedOptions);
   } else {
-    await addMultipleTasks(enableFeedbackNotifications, urls, normalizedOptions);
+    await addMultipleTasks(client, enableFeedbackNotifications, urls, normalizedOptions);
   }
 }
