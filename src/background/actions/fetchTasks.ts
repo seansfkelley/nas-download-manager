@@ -69,7 +69,7 @@ export async function fetchTasks(): Promise<void> {
     } else if (response.success) {
       await setCachedTasks({
         tasks: response.data.tasks,
-        taskFetchFailureReason: undefined, // This works as expected in Firefox. TODO: Test Chrome.
+        taskFetchFailureReason: undefined,
       });
     } else {
       await setCachedTasks({

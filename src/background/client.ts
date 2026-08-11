@@ -38,7 +38,7 @@ async function onAuthChange(settings: SynologyClientSettings, auth: SynologyAuth
     ) {
       console.log("discarding auth change belonging to superseded settings");
     } else if (auth == null) {
-      await SessionState.remove("auth");
+      await SessionState.set({ auth: undefined });
     } else {
       await SessionState.set({ auth: { settings, auth } });
     }

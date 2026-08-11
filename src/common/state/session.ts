@@ -1,5 +1,6 @@
 import type { SynologyAuth, SynologyClientSettings } from "../apis/synology";
 import type { DownloadStationTask } from "../apis/synology/DownloadStation/Task";
+import { nullToUndefined, undefinedToNull } from "../lang";
 
 // Split only for convenience; a lot of the frontend does not care one whit about the other fields.
 export interface TaskState {
@@ -32,18 +33,12 @@ export namespace SessionState {
   export async function get(): Promise<SessionState> {
     const state = (await browser.storage.session.get(null)) as SessionState;
     console.log("fetched session state");
-    return state;
+    return nullToUndefined(state);
   }
 
   export async function set(state: Partial<SessionState>): Promise<void> {
-    await browser.storage.session.set(state);
+    await browser.storage.session.set(undefinedToNull(state));
     console.log("set session state for keys:", Object.keys(state));
-  }
-
-  // Unlike setting a key to undefined, this is unambiguously a delete in every browser.
-  export async function remove(...keys: (keyof SessionState)[]): Promise<void> {
-    await browser.storage.session.remove(keys);
-    console.log("removed session state keys:", keys);
   }
 
   export async function clear(): Promise<void> {

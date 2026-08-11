@@ -65,6 +65,14 @@ export default tseslint.config(
           ],
         },
       ],
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            'MemberExpression[property.name="remove"][object.object.object.name="browser"][object.object.property.name="storage"]',
+          message: "Don't remove storage keys; set them to null (not undefined) instead.",
+        },
+      ],
       "@typescript-eslint/no-unused-vars": [
         "error",
         {
