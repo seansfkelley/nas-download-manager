@@ -6,6 +6,10 @@ import reactHooks from "eslint-plugin-react-hooks";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
+const ENTRY_POINTS = ["background", "content", "popup", "settings"];
+const NON_REACT_ENTRY_POINTS = ["background", "content"];
+const REACT_COMMON = ["components", "hooks"];
+
 export default tseslint.config(
   includeIgnoreFile(`${import.meta.dirname}/.gitignore`),
   { ignores: ["vendor/"] },
@@ -15,10 +19,52 @@ export default tseslint.config(
   // Must come last: turns off every rule prettier already decides.
   prettier,
   {
-    plugins: { "import-x": importX },
-    languageOptions: { globals: { ...globals.browser, ...globals.webextensions } },
+    plugins: {
+      "import-x": importX,
+    },
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        ...globals.webextensions,
+      },
+    },
+    settings: {
+      // no-restricted-paths silently passes everything unless specifiers resolve to real files.
+      "import-x/resolver-next": [
+        importX.createNodeResolver({ extensions: [".ts", ".tsx", ".js", ".jsx"] }),
+      ],
+    },
     rules: {
-      "import-x/order": ["error", { alphabetize: { order: "asc" }, "newlines-between": "always" }],
+      "import-x/order": [
+        "error",
+        {
+          alphabetize: { order: "asc" },
+          "newlines-between": "always",
+        },
+      ],
+      "import-x/no-restricted-paths": [
+        "error",
+        {
+          zones: [
+            {
+              target: "./src/common",
+              from: "./src",
+              except: ["./common"],
+            },
+            ...ENTRY_POINTS.map((entryPoint) => ({
+              target: `./src/${entryPoint}`,
+              from: "./src",
+              except: [`./${entryPoint}`, "./common"],
+            })),
+            ...NON_REACT_ENTRY_POINTS.flatMap((entryPoint) =>
+              REACT_COMMON.map((directory) => ({
+                target: `./src/${entryPoint}`,
+                from: `./src/common/${directory}`,
+              })),
+            ),
+          ],
+        },
+      ],
       "@typescript-eslint/no-unused-vars": [
         "error",
         { varsIgnorePattern: "^_", argsIgnorePattern: "^_" },
