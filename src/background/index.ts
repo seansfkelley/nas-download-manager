@@ -9,12 +9,11 @@ import {
 import { migrateState } from "../common/state/migrations/update";
 
 import { fetchTasks } from "./actions";
-import { getMutableStateSingleton } from "./backgroundState";
 import { initializeContextMenus } from "./contextMenus";
-import { maybeNotifyCompletedDownloads } from "./listeners/maybeNotifyCompletedDownloads";
+import { notifyForCompletedDownloads } from "./listeners/notifyForCompletedDownloads";
+import { refetchOnConnectionChange } from "./listeners/refetchOnConnectionChange";
 import { POLL_TASKS_ALARM, updateBackgroundPollAlarm } from "./listeners/updateBackgroundPollAlarm";
 import { updateBadge } from "./listeners/updateBadge";
-import { updateCredentials } from "./listeners/updateCredentials";
 import { initializeMessageHandler } from "./messages";
 
 initializeContextMenus();
@@ -23,7 +22,7 @@ initializeMessageHandler();
 browser.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === POLL_TASKS_ALARM) {
     console.log("poll alarm fired");
-    fetchTasks(getMutableStateSingleton().api);
+    fetchTasks();
   }
 });
 
@@ -34,12 +33,16 @@ browser.alarms.onAlarm.addListener((alarm) => {
     console.log("successfully migrated persistent state");
 
     reactToPersistentState("settings", async ({ settings }) => {
-      await updateCredentials(settings);
-      await updateBackgroundPollAlarm(settings);
+      try {
+        await refetchOnConnectionChange();
+        await updateBackgroundPollAlarm(settings);
 
-      const sessionState = await SessionState.get();
-      await updateBadge(settings, sessionState);
-      await maybeNotifyCompletedDownloads(settings, sessionState);
+        const sessionState = await SessionState.get();
+        await updateBadge(settings, sessionState);
+        await notifyForCompletedDownloads(settings, sessionState);
+      } catch (error) {
+        saveLastSevereError(error);
+      }
     });
 
     reactToSessionState(
@@ -48,12 +51,16 @@ browser.alarms.onAlarm.addListener((alarm) => {
       "tasksLastCompletedFetchTimestamp",
       "finishedTaskIds",
       async (sessionState) => {
-        const persistentState = await PersistentState.get();
-        if (persistentState == null) {
-          console.warn("skipping background update: persistent state not yet migrated");
-        } else {
-          await updateBadge(persistentState.settings, sessionState);
-          await maybeNotifyCompletedDownloads(persistentState.settings, sessionState);
+        try {
+          const persistentState = await PersistentState.get();
+          if (persistentState == null) {
+            console.warn("skipping background update: persistent state not yet migrated");
+          } else {
+            await updateBadge(persistentState.settings, sessionState);
+            await notifyForCompletedDownloads(persistentState.settings, sessionState);
+          }
+        } catch (error) {
+          saveLastSevereError(error);
         }
       },
     );

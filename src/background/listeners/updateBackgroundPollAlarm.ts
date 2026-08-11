@@ -1,6 +1,5 @@
 import { Settings } from "../../common/state";
 import { fetchTasks } from "../actions";
-import { getMutableStateSingleton } from "../backgroundState";
 
 export const POLL_TASKS_ALARM = "poll-tasks";
 
@@ -18,7 +17,7 @@ export async function updateBackgroundPollAlarm(settings: Settings) {
       });
 
       // delayInMinutes=0 doesn't seem to work, so just kick off a check now.
-      await fetchTasks(getMutableStateSingleton().api);
+      await fetchTasks();
     }
   }
 }

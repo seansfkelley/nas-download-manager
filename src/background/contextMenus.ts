@@ -2,7 +2,6 @@ import { ALL_DOWNLOADABLE_PROTOCOLS, startsWithAnyProtocol } from "../common/api
 import { notify } from "../common/notify";
 
 import { addDownloadTasksAndFetch } from "./actions";
-import { getMutableStateSingleton } from "./backgroundState";
 
 export function initializeContextMenus() {
   browser.contextMenus.create({
@@ -10,12 +9,10 @@ export function initializeContextMenus() {
     title: browser.i18n.getMessage("Download_with_DownloadStation"),
     contexts: ["link", "audio", "video", "image", "selection"],
     onclick: (data) => {
-      const state = getMutableStateSingleton();
-
       if (data.linkUrl) {
-        addDownloadTasksAndFetch(state.api, [data.linkUrl]);
+        addDownloadTasksAndFetch([data.linkUrl]);
       } else if (data.srcUrl) {
-        addDownloadTasksAndFetch(state.api, [data.srcUrl]);
+        addDownloadTasksAndFetch([data.srcUrl]);
       } else if (data.selectionText) {
         const urls = data.selectionText
           .split("\n")
@@ -30,7 +27,7 @@ export function initializeContextMenus() {
             "failure",
           );
         } else {
-          addDownloadTasksAndFetch(state.api, urls);
+          addDownloadTasksAndFetch(urls);
         }
       } else {
         notify(

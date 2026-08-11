@@ -1,4 +1,5 @@
 import { typesafeUnionMembers } from "../../lang";
+import { ConnectionSettings, getHostUrl } from "../../state";
 
 import { Auth, AuthLoginResponse } from "./Auth";
 import { DownloadStation } from "./DownloadStation";
@@ -16,8 +17,21 @@ import {
 } from "./shared";
 
 const NO_SUCH_METHOD_ERROR_CODE = 103;
-const NO_PERMISSIONS_ERROR_CODE = 105;
-const SESSION_TIMEOUT_ERROR_CODE = 106;
+
+const STALE_SESSION_ERROR_CODES = [
+  105, // The logged-in session does not have permission.
+  106, // Session timeout.
+  107, // Session interrupted by duplicate login.
+  119, // SID not found.
+];
+
+const AUTH_ERROR_CODES_REQUIRING_USER_INTERVENTION = [
+  400, // No such username or incorrect password.
+  401, // Account disabled.
+  402, // Permission denied.
+  403, // Two-step verification needed.
+  404, // Two-step verification failed.
+];
 
 export interface SynologyClientSettings {
   baseUrl: string;
@@ -25,6 +39,38 @@ export interface SynologyClientSettings {
   passwd: string;
   session: SessionName;
 }
+
+export const SynologyClientSettings = {
+  fromConnection: (
+    connection: ConnectionSettings | undefined,
+    password: string | undefined = connection?.password,
+  ): SynologyClientSettings | ConnectionFailure => {
+    const settings: Partial<SynologyClientSettings> = {
+      baseUrl: connection != null ? getHostUrl(connection) : undefined,
+      account: connection?.username,
+      passwd: password,
+      session: SessionName.DownloadStation,
+    };
+
+    const missingKeys = SETTING_NAME_KEYS.filter((k) => {
+      const v = settings[k];
+      return v == null || v.length === 0;
+    });
+
+    if (missingKeys.length === 0) {
+      return settings as SynologyClientSettings;
+    } else {
+      return {
+        type: "missing-config",
+        which: missingKeys.length === 1 && missingKeys[0] === "passwd" ? "password" : "other",
+      };
+    }
+  },
+
+  isEqual: (a: SynologyClientSettings, b: SynologyClientSettings): boolean => {
+    return SETTING_NAME_KEYS.every((k) => a[k] === b[k]);
+  },
+};
 
 const SETTING_NAME_KEYS = typesafeUnionMembers<keyof SynologyClientSettings>({
   baseUrl: true,
@@ -44,25 +90,22 @@ export type ConnectionFailure =
         | "probable-wrong-url-or-no-connection-or-cert-error"
         | "timeout"
         | "unknown";
-      error: any;
     };
 
-function isConnectionFailure(
-  v: SynologyClientSettings | ConnectionFailure,
-): v is ConnectionFailure {
-  return (v as ConnectionFailure).type != null;
-}
+export const ConnectionFailure = {
+  is: (settings: SynologyClientSettings | ConnectionFailure): settings is ConnectionFailure => {
+    return (settings as ConnectionFailure).type != null;
+  },
 
-const ConnectionFailure = {
   from: (error: any): ConnectionFailure => {
     if (error instanceof BadResponseError && error.response.status === 400) {
-      return { type: "probable-wrong-protocol", error };
+      return { type: "probable-wrong-protocol" };
     } else if (error instanceof NetworkError) {
-      return { type: "probable-wrong-url-or-no-connection-or-cert-error", error };
+      return { type: "probable-wrong-url-or-no-connection-or-cert-error" };
     } else if (error instanceof TimeoutError) {
-      return { type: "timeout", error };
+      return { type: "timeout" };
     } else {
-      return { type: "unknown", error };
+      return { type: "unknown" };
     }
   },
 };
@@ -78,108 +121,169 @@ export const ClientRequestResult = {
   },
 };
 
+export type LoginFailure = ConnectionFailure | RestApiFailureResponse;
+
+export const LoginFailure = {
+  requiresUserIntervention: (failure: LoginFailure): boolean => {
+    if (ClientRequestResult.isConnectionFailure(failure)) {
+      switch (failure.type) {
+        case "missing-config":
+        case "probable-wrong-protocol":
+        case "probable-wrong-url-or-no-connection-or-cert-error":
+        case "unknown":
+          return true;
+        case "timeout":
+          return false;
+      }
+    } else {
+      return AUTH_ERROR_CODES_REQUIRING_USER_INTERVENTION.includes(failure.error.code);
+    }
+  },
+};
+
+export type SynologyAuth = { sid: string } | LoginFailure;
+
+export const SynologyAuth = {
+  isSuccess: (auth: SynologyAuth) => "sid" in auth,
+};
+
+function toSynologyAuth(response: ClientRequestResult<AuthLoginResponse>): SynologyAuth {
+  if (ClientRequestResult.isConnectionFailure(response)) {
+    return response;
+  } else if (response.success) {
+    return { sid: response.data.sid };
+  } else {
+    return response;
+  }
+}
+
 export class SynologyClient {
-  private loginPromise: Promise<ClientRequestResult<AuthLoginResponse>> | undefined;
-  private settingsVersion: number = 0;
+  private inflightLogin:
+    | { settings: SynologyClientSettings; promise: Promise<ClientRequestResult<AuthLoginResponse>> }
+    | undefined;
 
-  constructor(private settings: Partial<SynologyClientSettings>) {}
+  constructor(
+    private getSettings: () => Promise<SynologyClientSettings | ConnectionFailure>,
+    private getStoredAuth: (settings: SynologyClientSettings) => Promise<SynologyAuth | undefined>,
+    private onAuthChange: (
+      settings: SynologyClientSettings,
+      auth: SynologyAuth | undefined,
+    ) => Promise<void>,
+  ) {}
 
-  public partiallyUpdateSettings(settings: Partial<SynologyClientSettings>) {
-    const updatedSettings = { ...this.settings, ...settings };
-    if (SETTING_NAME_KEYS.some((k) => updatedSettings[k] !== this.settings[k])) {
-      this.settingsVersion++;
-      this.settings = updatedSettings;
-      this.maybeLogout();
-      return true;
+  private getLoginPromiseForSettings(settings: SynologyClientSettings) {
+    if (
+      this.inflightLogin != null &&
+      SynologyClientSettings.isEqual(this.inflightLogin.settings, settings)
+    ) {
+      return this.inflightLogin.promise;
     } else {
-      return false;
+      return undefined;
     }
   }
 
-  private getValidatedSettings(): SynologyClientSettings | ConnectionFailure {
-    const missingFields = SETTING_NAME_KEYS.filter((k) => {
-      const v = this.settings[k];
-      return v == null || v.length === 0;
-    });
-    if (missingFields.length === 0) {
-      return this.settings as SynologyClientSettings;
-    } else {
-      return {
-        type: "missing-config",
-        which: missingFields.length === 1 && missingFields[0] === "passwd" ? "password" : "other",
-      };
-    }
-  }
-
-  private maybeLogin = async (request?: BaseRequest) => {
-    const settings = this.getValidatedSettings();
-    if (isConnectionFailure(settings)) {
-      return settings;
-    } else if (!this.loginPromise) {
-      const { baseUrl, ...restSettings } = settings;
-      this.loginPromise = Auth.Login(baseUrl, {
-        ...request,
-        ...restSettings,
-        // First try with the lowest version that we can that supports sid, in an attempt to
-        // support the oldest DSMs we can.
-        version: 2,
-      })
-        .then((response) => {
-          // We guess we're on DSM 7, which does not support earlier versions of the API.
-          // We'd like to do this with an Info.Query, but DSM 7 erroneously reports that it
-          // supports version 2, which it definitely does not.
-          if (!response.success && response.error.code === NO_SUCH_METHOD_ERROR_CODE) {
-            return Auth.Login(baseUrl, {
-              ...request,
-              ...restSettings,
-              version: 3,
-            });
-          } else {
-            return response;
-          }
-        })
-        .catch((e) => ConnectionFailure.from(e));
+  private maybeLogIn = async (
+    settings: SynologyClientSettings,
+    request?: BaseRequest,
+  ): Promise<ClientRequestResult<AuthLoginResponse>> => {
+    const inflight = this.getLoginPromiseForSettings(settings);
+    if (inflight != null) {
+      return inflight;
     }
 
-    return this.loginPromise;
+    const promise = (async () => {
+      const { baseUrl, ...credentials } = settings;
+      try {
+        const response = await Auth.Login(baseUrl, {
+          ...request,
+          ...credentials,
+          // First try with the lowest version that we can that supports sid, in an attempt to
+          // support the oldest DSMs we can.
+          version: 2,
+        });
+
+        // We guess we're on DSM 7, which does not support earlier versions of the API.
+        // We'd like to do this with an Info.Query, but DSM 7 erroneously reports that it
+        // supports version 2, which it definitely does not.
+        if (!response.success && response.error.code === NO_SUCH_METHOD_ERROR_CODE) {
+          return await Auth.Login(baseUrl, { ...request, ...credentials, version: 3 });
+        } else {
+          return response;
+        }
+      } catch (e) {
+        return ConnectionFailure.from(e);
+      }
+    })();
+
+    this.inflightLogin = { settings, promise };
+    const response = await promise;
+
+    if (this.inflightLogin?.promise !== promise) {
+      throw new Error("in-flight login superseded; this promise is no longer valid");
+    }
+    this.inflightLogin = undefined;
+
+    const auth = toSynologyAuth(response);
+    if (SynologyAuth.isSuccess(auth) || LoginFailure.requiresUserIntervention(auth)) {
+      await this.onAuthChange(settings, auth);
+    }
+
+    return response;
   };
 
-  // Note that this method is a BEST EFFORT.
-  // (1) Because the client auto-re-logs in when you make new queries, this method will attempt to
-  //     only log out the current session. The next non-logout call is guaranteed to attempt to log
-  //     back in.
-  // (2) The result of this call, either success or failure, has no bearing on future API calls. It
-  //     is provided to the caller only for convenience, and may not reflect the true state of the
-  //     client or session at the time the promise is resolved.
-  private maybeLogout = async (
+  private clearAuth = async (settings: SynologyClientSettings) => {
+    if (this.getLoginPromiseForSettings(settings) != null) {
+      this.inflightLogin = undefined;
+    }
+    await this.onAuthChange(settings, undefined);
+  };
+
+  // Note that this method is a BEST EFFORT. It only logs out the session this client can see, and
+  // the next non-logout call is guaranteed to attempt to log back in. The result is provided for
+  // convenience and may not reflect the true state of the session by the time it resolves.
+  private maybeLogOut = async (
     request?: BaseRequest,
   ): Promise<ClientRequestResult<{}> | "not-logged-in"> => {
-    const stashedLoginPromise = this.loginPromise;
-    const settings = this.getValidatedSettings();
-    this.loginPromise = undefined;
-
-    if (!stashedLoginPromise) {
-      return "not-logged-in" as const;
-    } else if (isConnectionFailure(settings)) {
+    const settings = await this.getSettings();
+    if (ConnectionFailure.is(settings)) {
       return settings;
-    } else {
-      const response = await stashedLoginPromise;
-      if (ClientRequestResult.isConnectionFailure(response)) {
-        return response;
-      } else if (response.success) {
-        const { baseUrl, session } = settings;
-        try {
-          return await Auth.Logout(baseUrl, {
+    }
+
+    const inflight = this.getLoginPromiseForSettings(settings);
+    const lastKnownAuth = inflight == null ? await this.getStoredAuth(settings) : undefined;
+
+    // We can unconditionally clear the underlying storage because it is the consumer's
+    // responsibility to ensure that multiple clients sharing storage are coordinated, if that is
+    // desired.
+    await this.clearAuth(settings);
+
+    if (inflight != null) {
+      // Drop it on the floor; at this point, we're just trying to help out the NAS to allow it to
+      // clear any session tokens, but we ourselves don't care.
+      inflight.then((response) => {
+        const abandoned = toSynologyAuth(response);
+        if (SynologyAuth.isSuccess(abandoned)) {
+          return Auth.Logout(settings.baseUrl, {
             ...request,
-            sid: response.data.sid,
-            session: session,
+            sid: abandoned.sid,
+            session: settings.session,
           });
-        } catch (e) {
-          return ConnectionFailure.from(e);
+        } else {
+          return undefined;
         }
-      } else {
-        return response;
-      }
+      });
+    }
+
+    if (lastKnownAuth == null) {
+      return "not-logged-in" as const;
+    } else if (SynologyAuth.isSuccess(lastKnownAuth)) {
+      return await Auth.Logout(settings.baseUrl, {
+        ...request,
+        sid: lastKnownAuth.sid,
+        session: settings.session,
+      });
+    } else {
+      return lastKnownAuth;
     }
   };
 
@@ -188,47 +292,45 @@ export class SynologyClient {
   ): (options: T) => Promise<ClientRequestResult<U>> {
     const wrappedFunction = async (
       options: T,
-      shouldRetryRoutineFailures: boolean = true,
+      shouldRetryTransientFailures: boolean = true,
     ): Promise<ClientRequestResult<U>> => {
-      const versionAtInit = this.settingsVersion;
-
-      const maybeLogoutAndRetry = async (
-        result: ConnectionFailure | RestApiFailureResponse,
-      ): Promise<ClientRequestResult<U>> => {
-        if (
-          shouldRetryRoutineFailures &&
-          (ClientRequestResult.isConnectionFailure(result) ||
-            result.error.code === SESSION_TIMEOUT_ERROR_CODE ||
-            result.error.code === NO_PERMISSIONS_ERROR_CODE)
-        ) {
-          this.loginPromise = undefined;
-          return wrappedFunction(options, false);
-        } else {
-          return result;
-        }
-      };
-
       try {
         // `await`s in this block aren't necessary to adhere to the type signature, but it changes
         // who's responsible for handling the errors. Currently, errors unhandled by lower levels
         // are bubbled up to this outermost `catch`.
 
-        const loginResult = await this.maybeLogin();
+        // Resolved once and threaded through the whole request: re-reading it partway would let a
+        // settings change mid-flight clear auth that belongs to the new settings.
+        const settings = await this.getSettings();
 
-        if (this.settingsVersion !== versionAtInit) {
-          return await wrappedFunction(options);
-        } else if (ClientRequestResult.isConnectionFailure(loginResult) || !loginResult.success) {
-          return await maybeLogoutAndRetry(loginResult);
-        } else {
-          const response = await fn(this.settings.baseUrl!, loginResult.data.sid, options);
+        if (ConnectionFailure.is(settings)) {
+          return settings;
+        }
 
-          if (this.settingsVersion !== versionAtInit) {
-            return await wrappedFunction(options);
-          } else if (response.success) {
-            return response;
+        const auth =
+          (await this.getStoredAuth(settings)) ?? toSynologyAuth(await this.maybeLogIn(settings));
+
+        if (!SynologyAuth.isSuccess(auth)) {
+          // A stored failure is one we already decided retrying cannot fix.
+          if (shouldRetryTransientFailures && !LoginFailure.requiresUserIntervention(auth)) {
+            await this.clearAuth(settings);
+            return await wrappedFunction(options, false);
           } else {
-            return await maybeLogoutAndRetry(response);
+            return auth;
           }
+        }
+
+        const response = await fn(settings.baseUrl, auth.sid, options);
+
+        if (
+          !response.success &&
+          shouldRetryTransientFailures &&
+          STALE_SESSION_ERROR_CODES.includes(response.error.code)
+        ) {
+          await this.clearAuth(settings);
+          return await wrappedFunction(options, false);
+        } else {
+          return response;
         }
       } catch (e) {
         return ConnectionFailure.from(e);
@@ -248,23 +350,21 @@ export class SynologyClient {
     fn: (baseUrl: string, options: T) => Promise<RestApiResponse<U>>,
   ): (options: T) => Promise<ClientRequestResult<U>> {
     return async (options: T) => {
-      const settings = this.getValidatedSettings();
-      if (isConnectionFailure(settings)) {
-        return settings;
-      } else {
-        try {
-          // TODO: This should do the same settings-version-checking that `this.proxy` does.
-          return await fn(settings.baseUrl, options);
-        } catch (e) {
-          return ConnectionFailure.from(e);
-        }
+      try {
+        const settings = await this.getSettings();
+        return ConnectionFailure.is(settings) ? settings : await fn(settings.baseUrl, options);
+      } catch (e) {
+        return ConnectionFailure.from(e);
       }
     };
   }
 
   public Auth = {
-    Login: this.maybeLogin,
-    Logout: this.maybeLogout,
+    Login: async (request?: BaseRequest): Promise<ClientRequestResult<AuthLoginResponse>> => {
+      const settings = await this.getSettings();
+      return ConnectionFailure.is(settings) ? settings : await this.maybeLogIn(settings, request);
+    },
+    Logout: this.maybeLogOut,
   };
 
   public Info = {

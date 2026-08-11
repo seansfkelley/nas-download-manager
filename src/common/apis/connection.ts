@@ -1,25 +1,35 @@
-import { ConnectionSettings, getHostUrl } from "../state";
+import { ConnectionSettings } from "../state";
 
-import { ClientRequestResult, SessionName, SynologyClient } from "./synology";
+import {
+  ClientRequestResult,
+  ConnectionFailure,
+  SynologyAuth,
+  SynologyClient,
+  SynologyClientSettings,
+} from "./synology";
+
+function createEphemeralClient(settings: SynologyClientSettings | ConnectionFailure) {
+  let auth: SynologyAuth | undefined;
+  return new SynologyClient(
+    async () => settings,
+    async () => auth,
+    async (_settings, newAuth) => {
+      auth = newAuth;
+    },
+  );
+}
 
 export async function testConnection(
   settings: ConnectionSettings,
 ): Promise<ClientRequestResult<{}>> {
-  const api = new SynologyClient({
-    baseUrl: getHostUrl(settings),
-    account: settings.username,
-    passwd: settings.password,
-    session: SessionName.DownloadStation,
-  });
+  const client = createEphemeralClient(SynologyClientSettings.fromConnection(settings));
+  const loginResult = await client.Auth.Login({ timeout: 30000 });
 
-  const loginResult = await api.Auth.Login({ timeout: 30000 });
   if (!ClientRequestResult.isConnectionFailure(loginResult) && loginResult.success) {
     // Note that this is fire-and-forget.
-    api.Auth.Logout({ timeout: 10000 }).then((logoutResponse) => {
-      if (logoutResponse === "not-logged-in") {
-        // Typescript demands we handle this case, which is correct, but also, it's pretty wat
-        console.error(`wtf: not logged in immediately after successfully logging in`);
-      } else if (
+    client.Auth.Logout({ timeout: 10000 }).then((logoutResponse) => {
+      if (
+        logoutResponse === "not-logged-in" ||
         ClientRequestResult.isConnectionFailure(logoutResponse) ||
         !logoutResponse.success
       ) {
