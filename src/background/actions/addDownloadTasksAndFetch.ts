@@ -1,4 +1,4 @@
-import { getErrorForFailedResponse } from "../../common/apis/errors";
+import { getErrorForConnectionFailure, getErrorForFailedResponse } from "../../common/apis/errors";
 import type { AddTaskOptions } from "../../common/apis/messages";
 import {
   ALL_DOWNLOADABLE_PROTOCOLS,
@@ -6,10 +6,11 @@ import {
   startsWithAnyProtocol,
 } from "../../common/apis/protocols";
 import {
-  SynologyClient,
   ClientRequestResult,
   DownloadStation2,
   FormFile,
+  ConnectionFailure,
+  SynologyClient,
 } from "../../common/apis/synology";
 import { saveLastSevereError } from "../../common/errorHandlers";
 import { assertNever } from "../../common/lang";
@@ -26,9 +27,9 @@ type ArrayifyValues<T extends Record<string, any>> = {
 
 type ResolvedUrlByType = ArrayifyValues<UnionByDiscriminant<ResolvedUrl, "type">>;
 
-async function checkIfEMuleShouldBeEnabled(api: SynologyClient, urls: string[]) {
+async function checkIfEMuleShouldBeEnabled(client: SynologyClient, urls: string[]) {
   if (urls.some((url) => startsWithAnyProtocol(url, EMULE_PROTOCOL))) {
-    const result = await api.DownloadStation.Info.GetConfig();
+    const result = await client.DownloadStation.Info.GetConfig();
     if (ClientRequestResult.isConnectionFailure(result)) {
       return false;
     } else if (result.success) {
@@ -56,7 +57,7 @@ function reportUnexpectedError(
 }
 
 async function addOneTask(
-  api: SynologyClient,
+  client: SynologyClient,
   enableFeedbackNotifications: boolean,
   url: string,
   { path, ftpUsername, ftpPassword, unzipPassword }: AddTaskOptions,
@@ -86,7 +87,7 @@ async function addOneTask(
     } else {
       let shouldEMuleBeEnabled;
       try {
-        shouldEMuleBeEnabled = await checkIfEMuleShouldBeEnabled(api, [url]);
+        shouldEMuleBeEnabled = await checkIfEMuleShouldBeEnabled(client, [url]);
       } catch (e) {
         reportUnexpectedError(notificationId, e, "error while checking emule settings");
         return;
@@ -129,18 +130,18 @@ async function addOneTask(
 
   if (resolvedUrl.type === "direct-download") {
     try {
-      const result = await api.DownloadStation.Task.Create({
+      const result = await client.DownloadStation.Task.Create({
         uri: [sanitizeUrlForSynology(resolvedUrl.url).toString()],
         ...commonCreateOptionsV1,
       });
       await reportTaskAddResult(result, guessFileNameFromUrl(url));
-      await fetchTasks(api);
+      await fetchTasks(client);
     } catch (e) {
       reportUnexpectedError(notificationId, e, "error while adding direct-download task");
     }
   } else if (resolvedUrl.type === "metadata-file") {
     try {
-      const supportsNewApiQueryResult = await api.Info.Query({
+      const supportsNewApiQueryResult = await client.Info.Query({
         query: [DownloadStation2.Task.API_NAME],
       });
       if (ClientRequestResult.isConnectionFailure(supportsNewApiQueryResult)) {
@@ -155,19 +156,19 @@ async function addOneTask(
           // probably for this reason.
           (supportsNewApiQueryResult.data[DownloadStation2.Task.API_NAME]?.maxVersion ?? 0) >= 2
         ) {
-          result = await api.DownloadStation2.Task.Create({
+          result = await client.DownloadStation2.Task.Create({
             type: "file",
             file,
             ...commonCreateOptionsV2,
           });
         } else {
-          result = await api.DownloadStation.Task.Create({
+          result = await client.DownloadStation.Task.Create({
             file,
             ...commonCreateOptionsV1,
           });
         }
         await reportTaskAddResult(result, resolvedUrl.filename);
-        await fetchTasks(api);
+        await fetchTasks(client);
       }
     } catch (e) {
       reportUnexpectedError(notificationId, e, "error while adding metadata-file task");
@@ -187,7 +188,7 @@ async function addOneTask(
 }
 
 async function addMultipleTasks(
-  api: SynologyClient,
+  client: SynologyClient,
   enableFeedbackNotifications: boolean,
   urls: string[],
   { path, ftpUsername, ftpPassword, unzipPassword }: AddTaskOptions,
@@ -250,7 +251,7 @@ async function addMultipleTasks(
   if (groupedUrls["direct-download"].length > 0) {
     const urls = groupedUrls["direct-download"].map(({ url }) => sanitizeUrlForSynology(url));
     try {
-      const result = await api.DownloadStation.Task.Create({
+      const result = await client.DownloadStation.Task.Create({
         uri: urls.map((url) => url.toString()),
         ...commonCreateOptionsV1,
       });
@@ -262,7 +263,7 @@ async function addMultipleTasks(
   }
 
   if (groupedUrls["metadata-file"].length > 0) {
-    const supportsNewApiQueryResult = await api.Info.Query({
+    const supportsNewApiQueryResult = await client.Info.Query({
       query: [DownloadStation2.Task.API_NAME],
     });
 
@@ -273,13 +274,13 @@ async function addMultipleTasks(
         supportsNewApiQueryResult.success &&
         supportsNewApiQueryResult.data[DownloadStation2.Task.API_NAME] != null
       ) {
-        return api.DownloadStation2.Task.Create({
+        return client.DownloadStation2.Task.Create({
           type: "file",
           file,
           ...commonCreateOptionsV2,
         });
       } else {
-        return api.DownloadStation.Task.Create({
+        return client.DownloadStation.Task.Create({
           file,
           ...commonCreateOptionsV1,
         });
@@ -325,11 +326,11 @@ async function addMultipleTasks(
     );
   }
 
-  fetchTasks(api);
+  fetchTasks(client);
 }
 
 export async function addDownloadTasksAndFetch(
-  api: SynologyClient,
+  client: SynologyClient,
   urls: string[],
   options?: AddTaskOptions,
 ): Promise<void> {
@@ -348,9 +349,21 @@ export async function addDownloadTasksAndFetch(
       browser.i18n.getMessage("No_downloadable_URLs_provided"),
       "failure",
     );
+    return;
+  }
+
+  // The client would report this itself, but only per-request and in less specific words, so pre-empt it.
+  const settings = await client.getSettings();
+
+  if (ConnectionFailure.is(settings)) {
+    notify(
+      browser.i18n.getMessage("Failed_to_add_download"),
+      getErrorForConnectionFailure(settings),
+      "failure",
+    );
   } else if (urls.length === 1) {
-    await addOneTask(api, enableFeedbackNotifications, urls[0], normalizedOptions);
+    await addOneTask(client, enableFeedbackNotifications, urls[0], normalizedOptions);
   } else {
-    await addMultipleTasks(api, enableFeedbackNotifications, urls, normalizedOptions);
+    await addMultipleTasks(client, enableFeedbackNotifications, urls, normalizedOptions);
   }
 }

@@ -1,7 +1,7 @@
 import "./settings-form.css";
 import { useState } from "react";
 
-import { SetLoginPassword } from "../common/apis/messages";
+import { Login } from "../common/apis/messages";
 import { DOWNLOAD_ONLY_PROTOCOLS } from "../common/apis/protocols";
 import { SettingsList } from "../common/components/SettingsList";
 import { SettingsListCheckbox } from "../common/components/SettingsListCheckbox";
@@ -59,7 +59,7 @@ export function SettingsForm(props: Props) {
     } else {
       await saveSettings({ connection: { ...connection, password: undefined } });
     }
-    await SetLoginPassword.send(connection.password);
+    await Login.send(connection.password);
   }
 
   function maybeRenderDebuggingOutputAndSeparator() {

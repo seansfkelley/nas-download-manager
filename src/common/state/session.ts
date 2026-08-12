@@ -1,4 +1,6 @@
+import type { SynologyAuth, SynologyClientSettings } from "../apis/synology";
 import type { DownloadStationTask } from "../apis/synology/DownloadStation/Task";
+import { nullToUndefined, undefinedToNull } from "../lang";
 
 // Split only for convenience; a lot of the frontend does not care one whit about the other fields.
 export interface TaskState {
@@ -9,6 +11,11 @@ export interface TaskState {
 }
 
 export interface SessionState extends TaskState {
+  // Set imperatively by the login form when the user opts out of remembering their password, in
+  // which case the persistent settings deliberately do not have it.
+  password?: string;
+  // Tagged with the settings that produced it to detect changes that require reauthorization.
+  auth?: { settings: SynologyClientSettings; auth: SynologyAuth };
   // Identifies the most recently initiated task fetch, so that a fetch can discard its own results
   // if a newer one has started in the meantime.
   latestTaskFetchId?: string;
@@ -26,11 +33,11 @@ export namespace SessionState {
   export async function get(): Promise<SessionState> {
     const state = (await browser.storage.session.get(null)) as SessionState;
     console.log("fetched session state");
-    return state;
+    return nullToUndefined(state);
   }
 
   export async function set(state: Partial<SessionState>): Promise<void> {
-    await browser.storage.session.set(state);
+    await browser.storage.session.set(undefinedToNull(state));
     console.log("set session state for keys:", Object.keys(state));
   }
 

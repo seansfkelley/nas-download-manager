@@ -39,6 +39,31 @@ export function typesafeOmit<T extends object, K extends keyof T>(
   return copy;
 }
 
+// browser.storage does not agree across browsers about what setting a key to undefined means, so a
+// deliberate erasure has to be written as null and translated back on the way out. Both only look at
+// own enumerable keys, so a key that is absent stays absent.
+export function undefinedToNull<T extends object>(
+  o: T,
+): { [K in keyof T]: undefined extends T[K] ? Exclude<T[K], undefined> | null : T[K] } {
+  const copy: any = {};
+  Object.keys(o).forEach((k) => {
+    const v = (o as any)[k];
+    copy[k] = v === undefined ? null : v;
+  });
+  return copy;
+}
+
+export function nullToUndefined<T extends object>(
+  o: T,
+): { [K in keyof T]: null extends T[K] ? Exclude<T[K], null> | undefined : T[K] } {
+  const copy: any = {};
+  Object.keys(o).forEach((k) => {
+    const v = (o as any)[k];
+    copy[k] = v === null ? undefined : v;
+  });
+  return copy;
+}
+
 export function typesafeMapValues<K extends string, V, U>(
   o: Record<K, V>,
   mapper: (value: V, key: K) => U,

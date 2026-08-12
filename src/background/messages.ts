@@ -1,15 +1,12 @@
 import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../common/apis/errors";
 import { MessageResponse, Message, Result } from "../common/apis/messages";
-import { ClientRequestResult } from "../common/apis/synology";
+import { ClientRequestResult, SynologyClient } from "../common/apis/synology";
+import { SessionState } from "../common/state";
 import type { DiscriminateUnion } from "../common/types";
 
 import { addDownloadTasksAndFetch, clearCachedTasks, fetchTasks } from "./actions";
-import { BackgroundState, getMutableStateSingleton } from "./backgroundState";
 
-type MessageHandler<T extends Message, U extends Result[keyof Result]> = (
-  m: T,
-  state: BackgroundState,
-) => Promise<U>;
+type MessageHandler<T extends Message, U extends Result[keyof Result]> = (m: T) => Promise<U>;
 
 type MessageHandlers = {
   [T in Message["type"]]: MessageHandler<DiscriminateUnion<Message, "type", T>, Result[T]>;
@@ -44,74 +41,78 @@ function toMessageResponse<T, U>(
   }
 }
 
-const MESSAGE_HANDLERS: MessageHandlers = {
-  "add-tasks": (m, state) => {
-    return addDownloadTasksAndFetch(state.api, m.urls, m.options);
-  },
-  "fetch-tasks": (_m, state) => {
-    return fetchTasks(state.api);
-  },
-  "pause-task": async (m, state) => {
-    const response = toMessageResponse(
-      await state.api.DownloadStation.Task.Pause({ id: [m.taskId] }),
-    );
-    if (response.success) {
-      await fetchTasks(state.api);
-    }
-    return response;
-  },
-  "resume-task": async (m, state) => {
-    const response = toMessageResponse(
-      await state.api.DownloadStation.Task.Resume({ id: [m.taskId] }),
-    );
-    if (response.success) {
-      await fetchTasks(state.api);
-    }
-    return response;
-  },
-  "delete-tasks": async (m, state) => {
-    const response = toMessageResponse(
-      await state.api.DownloadStation.Task.Delete({ id: m.taskIds, force_complete: false }),
-    );
-    if (response.success) {
-      await fetchTasks(state.api);
-    }
-    return response;
-  },
-  "get-config": async (_m, state) => {
-    return toMessageResponse(await state.api.DownloadStation.Info.GetConfig(), (data) => data);
-  },
-  "list-directories": async (m, state) => {
-    const { path } = m;
-    if (path) {
-      return toMessageResponse(
-        await state.api.FileStation.List.list({
-          folder_path: path,
-          sort_by: "name",
-          filetype: "dir",
-        }),
-        (data) => data.files,
+function messageHandlers(client: SynologyClient): MessageHandlers {
+  return {
+    "add-tasks": (m) => {
+      return addDownloadTasksAndFetch(client, m.urls, m.options);
+    },
+    "fetch-tasks": () => {
+      return fetchTasks(client);
+    },
+    "pause-task": async (m) => {
+      const response = toMessageResponse(
+        await client.DownloadStation.Task.Pause({ id: [m.taskId] }),
       );
-    } else {
-      return toMessageResponse(
-        await state.api.FileStation.List.list_share({ sort_by: "name" }),
-        (data) => data.shares,
+      if (response.success) {
+        await fetchTasks(client);
+      }
+      return response;
+    },
+    "resume-task": async (m) => {
+      const response = toMessageResponse(
+        await client.DownloadStation.Task.Resume({ id: [m.taskId] }),
       );
-    }
-  },
-  "set-login-password": async (m, state) => {
-    if (state.api.partiallyUpdateSettings({ passwd: m.password })) {
-      await clearCachedTasks();
-    }
-    // Always reset the session!
-    await state.api.Auth.Logout();
-  },
-};
+      if (response.success) {
+        await fetchTasks(client);
+      }
+      return response;
+    },
+    "delete-tasks": async (m) => {
+      const response = toMessageResponse(
+        await client.DownloadStation.Task.Delete({ id: m.taskIds, force_complete: false }),
+      );
+      if (response.success) {
+        await fetchTasks(client);
+      }
+      return response;
+    },
+    "get-config": async () => {
+      return toMessageResponse(await client.DownloadStation.Info.GetConfig(), (data) => data);
+    },
+    "list-directories": async (m) => {
+      const { path } = m;
+      if (path) {
+        return toMessageResponse(
+          await client.FileStation.List.list({
+            folder_path: path,
+            sort_by: "name",
+            filetype: "dir",
+          }),
+          (data) => data.files,
+        );
+      } else {
+        return toMessageResponse(
+          await client.FileStation.List.list_share({ sort_by: "name" }),
+          (data) => data.shares,
+        );
+      }
+    },
+    login: async (m) => {
+      // Dump this on the floor; it is a best-effort and we don't want to block on it.
+      client.Auth.Logout();
 
-export function initializeMessageHandler() {
+      await SessionState.set({ password: m.password });
+      await clearCachedTasks();
+      await fetchTasks(client);
+    },
+  };
+}
+
+export function initializeMessageHandler(client: SynologyClient) {
+  const handlers = messageHandlers(client);
   browser.runtime.onMessage.addListener((m) => {
     if (Message.is(m)) {
-      return MESSAGE_HANDLERS[m.type](m as any, getMutableStateSingleton());
+      return handlers[m.type](m as any);
     } else {
       console.error("received unhandleable message", m);
       return undefined;

@@ -1,5 +1,5 @@
 import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../../common/apis/errors";
-import { SynologyClient, ClientRequestResult } from "../../common/apis/synology";
+import { ClientRequestResult, SynologyClient } from "../../common/apis/synology";
 import { saveLastSevereError } from "../../common/errorHandlers";
 import { assertNever } from "../../common/lang";
 import { type TaskState, SessionState } from "../../common/state";
@@ -11,7 +11,7 @@ function setCachedTasks(cachedTasks: Partial<TaskState>) {
   });
 }
 
-export async function fetchTasks(api: SynologyClient): Promise<void> {
+export async function fetchTasks(client: SynologyClient): Promise<void> {
   const fetchId = crypto.randomUUID();
 
   console.log(`(${fetchId}) fetching tasks...`);
@@ -25,7 +25,7 @@ export async function fetchTasks(api: SynologyClient): Promise<void> {
     let response;
 
     try {
-      response = await api.DownloadStation.Task.List({
+      response = await client.DownloadStation.Task.List({
         offset: 0,
         limit: -1,
         additional: ["transfer", "detail"],
@@ -68,7 +68,7 @@ export async function fetchTasks(api: SynologyClient): Promise<void> {
     } else if (response.success) {
       await setCachedTasks({
         tasks: response.data.tasks,
-        taskFetchFailureReason: undefined, // This works as expected in Firefox. TODO: Test Chrome.
+        taskFetchFailureReason: undefined,
       });
     } else {
       await setCachedTasks({

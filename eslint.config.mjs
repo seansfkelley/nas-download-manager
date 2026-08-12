@@ -65,9 +65,24 @@ export default tseslint.config(
           ],
         },
       ],
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            'MemberExpression[property.name="remove"][object.object.object.name="browser"][object.object.property.name="storage"]',
+          message: "Don't remove storage keys; set them to null (not undefined) instead.",
+        },
+      ],
       "@typescript-eslint/no-unused-vars": [
         "error",
-        { varsIgnorePattern: "^_", argsIgnorePattern: "^_" },
+        {
+          args: "all",
+          argsIgnorePattern: "^_",
+          caughtErrors: "all",
+          caughtErrorsIgnorePattern: "^_",
+          destructuredArrayIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+        },
       ],
       "@typescript-eslint/no-explicit-any": "off", // TODO
       "@typescript-eslint/no-empty-object-type": "off", // TODO
