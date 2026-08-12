@@ -31,9 +31,9 @@ function loadLocale(localeName: string): LocaleMessages {
 function createForEachMessage(localeName: string) {
   return (fn: (message: I18nMessage, messageName: string) => void) => {
     const messages = loadLocale(localeName);
-    Object.keys(messages).forEach((key) => {
+    for (const key of Object.keys(messages)) {
       fn(messages[key], key);
-    });
+    }
   };
 }
 
@@ -41,11 +41,11 @@ describe("i18n", () => {
   const DEFAULT_LOCALE: string = loadJson("manifest.json").default_locale;
   const SOURCE_FILES_BY_NAME: Record<string, string> = {};
 
-  globSync(path.join(__dirname, "..", "src", "**", "*.ts*")).forEach((filename) => {
+  for (const filename of globSync(path.join(__dirname, "..", "src", "**", "*.ts*"))) {
     if (!filename.endsWith(".d.ts")) {
       SOURCE_FILES_BY_NAME[filename] = fs.readFileSync(filename).toString("utf8");
     }
-  });
+  }
 
   describe("manifest.json", () => {
     it("should have a default locale set", () => {
@@ -96,7 +96,7 @@ describe("i18n", () => {
     it('every "getMessage" call should use a known message name', () => {
       const I18N_CALL_REGEX = /browser\.i18n\.getMessage\(\s*"([^"]*)"/g;
       const MESSAGES = loadLocale(DEFAULT_LOCALE);
-      Object.keys(SOURCE_FILES_BY_NAME).forEach((name) => {
+      for (const name of Object.keys(SOURCE_FILES_BY_NAME)) {
         const content = SOURCE_FILES_BY_NAME[name];
         let match;
         let didMatch = false;
@@ -115,7 +115,7 @@ describe("i18n", () => {
         if (!didMatch && /getMessage/.exec(content)) {
           throw new Error(`${name} appears to have an untested getMessage call`);
         }
-      });
+      }
     });
 
     describe("with placeholders", () => {
@@ -140,9 +140,9 @@ describe("i18n", () => {
               (p) => placeholders[p].content,
             );
 
-            placeholderContents.forEach((p) => {
+            for (const p of placeholderContents) {
               expect(p).toMatch(/^\$[0-9]$/);
-            });
+            }
 
             expect(placeholderContents.sort().map((p) => p.replace("$", ""))).toStrictEqual(
               Array.from({ length: placeholderContents.length }, (_value, index) =>
@@ -156,9 +156,9 @@ describe("i18n", () => {
       it('should have "example" fields on every placeholder', () => {
         forEachMessage(({ placeholders }) => {
           if (placeholders != null) {
-            Object.keys(placeholders).forEach((placeholderName) => {
+            for (const placeholderName of Object.keys(placeholders)) {
               expect(placeholders[placeholderName].example).not.toBeNil();
-            });
+            }
           }
         });
       });

@@ -72,6 +72,10 @@ export default tseslint.config(
             'MemberExpression[property.name="remove"][object.object.object.name="browser"][object.object.property.name="storage"]',
           message: "Don't remove storage keys; set them to null (not undefined) instead.",
         },
+        {
+          selector: 'CallExpression[callee.property.name="forEach"]',
+          message: "Use a for-of loop instead of forEach.",
+        },
       ],
       "@typescript-eslint/no-unused-vars": [
         "error",

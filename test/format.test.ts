@@ -110,9 +110,9 @@ describe("format", () => {
     });
 
     it("should be formattable by Intl.RelativeTimeFormat", () => {
-      TRANSLATED_LOCALES.forEach((locale) => {
+      for (const locale of TRANSLATED_LOCALES) {
         expect(Intl.RelativeTimeFormat.supportedLocalesOf(locale)).toStrictEqual([locale]);
-      });
+      }
     });
   });
 });

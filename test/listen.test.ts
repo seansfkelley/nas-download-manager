@@ -26,7 +26,9 @@ function mockStorageArea(): MockStorageArea {
     },
     emitChange: (...keys) => {
       const changes = Object.fromEntries(keys.map((k) => [k, {}]));
-      listeners.forEach((listener) => listener(changes));
+      for (const listener of listeners) {
+        listener(changes);
+      }
     },
   };
   return area;

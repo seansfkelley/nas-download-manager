@@ -210,9 +210,9 @@ async function addMultipleTasks(
     "missing-or-illegal": [],
   };
 
-  resolvedUrls.forEach((url) => {
+  for (const url of resolvedUrls) {
     (groupedUrls[url.type] as (typeof url)[]).push(url);
-  });
+  }
 
   let successes = 0;
   let failures = 0;

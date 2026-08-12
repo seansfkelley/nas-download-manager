@@ -58,9 +58,9 @@ export function migrateState(state: any | null): State {
     version = 0;
   }
 
-  MIGRATIONS.slice(version).forEach((migration) => {
+  for (const migration of MIGRATIONS.slice(version)) {
     state = migration(state);
-  });
+  }
 
   return state;
 }

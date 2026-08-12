@@ -132,24 +132,24 @@ export async function post<O extends object>(
 ): Promise<RestApiResponse<O>> {
   const formData = new FormData();
 
-  Object.keys(request).forEach((k) => {
+  for (const k of Object.keys(request)) {
     const v = request[k];
     if (k !== "timeout" && k !== "meta" && v !== undefined && !isFormFile(v)) {
       // String() !== new String(). This produces lowercase-s strings, not capital-S Strings.
       formData.append(k, String(v));
     }
-  });
+  }
 
   if (request.sid) {
     formData.append("_sid", request.sid);
   }
 
-  Object.keys(request).forEach((k) => {
+  for (const k of Object.keys(request)) {
     const v = request[k];
     if (k !== "timeout" && k !== "meta" && v !== undefined && isFormFile(v)) {
       formData.append(k, v.content, v.filename);
     }
-  });
+  }
 
   const url = `${baseUrl}/webapi/${cgi}.cgi?${stringify({ _sid: request.sid })}`;
 

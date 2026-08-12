@@ -226,13 +226,13 @@ function fixTaskNumericTypes(task: DownloadStationTask): DownloadStationTask {
     keys: Extract<keyof T, T[K] extends number ? K : never>[],
   ): void {
     if (obj != null) {
-      keys.forEach((k) => {
+      for (const k of keys) {
         if (obj[k] != null) {
           // We don't expect any of these values to be greater than Number.MAX_SAFE_INTEGER, so this is safe.
           // If they are, so be it: you have a 9 quadrillion byte download, so you probably have other problems.
           obj[k] = +obj[k] as any;
         }
-      });
+      }
     }
   }
 
@@ -252,19 +252,19 @@ function fixTaskNumericTypes(task: DownloadStationTask): DownloadStationTask {
       "waiting_seconds",
     ]);
     if (output.additional.file) {
-      output.additional.file.forEach((f) => {
+      for (const f of output.additional.file) {
         sideEffectCastNumbers(f, ["index", "size", "size_downloaded"]);
-      });
+      }
     }
     if (output.additional.peer) {
-      output.additional.peer.forEach((p) => {
+      for (const p of output.additional.peer) {
         sideEffectCastNumbers(p, ["progress", "speed_download", "speed_upload"]);
-      });
+      }
     }
     if (output.additional.tracker) {
-      output.additional.tracker.forEach((t) => {
+      for (const t of output.additional.tracker) {
         sideEffectCastNumbers(t, ["peers", "seeds", "update_timer"]);
-      });
+      }
     }
     sideEffectCastNumbers(output.additional.transfer, [
       "downloaded_pieces",
