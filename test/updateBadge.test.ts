@@ -69,7 +69,7 @@ beforeEach(() => {
   setBadgeText = jest.fn();
   setBadgeBackgroundColor = jest.fn();
   Object.assign(globalThis.browser, {
-    browserAction: { setIcon, setBadgeText, setBadgeBackgroundColor },
+    action: { setIcon, setBadgeText, setBadgeBackgroundColor },
   });
 });
 
