@@ -63,46 +63,46 @@ Please note that while the build tasks will auto-recompile, the browser may not 
 
 1. Install dependencies.
 
-   ```
+   ```sh
    npm install
    ```
 
 2. Start a build to watch files and auto-recompile code on change.
 
-   ```
+   ```sh
    npm run watch
    ```
 
 3. In a second terminal, launch a browser with the extension already installed.
 
+   ```sh
+   npm run browser:firefox # or browser:chrome
    ```
-   npm run dev
-   ```
 
-   This uses [web-ext](https://extensionworkshop.com/documentation/develop/web-ext-command-reference/), which opens Firefox with the extension loaded and reloads it as files change. To load it by hand instead, open `about:debugging` > This Firefox > Load Temporary Add-on... and select `dist/manifest.json`.
+   This uses [web-ext](https://extensionworkshop.com/documentation/develop/web-ext-command-reference/), which opens the browser with the extension loaded and reloads it as files change. Use `npm run browser:firefox` and `npm run browser:chrome` to run them.
 
-   It runs against a dedicated profile in `.firefox-profile`, created on first use and ignored by git, so the connection settings you enter survive between runs instead of needing to be re-entered every time. Note that this means your NAS password is stored there unencrypted, the same way Firefox stores it for the installed extension. Delete the directory to start from a clean slate.
+   Each runs with a dedicated directory-local profile created on first use, so the connection settings you enter survive between runs instead of needing to be re-entered every time. Note that this means your NAS password is stored there unencrypted, the same way the browser stores it for the installed extension. Delete the directory to start from a clean slate.
 
-   **Chrome**: `chrome://extensions` > Enable "Developer mode" > Load unpacked > select `dist`.
+   To load it by hand instead: in Firefox, open `about:debugging` > This Firefox > Load Temporary Add-on... and select `dist/manifest.json`; in Chrome, open `chrome://extensions` > Enable "Developer mode" > Load unpacked > select `dist`.
 
 ### Packing the Extension for Distribution
 
 1. Install dependencies.
 
-   ```
+   ```sh
    npm install
    ```
 
 2. Build the extension, check it against the validation rules addons.mozilla.org applies, and zip it
    into a file suitable for distribution.
 
-   ```
+   ```sh
    npm run package
    ```
 
 3. _(Optional)_ Zip all source code into a file suitable for distribution.
 
-   ```
+   ```sh
    npm run zip-sources
    ```
 
