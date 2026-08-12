@@ -1,12 +1,12 @@
 import { saveLastSevereError } from "../errorHandlers";
 
-// TODO: When browser support this natively or Bluebird starts working again.
-// window.addEventListener('unhandledrejection', (e: any) => {
-//   e.preventDefault();
-//   onUnhandledError(e && e.detail && e.detail.reason);
-// });
-
-window.addEventListener("error", (e) => {
+// `self`, not `window`: this module is also imported by the background service worker.
+self.addEventListener("error", (e) => {
   e.preventDefault();
   saveLastSevereError(e.error);
+});
+
+self.addEventListener("unhandledrejection", (e) => {
+  e.preventDefault();
+  saveLastSevereError(e.reason);
 });
