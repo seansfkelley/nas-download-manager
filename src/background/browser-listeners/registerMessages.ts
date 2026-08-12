@@ -1,10 +1,9 @@
-import { getErrorForConnectionFailure, getErrorForFailedResponse } from "../common/apis/errors";
-import { Message, MessageResponse, Result } from "../common/apis/messages";
-import { ClientRequestResult, SynologyClient } from "../common/apis/synology";
-import { SessionState } from "../common/state";
-import type { DiscriminateUnion } from "../common/types";
-
-import { addDownloadTasksAndFetch, clearCachedTasks, fetchTasks } from "./actions";
+import { getErrorForConnectionFailure, getErrorForFailedResponse } from "../../common/apis/errors";
+import { Message, MessageResponse, Result } from "../../common/apis/messages";
+import { ClientRequestResult, SynologyClient } from "../../common/apis/synology";
+import { SessionState } from "../../common/state";
+import type { DiscriminateUnion } from "../../common/types";
+import { addDownloadTasksAndFetch, clearCachedTasks, fetchTasks } from "../actions";
 
 type MessageHandler<T extends Message, U extends Result[keyof Result]> = (m: T) => Promise<U>;
 
@@ -108,7 +107,7 @@ function messageHandlers(client: SynologyClient): MessageHandlers {
   };
 }
 
-export function initializeMessageHandler(client: SynologyClient) {
+export function registerMessages() {
   const handlers = messageHandlers(client);
   browser.runtime.onMessage.addListener((m) => {
     if (Message.is(m)) {

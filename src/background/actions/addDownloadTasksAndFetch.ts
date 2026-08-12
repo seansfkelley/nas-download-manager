@@ -14,7 +14,7 @@ import {
 } from "../../common/apis/synology";
 import { saveLastSevereError } from "../../common/errorHandlers";
 import { assertNever } from "../../common/lang";
-import { notify } from "../../common/notify";
+import { sendNotification } from "../../common/sendNotification";
 import { PersistentState } from "../../common/state";
 import type { UnionByDiscriminant } from "../../common/types";
 
@@ -48,7 +48,7 @@ function reportUnexpectedError(
   debugMessage?: string,
 ) {
   saveLastSevereError(e, debugMessage);
-  notify(
+  sendNotification(
     browser.i18n.getMessage("Failed_to_add_download"),
     browser.i18n.getMessage("Unexpected_error_please_check_your_settings_and_try_again"),
     "failure",
@@ -69,7 +69,7 @@ async function addOneTask(
     console.log("task add result", result);
 
     if (ClientRequestResult.isConnectionFailure(result)) {
-      notify(
+      sendNotification(
         browser.i18n.getMessage("Failed_to_connect_to_DiskStation"),
         browser.i18n.getMessage("Please_check_your_settings"),
         "failure",
@@ -77,7 +77,7 @@ async function addOneTask(
       );
     } else if (result.success) {
       if (enableFeedbackNotifications) {
-        notify(
+        sendNotification(
           browser.i18n.getMessage("Download_added"),
           filename || url,
           "success",
@@ -94,14 +94,14 @@ async function addOneTask(
       }
 
       if (shouldEMuleBeEnabled) {
-        notify(
+        sendNotification(
           browser.i18n.getMessage("eMule_is_not_enabled"),
           browser.i18n.getMessage("Use_DSM_to_enable_eMule_downloads"),
           "failure",
           notificationId,
         );
       } else {
-        notify(
+        sendNotification(
           browser.i18n.getMessage("Failed_to_add_download"),
           getErrorForFailedResponse(result),
           "failure",
@@ -112,7 +112,7 @@ async function addOneTask(
   }
 
   const notificationId = enableFeedbackNotifications
-    ? notify(browser.i18n.getMessage("Adding_download"), guessFileNameFromUrl(url) ?? url)
+    ? sendNotification(browser.i18n.getMessage("Adding_download"), guessFileNameFromUrl(url) ?? url)
     : undefined;
 
   const resolvedUrl = await resolveUrl(url, ftpUsername, ftpPassword);
@@ -174,7 +174,7 @@ async function addOneTask(
       reportUnexpectedError(notificationId, e, "error while adding metadata-file task");
     }
   } else if (resolvedUrl.type === "missing-or-illegal") {
-    notify(
+    sendNotification(
       browser.i18n.getMessage("Failed_to_add_download"),
       browser.i18n.getMessage("URL_must_start_with_one_of_ZprotocolsZ", [
         ALL_DOWNLOADABLE_PROTOCOLS.join(", "),
@@ -194,7 +194,7 @@ async function addMultipleTasks(
   { path, ftpUsername, ftpPassword, unzipPassword }: AddTaskOptions,
 ) {
   const notificationId = enableFeedbackNotifications
-    ? notify(
+    ? sendNotification(
         browser.i18n.getMessage("Adding_ZcountZ_downloads", [urls.length]),
         browser.i18n.getMessage("Please_be_patient_this_may_take_some_time"),
       )
@@ -300,14 +300,14 @@ async function addMultipleTasks(
   }
 
   if (successes > 0 && failures === 0) {
-    notify(
+    sendNotification(
       browser.i18n.getMessage("ZcountZ_downloads_added", [successes]),
       undefined,
       "success",
       notificationId,
     );
   } else if (successes === 0 && failures > 0) {
-    notify(
+    sendNotification(
       browser.i18n.getMessage("Failed_to_add_ZcountZ_downloads", [failures]),
       browser.i18n.getMessage(
         "Try_adding_downloads_individually_andor_checking_your_URLs_or_settings",
@@ -316,7 +316,7 @@ async function addMultipleTasks(
       notificationId,
     );
   } else {
-    notify(
+    sendNotification(
       browser.i18n.getMessage("ZsuccessZ_downloads_added_ZfailedZ_failed", [successes, failures]),
       browser.i18n.getMessage(
         "Try_adding_downloads_individually_andor_checking_your_URLs_or_settings",
@@ -344,7 +344,7 @@ export async function addDownloadTasksAndFetch(
   };
 
   if (urls.length === 0) {
-    notify(
+    sendNotification(
       browser.i18n.getMessage("Failed_to_add_download"),
       browser.i18n.getMessage("No_downloadable_URLs_provided"),
       "failure",
@@ -356,7 +356,7 @@ export async function addDownloadTasksAndFetch(
   const settings = await client.getSettings();
 
   if (ConnectionFailure.is(settings)) {
-    notify(
+    sendNotification(
       browser.i18n.getMessage("Failed_to_add_download"),
       getErrorForConnectionFailure(settings),
       "failure",

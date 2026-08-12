@@ -1,22 +1,10 @@
-import { ALL_DOWNLOADABLE_PROTOCOLS, startsWithAnyProtocol } from "../common/apis/protocols";
-import { SynologyClient } from "../common/apis/synology";
-import { notify } from "../common/notify";
+import { ALL_DOWNLOADABLE_PROTOCOLS, startsWithAnyProtocol } from "../../common/apis/protocols";
+import { sendNotification } from "../../common/sendNotification";
+import { addDownloadTasksAndFetch } from "../actions";
 
-import { addDownloadTasksAndFetch } from "./actions";
+export const DOWNLOAD_MENU_ITEM_ID = "download-with-download-station";
 
-// Stable, because the item is created once per install rather than once per background startup.
-const DOWNLOAD_MENU_ITEM_ID = "download-with-download-station";
-
-export function initializeContextMenus(client: SynologyClient) {
-  browser.runtime.onInstalled.addListener(() => {
-    browser.contextMenus.create({
-      id: DOWNLOAD_MENU_ITEM_ID,
-      enabled: true,
-      title: browser.i18n.getMessage("Download_with_DownloadStation"),
-      contexts: ["link", "audio", "video", "image", "selection"],
-    });
-  });
-
+export function registerContextMenus() {
   browser.contextMenus.onClicked.addListener((data) => {
     if (data.menuItemId !== DOWNLOAD_MENU_ITEM_ID) {
       return;
@@ -34,7 +22,7 @@ export function initializeContextMenus(client: SynologyClient) {
         .filter((url) => startsWithAnyProtocol(url, ALL_DOWNLOADABLE_PROTOCOLS));
 
       if (urls.length === 0) {
-        notify(
+        sendNotification(
           browser.i18n.getMessage("Failed_to_add_download"),
           browser.i18n.getMessage("Selected_text_is_not_a_valid_URL"),
           "failure",
@@ -43,7 +31,7 @@ export function initializeContextMenus(client: SynologyClient) {
         addDownloadTasksAndFetch(client, urls);
       }
     } else {
-      notify(
+      sendNotification(
         browser.i18n.getMessage("Failed_to_add_download"),
         browser.i18n.getMessage("URL_is_empty_or_missing"),
         "failure",

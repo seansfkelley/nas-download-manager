@@ -6,7 +6,7 @@ const TYPE_TO_FILE_SUFFIX: Record<NotificationType, string> = {
   failure: "-failure",
 };
 
-export function notify(
+export function sendNotification(
   title: string,
   message?: string,
   type: NotificationType = "regular",

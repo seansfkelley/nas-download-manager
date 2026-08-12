@@ -1,6 +1,6 @@
 import isEqual from "lodash/isEqual";
 
-import { notify } from "../../common/notify";
+import { sendNotification } from "../../common/sendNotification";
 import { SessionState, Settings } from "../../common/state";
 
 export async function notifyForCompletedDownloads(
@@ -30,7 +30,7 @@ export async function notifyForCompletedDownloads(
           if (!alreadyFinishedTaskIds.has(id)) {
             // Linear scan should be fine; this loop body should be hit extremely rarely.
             const task = tasks.find((t) => t.id === id)!;
-            notify(`${task.title}`, browser.i18n.getMessage("Download_finished"));
+            sendNotification(`${task.title}`, browser.i18n.getMessage("Download_finished"));
           }
         }
       }

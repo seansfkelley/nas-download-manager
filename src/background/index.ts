@@ -14,12 +14,18 @@ import {
 } from "../common/state";
 import { LATEST_STATE_VERSION, migrateState } from "../common/state/migrations/migrateState";
 
-import { fetchTasks } from "./actions";
-import { initializeContextMenus } from "./contextMenus";
-import { notifyForCompletedDownloads } from "./listeners/notifyForCompletedDownloads";
-import { POLL_TASKS_ALARM, updateBackgroundPollAlarm } from "./listeners/updateBackgroundPollAlarm";
-import { updateBadge } from "./listeners/updateBadge";
-import { initializeMessageHandler } from "./messages";
+import { registerAlarms } from "./browser-listeners/registerAlarms";
+import { registerContextMenus } from "./browser-listeners/registerContextMenus";
+import { registerMessages } from "./browser-listeners/registerMessages";
+import { registerRuntimeInstalled } from "./browser-listeners/registerRuntimeInstalled";
+import { notifyForCompletedDownloads } from "./state-listeners/notifyForCompletedDownloads";
+import { updateBackgroundPollAlarm } from "./state-listeners/updateBackgroundPollAlarm";
+import { updateBadge } from "./state-listeners/updateBadge";
+
+registerAlarms();
+registerContextMenus();
+registerMessages();
+registerRuntimeInstalled();
 
 async function getClientSettings(): Promise<SynologyClientSettings | ConnectionFailure> {
   const [persistentState, sessionState] = await Promise.all([
@@ -62,28 +68,9 @@ async function onAuthChange(settings: SynologyClientSettings, auth: SynologyAuth
 // to ensure all auth-state reads/writes are consistent.
 const client = new SynologyClient(getClientSettings, getStoredAuth, onAuthChange);
 
-initializeContextMenus(client);
-initializeMessageHandler(client);
-
-browser.runtime.onInstalled.addListener(async () => {
-  // The session state carries no version and no migrations; this is what makes that safe.
-  try {
-    await SessionState.clear();
-  } catch (error) {
-    saveLastSevereError(error);
-  }
-});
-
-browser.alarms.onAlarm.addListener((alarm) => {
-  if (alarm.name === POLL_TASKS_ALARM) {
-    console.log("poll alarm fired");
-    fetchTasks(client);
-  }
-});
-
-// A promise the listeners await rather than a block they live inside: registering a listener after
-// an await means it is absent when the browser wants to wake this context for its event.
-const migrated = (async () => {
+// Idempotent and safe to do on every wake. Better than doing it on installation; should it fail,
+// this will retry should something weird happen with e.g. revoked permissions.
+(async () => {
   try {
     const { stateVersion } = await browser.storage.local.get("stateVersion");
     // This runs on every wakeup, so skip the whole read-migrate-write when there is nothing to do.
@@ -99,7 +86,6 @@ const migrated = (async () => {
 
 reactToPersistentState("settings", async ({ settings }) => {
   try {
-    await migrated;
     await updateBackgroundPollAlarm(client, settings);
 
     const sessionState = await SessionState.get();
@@ -117,7 +103,6 @@ reactToSessionState(
   "finishedTaskIds",
   async (sessionState) => {
     try {
-      await migrated;
       const persistentState = await PersistentState.get();
       if (persistentState == null) {
         console.warn("skipping background update: persistent state not yet migrated");
