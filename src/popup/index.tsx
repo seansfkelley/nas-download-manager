@@ -25,10 +25,19 @@ function updateSettings(settings: Settings) {
   PersistentState.set({ settings });
 }
 
-FetchTasks.send();
-setInterval(() => {
-  FetchTasks.send();
-}, 3000);
+const POLL_INTERVAL_MS = 3000;
+
+// Chained rather than an interval so a slow or unresponsive NAS doesn't stack up overlapping fetches.
+async function pollTasks() {
+  try {
+    await FetchTasks.send();
+  } catch (e) {
+    console.error("error while polling for tasks", e);
+  }
+  setTimeout(pollTasks, POLL_INTERVAL_MS);
+}
+
+pollTasks();
 
 reactToPersistentState("settings", "lastSevereError", async ({ settings, lastSevereError }) => {
   const sessionState = await SessionState.get();
