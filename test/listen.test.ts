@@ -1,9 +1,5 @@
+import { ALL_STORED_STATE_NAMES, PersistentState, SessionState } from "../src/common/state";
 import { reactToPersistentState, reactToSessionState } from "../src/common/state/listen";
-import {
-  ALL_STORED_STATE_NAMES,
-  type PersistentState,
-} from "../src/common/state/migrations/latest";
-import type { SessionState } from "../src/common/state/session";
 
 type ChangeListener = (changes: Record<string, browser.storage.StorageChange>) => void;
 

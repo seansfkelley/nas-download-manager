@@ -11,7 +11,7 @@ import type { State as State_6 } from "../src/common/state/migrations/6";
 import type { State as State_7 } from "../src/common/state/migrations/7";
 import type { State as State_8 } from "../src/common/state/migrations/8";
 import type { State as State_9 } from "../src/common/state/migrations/9";
-import { migrateState } from "../src/common/state/migrations/update";
+import { migrateState } from "../src/common/state/migrations/migrateState";
 
 interface PreVersioningState_0 {
   connection: {
