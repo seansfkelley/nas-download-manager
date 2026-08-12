@@ -10,11 +10,9 @@ If you're able to reliably reproduce a bug, I recommend you first clear the logs
 
 ## Getting Logs in Chrome
 
-> As of this writing, Chrome is not currently supported. This section is left here for older versions.
-
 1. Open a new tab and navigate to `chrome://extensions`.
 2. In the top right, toggle the Developer Mode switch on.
-3. Find NAS Download Manager in the list, and click the "background page" link under "Inspect views". This will open the developer tools.
+3. Find NAS Download Manager in the list, and click the "service worker" link under "Inspect views". This will open the developer tools.
 4. Switch to the Console tab, near the top left of the window.
 5. All the logs will be presented, with the latest ones appearing at the bottom.
 

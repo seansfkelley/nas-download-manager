@@ -30,15 +30,14 @@ Please note that NAS Download Manager is not an official Synology offering.
 
 ### Officially Supported Browsers
 
-- Firefox ([view listing](https://addons.mozilla.org/en-US/firefox/addon/nas-download-manager/))
+- Firefox 140 or higher ([view listing](https://addons.mozilla.org/en-US/firefox/addon/nas-download-manager/))
+- Chrome 148 or higher ([view listing](https://chrome.google.com/webstore/detail/nas-download-manager/iaijiochiiocodhamehbpmdlobhgghgi))
+- Edge 148 or higher (see [how to install from Chrome Web Store](https://support.microsoft.com/en-us/help/4538971/microsoft-edge-add-or-remove-extensions) and use the Chrome link above)
+- Opera (using the [Install Chrome Extensions](https://addons.opera.com/en/extensions/details/install-chrome-extensions/) extension to install from the Chrome link above)
+
+Older browsers will not be offered the update, and will stay on the last version that worked for them.
 
 ### Unsupported Browsers
-
-The following browsers were supported in earlier versions, but made breaking changes since the extension was released.
-
-- Chrome ([view listing](https://chrome.google.com/webstore/detail/nas-download-manager/iaijiochiiocodhamehbpmdlobhgghgi))
-- Edge (see [how to install from Chrome Web Store](https://support.microsoft.com/en-us/help/4538971/microsoft-edge-add-or-remove-extensions) and use the Chrome link above)
-- Opera (using the [Install Chrome Extensions](https://addons.opera.com/en/extensions/details/install-chrome-extensions/) extension to install from the Chrome link above)
 
 There are currently no plans to support the following browsers.
 
@@ -84,7 +83,7 @@ Please note that while the build tasks will auto-recompile, the browser may not 
 
    It runs against a dedicated profile in `.firefox-profile`, created on first use and ignored by git, so the connection settings you enter survive between runs instead of needing to be re-entered every time. Note that this means your NAS password is stored there unencrypted, the same way Firefox stores it for the installed extension. Delete the directory to start from a clean slate.
 
-   ~~**Chrome**: `about:extensions` > Enable "Developer mode" > Load unpacked~~
+   **Chrome**: `chrome://extensions` > Enable "Developer mode" > Load unpacked > select `dist`.
 
 ### Packing the Extension for Distribution
 
