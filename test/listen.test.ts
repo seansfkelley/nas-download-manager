@@ -81,7 +81,7 @@ describe("state listeners", () => {
     Object.assign(globalThis.browser, { storage: { local, session } });
   });
 
-  describe("reactToPersistentState", () => {
+  describe(reactToPersistentState, () => {
     it("should call the listener with the initial state", async () => {
       local.contents = PERSISTENT_STATE;
       const listener = jest.fn();
@@ -151,7 +151,7 @@ describe("state listeners", () => {
     });
   });
 
-  describe("reactToSessionState", () => {
+  describe(reactToSessionState, () => {
     it("should call the listener with the initial state", async () => {
       const state: SessionState = { tasks: [], tasksLastCompletedFetchTimestamp: 1 };
       session.contents = state;

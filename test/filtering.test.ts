@@ -1,7 +1,7 @@
 import type { DownloadStationTask } from "../src/common/apis/synology/DownloadStation/Task";
 import { sortTasks } from "../src/common/filtering";
 
-describe("sortTasks", () => {
+describe(sortTasks, () => {
   interface MockTaskInput {
     id: string;
     title: string;

@@ -8,73 +8,71 @@ const _nullableGainsUndefined: { a: string | undefined } = nullToUndefined({ a: 
   a: string | null;
 });
 
-describe("lang", () => {
-  describe("undefinedToNull", () => {
-    it("should replace an explicitly-undefined value with null", () => {
-      expect(undefinedToNull({ a: undefined })).toStrictEqual({ a: null });
-    });
+describe(undefinedToNull, () => {
+  it("should replace an explicitly-undefined value with null", () => {
+    expect(undefinedToNull({ a: undefined })).toStrictEqual({ a: null });
+  });
 
-    it("should leave null alone", () => {
-      expect(undefinedToNull({ a: null })).toStrictEqual({ a: null });
-    });
+  it("should leave null alone", () => {
+    expect(undefinedToNull({ a: null })).toStrictEqual({ a: null });
+  });
 
-    it("should leave falsy values that are not undefined alone", () => {
-      expect(undefinedToNull({ a: 0, b: "", c: false, d: NaN })).toStrictEqual({
-        a: 0,
-        b: "",
-        c: false,
-        d: NaN,
-      });
-    });
-
-    it("should not recurse into nested values", () => {
-      expect(undefinedToNull({ a: { b: undefined } })).toStrictEqual({ a: { b: undefined } });
-    });
-
-    it("should not mutate its input", () => {
-      const input = { a: undefined };
-      undefinedToNull(input);
-      expect(input.a).toBeUndefined();
+  it("should leave falsy values that are not undefined alone", () => {
+    expect(undefinedToNull({ a: 0, b: "", c: false, d: NaN })).toStrictEqual({
+      a: 0,
+      b: "",
+      c: false,
+      d: NaN,
     });
   });
 
-  describe("nullToUndefined", () => {
-    it("should replace null with undefined, keeping the key", () => {
-      expect(nullToUndefined({ a: null })).toStrictEqual({ a: undefined });
-    });
+  it("should not recurse into nested values", () => {
+    expect(undefinedToNull({ a: { b: undefined } })).toStrictEqual({ a: { b: undefined } });
+  });
 
-    it("should leave undefined alone", () => {
-      expect(nullToUndefined({ a: undefined })).toStrictEqual({ a: undefined });
-    });
+  it("should not mutate its input", () => {
+    const input = { a: undefined };
+    undefinedToNull(input);
+    expect(input.a).toBeUndefined();
+  });
+});
 
-    it("should leave falsy values that are not null alone", () => {
-      expect(nullToUndefined({ a: 0, b: "", c: false, d: NaN })).toStrictEqual({
-        a: 0,
-        b: "",
-        c: false,
-        d: NaN,
-      });
-    });
+describe(nullToUndefined, () => {
+  it("should replace null with undefined, keeping the key", () => {
+    expect(nullToUndefined({ a: null })).toStrictEqual({ a: undefined });
+  });
 
-    it("should not recurse into nested values", () => {
-      expect(nullToUndefined({ a: { b: null } })).toStrictEqual({ a: { b: null } });
-    });
+  it("should leave undefined alone", () => {
+    expect(nullToUndefined({ a: undefined })).toStrictEqual({ a: undefined });
+  });
 
-    it("should not mutate its input", () => {
-      const input = { a: null };
-      nullToUndefined(input);
-      expect(input.a).toBeNull();
+  it("should leave falsy values that are not null alone", () => {
+    expect(nullToUndefined({ a: 0, b: "", c: false, d: NaN })).toStrictEqual({
+      a: 0,
+      b: "",
+      c: false,
+      d: NaN,
     });
   });
 
-  describe("round trip", () => {
-    it("should restore the original shape", () => {
-      const original = { a: undefined, b: 1, c: "two", d: [3], e: { f: undefined } };
-      expect(nullToUndefined(undefinedToNull(original))).toStrictEqual(original);
-    });
+  it("should not recurse into nested values", () => {
+    expect(nullToUndefined({ a: { b: null } })).toStrictEqual({ a: { b: null } });
+  });
 
-    it("should not distinguish an original null from an original undefined", () => {
-      expect(nullToUndefined(undefinedToNull({ a: null }))).toStrictEqual({ a: undefined });
-    });
+  it("should not mutate its input", () => {
+    const input = { a: null };
+    nullToUndefined(input);
+    expect(input.a).toBeNull();
+  });
+});
+
+describe("round trip", () => {
+  it("should restore the original shape", () => {
+    const original = { a: undefined, b: 1, c: "two", d: [3], e: { f: undefined } };
+    expect(nullToUndefined(undefinedToNull(original))).toStrictEqual(original);
+  });
+
+  it("should not distinguish an original null from an original undefined", () => {
+    expect(nullToUndefined(undefinedToNull({ a: null }))).toStrictEqual({ a: undefined });
   });
 });
