@@ -86,7 +86,6 @@ export default tseslint.config(
       ],
       "@typescript-eslint/no-explicit-any": "off", // TODO
       "@typescript-eslint/no-empty-object-type": "off", // TODO
-      "@typescript-eslint/no-namespace": "off", // TODO
     },
   },
   {

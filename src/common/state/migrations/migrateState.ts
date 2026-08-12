@@ -8,7 +8,7 @@ import { migrate as migrate5to6 } from "./6";
 import { migrate as migrate6to7 } from "./7";
 import { migrate as migrate7to8 } from "./8";
 import { migrate as migrate8to9 } from "./9";
-import type { PersistentState, StateVersion } from "./latest";
+import type { State, StateVersion } from "./latest";
 
 export const LATEST_STATE_VERSION: StateVersion["stateVersion"] = 10;
 const MIGRATIONS: ((state: any) => any)[] = [
@@ -48,7 +48,7 @@ function getStartingVersion(state: any) {
   }
 }
 
-export function migrateState(state: any | null): PersistentState {
+export function migrateState(state: any | null): State {
   let version = getStartingVersion(state);
 
   if (version > LATEST_STATE_VERSION) {

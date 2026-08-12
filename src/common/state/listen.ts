@@ -1,7 +1,7 @@
 import { typesafePick } from "../lang";
 
-import { PersistentState } from "./migrations/latest";
-import { SessionState } from "./session";
+import { PersistentState } from "./PersistentState";
+import { SessionState } from "./SessionState";
 
 interface Reactable<T> {
   <K1 extends keyof T>(key1: K1, listener: (state: Pick<T, K1>) => void | Promise<void>): void;

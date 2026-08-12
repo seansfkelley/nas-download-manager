@@ -2,7 +2,7 @@ import type { SynologyAuth, SynologyClientSettings } from "../apis/synology";
 import type { DownloadStationTask } from "../apis/synology/DownloadStation/Task";
 import { nullToUndefined, undefinedToNull } from "../lang";
 
-// Split only for convenience; a lot of the frontend does not care one whit about the other fields.
+// Type split only for convenience; a lot of the frontend does not care one whit about the other fields.
 export interface TaskState {
   tasks?: DownloadStationTask[];
   taskFetchFailureReason?: "missing-config" | "login-required" | { failureMessage: string };
@@ -29,20 +29,20 @@ const _testSessionStateShouldAllowEmptyObject: SessionState = {};
 
 // No versions and no migrations, unlike the persistent state: onInstalled clears the whole area, so
 // anything found here was written by the running version.
-export namespace SessionState {
-  export async function get(): Promise<SessionState> {
+export const SessionState = {
+  async get(): Promise<SessionState> {
     const state = (await browser.storage.session.get(null)) as SessionState;
     console.log("fetched session state");
     return nullToUndefined(state);
-  }
+  },
 
-  export async function set(state: Partial<SessionState>): Promise<void> {
+  async set(state: Partial<SessionState>): Promise<void> {
     await browser.storage.session.set(undefinedToNull(state));
     console.log("set session state for keys:", Object.keys(state));
-  }
+  },
 
-  export async function clear(): Promise<void> {
+  async clear(): Promise<void> {
     await browser.storage.session.clear();
     console.log("cleared session state");
-  }
-}
+  },
+};

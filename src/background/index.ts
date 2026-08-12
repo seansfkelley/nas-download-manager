@@ -12,7 +12,7 @@ import {
   SessionState,
   reactToSessionState,
 } from "../common/state";
-import { migrateState } from "../common/state/migrations/update";
+import { migrateState } from "../common/state/migrations/migrateState";
 
 import { fetchTasks } from "./actions";
 import { initializeContextMenus } from "./contextMenus";

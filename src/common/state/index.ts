@@ -4,11 +4,9 @@ import { type ConnectionSettings, Settings } from "./migrations/latest";
 
 export * from "./constants";
 export * from "./listen";
-export * from "./session";
+export * from "./SessionState";
+export * from "./PersistentState";
 export * from "./migrations/latest";
-// Named explicitly because the wildcard above silently drops it. Parcel drops namespaces from
-// wildcard exports for some reason, and we use namespace merging for ergonomics.
-export { PersistentState } from "./migrations/latest";
 
 export function getHostUrl(settings: ConnectionSettings) {
   if (settings.protocol && settings.hostname && settings.port) {
