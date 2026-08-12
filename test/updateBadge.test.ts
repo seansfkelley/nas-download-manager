@@ -1,4 +1,4 @@
-import { updateBadge } from "../src/background/listeners/updateBadge";
+import { updateBadge } from "../src/background/state-listeners/updateBadge";
 import type { DownloadStationTask } from "../src/common/apis/synology/DownloadStation/Task";
 import type { Settings } from "../src/common/state/migrations/latest";
 

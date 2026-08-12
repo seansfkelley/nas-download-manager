@@ -4,6 +4,7 @@ import { ClientRequestResult, SynologyClient } from "../../common/apis/synology"
 import { SessionState } from "../../common/state";
 import type { DiscriminateUnion } from "../../common/types";
 import { addDownloadTasksAndFetch, clearCachedTasks, fetchTasks } from "../actions";
+import { singleton } from "../clientSingleton";
 
 type MessageHandler<T extends Message, U extends Result[keyof Result]> = (m: T) => Promise<U>;
 
@@ -108,7 +109,7 @@ function messageHandlers(client: SynologyClient): MessageHandlers {
 }
 
 export function registerMessages() {
-  const handlers = messageHandlers(client);
+  const handlers = messageHandlers(singleton);
   browser.runtime.onMessage.addListener((m) => {
     if (Message.is(m)) {
       return handlers[m.type](m as any);

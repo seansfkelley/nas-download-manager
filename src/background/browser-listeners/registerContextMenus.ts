@@ -1,6 +1,7 @@
 import { ALL_DOWNLOADABLE_PROTOCOLS, startsWithAnyProtocol } from "../../common/apis/protocols";
 import { sendNotification } from "../../common/sendNotification";
 import { addDownloadTasksAndFetch } from "../actions";
+import { singleton } from "../clientSingleton";
 
 export const DOWNLOAD_MENU_ITEM_ID = "download-with-download-station";
 
@@ -11,9 +12,9 @@ export function registerContextMenus() {
     }
 
     if (data.linkUrl) {
-      addDownloadTasksAndFetch(client, [data.linkUrl]);
+      addDownloadTasksAndFetch(singleton, [data.linkUrl]);
     } else if (data.srcUrl) {
-      addDownloadTasksAndFetch(client, [data.srcUrl]);
+      addDownloadTasksAndFetch(singleton, [data.srcUrl]);
     } else if (data.selectionText) {
       const urls = data.selectionText
         .split("\n")
@@ -28,7 +29,7 @@ export function registerContextMenus() {
           "failure",
         );
       } else {
-        addDownloadTasksAndFetch(client, urls);
+        addDownloadTasksAndFetch(singleton, urls);
       }
     } else {
       sendNotification(
