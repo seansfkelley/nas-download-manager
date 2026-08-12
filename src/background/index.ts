@@ -12,7 +12,7 @@ import {
   reactToPersistentState,
   reactToSessionState,
 } from "../common/state";
-import { migrateState } from "../common/state/migrations/migrateState";
+import { LATEST_STATE_VERSION, migrateState } from "../common/state/migrations/migrateState";
 
 import { fetchTasks } from "./actions";
 import { initializeContextMenus } from "./contextMenus";
@@ -65,6 +65,15 @@ const client = new SynologyClient(getClientSettings, getStoredAuth, onAuthChange
 initializeContextMenus(client);
 initializeMessageHandler(client);
 
+browser.runtime.onInstalled.addListener(async () => {
+  // The session state carries no version and no migrations; this is what makes that safe.
+  try {
+    await SessionState.clear();
+  } catch (error) {
+    saveLastSevereError(error);
+  }
+});
+
 browser.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === POLL_TASKS_ALARM) {
     console.log("poll alarm fired");
@@ -72,44 +81,52 @@ browser.alarms.onAlarm.addListener((alarm) => {
   }
 });
 
-(async () => {
+// A promise the listeners await rather than a block they live inside: registering a listener after
+// an await means it is absent when the browser wants to wake this context for its event.
+const migrated = (async () => {
   try {
-    const updated = migrateState(await browser.storage.local.get(null));
-    await PersistentState.set(updated);
+    const { stateVersion } = await browser.storage.local.get("stateVersion");
+    // This runs on every wakeup, so skip the whole read-migrate-write when there is nothing to do.
+    if (stateVersion === LATEST_STATE_VERSION) {
+      return;
+    }
+    await PersistentState.set(migrateState(await browser.storage.local.get(null)));
     console.log("successfully migrated persistent state");
-
-    reactToPersistentState("settings", async ({ settings }) => {
-      try {
-        await updateBackgroundPollAlarm(client, settings);
-
-        const sessionState = await SessionState.get();
-        await updateBadge(settings, sessionState);
-        await notifyForCompletedDownloads(settings, sessionState);
-      } catch (error) {
-        saveLastSevereError(error);
-      }
-    });
-
-    reactToSessionState(
-      "tasks",
-      "taskFetchFailureReason",
-      "tasksLastCompletedFetchTimestamp",
-      "finishedTaskIds",
-      async (sessionState) => {
-        try {
-          const persistentState = await PersistentState.get();
-          if (persistentState == null) {
-            console.warn("skipping background update: persistent state not yet migrated");
-          } else {
-            await updateBadge(persistentState.settings, sessionState);
-            await notifyForCompletedDownloads(persistentState.settings, sessionState);
-          }
-        } catch (error) {
-          saveLastSevereError(error);
-        }
-      },
-    );
   } catch (error) {
     saveLastSevereError(error);
   }
 })();
+
+reactToPersistentState("settings", async ({ settings }) => {
+  try {
+    await migrated;
+    await updateBackgroundPollAlarm(client, settings);
+
+    const sessionState = await SessionState.get();
+    await updateBadge(settings, sessionState);
+    await notifyForCompletedDownloads(settings, sessionState);
+  } catch (error) {
+    saveLastSevereError(error);
+  }
+});
+
+reactToSessionState(
+  "tasks",
+  "taskFetchFailureReason",
+  "tasksLastCompletedFetchTimestamp",
+  "finishedTaskIds",
+  async (sessionState) => {
+    try {
+      await migrated;
+      const persistentState = await PersistentState.get();
+      if (persistentState == null) {
+        console.warn("skipping background update: persistent state not yet migrated");
+      } else {
+        await updateBadge(persistentState.settings, sessionState);
+        await notifyForCompletedDownloads(persistentState.settings, sessionState);
+      }
+    } catch (error) {
+      saveLastSevereError(error);
+    }
+  },
+);
