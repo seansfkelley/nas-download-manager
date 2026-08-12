@@ -450,6 +450,14 @@
     "message": "Connection timed out. Check your hostname/port settings and internet connection.",
     "description": "Connection failure explanatory text."
   },
+  "Connection_rejected_You_have_to_grant_permissions_to_access_the_network_in_the_browser_settings": {
+    "message": "Connection rejected. You have to grant permissions to access the network in the browser settings.",
+    "description": "Connection failure explanatory text."
+  },
+  "An_internal_error_occurred_See_the_browser_console_for_details": {
+    "message": "An internal error occurred. See the browser console for details.",
+    "description": "Connection failure explanatory text."
+  },
   "Connection_failed_for_an_unknown_reason": {
     "message": "Connection failed for an unknown reason.",
     "description": "Connection failure explanatory text."

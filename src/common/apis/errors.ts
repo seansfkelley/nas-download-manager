@@ -92,9 +92,17 @@ export function getErrorForConnectionFailure(failure: ConnectionFailure) {
       return browser.i18n.getMessage(
         "Connection_failed_Likely_cause_wrong_hostnameport_no_internet_connection_or_invalid_certificate",
       );
+    case "missing-host-permission":
+      return browser.i18n.getMessage(
+        "Connection_rejected_You_have_to_grant_permissions_to_access_the_network_in_the_browser_settings",
+      );
     case "timeout":
       return browser.i18n.getMessage(
         "Connection_timed_out_Check_your_hostnameport_settings_and_internet_connection",
+      );
+    case "internal-error":
+      return browser.i18n.getMessage(
+        "An_internal_error_occurred_See_the_browser_console_for_details",
       );
     case "unknown":
       return browser.i18n.getMessage("Connection_failed_for_an_unknown_reason");
