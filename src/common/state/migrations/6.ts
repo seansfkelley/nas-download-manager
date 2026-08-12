@@ -4,7 +4,7 @@ import type { DownloadStationTask } from "../../apis/synology/DownloadStation/Ta
 import { typesafeOmit } from "../../lang";
 import type { OmitStrict } from "../../types";
 
-import type { State as State_5, Settings as Settings_5 } from "./5";
+import type { Settings as Settings_5, State as State_5 } from "./5";
 
 export { VisibleTaskSettings, TaskSortType, NotificationSettings, BadgeDisplayType } from "./5";
 

@@ -7,9 +7,9 @@ import {
 } from "../../common/apis/protocols";
 import {
   ClientRequestResult,
+  ConnectionFailure,
   DownloadStation2,
   FormFile,
-  ConnectionFailure,
   SynologyClient,
 } from "../../common/apis/synology";
 import { saveLastSevereError } from "../../common/errorHandlers";
@@ -19,7 +19,7 @@ import { PersistentState } from "../../common/state";
 import type { UnionByDiscriminant } from "../../common/types";
 
 import { fetchTasks } from "./fetchTasks";
-import { resolveUrl, ResolvedUrl, sanitizeUrlForSynology, guessFileNameFromUrl } from "./urls";
+import { ResolvedUrl, guessFileNameFromUrl, resolveUrl, sanitizeUrlForSynology } from "./urls";
 
 type ArrayifyValues<T extends Record<string, any>> = {
   [K in keyof T]: T[K][];

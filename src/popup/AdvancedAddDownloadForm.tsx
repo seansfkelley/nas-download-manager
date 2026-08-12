@@ -3,7 +3,7 @@ import classNames from "classnames";
 import { useEffect, useState } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 
-import { startsWithAnyProtocol, ALL_DOWNLOADABLE_PROTOCOLS } from "../common/apis/protocols";
+import { ALL_DOWNLOADABLE_PROTOCOLS, startsWithAnyProtocol } from "../common/apis/protocols";
 
 import { PathSelector } from "./PathSelector";
 import type { PopupClient } from "./popupClient";

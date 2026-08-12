@@ -3,7 +3,7 @@ import "../common/init/nonContentContext";
 import { createRoot } from "react-dom/client";
 
 import { saveLastSevereError } from "../common/errorHandlers";
-import { PersistentState, reactToPersistentState, Settings } from "../common/state";
+import { PersistentState, Settings, reactToPersistentState } from "../common/state";
 
 import { SettingsForm } from "./SettingsForm";
 

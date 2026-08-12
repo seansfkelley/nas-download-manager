@@ -7,13 +7,13 @@ import { DownloadStation2 } from "./DownloadStation2";
 import { FileStation } from "./FileStation";
 import { Info } from "./Info";
 import {
-  SessionName,
-  RestApiResponse,
-  RestApiFailureResponse,
-  BaseRequest,
   BadResponseError,
-  TimeoutError,
+  BaseRequest,
   NetworkError,
+  RestApiFailureResponse,
+  RestApiResponse,
+  SessionName,
+  TimeoutError,
 } from "./shared";
 
 const NO_SUCH_METHOD_ERROR_CODE = 103;

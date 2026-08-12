@@ -1,5 +1,5 @@
-import { getErrorForFailedResponse, getErrorForConnectionFailure } from "../common/apis/errors";
-import { MessageResponse, Message, Result } from "../common/apis/messages";
+import { getErrorForConnectionFailure, getErrorForFailedResponse } from "../common/apis/errors";
+import { Message, MessageResponse, Result } from "../common/apis/messages";
 import { ClientRequestResult, SynologyClient } from "../common/apis/synology";
 import { SessionState } from "../common/state";
 import type { DiscriminateUnion } from "../common/types";

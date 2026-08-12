@@ -4,12 +4,12 @@ import type { ChangeEvent } from "react";
 
 import { recordKeys } from "../lang";
 import {
-  VisibleTaskSettings,
-  TaskSortType,
-  ORDERED_TASK_SORT_TYPE_NAMES,
-  ORDERED_VISIBLE_TASK_TYPE_NAMES,
   BadgeDisplayType,
   ORDERED_BADGE_DISPLAY_TYPE_NAMES,
+  ORDERED_TASK_SORT_TYPE_NAMES,
+  ORDERED_VISIBLE_TASK_TYPE_NAMES,
+  TaskSortType,
+  VisibleTaskSettings,
 } from "../state";
 
 import { SettingsList } from "./SettingsList";

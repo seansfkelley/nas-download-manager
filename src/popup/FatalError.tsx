@@ -3,7 +3,7 @@ import type { ErrorInfo } from "react";
 
 import { NonIdealState } from "../common/components/NonIdealState";
 import { BUG_REPORT_URL } from "../common/constants";
-import { redactSettings, Settings } from "../common/state";
+import { Settings, redactSettings } from "../common/state";
 
 export interface Props {
   error: unknown;

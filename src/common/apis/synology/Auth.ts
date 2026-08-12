@@ -1,4 +1,4 @@
-import { RestApiResponse, BaseRequest, get, SessionName } from "./shared";
+import { BaseRequest, RestApiResponse, SessionName, get } from "./shared";
 
 const CGI_NAME = "auth";
 const API_NAME = "SYNO.API.Auth";

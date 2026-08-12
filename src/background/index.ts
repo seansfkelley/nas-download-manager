@@ -7,9 +7,9 @@ import {
 } from "../common/apis/synology";
 import { saveLastSevereError } from "../common/errorHandlers";
 import {
-  reactToPersistentState,
   PersistentState,
   SessionState,
+  reactToPersistentState,
   reactToSessionState,
 } from "../common/state";
 import { migrateState } from "../common/state/migrations/migrateState";

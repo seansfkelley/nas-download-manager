@@ -65,6 +65,8 @@ export default tseslint.config(
           ],
         },
       ],
+      // import-x/order alphabetizes the declarations; this alphabetizes the names inside the braces.
+      "sort-imports": ["error", { ignoreDeclarationSort: true }],
       "no-restricted-syntax": [
         "error",
         {

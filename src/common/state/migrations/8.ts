@@ -1,9 +1,9 @@
 import type { OmitStrict } from "../../types";
 
 import type {
-  State as State_7,
-  Settings as Settings_7,
   ConnectionSettings as ConnectionSettings_7,
+  Settings as Settings_7,
+  State as State_7,
 } from "./7";
 
 export {

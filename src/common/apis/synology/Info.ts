@@ -1,4 +1,4 @@
-import { RestApiResponse, BaseRequest, get } from "./shared";
+import { BaseRequest, RestApiResponse, get } from "./shared";
 
 export interface InfoQueryRequest extends BaseRequest {
   query: "ALL" | string[];

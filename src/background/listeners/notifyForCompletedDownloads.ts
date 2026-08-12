@@ -1,7 +1,7 @@
 import isEqual from "lodash/isEqual";
 
 import { notify } from "../../common/notify";
-import { Settings, SessionState } from "../../common/state";
+import { SessionState, Settings } from "../../common/state";
 
 export async function notifyForCompletedDownloads(
   settings: Settings,

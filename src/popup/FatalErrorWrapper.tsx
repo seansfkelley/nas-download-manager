@@ -1,4 +1,4 @@
-import { type ErrorInfo, type ReactNode, PureComponent } from "react";
+import { type ErrorInfo, PureComponent, type ReactNode } from "react";
 
 import type { Settings } from "../common/state";
 

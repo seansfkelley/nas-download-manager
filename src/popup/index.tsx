@@ -4,10 +4,10 @@ import { createRoot } from "react-dom/client";
 
 import { FetchTasks } from "../common/apis/messages";
 import {
-  Settings,
   PersistentState,
-  reactToPersistentState,
   SessionState,
+  Settings,
+  reactToPersistentState,
   reactToSessionState,
 } from "../common/state";
 

@@ -1,5 +1,5 @@
 import { default as isEqual } from "lodash/isEqual";
-import { useRef, type DependencyList } from "react";
+import { type DependencyList, useRef } from "react";
 
 /* eslint-disable react-hooks/refs -- the ref-during-render is how this hook memoizes. */
 

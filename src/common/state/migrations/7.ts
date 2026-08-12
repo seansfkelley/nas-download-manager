@@ -1,6 +1,6 @@
 import type { OmitStrict } from "../../types";
 
-import type { State as State_6, Settings as Settings_6 } from "./6";
+import type { Settings as Settings_6, State as State_6 } from "./6";
 
 export {
   VisibleTaskSettings,

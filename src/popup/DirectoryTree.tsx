@@ -1,6 +1,6 @@
 import "./directory-tree.css";
 import classNames from "classnames";
-import { memo, useState, type ReactNode } from "react";
+import { type ReactNode, memo, useState } from "react";
 
 export type DirectoryTreeFileChildren =
   "unloaded" | { failureMessage: string } | DirectoryTreeFile[];

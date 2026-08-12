@@ -1,10 +1,10 @@
 import { useMemoDeep } from "../common/hooks/useMemoDeep";
 import type {
-  Settings,
-  VisibleTaskSettings,
-  TaskSortType,
   BadgeDisplayType,
+  Settings,
+  TaskSortType,
   TaskState,
+  VisibleTaskSettings,
 } from "../common/state";
 
 import { Popup } from "./Popup";

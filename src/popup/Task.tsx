@@ -2,12 +2,12 @@ import "./task.css";
 import classNames from "classnames";
 import { default as startCase } from "lodash/startCase";
 import { default as upperCase } from "lodash/upperCase";
-import { useState, type ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 
-import { MessageResponse, FailureMessageResponse } from "../common/apis/messages";
+import { FailureMessageResponse, MessageResponse } from "../common/apis/messages";
 import type { DownloadStationTask } from "../common/apis/synology/DownloadStation/Task";
 import { matchesFilter } from "../common/filtering";
-import { formatMetric1024, formatTime, formatPercentage } from "../common/format";
+import { formatMetric1024, formatPercentage, formatTime } from "../common/format";
 
 export interface Props {
   task: DownloadStationTask;

@@ -4,11 +4,11 @@ import type { DownloadStationTask } from "../../../common/apis/synology/Download
 import type { OmitStrict } from "../../types";
 
 import {
-  migrate as migrate_1,
-  State as State_1,
   ConnectionSettings as ConnectionSettings_1,
-  VisibleTaskSettings as VisibleTaskSettings_1,
+  State as State_1,
   TaskSortType as TaskSortType_1,
+  VisibleTaskSettings as VisibleTaskSettings_1,
+  migrate as migrate_1,
 } from "./1";
 
 export { Protocol, VisibleTaskSettings, TaskSortType, ConnectionSettings } from "./1";

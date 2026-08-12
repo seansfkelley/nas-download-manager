@@ -1,10 +1,10 @@
 import { typesafeUnionMembers } from "../lang";
 
 import type {
-  Protocol,
-  VisibleTaskSettings,
-  TaskSortType,
   BadgeDisplayType,
+  Protocol,
+  TaskSortType,
+  VisibleTaskSettings,
 } from "./migrations/latest";
 
 export const PROTOCOLS = typesafeUnionMembers<Protocol>({

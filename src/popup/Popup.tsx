@@ -6,8 +6,8 @@ import { useMemo, useRef, useState } from "react";
 import type { DownloadStationTask } from "../common/apis/synology/DownloadStation/Task";
 import { NonIdealState } from "../common/components/NonIdealState";
 import { TaskFilterSettingsForm } from "../common/components/TaskFilterSettingsForm";
-import { sortTasks, filterTasks } from "../common/filtering";
-import type { VisibleTaskSettings, TaskSortType, BadgeDisplayType } from "../common/state";
+import { filterTasks, sortTasks } from "../common/filtering";
+import type { BadgeDisplayType, TaskSortType, VisibleTaskSettings } from "../common/state";
 
 import { AdvancedAddDownloadForm } from "./AdvancedAddDownloadForm";
 import { Footer } from "./Footer";

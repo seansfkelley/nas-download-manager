@@ -2,15 +2,15 @@ import { default as partition } from "lodash/partition";
 import { default as sortBy } from "lodash/sortBy";
 
 import {
-  DownloadStationTask,
-  DownloadStationTaskNormalStatus,
-  DownloadStationTaskErrorStatus,
   ALL_TASK_ERROR_STATUSES,
   ALL_TASK_NORMAL_STATUSES,
+  DownloadStationTask,
+  DownloadStationTaskErrorStatus,
+  DownloadStationTaskNormalStatus,
 } from "../common/apis/synology/DownloadStation/Task";
 
 import { assertNever, recordKeys } from "./lang";
-import type { VisibleTaskSettings, TaskSortType } from "./state";
+import type { TaskSortType, VisibleTaskSettings } from "./state";
 
 const EXPLICIT_TASK_FILTER_TO_NORMAL_TYPES: {
   [K in "downloading" | "uploading" | "completed"]: DownloadStationTaskNormalStatus[];

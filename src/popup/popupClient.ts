@@ -1,16 +1,16 @@
 import { testConnection } from "../common/apis/connection";
-import { MessageResponse, AddTaskOptions, Directory, Login } from "../common/apis/messages";
+import { AddTaskOptions, Directory, Login, MessageResponse } from "../common/apis/messages";
 import {
   AddTasks,
-  PauseTask,
-  ResumeTask,
   DeleteTasks,
   GetConfig,
   ListDirectories,
+  PauseTask,
+  ResumeTask,
 } from "../common/apis/messages";
 import { ClientRequestResult } from "../common/apis/synology";
 import type { DownloadStationInfoConfig } from "../common/apis/synology/DownloadStation/Info";
-import { getHostUrl, ConnectionSettings } from "../common/state";
+import { ConnectionSettings, getHostUrl } from "../common/state";
 
 export interface PopupClient {
   openDownloadStationUi: () => void;

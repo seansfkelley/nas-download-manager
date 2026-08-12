@@ -1,9 +1,9 @@
 import { migrate as migrate_1 } from "./1";
 import {
-  State as State_2,
   CachedTasks as CachedTasks_2,
-  Settings as Settings_2,
   Logging as Logging_2,
+  Settings as Settings_2,
+  State as State_2,
   migrate as migrate_2,
 } from "./2";
 

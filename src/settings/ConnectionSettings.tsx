@@ -9,9 +9,9 @@ import { LoginStatus, Status } from "../common/components/LoginStatus";
 import { SettingsList } from "../common/components/SettingsList";
 import { assert } from "../common/lang";
 import {
-  Protocol,
-  PROTOCOLS,
   ConnectionSettings as ConnectionSettingsObject,
+  PROTOCOLS,
+  Protocol,
 } from "../common/state";
 import type { Overwrite } from "../common/types";
 

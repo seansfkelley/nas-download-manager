@@ -8,12 +8,12 @@ import { SettingsListCheckbox } from "../common/components/SettingsListCheckbox"
 import { TaskFilterSettingsForm } from "../common/components/TaskFilterSettingsForm";
 import { BUG_REPORT_URL } from "../common/constants";
 import {
-  Settings,
-  VisibleTaskSettings,
-  TaskSortType,
-  NotificationSettings,
   BadgeDisplayType,
   ConnectionSettings,
+  NotificationSettings,
+  Settings,
+  TaskSortType,
+  VisibleTaskSettings,
   redactSettings,
 } from "../common/state";
 import type { Overwrite } from "../common/types";

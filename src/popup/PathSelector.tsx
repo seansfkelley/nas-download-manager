@@ -1,13 +1,13 @@
 import "./path-selector.css";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import type { MessageResponse, Directory } from "../common/apis/messages";
+import type { Directory, MessageResponse } from "../common/apis/messages";
 
 import {
   DirectoryTree,
   DirectoryTreeFile,
-  isUnloadedChild,
   isErrorChild,
+  isUnloadedChild,
   recursivelyUpdateDirectoryTree,
 } from "./DirectoryTree";
 import type { PopupClient } from "./popupClient";
