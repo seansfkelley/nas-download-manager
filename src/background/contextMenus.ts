@@ -21,7 +21,7 @@ export function initializeContextMenus(client: SynologyClient) {
           // The cheapest of checks. Actual invalid URLs will be caught later.
           .filter((url) => startsWithAnyProtocol(url, ALL_DOWNLOADABLE_PROTOCOLS));
 
-        if (urls.length == 0) {
+        if (urls.length === 0) {
           notify(
             browser.i18n.getMessage("Failed_to_add_download"),
             browser.i18n.getMessage("Selected_text_is_not_a_valid_URL"),

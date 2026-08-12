@@ -17,7 +17,7 @@ export type PersistentState = State;
 export const PersistentState = {
   async get(): Promise<State | undefined> {
     const state = (await browser.storage.local.get(ALL_STORED_STATE_NAMES)) as AnyState;
-    if (state.stateVersion == LATEST_STATE_VERSION) {
+    if (state.stateVersion === LATEST_STATE_VERSION) {
       console.log("fetched persistent state");
       return nullToUndefined(state as State);
     } else {

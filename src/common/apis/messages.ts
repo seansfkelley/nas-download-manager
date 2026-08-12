@@ -126,7 +126,7 @@ function makeMessageOperations<T extends Message["type"], U extends any[]>(
       }) as Promise<Result[T]>;
     },
     is: (m: object | null | undefined): m is DiscriminateUnion<Message, "type", T> => {
-      return m != null && (m as any).type == type;
+      return m != null && (m as any).type === type;
     },
   };
 }

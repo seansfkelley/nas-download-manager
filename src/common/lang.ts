@@ -59,6 +59,7 @@ export function nullToUndefined<T extends object>(
   const copy: any = {};
   for (const k of Object.keys(o)) {
     const v = (o as any)[k];
+    // eslint-disable-next-line eqeqeq
     copy[k] = v === null ? undefined : v;
   }
   return copy;
