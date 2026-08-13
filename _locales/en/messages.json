@@ -12,6 +12,16 @@
     "message": "Download finished",
     "description": "Notification body text."
   },
+  "ZcountZ_downloads_finished": {
+    "message": "$COUNT$ downloads finished",
+    "description": "Notification title.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "Download_with_DownloadStation": {
     "message": "Download with DownloadStation",
     "description": "Context menu item title."
@@ -684,12 +694,12 @@
     "message": "No directories.",
     "description": "Message in advanced add form if there are no root directories."
   },
-  "Adding_download": {
-    "message": "Adding download...",
+  "Adding_this_download_is_taking_a_while": {
+    "message": "Adding this download is taking a while...",
     "description": "Notification title."
   },
-  "Adding_ZcountZ_downloads": {
-    "message": "Adding $COUNT$ downloads...",
+  "Adding_ZcountZ_downloads_is_taking_a_while": {
+    "message": "Adding $COUNT$ downloads is taking a while...",
     "description": "Notification title.",
     "placeholders": {
       "count": {

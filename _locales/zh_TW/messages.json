@@ -672,20 +672,6 @@
     "message": "無根資料夾",
     "description": "Message in advanced add form if there are no root directories."
   },
-  "Adding_download": {
-    "message": "新增下載...",
-    "description": "Notification title."
-  },
-  "Adding_ZcountZ_downloads": {
-    "message": "新增了 $COUNT$ 個下載...",
-    "description": "Notification title.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
-  },
   "ZcountZ_downloads_added": {
     "message": "已新增 $COUNT$ 個下載",
     "description": "Notification body text.",

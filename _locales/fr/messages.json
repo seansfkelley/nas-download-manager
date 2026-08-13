@@ -649,20 +649,6 @@
     "message": "Aucun dossier.",
     "description": "Message in advanced add form if there are no root directories."
   },
-  "Adding_download": {
-    "message": "Ajout du téléchargement...",
-    "description": "Notification title."
-  },
-  "Adding_ZcountZ_downloads": {
-    "message": "Ajout de $COUNT$ téléchargements...",
-    "description": "Notification title.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
-  },
   "ZcountZ_downloads_added": {
     "message": "$COUNT$ téléchargements ajoutés",
     "description": "Notification body text.",
