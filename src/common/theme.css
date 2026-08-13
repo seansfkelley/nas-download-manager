@@ -17,6 +17,16 @@ importing anything. Only the two entry points pull this file in.
   --color-text-very-faded: hsl(from var(--color-text-faded) h s calc(l + 30));
 }
 
+html,
+body {
+  font-size: 14px;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+}
+
 .intent-error {
   color: var(--color-error);
 }
