@@ -12,6 +12,16 @@
     "message": "Download finished",
     "description": "Notification body text."
   },
+  "ZcountZ_downloads_finished": {
+    "message": "$COUNT$ downloads finished",
+    "description": "Notification title.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "Download_with_DownloadStation": {
     "message": "Download with DownloadStation",
     "description": "Context menu item title."
@@ -450,6 +460,14 @@
     "message": "Connection timed out. Check your hostname/port settings and internet connection.",
     "description": "Connection failure explanatory text."
   },
+  "Connection_rejected_You_have_to_grant_permissions_to_access_the_network_in_the_browser_settings": {
+    "message": "Connection rejected. You have to grant permissions to access the network in the browser settings.",
+    "description": "Connection failure explanatory text."
+  },
+  "An_internal_error_occurred_See_the_browser_console_for_details": {
+    "message": "An internal error occurred. See the browser console for details.",
+    "description": "Connection failure explanatory text."
+  },
   "Connection_failed_for_an_unknown_reason": {
     "message": "Connection failed for an unknown reason.",
     "description": "Connection failure explanatory text."
@@ -676,12 +694,12 @@
     "message": "No directories.",
     "description": "Message in advanced add form if there are no root directories."
   },
-  "Adding_download": {
-    "message": "Adding download...",
+  "Adding_this_download_is_taking_a_while": {
+    "message": "Adding this download is taking a while...",
     "description": "Notification title."
   },
-  "Adding_ZcountZ_downloads": {
-    "message": "Adding $COUNT$ downloads...",
+  "Adding_ZcountZ_downloads_is_taking_a_while": {
+    "message": "Adding $COUNT$ downloads is taking a while...",
     "description": "Notification title.",
     "placeholders": {
       "count": {

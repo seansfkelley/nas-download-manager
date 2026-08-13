@@ -98,6 +98,10 @@ async function fetchWithErrorHandling(
     if (e instanceof DOMException && e.name === "AbortError") {
       throw new TimeoutError();
     } else if (e instanceof Error && /networkerror/i.test(e?.message)) {
+      // Firefox
+      throw new NetworkError();
+    } else if (e instanceof TypeError && /failed to fetch/i.test(e?.message)) {
+      // Chrome
       throw new NetworkError();
     } else {
       throw e;

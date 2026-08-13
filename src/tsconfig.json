@@ -2,7 +2,7 @@
   "compilerOptions": {
     "module": "esnext",
     "moduleResolution": "bundler",
-    "target": "es2024",
+    "target": "es2025",
     "jsx": "react-jsx",
     "forceConsistentCasingInFileNames": true,
     "strict": true,

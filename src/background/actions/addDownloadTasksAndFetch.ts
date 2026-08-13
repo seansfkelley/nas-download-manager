@@ -14,7 +14,7 @@ import {
 } from "../../common/apis/synology";
 import { saveLastSevereError } from "../../common/errorHandlers";
 import { assertNever } from "../../common/lang";
-import { notify } from "../../common/notify";
+import { NotificationType, sendNotification } from "../../common/sendNotification";
 import { PersistentState } from "../../common/state";
 import type { UnionByDiscriminant } from "../../common/types";
 
@@ -42,18 +42,95 @@ async function checkIfEMuleShouldBeEnabled(client: SynologyClient, urls: string[
   }
 }
 
+const SLOW_ADD_NOTIFICATION_DELAY_MS = 3000;
+
+// Stateful API to make it easier to not flood the user or hit notification frequency limits imposed
+// by the browser.
+//
+// Sends at most 1 update and 1 completion. Updates are silently dropped if any update or completion
+// has been sent. Only the first completion will be sent.
+class NotificationDeduplicator {
+  private notificationId: string | undefined;
+  private didSendCompletion = false;
+
+  sendUpdate(title: string, message?: string) {
+    if (this.notificationId == null) {
+      this.notificationId = sendNotification(title, message);
+    } else {
+      console.warn(`ignoring redundant update notification with title "${title}"`);
+    }
+  }
+
+  sendCompletion(title: string, message: string | undefined, type: NotificationType) {
+    if (!this.didSendCompletion) {
+      this.didSendCompletion = true;
+      this.notificationId = sendNotification(title, message, type, this.notificationId);
+    } else {
+      console.warn(`ignoring redundant completion notification with title "${title}"`);
+    }
+  }
+}
+
 function reportUnexpectedError(
-  notificationId: string | undefined,
+  notifier: NotificationDeduplicator,
   e: any | undefined,
   debugMessage?: string,
 ) {
   saveLastSevereError(e, debugMessage);
-  notify(
+  notifier.sendCompletion(
     browser.i18n.getMessage("Failed_to_add_download"),
     browser.i18n.getMessage("Unexpected_error_please_check_your_settings_and_try_again"),
     "failure",
-    notificationId,
   );
+}
+
+async function reportTaskAddResult(
+  notifier: NotificationDeduplicator,
+  client: SynologyClient,
+  enableFeedbackNotifications: boolean,
+  url: string,
+  result: ClientRequestResult<unknown>,
+  filename: string | undefined,
+) {
+  console.log("task add result", result);
+
+  if (ClientRequestResult.isConnectionFailure(result)) {
+    notifier.sendCompletion(
+      browser.i18n.getMessage("Failed_to_connect_to_DiskStation"),
+      browser.i18n.getMessage("Please_check_your_settings"),
+      "failure",
+    );
+  } else if (result.success) {
+    if (enableFeedbackNotifications) {
+      notifier.sendCompletion(
+        browser.i18n.getMessage("Download_added"),
+        filename || url,
+        "success",
+      );
+    }
+  } else {
+    // Assume it's not enabled so we hit the generic failure message if the API call fails.
+    let shouldEMuleBeEnabled = false;
+    try {
+      shouldEMuleBeEnabled = await checkIfEMuleShouldBeEnabled(client, [url]);
+    } catch (e) {
+      saveLastSevereError(e, "error while checking emule settings");
+    }
+
+    if (shouldEMuleBeEnabled) {
+      notifier.sendCompletion(
+        browser.i18n.getMessage("eMule_is_not_enabled"),
+        browser.i18n.getMessage("Use_DSM_to_enable_eMule_downloads"),
+        "failure",
+      );
+    } else {
+      notifier.sendCompletion(
+        browser.i18n.getMessage("Failed_to_add_download"),
+        getErrorForFailedResponse(result),
+        "failure",
+      );
+    }
+  }
 }
 
 async function addOneTask(
@@ -62,58 +139,17 @@ async function addOneTask(
   url: string,
   { path, ftpUsername, ftpPassword, unzipPassword }: AddTaskOptions,
 ) {
-  async function reportTaskAddResult(
-    result: ClientRequestResult<unknown>,
-    filename: string | undefined,
-  ) {
-    console.log("task add result", result);
+  const notifier = new NotificationDeduplicator();
 
-    if (ClientRequestResult.isConnectionFailure(result)) {
-      notify(
-        browser.i18n.getMessage("Failed_to_connect_to_DiskStation"),
-        browser.i18n.getMessage("Please_check_your_settings"),
-        "failure",
-        notificationId,
+  if (enableFeedbackNotifications) {
+    // No need to cancel this; once the add finishes, the notifier drops the update on the floor.
+    setTimeout(() => {
+      notifier.sendUpdate(
+        browser.i18n.getMessage("Adding_this_download_is_taking_a_while"),
+        guessFileNameFromUrl(url) ?? url,
       );
-    } else if (result.success) {
-      if (enableFeedbackNotifications) {
-        notify(
-          browser.i18n.getMessage("Download_added"),
-          filename || url,
-          "success",
-          notificationId,
-        );
-      }
-    } else {
-      let shouldEMuleBeEnabled;
-      try {
-        shouldEMuleBeEnabled = await checkIfEMuleShouldBeEnabled(client, [url]);
-      } catch (e) {
-        reportUnexpectedError(notificationId, e, "error while checking emule settings");
-        return;
-      }
-
-      if (shouldEMuleBeEnabled) {
-        notify(
-          browser.i18n.getMessage("eMule_is_not_enabled"),
-          browser.i18n.getMessage("Use_DSM_to_enable_eMule_downloads"),
-          "failure",
-          notificationId,
-        );
-      } else {
-        notify(
-          browser.i18n.getMessage("Failed_to_add_download"),
-          getErrorForFailedResponse(result),
-          "failure",
-          notificationId,
-        );
-      }
-    }
+    }, SLOW_ADD_NOTIFICATION_DELAY_MS);
   }
-
-  const notificationId = enableFeedbackNotifications
-    ? notify(browser.i18n.getMessage("Adding_download"), guessFileNameFromUrl(url) ?? url)
-    : undefined;
 
   const resolvedUrl = await resolveUrl(url, ftpUsername, ftpPassword);
 
@@ -134,10 +170,17 @@ async function addOneTask(
         uri: [sanitizeUrlForSynology(resolvedUrl.url).toString()],
         ...commonCreateOptionsV1,
       });
-      await reportTaskAddResult(result, guessFileNameFromUrl(url));
+      await reportTaskAddResult(
+        notifier,
+        client,
+        enableFeedbackNotifications,
+        url,
+        result,
+        guessFileNameFromUrl(url),
+      );
       await fetchTasks(client);
     } catch (e) {
-      reportUnexpectedError(notificationId, e, "error while adding direct-download task");
+      reportUnexpectedError(notifier, e, "error while adding direct-download task");
     }
   } else if (resolvedUrl.type === "metadata-file") {
     try {
@@ -145,7 +188,14 @@ async function addOneTask(
         query: [DownloadStation2.Task.API_NAME],
       });
       if (ClientRequestResult.isConnectionFailure(supportsNewApiQueryResult)) {
-        await reportTaskAddResult(supportsNewApiQueryResult, resolvedUrl.filename);
+        await reportTaskAddResult(
+          notifier,
+          client,
+          enableFeedbackNotifications,
+          url,
+          supportsNewApiQueryResult,
+          resolvedUrl.filename,
+        );
       } else {
         const file: FormFile = { content: resolvedUrl.content, filename: resolvedUrl.filename };
         let result;
@@ -167,20 +217,26 @@ async function addOneTask(
             ...commonCreateOptionsV1,
           });
         }
-        await reportTaskAddResult(result, resolvedUrl.filename);
+        await reportTaskAddResult(
+          notifier,
+          client,
+          enableFeedbackNotifications,
+          url,
+          result,
+          resolvedUrl.filename,
+        );
         await fetchTasks(client);
       }
     } catch (e) {
-      reportUnexpectedError(notificationId, e, "error while adding metadata-file task");
+      reportUnexpectedError(notifier, e, "error while adding metadata-file task");
     }
   } else if (resolvedUrl.type === "missing-or-illegal") {
-    notify(
+    notifier.sendCompletion(
       browser.i18n.getMessage("Failed_to_add_download"),
       browser.i18n.getMessage("URL_must_start_with_one_of_ZprotocolsZ", [
         ALL_DOWNLOADABLE_PROTOCOLS.join(", "),
       ]),
       "failure",
-      notificationId,
     );
   } else {
     assertNever(resolvedUrl);
@@ -193,12 +249,17 @@ async function addMultipleTasks(
   urls: string[],
   { path, ftpUsername, ftpPassword, unzipPassword }: AddTaskOptions,
 ) {
-  const notificationId = enableFeedbackNotifications
-    ? notify(
-        browser.i18n.getMessage("Adding_ZcountZ_downloads", [urls.length]),
+  const notifier = new NotificationDeduplicator();
+
+  if (enableFeedbackNotifications) {
+    // No need to cancel this; once the adds finish, the notifier drops the update on the floor.
+    setTimeout(() => {
+      notifier.sendUpdate(
+        browser.i18n.getMessage("Adding_ZcountZ_downloads_is_taking_a_while", [urls.length]),
         browser.i18n.getMessage("Please_be_patient_this_may_take_some_time"),
-      )
-    : undefined;
+      );
+    }, SLOW_ADD_NOTIFICATION_DELAY_MS);
+  }
 
   const resolvedUrls = await Promise.all(
     urls.map((url) => resolveUrl(url, ftpUsername, ftpPassword)),
@@ -300,29 +361,26 @@ async function addMultipleTasks(
   }
 
   if (successes > 0 && failures === 0) {
-    notify(
+    notifier.sendCompletion(
       browser.i18n.getMessage("ZcountZ_downloads_added", [successes]),
       undefined,
       "success",
-      notificationId,
     );
   } else if (successes === 0 && failures > 0) {
-    notify(
+    notifier.sendCompletion(
       browser.i18n.getMessage("Failed_to_add_ZcountZ_downloads", [failures]),
       browser.i18n.getMessage(
         "Try_adding_downloads_individually_andor_checking_your_URLs_or_settings",
       ),
       "failure",
-      notificationId,
     );
   } else {
-    notify(
+    notifier.sendCompletion(
       browser.i18n.getMessage("ZsuccessZ_downloads_added_ZfailedZ_failed", [successes, failures]),
       browser.i18n.getMessage(
         "Try_adding_downloads_individually_andor_checking_your_URLs_or_settings",
       ),
       "failure",
-      notificationId,
     );
   }
 
@@ -344,7 +402,7 @@ export async function addDownloadTasksAndFetch(
   };
 
   if (urls.length === 0) {
-    notify(
+    sendNotification(
       browser.i18n.getMessage("Failed_to_add_download"),
       browser.i18n.getMessage("No_downloadable_URLs_provided"),
       "failure",
@@ -356,7 +414,7 @@ export async function addDownloadTasksAndFetch(
   const settings = await client.getSettings();
 
   if (ConnectionFailure.is(settings)) {
-    notify(
+    sendNotification(
       browser.i18n.getMessage("Failed_to_add_download"),
       getErrorForConnectionFailure(settings),
       "failure",

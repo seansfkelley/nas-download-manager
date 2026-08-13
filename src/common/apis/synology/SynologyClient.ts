@@ -88,20 +88,39 @@ export type ConnectionFailure =
       type:
         | "probable-wrong-protocol"
         | "probable-wrong-url-or-no-connection-or-cert-error"
+        | "missing-host-permission"
         | "timeout"
+        | "internal-error"
         | "unknown";
     };
+
+// Firefox rejects a port in a match pattern, so the origin has to be built without one.
+async function hasHostPermission(baseUrl: string) {
+  try {
+    const { protocol, hostname } = new URL(baseUrl);
+    return await browser.permissions.contains({ origins: [`${protocol}//${hostname}/*`] });
+  } catch {
+    // Never let a failure to answer the question become the answer.
+    return true;
+  }
+}
 
 export const ConnectionFailure = {
   is: (settings: SynologyClientSettings | ConnectionFailure): settings is ConnectionFailure => {
     return (settings as ConnectionFailure).type != null;
   },
 
-  from: (error: any): ConnectionFailure => {
+  from: async (error: any, baseUrl?: string): Promise<ConnectionFailure> => {
     if (error instanceof BadResponseError && error.response.status === 400) {
       return { type: "probable-wrong-protocol" };
     } else if (error instanceof NetworkError) {
-      return { type: "probable-wrong-url-or-no-connection-or-cert-error" };
+      // A host permission the user revoked rejects fetch exactly like an unreachable host does,
+      // so without this check the UI blames their hostname for something they did on purpose.
+      if (baseUrl != null && !(await hasHostPermission(baseUrl))) {
+        return { type: "missing-host-permission" };
+      } else {
+        return { type: "probable-wrong-url-or-no-connection-or-cert-error" };
+      }
     } else if (error instanceof TimeoutError) {
       return { type: "timeout" };
     } else {
@@ -130,6 +149,8 @@ export const LoginFailure = {
         case "missing-config":
         case "probable-wrong-protocol":
         case "probable-wrong-url-or-no-connection-or-cert-error":
+        case "missing-host-permission":
+        case "internal-error":
         case "unknown":
           return true;
         case "timeout":
@@ -211,7 +232,7 @@ export class SynologyClient {
           return response;
         }
       } catch (e) {
-        return ConnectionFailure.from(e);
+        return await ConnectionFailure.from(e, baseUrl);
       }
     })();
 
@@ -289,19 +310,24 @@ export class SynologyClient {
       options: T,
       shouldRetryTransientFailures: boolean = true,
     ): Promise<ClientRequestResult<U>> => {
+      // Resolved once and threaded through the whole request: re-reading it partway would let a
+      // settings change mid-flight clear auth that belongs to the new settings.
+      let settings;
+      try {
+        settings = await this.getSettings();
+        if (ConnectionFailure.is(settings)) {
+          return settings;
+        }
+      } catch {
+        return { type: "internal-error" };
+      }
+
+      const baseUrl = settings.baseUrl;
+
       try {
         // `await`s in this block aren't necessary to adhere to the type signature, but it changes
         // who's responsible for handling the errors. Currently, errors unhandled by lower levels
         // are bubbled up to this outermost `catch`.
-
-        // Resolved once and threaded through the whole request: re-reading it partway would let a
-        // settings change mid-flight clear auth that belongs to the new settings.
-        const settings = await this.getSettings();
-
-        if (ConnectionFailure.is(settings)) {
-          return settings;
-        }
-
         const auth =
           (await this.getStoredAuth(settings)) ?? toSynologyAuth(await this.maybeLogIn(settings));
 
@@ -314,7 +340,7 @@ export class SynologyClient {
           }
         }
 
-        const response = await fn(settings.baseUrl, auth.sid, options);
+        const response = await fn(baseUrl, auth.sid, options);
 
         if (
           !response.success &&
@@ -327,7 +353,7 @@ export class SynologyClient {
           return response;
         }
       } catch (e) {
-        return ConnectionFailure.from(e);
+        return await ConnectionFailure.from(e, baseUrl);
       }
     };
 
@@ -344,11 +370,22 @@ export class SynologyClient {
     fn: (baseUrl: string, options: T) => Promise<RestApiResponse<U>>,
   ): (options: T) => Promise<ClientRequestResult<U>> {
     return async (options: T) => {
+      let settings;
       try {
-        const settings = await this.getSettings();
-        return ConnectionFailure.is(settings) ? settings : await fn(settings.baseUrl, options);
+        settings = await this.getSettings();
+        if (ConnectionFailure.is(settings)) {
+          return settings;
+        }
+      } catch {
+        return { type: "internal-error" };
+      }
+
+      const baseUrl = settings.baseUrl;
+
+      try {
+        return await fn(baseUrl, options);
       } catch (e) {
-        return ConnectionFailure.from(e);
+        return await ConnectionFailure.from(e, baseUrl);
       }
     };
   }

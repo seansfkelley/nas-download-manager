@@ -8,4 +8,5 @@ sources.zip
 .vscode
 .parcel-cache
 .firefox-profile/
+.chrome-profile/
 .claude/

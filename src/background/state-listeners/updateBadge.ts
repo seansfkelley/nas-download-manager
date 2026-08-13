@@ -7,7 +7,7 @@ export async function updateBadge(
   { tasks, taskFetchFailureReason }: Pick<TaskState, "tasks" | "taskFetchFailureReason">,
 ) {
   if (taskFetchFailureReason) {
-    browser.browserAction.setIcon({
+    browser.action.setIcon({
       path: {
         "16": "icons/icon-16-disabled.png",
         "32": "icons/icon-32-disabled.png",
@@ -17,13 +17,13 @@ export async function updateBadge(
       },
     });
 
-    browser.browserAction.setBadgeText({
+    browser.action.setBadgeText({
       text: "",
     });
 
-    browser.browserAction.setBadgeBackgroundColor({ color: [217, 0, 0, 255] });
+    browser.action.setBadgeBackgroundColor({ color: [217, 0, 0, 255] });
   } else {
-    browser.browserAction.setIcon({
+    browser.action.setIcon({
       path: {
         "16": "icons/icon-16.png",
         "32": "icons/icon-32.png",
@@ -48,10 +48,10 @@ export async function updateBadge(
       return assertNever(settings.badgeDisplayType);
     }
 
-    browser.browserAction.setBadgeText({
+    browser.action.setBadgeText({
       text: taskCount === 0 ? "" : taskCount.toString(),
     });
 
-    browser.browserAction.setBadgeBackgroundColor({ color: [0, 217, 0, 255] });
+    browser.action.setBadgeBackgroundColor({ color: [0, 217, 0, 255] });
   }
 }
