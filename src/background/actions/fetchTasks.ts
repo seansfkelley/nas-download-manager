@@ -38,8 +38,12 @@ export async function fetchTasks(client: SynologyClient): Promise<void> {
 
     // Naive "compare and swap". We aren't doing HFT here, so this is enough to avoid confusing
     // states where a stale fetch clobbers a newer fetch that completed first.
-    if ((await SessionState.get()).latestTaskFetchId !== fetchId) {
-      console.log(`(${fetchId}) fetch result outdated; ignoring`, response);
+    const { latestTaskFetchId } = await SessionState.get();
+    if (latestTaskFetchId !== fetchId) {
+      console.log(
+        `(${fetchId}) fetch result outdated (expected ${latestTaskFetchId}); ignoring`,
+        response,
+      );
       return;
     } else {
       console.log(`(${fetchId}) fetch result still relevant; continuing...`, response);
