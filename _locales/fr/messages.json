@@ -12,6 +12,16 @@
     "message": "Téléchargement terminé",
     "description": "Notification body text."
   },
+  "ZcountZ_downloads_finished": {
+    "message": "$COUNT$ téléchargements terminés",
+    "description": "Notification title.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "Download_with_DownloadStation": {
     "message": "Télécharger avec Download Station",
     "description": "Context menu item title."
@@ -135,6 +145,10 @@
   "Configure_your_hostname_username_and_password_in_settings": {
     "message": "Configurez vos nom d'hôte, nom d'utilisateur et mot de passe dans les réglages.",
     "description": "Body text for popup when no tasks are shown because nothing is configured."
+  },
+  "Password_required": {
+    "message": "Mot de passe requis.",
+    "description": "Body text for popup when user is being asked to log in again."
   },
   "No_download_tasks": {
     "message": "Aucune tâche de téléchargement.",
@@ -328,9 +342,25 @@
     "message": "le nombre de tâches filtrées",
     "description": "Badge display type."
   },
+  "completed_task_count": {
+    "message": "le nombre de tâches terminées",
+    "description": "Badge display type."
+  },
+  "Show_inactive_tasks": {
+    "message": "Afficher les tâches inactives",
+    "description": "Task status filtering checkbox label."
+  },
+  "Tasks_with_nonzero_uploaddownload_speeds_are_active": {
+    "message": "Les tâches dont la vitesse d'envoi ou de téléchargement est non nulle sont actives",
+    "description": "Explanatory text for task filtering checkbox."
+  },
   "Connection": {
     "message": "Connexion",
     "description": "Header for settings section."
+  },
+  "Please_note_that_QuickConnect_IDs_and_twofactor_authentication_are_not_currently_supported": {
+    "message": "Veuillez noter que les identifiants QuickConnect et l'authentification à deux facteurs ne sont pas pris en charge pour le moment.",
+    "description": "Subheader for Connection settings section."
   },
   "hostname_or_IP_address": {
     "message": "Hôte ou adresse IP",
@@ -348,10 +378,13 @@
     "message": "Mot de passe",
     "description": "Label for field on settings page."
   },
+  "Remember_Password": {
+    "message": "Retenir le mot de passe",
+    "description": "Label for checkbox on settings page."
+  },
   "Login": {
-    "message": "Tester et sauvegarder",
-    "description": "Label for button on settings page.",
-    "needs_update": true
+    "message": "Se connecter",
+    "description": "Label for button on settings page."
   },
   "Task_Display_Settings": {
     "message": "Réglages de l'affichage des tâches",
@@ -372,6 +405,10 @@
   "Notify_when_downloads_complete": {
     "message": "Notifier quand les téléchargements sont achevés",
     "description": "Label for option on settings page."
+  },
+  "Checking_for_completed_downloads_will_prevent_your_NAS_from_sleeping": {
+    "message": "La vérification des téléchargements achevés empêchera votre NAS de se mettre en veille.",
+    "description": "Subtitle for the download completion notification option on the settings page."
   },
   "Handle_opening_downloadable_link_types_ZprotocolsZ": {
     "message": "Gérer l'ouverture des types de liens téléchargeables ($PROTOCOLS$)",
@@ -396,19 +433,16 @@
     "description": "Message shown in settings page when something is very wrong."
   },
   "Logging_in": {
-    "message": "Test de la connexion…",
-    "description": "Message for login status.",
-    "needs_update": true
+    "message": "Connexion en cours…",
+    "description": "Message for login status."
   },
   "Logging_in_this_is_unusually_slow_is_your_NAS_asleep": {
-    "message": "Test de la connexion… (c'est curieusement lent, votre NAS est-il en veille ?)",
-    "description": "Message for login status.",
-    "needs_update": true
+    "message": "Connexion en cours… (c'est curieusement lent, votre NAS est-il en veille ?)",
+    "description": "Message for login status."
   },
   "Login_successful": {
-    "message": "Connexion réussie!",
-    "description": "Message for login status.",
-    "needs_update": true
+    "message": "Connexion réussie !",
+    "description": "Message for login status."
   },
   "Connection_settings_are_not_configured": {
     "message": "Les réglages de connexion ne sont pas configurés.",
@@ -424,6 +458,14 @@
   },
   "Connection_timed_out_Check_your_hostnameport_settings_and_internet_connection": {
     "message": "La connexion a expiré. Vérifiez les réglages de l'hôte/port et votre connexion à Internet.",
+    "description": "Connection failure explanatory text."
+  },
+  "Connection_rejected_You_have_to_grant_permissions_to_access_the_network_in_the_browser_settings": {
+    "message": "La connexion a été rejetée. Vous devez accorder l'autorisation d'accès au réseau dans les réglages du navigateur.",
+    "description": "Connection failure explanatory text."
+  },
+  "An_internal_error_occurred_See_the_browser_console_for_details": {
+    "message": "Une erreur interne s'est produite. Consultez la console du navigateur pour plus de détails.",
     "description": "Connection failure explanatory text."
   },
   "Connection_failed_for_an_unknown_reason": {
@@ -451,15 +493,14 @@
     "description": "Suffix for action text for the popup when asking the user to file a bug when we have a fatal rendering error."
   },
   "Clear_ZcountZ_completed_and_not_uploading_tasks": {
-    "message": "Retirer la/les $COUNT$ tâche(s) terminée(s)",
+    "message": "Retirer la/les $COUNT$ tâche(s) terminée(s) sans envoi en cours",
     "description": "Label for button to clear completed download tasks.",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "1"
       }
-    },
-    "needs_update": true
+    }
   },
   "Unknown_error": {
     "message": "Erreur inconnue.",
@@ -491,6 +532,10 @@
   },
   "Session_interrupted_by_duplicate_login": {
     "message": "La session a été interrompue par une connexion redondante.",
+    "description": "Error message on Synology API call failure."
+  },
+  "SID_not_found": {
+    "message": "SID introuvable.",
     "description": "Error message on Synology API call failure."
   },
   "No_such_username_or_incorrect_password": {
@@ -649,6 +694,20 @@
     "message": "Aucun dossier.",
     "description": "Message in advanced add form if there are no root directories."
   },
+  "Adding_this_download_is_taking_a_while": {
+    "message": "L'ajout de ce téléchargement prend du temps...",
+    "description": "Notification title."
+  },
+  "Adding_ZcountZ_downloads_is_taking_a_while": {
+    "message": "L'ajout de $COUNT$ téléchargements prend du temps...",
+    "description": "Notification title.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "ZcountZ_downloads_added": {
     "message": "$COUNT$ téléchargements ajoutés",
     "description": "Notification body text.",
@@ -694,5 +753,21 @@
   "Please_be_patient_this_may_take_some_time": {
     "message": "Veuillez patienter, cela peut prendre quelques instants...",
     "description": "Notification body text."
+  },
+  "FTP_username": {
+    "message": "Nom d'utilisateur FTP...",
+    "description": "Placeholder for input field in add-download form."
+  },
+  "FTP_password": {
+    "message": "Mot de passe FTP...",
+    "description": "Placeholder for input field in add-download form."
+  },
+  "Unzip_password": {
+    "message": "Mot de passe de décompression...",
+    "description": "Placeholder for input field in add-download form."
+  },
+  "Auto_Extract_service_is_disabled_in_Download_Station": {
+    "message": "Le service d'extraction automatique est désactivé dans Download Station.",
+    "description": "Explanatory text for disabled input field in add-download form."
   }
 }

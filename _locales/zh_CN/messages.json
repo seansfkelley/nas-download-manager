@@ -12,6 +12,16 @@
     "message": "下载已完成",
     "description": "Notification body text."
   },
+  "ZcountZ_downloads_finished": {
+    "message": "$COUNT$ 个下载已完成",
+    "description": "Notification title.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "Download_with_DownloadStation": {
     "message": "使用 Download Station 下载",
     "description": "Context menu item title."
@@ -373,9 +383,8 @@
     "description": "Label for checkbox on settings page."
   },
   "Login": {
-    "message": "测试连接并保存",
-    "description": "Label for button on settings page.",
-    "needs_update": true
+    "message": "登录",
+    "description": "Label for button on settings page."
   },
   "Task_Display_Settings": {
     "message": "任务显示选项",
@@ -396,6 +405,10 @@
   "Notify_when_downloads_complete": {
     "message": "下载完成时显示通知",
     "description": "Label for option on settings page."
+  },
+  "Checking_for_completed_downloads_will_prevent_your_NAS_from_sleeping": {
+    "message": "检查下载是否完成会使 NAS 无法进入休眠状态。",
+    "description": "Subtitle for the download completion notification option on the settings page."
   },
   "Handle_opening_downloadable_link_types_ZprotocolsZ": {
     "message": "响应支持的浏览器下载协议（$PROTOCOLS$）",
@@ -420,19 +433,16 @@
     "description": "Message shown in settings page when something is very wrong."
   },
   "Logging_in": {
-    "message": "测试连接中...",
-    "description": "Message for login status.",
-    "needs_update": true
+    "message": "登录中...",
+    "description": "Message for login status."
   },
   "Logging_in_this_is_unusually_slow_is_your_NAS_asleep": {
-    "message": "测试连接中...（等待超过了正常时间，NAS 是否休眠了？）",
-    "description": "Message for login status.",
-    "needs_update": true
+    "message": "登录中...（等待超过了正常时间，NAS 是否休眠了？）",
+    "description": "Message for login status."
   },
   "Login_successful": {
-    "message": "连接成功！",
-    "description": "Message for login status.",
-    "needs_update": true
+    "message": "登录成功！",
+    "description": "Message for login status."
   },
   "Connection_settings_are_not_configured": {
     "message": "未配置连接选项",
@@ -448,6 +458,14 @@
   },
   "Connection_timed_out_Check_your_hostnameport_settings_and_internet_connection": {
     "message": "连接超时。请检查主机名端口是否正确，网络连接是否正常",
+    "description": "Connection failure explanatory text."
+  },
+  "Connection_rejected_You_have_to_grant_permissions_to_access_the_network_in_the_browser_settings": {
+    "message": "连接被拒绝。请在浏览器设置中授予访问网络的权限。",
+    "description": "Connection failure explanatory text."
+  },
+  "An_internal_error_occurred_See_the_browser_console_for_details": {
+    "message": "发生内部错误。详情请查看浏览器控制台。",
     "description": "Connection failure explanatory text."
   },
   "Connection_failed_for_an_unknown_reason": {
@@ -675,6 +693,20 @@
   "No_directories": {
     "message": "无根文件夹",
     "description": "Message in advanced add form if there are no root directories."
+  },
+  "Adding_this_download_is_taking_a_while": {
+    "message": "添加此下载花费的时间较长...",
+    "description": "Notification title."
+  },
+  "Adding_ZcountZ_downloads_is_taking_a_while": {
+    "message": "添加 $COUNT$ 个下载花费的时间较长...",
+    "description": "Notification title.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
   },
   "ZcountZ_downloads_added": {
     "message": "$COUNT$ 个任务已添加",

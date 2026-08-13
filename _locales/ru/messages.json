@@ -12,6 +12,16 @@
     "message": "Загрузка завершена",
     "description": "Notification body text."
   },
+  "ZcountZ_downloads_finished": {
+    "message": "Завершено загрузок: $COUNT$",
+    "description": "Notification title.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "Download_with_DownloadStation": {
     "message": "Скачать с помощью DownloadStation",
     "description": "Context menu item title."
@@ -57,6 +67,10 @@
   "Unexpected_error_please_check_your_settings_and_try_again": {
     "message": "Непредвиденная ошибка; проверьте настройки и повторите попытку",
     "description": "Notification body text."
+  },
+  "URLs_to_download_one_per_line": {
+    "message": "URL-адреса для загрузки (по одному в строке)...",
+    "description": "Placeholder for advanced-add form."
   },
   "Download_to": {
     "message": "Скачать в",
@@ -131,6 +145,10 @@
   "Configure_your_hostname_username_and_password_in_settings": {
     "message": "Настройте имя хоста, имя пользователя и пароль в настройках.",
     "description": "Body text for popup when no tasks are shown because nothing is configured."
+  },
+  "Password_required": {
+    "message": "Требуется пароль.",
+    "description": "Body text for popup when user is being asked to log in again."
   },
   "No_download_tasks": {
     "message": "Нет задач загрузки.",
@@ -312,9 +330,37 @@
     "message": "выполнено %, сначала наибольшее",
     "description": "Task sort order type."
   },
+  "Badge_shows": {
+    "message": "На значке отображается",
+    "description": "Prefix text for badge-display-type dropdown."
+  },
+  "total_task_count": {
+    "message": "общее количество задач",
+    "description": "Badge display type."
+  },
+  "filtered_task_count": {
+    "message": "количество отфильтрованных задач",
+    "description": "Badge display type."
+  },
+  "completed_task_count": {
+    "message": "количество завершённых задач",
+    "description": "Badge display type."
+  },
+  "Show_inactive_tasks": {
+    "message": "Показывать неактивные задачи",
+    "description": "Task status filtering checkbox label."
+  },
+  "Tasks_with_nonzero_uploaddownload_speeds_are_active": {
+    "message": "Задачи с ненулевой скоростью раздачи или загрузки считаются активными",
+    "description": "Explanatory text for task filtering checkbox."
+  },
   "Connection": {
     "message": "Соединение",
     "description": "Header for settings section."
+  },
+  "Please_note_that_QuickConnect_IDs_and_twofactor_authentication_are_not_currently_supported": {
+    "message": "Обратите внимание: идентификаторы QuickConnect и двухфакторная аутентификация пока не поддерживаются.",
+    "description": "Subheader for Connection settings section."
   },
   "hostname_or_IP_address": {
     "message": "имя хоста или IP-адрес",
@@ -331,6 +377,14 @@
   "Password": {
     "message": "Пароль",
     "description": "Label for field on settings page."
+  },
+  "Remember_Password": {
+    "message": "Запомнить пароль",
+    "description": "Label for checkbox on settings page."
+  },
+  "Login": {
+    "message": "Войти",
+    "description": "Label for button on settings page."
   },
   "Task_Display_Settings": {
     "message": "Настройки отображения задач",
@@ -352,6 +406,10 @@
     "message": "Уведомлять о завершении загрузки",
     "description": "Label for option on settings page."
   },
+  "Checking_for_completed_downloads_will_prevent_your_NAS_from_sleeping": {
+    "message": "Проверка завершённых загрузок не даст сетевому хранилищу перейти в спящий режим.",
+    "description": "Subtitle for the download completion notification option on the settings page."
+  },
   "Handle_opening_downloadable_link_types_ZprotocolsZ": {
     "message": "Работа с открывающимися загружаемыми типами ссылок ($PROTOCOLS$)",
     "description": "Label for option on settings page.",
@@ -370,45 +428,49 @@
     "message": "Очистить вывод",
     "description": "Button text for clearing debugging output."
   },
+  "Cannot_save_settings_This_is_a_bug_please_file_an_issue": {
+    "message": "Не удалось сохранить настройки. Это ошибка; пожалуйста, сообщите о ней.",
+    "description": "Message shown in settings page when something is very wrong."
+  },
   "Logging_in": {
-    "message": "Тестирование соединения...",
-    "description": "Message for login status.",
-    "needs_update": true
+    "message": "Вход...",
+    "description": "Message for login status."
   },
   "Logging_in_this_is_unusually_slow_is_your_NAS_asleep": {
-    "message": "Проверка соединения... (это необычайно медленно, сетевое хранилище спит?)",
-    "description": "Message for login status.",
-    "needs_update": true
+    "message": "Вход... (это необычайно медленно, сетевое хранилище спит?)",
+    "description": "Message for login status."
   },
   "Login_successful": {
-    "message": "Соединение успешно выполнено!",
-    "description": "Message for login status.",
-    "needs_update": true
+    "message": "Вход выполнен успешно!",
+    "description": "Message for login status."
   },
   "Connection_settings_are_not_configured": {
-    "message": "Ошибка соединения (отсутствует конфигурация соединения).",
-    "description": "Connection failure explanatory text.",
-    "needs_update": true
+    "message": "Настройки подключения не заданы.",
+    "description": "Connection failure explanatory text."
   },
   "Connection_failed_Likely_cause_wrong_protocol": {
-    "message": "Ошибка подключения (вероятно, неверный протокол).",
-    "description": "Connection failure explanatory text.",
-    "needs_update": true
+    "message": "Не удалось подключиться. Вероятная причина: неверный протокол.",
+    "description": "Connection failure explanatory text."
   },
   "Connection_failed_Likely_cause_wrong_hostnameport_no_internet_connection_or_invalid_certificate": {
-    "message": "Ошибка подключения (вероятно, неверное имя хоста/порт, нет подключения к Интернету или неверный сертификат).",
-    "description": "Connection failure explanatory text.",
-    "needs_update": true
+    "message": "Не удалось подключиться. Вероятная причина: неверное имя хоста/порт, нет подключения к интернету или недействительный сертификат.",
+    "description": "Connection failure explanatory text."
   },
   "Connection_timed_out_Check_your_hostnameport_settings_and_internet_connection": {
-    "message": "Ошибка подключения (время вышло; проверьте настройки имени хоста/порта и подключение к интернету).",
-    "description": "Connection failure explanatory text.",
-    "needs_update": true
+    "message": "Истекло время ожидания подключения. Проверьте настройки имени хоста/порта и подключение к интернету.",
+    "description": "Connection failure explanatory text."
+  },
+  "Connection_rejected_You_have_to_grant_permissions_to_access_the_network_in_the_browser_settings": {
+    "message": "Подключение отклонено. Необходимо предоставить разрешение на доступ к сети в настройках браузера.",
+    "description": "Connection failure explanatory text."
+  },
+  "An_internal_error_occurred_See_the_browser_console_for_details": {
+    "message": "Произошла внутренняя ошибка. Подробности см. в консоли браузера.",
+    "description": "Connection failure explanatory text."
   },
   "Connection_failed_for_an_unknown_reason": {
-    "message": "Ошибка подключения (неизвестная причина).",
-    "description": "Connection failure explanatory text.",
-    "needs_update": true
+    "message": "Не удалось подключиться по неизвестной причине.",
+    "description": "Connection failure explanatory text."
   },
   "Unknown_error_displaying_tasks": {
     "message": "Неизвестная ошибка при отображении задач.",
@@ -431,15 +493,14 @@
     "description": "Suffix for action text for the popup when asking the user to file a bug when we have a fatal rendering error."
   },
   "Clear_ZcountZ_completed_and_not_uploading_tasks": {
-    "message": "Очистить $COUNT$ выполненых задач",
+    "message": "Очистить $COUNT$ завершённых задач без раздачи",
     "description": "Label for button to clear completed download tasks.",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "1"
       }
-    },
-    "needs_update": true
+    }
   },
   "Unknown_error": {
     "message": "Неизвестная ошибка.",
@@ -471,6 +532,10 @@
   },
   "Session_interrupted_by_duplicate_login": {
     "message": "Сессия прервана повторным входом в систему.",
+    "description": "Error message on Synology API call failure."
+  },
+  "SID_not_found": {
+    "message": "SID не найден.",
     "description": "Error message on Synology API call failure."
   },
   "No_such_username_or_incorrect_password": {
@@ -518,9 +583,8 @@
     "description": "Error message on Synology API call failure."
   },
   "No_default_destination_is_set_in_Download_Station_for_this_Synology_user": {
-    "message": "Нет места назначения по умолчанию.",
-    "description": "Error message on Synology API call failure.",
-    "needs_update": true
+    "message": "Для этого пользователя Synology в Download Station не задано место назначения по умолчанию.",
+    "description": "Error message on Synology API call failure."
   },
   "Set_destination_failed": {
     "message": "Не удалось установить места назначения.",
@@ -621,5 +685,89 @@
   "No_such_task_of_the_file_operation": {
     "message": "Нет такой задачи работы с файлом.",
     "description": "Error message on Synology API call failure."
+  },
+  "Loading_directories": {
+    "message": "Загрузка каталогов...",
+    "description": "Message while waiting for directories to load in advanced add form."
+  },
+  "No_directories": {
+    "message": "Нет каталогов.",
+    "description": "Message in advanced add form if there are no root directories."
+  },
+  "Adding_this_download_is_taking_a_while": {
+    "message": "Добавление этой загрузки занимает больше времени, чем обычно...",
+    "description": "Notification title."
+  },
+  "Adding_ZcountZ_downloads_is_taking_a_while": {
+    "message": "Добавление $COUNT$ загрузок занимает больше времени, чем обычно...",
+    "description": "Notification title.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "ZcountZ_downloads_added": {
+    "message": "Добавлено загрузок: $COUNT$",
+    "description": "Notification body text.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "Failed_to_add_ZcountZ_downloads": {
+    "message": "Не удалось добавить загрузок: $COUNT$",
+    "description": "Notification body text.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "ZsuccessZ_downloads_added_ZfailedZ_failed": {
+    "message": "Добавлено загрузок: $SUCCESS$; не удалось: $FAILED$",
+    "description": "Notification body text.",
+    "placeholders": {
+      "success": {
+        "content": "$1",
+        "example": "2"
+      },
+      "failed": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "Try_adding_downloads_individually_andor_checking_your_URLs_or_settings": {
+    "message": "Попробуйте добавить загрузки по одной и/или проверьте URL-адреса и настройки",
+    "description": "Notification body text."
+  },
+  "No_downloadable_URLs_provided": {
+    "message": "Не указано ни одного загружаемого URL-адреса",
+    "description": "Notification body text."
+  },
+  "Please_be_patient_this_may_take_some_time": {
+    "message": "Пожалуйста, подождите; это может занять некоторое время...",
+    "description": "Notification body text."
+  },
+  "FTP_username": {
+    "message": "Имя пользователя FTP...",
+    "description": "Placeholder for input field in add-download form."
+  },
+  "FTP_password": {
+    "message": "Пароль FTP...",
+    "description": "Placeholder for input field in add-download form."
+  },
+  "Unzip_password": {
+    "message": "Пароль для распаковки...",
+    "description": "Placeholder for input field in add-download form."
+  },
+  "Auto_Extract_service_is_disabled_in_Download_Station": {
+    "message": "Служба автоматической распаковки отключена в Download Station.",
+    "description": "Explanatory text for disabled input field in add-download form."
   }
 }

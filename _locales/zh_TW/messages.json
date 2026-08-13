@@ -12,6 +12,16 @@
     "message": "下載已完成",
     "description": "Notification body text."
   },
+  "ZcountZ_downloads_finished": {
+    "message": "$COUNT$ 個下載已完成",
+    "description": "Notification title.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "Download_with_DownloadStation": {
     "message": "使用 Download Station 下載",
     "description": "Context menu item title."
@@ -396,6 +406,10 @@
     "message": "下載完成時顯示通知",
     "description": "Label for option on settings page."
   },
+  "Checking_for_completed_downloads_will_prevent_your_NAS_from_sleeping": {
+    "message": "檢查下載是否完成會使 NAS 無法進入休眠狀態。",
+    "description": "Subtitle for the download completion notification option on the settings page."
+  },
   "Handle_opening_downloadable_link_types_ZprotocolsZ": {
     "message": "閈啟支援的下載連結類型（$PROTOCOLS$）",
     "description": "Label for option on settings page.",
@@ -444,6 +458,14 @@
   },
   "Connection_timed_out_Check_your_hostnameport_settings_and_internet_connection": {
     "message": "連接逾時。請檢查主機名連接埠是否正確，網路連線是否正常",
+    "description": "Connection failure explanatory text."
+  },
+  "Connection_rejected_You_have_to_grant_permissions_to_access_the_network_in_the_browser_settings": {
+    "message": "連接被拒絕。請在瀏覽器設定中授予存取網路的權限。",
+    "description": "Connection failure explanatory text."
+  },
+  "An_internal_error_occurred_See_the_browser_console_for_details": {
+    "message": "發生內部錯誤。詳情請查看瀏覽器主控台。",
     "description": "Connection failure explanatory text."
   },
   "Connection_failed_for_an_unknown_reason": {
@@ -671,6 +693,20 @@
   "No_directories": {
     "message": "無根資料夾",
     "description": "Message in advanced add form if there are no root directories."
+  },
+  "Adding_this_download_is_taking_a_while": {
+    "message": "新增此下載花費的時間較長...",
+    "description": "Notification title."
+  },
+  "Adding_ZcountZ_downloads_is_taking_a_while": {
+    "message": "新增 $COUNT$ 個下載花費的時間較長...",
+    "description": "Notification title.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
   },
   "ZcountZ_downloads_added": {
     "message": "已新增 $COUNT$ 個下載",
