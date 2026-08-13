@@ -1,7 +1,7 @@
 {
   "Add_and_manage_Download_Station_tasks_on_your_Synology_DiskStation": {
     "message": "Fügen Sie Aufgaben der Download Station auf Ihrer Synology DiskStation hinzu und verwalten Sie sie.",
-    "description": "Beschreibung der Erweiterung.",
+    "description": "A description of the extension.",
     "test_skip_reference_check": true
   },
   "Download_added": {

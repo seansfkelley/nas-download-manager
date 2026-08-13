@@ -178,5 +178,17 @@ describe("i18n", () => {
         );
       },
     );
+
+    // Descriptions are instructions for translators, not translated content.
+    it.each(OTHER_LOCALES)(
+      '"%s" locale should copy its descriptions verbatim from the default locale',
+      (locale) => {
+        const defaultMessages = loadLocale(DEFAULT_LOCALE);
+        const messages = loadLocale(locale);
+        for (const messageName of Object.keys(messages)) {
+          expect(messages[messageName].description).toBe(defaultMessages[messageName]?.description);
+        }
+      },
+    );
   });
 });

@@ -1,48 +1,48 @@
 {
   "Add_and_manage_Download_Station_tasks_on_your_Synology_DiskStation": {
     "message": "Добавляйте и управляйте задачами Download Station на сервере Synology DiskStation.",
-    "description": "Описание расширения.",
+    "description": "A description of the extension.",
     "test_skip_reference_check": true
   },
   "Download_added": {
     "message": "Загрузка добавлена",
-    "description": "Основной текст уведомления."
+    "description": "Notification body text."
   },
   "Download_finished": {
     "message": "Загрузка завершена",
-    "description": "Основной текст уведомления."
+    "description": "Notification body text."
   },
   "Download_with_DownloadStation": {
     "message": "Скачать с помощью DownloadStation",
-    "description": "Заголовок пункта контекстного меню."
+    "description": "Context menu item title."
   },
   "Selected_text_is_not_a_valid_URL": {
     "message": "Выделенный текст не является допустимым URL-адресом",
-    "description": "Основной текст уведомления."
+    "description": "Notification body text."
   },
   "Failed_to_connect_to_DiskStation": {
     "message": "Не удалось подключиться к DiskStation",
-    "description": "Название уведомления."
+    "description": "Notification title."
   },
   "Please_check_your_settings": {
     "message": "Пожалуйста, проверьте свои настройки",
-    "description": "Основной текст уведомления."
+    "description": "Notification body text."
   },
   "eMule_is_not_enabled": {
     "message": "eMule не включен",
-    "description": "Название уведомления."
+    "description": "Notification title."
   },
   "Use_DSM_to_enable_eMule_downloads": {
     "message": "Используйте DSM для включения загрузки eMule",
-    "description": "Основной текст уведомления."
+    "description": "Notification body text."
   },
   "Failed_to_add_download": {
     "message": "Не удалось добавить загрузку",
-    "description": "Название уведомления."
+    "description": "Notification title."
   },
   "URL_must_start_with_one_of_ZprotocolsZ": {
     "message": "URL-адрес должен начинаться с одного из $PROTOCOLS$.",
-    "description": "Основной текст уведомления.",
+    "description": "Notification body text.",
     "placeholders": {
       "protocols": {
         "content": "$1",
@@ -52,55 +52,55 @@
   },
   "URL_is_empty_or_missing": {
     "message": "URL-адрес пуст или отсутствует",
-    "description": "Основной текст уведомления."
+    "description": "Notification body text."
   },
   "Unexpected_error_please_check_your_settings_and_try_again": {
     "message": "Непредвиденная ошибка; проверьте настройки и повторите попытку",
-    "description": "Основной текст уведомления."
+    "description": "Notification body text."
   },
   "Download_to": {
     "message": "Скачать в",
-    "description": "Указатель для имени каталога в 'Дополнительно->Добавить'."
+    "description": "Lead-in for directory name in advanced-add form."
   },
   "default_location": {
     "message": "расположение по умолчанию",
-    "description": "Значение по умолчанию для имени каталога формы в 'Дополнительно->Добавить'."
+    "description": "Default value for directory name in advanced-add form."
   },
   "Dont_add_a_new_task": {
     "message": "Не добавляйте новую задачу",
-    "description": "Подсказка для кнопки отмены формы в 'Дополнительно->Добавить'"
+    "description": "Tooltip for advanced-add form's Cancel button."
   },
   "Cancel": {
     "message": "Отмена",
-    "description": "Текст кнопки отмены формы 'Дополнительно->Добавить'."
+    "description": "Text for advanced-add form's Cancel button."
   },
   "Download_the_above_URL_to_the_specified_location": {
     "message": "Загрузить указанный выше URL-адрес в указанное расположение",
-    "description": "Подсказка для кнопки добавления формы 'Дополнительно->Добавить'."
+    "description": "Tooltop for advanced-add form's Add button."
   },
   "Add": {
     "message": "Добавить",
-    "description": "Текст кнопки добавления формы 'Дополнительно->Добавить'."
+    "description": "Text for advanced-add form's Add button."
   },
   "Loading": {
     "message": "Загрузка...",
-    "description": "Общий текст загрузки."
+    "description": "Generic loading text."
   },
   "Expandcollapse_directory": {
     "message": "Развернуть/свернуть каталог",
-    "description": "Подсказка для кнопки развернуть/свернуть в дереве каталогов."
+    "description": "Tooltip for expand/collapse button in directory tree view."
   },
   "Updating_download_tasks": {
     "message": "Обновление задач загрузки...",
-    "description": "Подсказка для текста 'обновление-в-прогрессе' во всплывающем заголовке."
+    "description": "Tooltip for updating-in-progress text in popup header."
   },
   "Error_updating_tasks": {
     "message": "Ошибка обновления задач",
-    "description": "Текст для всплывающего заголовка при ошибке загрузки."
+    "description": "Text for popup header on load failure."
   },
   "Updated_ZtimeZ": {
     "message": "Обновлено $TIME$",
-    "description": "Текст для всплывающего заголовка при успешной загрузке.",
+    "description": "Text for popup header on load success.",
     "placeholders": {
       "time": {
         "content": "$1",
@@ -110,39 +110,39 @@
   },
   "updating_now": {
     "message": "(обновление)",
-    "description": "Помимо всплывающей подсказки для всплывающего заголовка, когда выполняется обновление."
+    "description": "Aside for tooltip on popup header when an update is in progress."
   },
   "Add_download": {
     "message": "Добавить загрузку...",
-    "description": "Подсказка для всплывающей кнопки заголовка."
+    "description": "Tooltip for popup header button."
   },
   "Open_DownloadStation_UI": {
     "message": "Открыть интерфейс DownloadStation...",
-    "description": "Подсказка для всплывающей кнопки заголовка."
+    "description": "Tooltip for popup header button."
   },
   "Show_task_display_settings": {
     "message": "Показать настройки отображения задач...",
-    "description": "Подсказка для всплывающей кнопки заголовка."
+    "description": "Tooltip for popup header button."
   },
   "Open_settings": {
     "message": "Открыть настройки...",
-    "description": "Подсказка для всплывающей кнопки заголовка."
+    "description": "Tooltip for popup header button."
   },
   "Configure_your_hostname_username_and_password_in_settings": {
     "message": "Настройте имя хоста, имя пользователя и пароль в настройках.",
-    "description": "Текст для всплывающего окна, когда нет задач, потому что ничего не настроено."
+    "description": "Body text for popup when no tasks are shown because nothing is configured."
   },
   "No_download_tasks": {
     "message": "Нет задач загрузки.",
-    "description": "Текст для всплывающего окна, когда нет задач, потому что их нет."
+    "description": "Body text for popup when no tasks are shown because there are none."
   },
   "Download_tasks_exist_but_none_match_your_filters": {
     "message": "Задачи загрузки существуют, но ни один из них не соответствует вашим фильтрам.",
-    "description": "Основной текст для всплывающего окна, когда задачи не отображаются, потому что они все отфильтрованы."
+    "description": "Body text for popup when no tasks are shown because they're all filtered out."
   },
   "and_ZcountZ_more_tasks_hidden_by_filters": {
     "message": "...и более $COUNT$ задач скрыто.",
-    "description": "Завершающий текст после списка задач, когда некоторые задачи скрыты фильтрами.",
+    "description": "Trailing text after task list when some tasks are hidden by filters.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -152,23 +152,23 @@
   },
   "Remove_download": {
     "message": "Удалить загрузку",
-    "description": "Подсказка для кнопки удалить в элементе списка задач."
+    "description": "Tooltip for delete button on a task list item."
   },
   "Resume": {
     "message": "Продолжить",
-    "description": "Подсказка для кнопки возобновить в элементе списка задач."
+    "description": "Tooltip for resume button on a task list item."
   },
   "Start_seeding": {
     "message": "Запустить раздачу",
-    "description": "Всплывающая подсказка для кнопки начала раздачи в элементе списка задач."
+    "description": "Tooltip for start-seeding button on a task list item."
   },
   "Pause": {
     "message": "Приостановить",
-    "description": "Подсказка для кнопки паузы в элементе списка задач."
+    "description": "Tooltip for pause button on a task list item."
   },
   "ZpercentZ_ZestimateZ_ZcurrentZ_of_ZtotalZ_at_ZspeedZ": {
     "message": "$PERCENT$ \u2013 $ESTIMATE$ \u2013 $CURRENT$ из $TOTAL$ на $SPEED$",
-    "description": "Префикс субтитров для загружаемой в данный момент задачи, показывающий статистику.",
+    "description": "Subtitle prefix for currently-downloading task showing stats.",
     "placeholders": {
       "percent": {
         "content": "$1",
@@ -194,7 +194,7 @@
   },
   "ZetaZ_remaining": {
     "message": "Осталось $ETA$",
-    "description": "Суффикс субтитров для загружаемой в данный момент задачи.",
+    "description": "Subtitle suffix for currently-downloading task.",
     "placeholders": {
       "eta": {
         "content": "$1",
@@ -204,11 +204,11 @@
   },
   "no_estimate": {
     "message": "нет оценки",
-    "description": "Суффикс субтитров для загружаемой в данный момент задачи."
+    "description": "Subtitle suffix for currently-downloading task."
   },
   "ZratioZ_ratio_ZtotalZ_uploaded_at_ZspeedZ": {
     "message": "Коэфициент $RATIO$ \u2013 загружено $TOTAL$ на $SPEED$",
-    "description": "Подзаголовок для загружаемой в данный момент задачи, показывающий статистику.",
+    "description": "Subtitle for currently-uploading task showing stats.",
     "placeholders": {
       "ratio": {
         "content": "$1",
@@ -226,7 +226,7 @@
   },
   "100_ZtotalZ_downloaded": {
     "message": "100% \u2013 загружено $TOTAL$",
-    "description": "Подзаголовок для завершенной, не загружающей задачи, отображающей статистику.",
+    "description": "Subtitle for completed, not-uploading task showing stats.",
     "placeholders": {
       "total": {
         "content": "$1",
@@ -258,67 +258,67 @@
   },
   "Downloading": {
     "message": "Загрузка",
-    "description": "Категория фильтрации состояния задачи."
+    "description": "Task status filtering category."
   },
   "Completed_uploading": {
     "message": "Завершено, раздаётся",
-    "description": "Категория фильтрации состояния задачи."
+    "description": "Task status filtering category."
   },
   "Completed_not_uploading": {
     "message": "Завершено, не раздаётся",
-    "description": "Категория фильтрации состояния задачи."
+    "description": "Task status filtering category."
   },
   "Errored": {
     "message": "Ошибка",
-    "description": "Категория фильтрации состояния задачи."
+    "description": "Task status filtering category."
   },
   "Other": {
     "message": "Другое",
-    "description": "Категория фильтрации состояния задачи."
+    "description": "Task status filtering category."
   },
   "Order_tasks_by": {
     "message": "Упорядочить задачи по",
-    "description": "Текст префикса для выпадающего списка типа сортировки задач."
+    "description": "Prefix text for task-sort-type dropdown."
   },
   "name_AZ": {
     "message": "имя, а-яA-Z",
-    "description": "Тип сортировки задач."
+    "description": "Task sort order type."
   },
   "name_ZA": {
     "message": "имя, я-аZ-A",
-    "description": "Тип сортировки задач."
+    "description": "Task sort order type."
   },
   "date_added_newest_first": {
     "message": "дата добавления, сначала новые",
-    "description": "Тип сортировки задач."
+    "description": "Task sort order type."
   },
   "date_added_oldest_first": {
     "message": "дата добавления, сначала старые",
-    "description": "Тип сортировки задач."
+    "description": "Task sort order type."
   },
   "date_completed_newest_first": {
     "message": "дата завершения, сначала самое новое",
-    "description": "Тип сортировки задач."
+    "description": "Task sort order type."
   },
   "date_completed_oldest_first": {
     "message": "дата завершения, сначала самое старое",
-    "description": "Тип сортировки задач."
+    "description": "Task sort order type."
   },
   "_complete_least_first": {
     "message": "выполнено %, сначала наименьшее",
-    "description": "Тип сортировки задач."
+    "description": "Task sort order type."
   },
   "_complete_most_first": {
     "message": "выполнено %, сначала наибольшее",
-    "description": "Тип сортировки задач."
+    "description": "Task sort order type."
   },
   "Connection": {
     "message": "Соединение",
-    "description": "Заголовок для раздела настроек."
+    "description": "Header for settings section."
   },
   "hostname_or_IP_address": {
     "message": "имя хоста или IP-адрес",
-    "description": "Заполнитель для поля ввода настроек."
+    "description": "Placeholder for settings input field."
   },
   "Host": {
     "message": "Хост",
@@ -326,35 +326,35 @@
   },
   "Username": {
     "message": "Имя пользователя",
-    "description": "Метка для поля на странице настроек."
+    "description": "Label for field on settings page."
   },
   "Password": {
     "message": "Пароль",
-    "description": "Метка для поля на странице настроек."
+    "description": "Label for field on settings page."
   },
   "Task_Display_Settings": {
     "message": "Настройки отображения задач",
-    "description": "Заголовок для раздела настроек."
+    "description": "Header for settings section."
   },
   "Display_these_task_types_in_the_popup_menu": {
     "message": "Отображать эти типы задач во всплывающем меню.",
-    "description": "Подзаголовок для раздела настроек списка загрузок."
+    "description": "Subheader for Downloads List settings section."
   },
   "Miscellaneous": {
     "message": "Разное",
-    "description": "Заголовок для раздела настроек."
+    "description": "Header for settings section."
   },
   "Notify_when_adding_downloads": {
     "message": "Уведомлять при добавлении загрузок",
-    "description": "Метка для опции на странице настроек."
+    "description": "Label for option on settings page."
   },
   "Notify_when_downloads_complete": {
     "message": "Уведомлять о завершении загрузки",
-    "description": "Метка для опции на странице настроек."
+    "description": "Label for option on settings page."
   },
   "Handle_opening_downloadable_link_types_ZprotocolsZ": {
     "message": "Работа с открывающимися загружаемыми типами ссылок ($PROTOCOLS$)",
-    "description": "Метка для опции на странице настроек.",
+    "description": "Label for option on settings page.",
     "placeholders": {
       "protocols": {
         "content": "$1",
@@ -364,75 +364,75 @@
   },
   "Debugging_Output": {
     "message": "Вывод отладки",
-    "description": "Заголовок для раздела настроек."
+    "description": "Header for settings section."
   },
   "Clear_output": {
     "message": "Очистить вывод",
-    "description": "Текст кнопки для очистки результатов отладки."
+    "description": "Button text for clearing debugging output."
   },
   "Logging_in": {
     "message": "Тестирование соединения...",
-    "description": "Сообщение о статусе проверки соединения.",
+    "description": "Message for login status.",
     "needs_update": true
   },
   "Logging_in_this_is_unusually_slow_is_your_NAS_asleep": {
     "message": "Проверка соединения... (это необычайно медленно, сетевое хранилище спит?)",
-    "description": "Сообщение о статусе проверки соединения.",
+    "description": "Message for login status.",
     "needs_update": true
   },
   "Login_successful": {
     "message": "Соединение успешно выполнено!",
-    "description": "Сообщение о состоянии проверки соединения.",
+    "description": "Message for login status.",
     "needs_update": true
   },
   "Connection_settings_are_not_configured": {
     "message": "Ошибка соединения (отсутствует конфигурация соединения).",
-    "description": "Объяснительный текст сбоя подключения.",
+    "description": "Connection failure explanatory text.",
     "needs_update": true
   },
   "Connection_failed_Likely_cause_wrong_protocol": {
     "message": "Ошибка подключения (вероятно, неверный протокол).",
-    "description": "Объяснительный текст сбоя подключения.",
+    "description": "Connection failure explanatory text.",
     "needs_update": true
   },
   "Connection_failed_Likely_cause_wrong_hostnameport_no_internet_connection_or_invalid_certificate": {
     "message": "Ошибка подключения (вероятно, неверное имя хоста/порт, нет подключения к Интернету или неверный сертификат).",
-    "description": "Объяснительный текст сбоя подключения.",
+    "description": "Connection failure explanatory text.",
     "needs_update": true
   },
   "Connection_timed_out_Check_your_hostnameport_settings_and_internet_connection": {
     "message": "Ошибка подключения (время вышло; проверьте настройки имени хоста/порта и подключение к интернету).",
-    "description": "Объяснительный текст сбоя подключения.",
+    "description": "Connection failure explanatory text.",
     "needs_update": true
   },
   "Connection_failed_for_an_unknown_reason": {
     "message": "Ошибка подключения (неизвестная причина).",
-    "description": "Объяснительный текст сбоя подключения.",
+    "description": "Connection failure explanatory text.",
     "needs_update": true
   },
   "Unknown_error_displaying_tasks": {
     "message": "Неизвестная ошибка при отображении задач.",
-    "description": "Основной пояснительный текст для всплывающего окна, когда мы имеем фатальную ошибку визуализации."
+    "description": "Main explanatory text for the popup when we have a fatal rendering error."
   },
   "Your_download_tasks_are_not_affected": {
     "message": "Это не влияет на выполнение задач по загрузке.",
-    "description": "Обнадеживающий пояснительный текст, когда у нас возникает фатальная ошибка визуализации."
+    "description": "Reassuring explanatory text for when we have a fatal rendering error."
   },
   "Please_": {
     "message": "Пожалуйста ",
-    "description": "Префикс для текста действия для всплывающего окна, когда пользователь просит сообщить об ошибке, когда мы имеем фатальную ошибку визуализации."
+    "description": "Prefix for action text for the popup when asking the user to file a bug when we have a fatal rendering error."
   },
   "file_a_bug": {
     "message": "сообщите об ошибке",
-    "description": "Текст ссылки для всплывающего окна при обращении к пользователю с просьбой отправить сообщение об ошибке при обнаружении фатальной ошибки визуализации."
+    "description": "Live link text for action text for the popup when asking the user to file a bug when we have a fatal rendering error."
   },
   "_and_include_the_information_below": {
     "message": " и включите информацию ниже.",
-    "description": "Суффикс для текста действия для всплывающего окна, когда пользователь просит сообщить об ошибке, когда у нас возникает фатальная ошибка визуализации."
+    "description": "Suffix for action text for the popup when asking the user to file a bug when we have a fatal rendering error."
   },
   "Clear_ZcountZ_completed_and_not_uploading_tasks": {
     "message": "Очистить $COUNT$ выполненых задач",
-    "description": "Метка для кнопки, чтобы очистить выполненные задачи загрузки.",
+    "description": "Label for button to clear completed download tasks.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -443,183 +443,183 @@
   },
   "Unknown_error": {
     "message": "Неизвестная ошибка.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "Invalid_parameter": {
     "message": "Неверный параметр.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "The_requested_API_does_not_exist": {
     "message": "Запрашиваемый API не существует.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "The_requested_method_does_not_exist": {
     "message": "Запрашиваемый метод не существует.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "The_requested_version_does_not_support_this_functionality": {
     "message": "Запрошенная функция не поддерживает эту версию.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "The_logged_in_session_does_not_have_permission": {
     "message": "Вход в сеанс не имеет разрешения.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "Session_timeout": {
     "message": "Вышло время сеанса.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "Session_interrupted_by_duplicate_login": {
     "message": "Сессия прервана повторным входом в систему.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "No_such_username_or_incorrect_password": {
     "message": "Такого имени пользователя не существует или неверный пароль.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "Account_disabled": {
     "message": "Учетная запись отключена.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "Permission_denied": {
     "message": "Доступ запрещен.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "Twostep_verification_needed": {
     "message": "Требуется двухэтапная проверка.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "Twostep_verification_failed": {
     "message": "Двухэтапная проверка не удалась.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "File_upload_failed": {
     "message": "Ошибка загрузки файла.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "Max_number_of_tasks_reached": {
     "message": "Достигнуто максимальное количество выполненных задач.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "Destination_denied": {
     "message": "Место назначения отклонено.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "Destination_does_not_exist": {
     "message": "Место назначения не существует.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "Invalid_task_ID": {
     "message": "Недопустимый ID задачи.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "Invalid_task_action": {
     "message": "Недопустимое действие задачи.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "No_default_destination_is_set_in_Download_Station_for_this_Synology_user": {
     "message": "Нет места назначения по умолчанию.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API.",
+    "description": "Error message on Synology API call failure.",
     "needs_update": true
   },
   "Set_destination_failed": {
     "message": "Не удалось установить места назначения.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "File_does_not_exist": {
     "message": "Файла не существует.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "Invalid_parameter_of_file_operation": {
     "message": "Недопустимый параметр работы с файлом.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "Unknown_error_of_file_operation": {
     "message": "Неизвестная ошибка работы с файлом.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "System_is_too_busy": {
     "message": "Система слишком занята.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "Invalid_user_does_this_file_operation": {
     "message": "Недопустимый пользователь выполняет эту операцию с файлом.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "Invalid_group_does_this_file_operation": {
     "message": "Недопустимая группа выполняет эту операцию с файлом.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "Invalid_user_and_group_does_this_file_operation": {
     "message": "Недопустимый пользователь и группа выполняет эту операцию с файлом.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "Cant_get_usergroup_information_from_the_account_server": {
     "message": "Не удается получить информацию о пользователе/группе с сервера учетных записей.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "Operation_not_permitted": {
     "message": "Операция не разрешена.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "No_such_file_or_directory": {
     "message": "Нет такого файла или каталога.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "Nonsupported_file_system": {
     "message": "Файловая система не поддерживается.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "Failed_to_connect_internetbased_file_system_ex_CIFS": {
     "message": "Не удалось подключить файловую систему на базе Интернета (например: CIFS).",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "Readonly_file_system": {
     "message": "Файловая система только для чтения.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "Filename_too_long_in_the_nonencrypted_file_system": {
     "message": "Имя файла слишком длинное в незашифрованной файловой системе.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "Filename_too_long_in_the_encrypted_file_system": {
     "message": "Имя файла слишком длинное в зашифрованной файловой системе.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "File_already_exists": {
     "message": "Файл уже существует.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "Disk_quota_exceeded": {
     "message": "Превышена дисковая квота.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "No_space_left_on_device": {
     "message": "На устройстве не осталось места.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "Inputoutput_error": {
     "message": "Ошибка ввода/вывода.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "Illegal_name_or_path": {
     "message": "Неверное имя или путь.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "Illegal_file_name": {
     "message": "Неверное имя файла.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "Illegal_file_name_on_FAT_file_system": {
     "message": "Illegal file name on FAT file system.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "Device_or_resource_busy": {
     "message": "Устройство или ресурс занят.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   },
   "No_such_task_of_the_file_operation": {
     "message": "Нет такой задачи работы с файлом.",
-    "description": "Сообщение об ошибке при сбое вызова Synology API."
+    "description": "Error message on Synology API call failure."
   }
 }

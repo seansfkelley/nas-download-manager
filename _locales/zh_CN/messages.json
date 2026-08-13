@@ -476,7 +476,7 @@
   },
   "Clear_ZcountZ_completed_and_not_uploading_tasks": {
     "message": "清除 $COUNT$ 个已完成的下载",
-    "description": "Tooltip for button to clear completed download tasks.",
+    "description": "Label for button to clear completed download tasks.",
     "placeholders": {
       "count": {
         "content": "$1",
