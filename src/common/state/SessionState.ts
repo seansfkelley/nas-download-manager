@@ -1,4 +1,4 @@
-import type { SynologyAuth, SynologyClientSettings } from "../apis/synology";
+import type { SynologyLoginParameters, SynologyLoginResult } from "../apis/synology";
 import type { DownloadStationTask } from "../apis/synology/DownloadStation/Task";
 import { nullToUndefined, undefinedToNull } from "../lang";
 
@@ -14,8 +14,8 @@ export interface SessionState extends TaskState {
   // Set imperatively by the login form when the user opts out of remembering their password, in
   // which case the persistent settings deliberately do not have it.
   password?: string;
-  // Tagged with the settings that produced it to detect changes that require reauthorization.
-  auth?: { settings: SynologyClientSettings; auth: SynologyAuth };
+  // Tagged with the login that produced it to detect changes that require reauthorization.
+  auth?: { login: SynologyLoginParameters; auth: SynologyLoginResult };
   // Identifies the most recently initiated task fetch, so that a fetch can discard its own results
   // if a newer one has started in the meantime.
   latestTaskFetchId?: string;

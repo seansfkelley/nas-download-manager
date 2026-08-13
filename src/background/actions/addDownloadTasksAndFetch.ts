@@ -411,12 +411,12 @@ export async function addDownloadTasksAndFetch(
   }
 
   // The client would report this itself, but only per-request and in less specific words, so pre-empt it.
-  const settings = await client.getSettings();
+  const login = await client.getLogin();
 
-  if (ConnectionFailure.is(settings)) {
+  if (ConnectionFailure.is(login)) {
     sendNotification(
       browser.i18n.getMessage("Failed_to_add_download"),
-      getErrorForConnectionFailure(settings),
+      getErrorForConnectionFailure(login),
       "failure",
     );
   } else if (urls.length === 1) {

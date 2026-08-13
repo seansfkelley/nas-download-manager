@@ -30,6 +30,7 @@ export function ConnectionSettings(props: Props) {
     Partial<ConnectionSettingsWithMandatoryPassword>
   >({});
   const [loginStatus, setLoginStatus] = useState<Status>("none");
+  const [otpCode, setOtpCode] = useState("");
   const checkboxId = useId();
 
   const canEditFields = loginStatus !== "in-progress";
@@ -46,12 +47,18 @@ export function ConnectionSettings(props: Props) {
   async function testConnectionAndSave(settings: ConnectionSettingsWithMandatoryPassword) {
     setLoginStatus("in-progress");
 
-    const result = await testConnection(settings);
+    const result = await testConnection(settings, otpCode || undefined);
 
     setLoginStatus(result);
 
     if (!ClientRequestResult.isConnectionFailure(result) && result.success) {
-      props.saveConnectionSettings(settings);
+      // A device token only comes back from a login that used a one-time password, so keep the
+      // existing one when this login didn't need one.
+      props.saveConnectionSettings({
+        ...settings,
+        deviceToken: result.data.did ?? settings.deviceToken,
+      });
+      setOtpCode("");
     }
   }
 
@@ -146,6 +153,25 @@ export function ConnectionSettings(props: Props) {
             }}
           />
           <label htmlFor={checkboxId}>{browser.i18n.getMessage("Remember_Password")}</label>
+        </li>
+
+        <li className="label-and-input">
+          <span className="label">
+            {browser.i18n.getMessage("Twostep_verification_code_optional")}
+          </span>
+          <div className="input">
+            <input
+              type="text"
+              autoComplete="one-time-code"
+              {...disabledPropAndClassName(!canEditFields)}
+              placeholder={browser.i18n.getMessage("Only_if_2step_verification_is_enabled")}
+              value={otpCode}
+              onChange={(e) => {
+                setLoginStatus("none");
+                setOtpCode(e.currentTarget.value.trim());
+              }}
+            />
+          </div>
         </li>
 
         <li>

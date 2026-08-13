@@ -358,8 +358,8 @@
     "message": "Соединение",
     "description": "Header for settings section."
   },
-  "Please_note_that_QuickConnect_IDs_and_twofactor_authentication_are_not_currently_supported": {
-    "message": "Обратите внимание: идентификаторы QuickConnect и двухфакторная аутентификация пока не поддерживаются.",
+  "Please_note_that_QuickConnect_IDs_are_not_currently_supported": {
+    "message": "Обратите внимание: идентификаторы QuickConnect пока не поддерживаются.",
     "description": "Subheader for Connection settings section."
   },
   "hostname_or_IP_address": {
@@ -557,6 +557,34 @@
   "Twostep_verification_failed": {
     "message": "Двухэтапная проверка не удалась.",
     "description": "Error message on Synology API call failure."
+  },
+  "Twostep_verification_is_enforced_for_this_account": {
+    "message": "Для этой учётной записи двухэтапная проверка обязательна.",
+    "description": "Error message on Synology API call failure."
+  },
+  "Blocked_IP_source": {
+    "message": "IP-адрес заблокирован.",
+    "description": "Error message on Synology API call failure."
+  },
+  "Expired_password_cannot_be_changed": {
+    "message": "Истёкший пароль нельзя изменить.",
+    "description": "Error message on Synology API call failure."
+  },
+  "Expired_password": {
+    "message": "Срок действия пароля истёк.",
+    "description": "Error message on Synology API call failure."
+  },
+  "Password_must_be_changed": {
+    "message": "Необходимо сменить пароль.",
+    "description": "Error message on Synology API call failure."
+  },
+  "Twostep_verification_code_optional": {
+    "message": "Код двухэтапной проверки (необязательно)",
+    "description": "Label for field on settings page, and placeholder for popup input field."
+  },
+  "Only_if_2step_verification_is_enabled": {
+    "message": "Только если включена двухэтапная проверка",
+    "description": "Placeholder for settings input field."
   },
   "File_upload_failed": {
     "message": "Ошибка загрузки файла.",

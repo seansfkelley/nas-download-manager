@@ -43,6 +43,7 @@ const SETTINGS: PersistentState["settings"] = {
     username: "username",
     password: "password",
     rememberPassword: true,
+    deviceToken: undefined,
   },
   visibleTasks: {
     downloading: true,
@@ -64,7 +65,7 @@ const SETTINGS: PersistentState["settings"] = {
 const PERSISTENT_STATE: PersistentState = {
   settings: SETTINGS,
   lastSevereError: "error",
-  stateVersion: 10,
+  stateVersion: 11,
 };
 
 describe("state listeners", () => {
@@ -96,7 +97,7 @@ describe("state listeners", () => {
       reactToPersistentState("settings", "stateVersion", listener);
       await flush();
 
-      expect(listener).toHaveBeenCalledWith({ settings: SETTINGS, stateVersion: 10 });
+      expect(listener).toHaveBeenCalledWith({ settings: SETTINGS, stateVersion: 11 });
     });
 
     it("should read only the keys that make up the persistent state", async () => {

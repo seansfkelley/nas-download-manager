@@ -10,6 +10,7 @@ const SETTINGS: Settings = {
     username: "username",
     password: "password",
     rememberPassword: true,
+    deviceToken: undefined,
   },
   visibleTasks: {
     downloading: true,

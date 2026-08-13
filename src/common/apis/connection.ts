@@ -1,19 +1,20 @@
 import { ConnectionSettings } from "../state";
 
 import {
+  type AuthLoginResponse,
   ClientRequestResult,
   ConnectionFailure,
-  SynologyAuth,
   SynologyClient,
-  SynologyClientSettings,
+  SynologyLoginParameters,
+  SynologyLoginResult,
 } from "./synology";
 
-function createEphemeralClient(settings: SynologyClientSettings | ConnectionFailure) {
-  let auth: SynologyAuth | undefined;
+function createEphemeralClient(login: SynologyLoginParameters | ConnectionFailure) {
+  let auth: SynologyLoginResult | undefined;
   return new SynologyClient(
-    async () => settings,
+    async () => login,
     async () => auth,
-    async (_settings, newAuth) => {
+    async (_login, newAuth) => {
       auth = newAuth;
     },
   );
@@ -21,8 +22,11 @@ function createEphemeralClient(settings: SynologyClientSettings | ConnectionFail
 
 export async function testConnection(
   settings: ConnectionSettings,
-): Promise<ClientRequestResult<{}>> {
-  const client = createEphemeralClient(SynologyClientSettings.fromConnection(settings));
+  otpCode?: string,
+): Promise<ClientRequestResult<AuthLoginResponse>> {
+  const client = createEphemeralClient(
+    SynologyLoginParameters.fromConnection(settings, settings.password, otpCode),
+  );
   const loginResult = await client.Auth.Login({ timeout: 30000 });
 
   if (!ClientRequestResult.isConnectionFailure(loginResult) && loginResult.success) {

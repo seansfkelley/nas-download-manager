@@ -1,7 +1,8 @@
 import { typesafeUnionMembers } from "../../lang";
 import { ConnectionSettings, getHostUrl } from "../../state";
+import { OmitStrict } from "../../types";
 
-import { Auth, AuthLoginResponse } from "./Auth";
+import { Auth, AuthLoginRequest, AuthLoginResponse } from "./Auth";
 import { DownloadStation } from "./DownloadStation";
 import { DownloadStation2 } from "./DownloadStation2";
 import { FileStation } from "./FileStation";
@@ -16,7 +17,13 @@ import {
   TimeoutError,
 } from "./shared";
 
-const NO_SUCH_METHOD_ERROR_CODE = 103;
+const UNSUPPORTED_API_VERSION_ERROR_CODES = [
+  103, // The requested method does not exist. DSM 7 reports this for versions it is too new for.
+  104, // The requested version does not support the functionality.
+];
+
+// Shown in DSM's list of trusted devices, under Control Panel > Security > Account.
+const DEVICE_NAME = "NAS Download Manager";
 
 const STALE_SESSION_ERROR_CODES = [
   105, // The logged-in session does not have permission.
@@ -31,34 +38,44 @@ const AUTH_ERROR_CODES_REQUIRING_USER_INTERVENTION = [
   402, // Permission denied.
   403, // Two-step verification needed.
   404, // Two-step verification failed.
+  406, // Two-step verification enforced for this account.
+  407, // Blocked IP source.
+  408, // Expired password cannot be changed.
+  409, // Expired password.
+  410, // Password must be changed.
 ];
 
-export interface SynologyClientSettings {
+export interface SynologyLoginParameters {
   baseUrl: string;
   account: string;
   passwd: string;
   session: SessionName;
+  deviceToken?: string;
+  otpCode?: string;
 }
 
-export const SynologyClientSettings = {
+export const SynologyLoginParameters = {
   fromConnection: (
     connection: ConnectionSettings | undefined,
     password: string | undefined = connection?.password,
-  ): SynologyClientSettings | ConnectionFailure => {
-    const settings: Partial<SynologyClientSettings> = {
+    otpCode?: string,
+  ): SynologyLoginParameters | ConnectionFailure => {
+    const login: Partial<SynologyLoginParameters> = {
       baseUrl: connection != null ? getHostUrl(connection) : undefined,
       account: connection?.username,
       passwd: password,
       session: SessionName.DownloadStation,
+      deviceToken: connection?.deviceToken,
+      otpCode,
     };
 
-    const missingKeys = SETTING_NAME_KEYS.filter((k) => {
-      const v = settings[k];
+    const missingKeys = MINIMUM_LOGIN_KEYS_REQUIRED.filter((k) => {
+      const v = login[k];
       return v == null || v.length === 0;
     });
 
     if (missingKeys.length === 0) {
-      return settings as SynologyClientSettings;
+      return login as SynologyLoginParameters;
     } else {
       return {
         type: "missing-config",
@@ -67,16 +84,31 @@ export const SynologyClientSettings = {
     }
   },
 
-  isEqual: (a: SynologyClientSettings, b: SynologyClientSettings): boolean => {
-    return SETTING_NAME_KEYS.every((k) => a[k] === b[k]);
+  // n.b. this is _not_ equality, but semantic equivalence for the purposes of caching.
+  isEquivalent: (a: SynologyLoginParameters, b: SynologyLoginParameters): boolean => {
+    return LOGIN_CACHE_KEY_FIELDS.every((k) => a[k] === b[k]);
   },
 };
 
-const SETTING_NAME_KEYS = typesafeUnionMembers<keyof SynologyClientSettings>({
+// Which keys we can fail-fast as definitely being misconfigured, if missing.
+const MINIMUM_LOGIN_KEYS_REQUIRED = typesafeUnionMembers<
+  keyof OmitStrict<SynologyLoginParameters, "deviceToken" | "otpCode">
+>({
   baseUrl: true,
   account: true,
   passwd: true,
   session: true,
+});
+
+// Which keys are used to invalidate a cached session.
+const LOGIN_CACHE_KEY_FIELDS = typesafeUnionMembers<
+  keyof OmitStrict<SynologyLoginParameters, "otpCode">
+>({
+  baseUrl: true,
+  account: true,
+  passwd: true,
+  session: true,
+  deviceToken: true,
 });
 
 export type ConnectionFailure =
@@ -106,8 +138,8 @@ async function hasHostPermission(baseUrl: string) {
 }
 
 export const ConnectionFailure = {
-  is: (settings: SynologyClientSettings | ConnectionFailure): settings is ConnectionFailure => {
-    return (settings as ConnectionFailure).type != null;
+  is: (login: SynologyLoginParameters | ConnectionFailure): login is ConnectionFailure => {
+    return (login as ConnectionFailure).type != null;
   },
 
   from: async (error: any, baseUrl?: string): Promise<ConnectionFailure> => {
@@ -162,13 +194,13 @@ export const LoginFailure = {
   },
 };
 
-export type SynologyAuth = { sid: string } | LoginFailure;
+export type SynologyLoginResult = { sid: string } | LoginFailure;
 
-export const SynologyAuth = {
-  isSuccess: (auth: SynologyAuth) => "sid" in auth,
+export const SynologyLoginResult = {
+  isLoggedIn: (auth: SynologyLoginResult) => "sid" in auth,
 };
 
-function toSynologyAuth(response: ClientRequestResult<AuthLoginResponse>): SynologyAuth {
+function toLoginResult(response: ClientRequestResult<AuthLoginResponse>): SynologyLoginResult {
   if (ClientRequestResult.isConnectionFailure(response)) {
     return response;
   } else if (response.success) {
@@ -180,22 +212,24 @@ function toSynologyAuth(response: ClientRequestResult<AuthLoginResponse>): Synol
 
 export class SynologyClient {
   private inflightLogin:
-    | { settings: SynologyClientSettings; promise: Promise<ClientRequestResult<AuthLoginResponse>> }
+    | { login: SynologyLoginParameters; promise: Promise<ClientRequestResult<AuthLoginResponse>> }
     | undefined;
 
   constructor(
-    public getSettings: () => Promise<SynologyClientSettings | ConnectionFailure>,
-    private getStoredAuth: (settings: SynologyClientSettings) => Promise<SynologyAuth | undefined>,
+    public getLogin: () => Promise<SynologyLoginParameters | ConnectionFailure>,
+    private getStoredAuth: (
+      login: SynologyLoginParameters,
+    ) => Promise<SynologyLoginResult | undefined>,
     private onAuthChange: (
-      settings: SynologyClientSettings,
-      auth: SynologyAuth | undefined,
+      login: SynologyLoginParameters,
+      auth: SynologyLoginResult | undefined,
     ) => Promise<void>,
   ) {}
 
-  private getLoginPromiseForSettings(settings: SynologyClientSettings) {
+  private getInflightLoginPromise(login: SynologyLoginParameters) {
     if (
       this.inflightLogin != null &&
-      SynologyClientSettings.isEqual(this.inflightLogin.settings, settings)
+      SynologyLoginParameters.isEquivalent(this.inflightLogin.login, login)
     ) {
       return this.inflightLogin.promise;
     } else {
@@ -204,39 +238,58 @@ export class SynologyClient {
   }
 
   private maybeLogIn = async (
-    settings: SynologyClientSettings,
+    login: SynologyLoginParameters,
     request?: BaseRequest,
   ): Promise<ClientRequestResult<AuthLoginResponse>> => {
-    const inflight = this.getLoginPromiseForSettings(settings);
+    const inflight = this.getInflightLoginPromise(login);
     if (inflight != null) {
       return inflight;
     }
 
     const promise = (async () => {
-      const { baseUrl, ...credentials } = settings;
-      try {
-        const response = await Auth.Login(baseUrl, {
+      const { baseUrl, account, passwd, session, otpCode, deviceToken } = login;
+
+      const attempt = (version: AuthLoginRequest["version"]) =>
+        Auth.Login(baseUrl, {
           ...request,
-          ...credentials,
-          // First try with the lowest version that we can that supports sid, in an attempt to
-          // support the oldest DSMs we can.
-          version: 2,
+          // Spelled out rather than spread, so that the camelCased two-step verification fields
+          // can't leak into the query string under names DSM doesn't know.
+          account,
+          passwd,
+          session,
+          version,
+          ...(version === 6 && (otpCode != null || deviceToken != null)
+            ? {
+                otp_code: otpCode,
+                enable_device_token: "yes" as const,
+                device_name: DEVICE_NAME,
+                device_id: otpCode != null ? undefined : deviceToken,
+              }
+            : {}),
         });
 
-        // We guess we're on DSM 7, which does not support earlier versions of the API.
-        // We'd like to do this with an Info.Query, but DSM 7 erroneously reports that it
-        // supports version 2, which it definitely does not.
-        if (!response.success && response.error.code === NO_SUCH_METHOD_ERROR_CODE) {
-          return await Auth.Login(baseUrl, { ...request, ...credentials, version: 3 });
-        } else {
-          return response;
+      try {
+        // Only version 6 can issue or accept a device token. Versions 2 and 3 accept a OTP, but we
+        // need the token to be able to automatically re-authenticate on session expiration, so that
+        // isn't enough.
+        if (otpCode != null || deviceToken != null) {
+          return await attempt(6);
         }
+
+        // Otherwise start at 2, the lowest version that supports sid, to reach the oldest DSMs we
+        // can, and fall back to 3 for DSM 7. We'd like to ask Info.Query which versions exist
+        // instead, but DSM 7 erroneously reports that it supports version 2.
+        const response = await attempt(2);
+        return !response.success &&
+          UNSUPPORTED_API_VERSION_ERROR_CODES.includes(response.error.code)
+          ? await attempt(3)
+          : response;
       } catch (e) {
         return await ConnectionFailure.from(e, baseUrl);
       }
     })();
 
-    this.inflightLogin = { settings, promise };
+    this.inflightLogin = { login, promise };
     const response = await promise;
 
     if (this.inflightLogin?.promise !== promise) {
@@ -244,19 +297,19 @@ export class SynologyClient {
     }
     this.inflightLogin = undefined;
 
-    const auth = toSynologyAuth(response);
-    if (SynologyAuth.isSuccess(auth) || LoginFailure.requiresUserIntervention(auth)) {
-      await this.onAuthChange(settings, auth);
+    const auth = toLoginResult(response);
+    if (SynologyLoginResult.isLoggedIn(auth) || LoginFailure.requiresUserIntervention(auth)) {
+      await this.onAuthChange(login, auth);
     }
 
     return response;
   };
 
-  private clearAuth = async (settings: SynologyClientSettings) => {
-    if (this.getLoginPromiseForSettings(settings) != null) {
+  private clearAuth = async (login: SynologyLoginParameters) => {
+    if (this.getInflightLoginPromise(login) != null) {
       this.inflightLogin = undefined;
     }
-    await this.onAuthChange(settings, undefined);
+    await this.onAuthChange(login, undefined);
   };
 
   // Note that this method is a BEST EFFORT. It only logs out the session this client can see, and
@@ -265,38 +318,38 @@ export class SynologyClient {
   private maybeLogOut = async (
     request?: BaseRequest,
   ): Promise<ClientRequestResult<{}> | "not-logged-in"> => {
-    const settings = await this.getSettings();
-    if (ConnectionFailure.is(settings)) {
-      return settings;
+    const login = await this.getLogin();
+    if (ConnectionFailure.is(login)) {
+      return login;
     }
 
-    const inflight = this.getLoginPromiseForSettings(settings);
-    const lastKnownAuth = inflight == null ? await this.getStoredAuth(settings) : undefined;
+    const inflight = this.getInflightLoginPromise(login);
+    const lastKnownAuth = inflight == null ? await this.getStoredAuth(login) : undefined;
 
     // We can unconditionally clear the underlying storage because it is the consumer's
     // responsibility to ensure that multiple clients sharing storage are coordinated, if that is
     // desired.
-    await this.clearAuth(settings);
+    await this.clearAuth(login);
 
     if (inflight != null) {
       const response = await inflight;
-      const abandoned = toSynologyAuth(response);
-      if (SynologyAuth.isSuccess(abandoned)) {
-        return Auth.Logout(settings.baseUrl, {
+      const abandoned = toLoginResult(response);
+      if (SynologyLoginResult.isLoggedIn(abandoned)) {
+        return Auth.Logout(login.baseUrl, {
           ...request,
           sid: abandoned.sid,
-          session: settings.session,
+          session: login.session,
         });
       } else {
         return response;
       }
     } else if (lastKnownAuth == null) {
       return "not-logged-in" as const;
-    } else if (SynologyAuth.isSuccess(lastKnownAuth)) {
-      return await Auth.Logout(settings.baseUrl, {
+    } else if (SynologyLoginResult.isLoggedIn(lastKnownAuth)) {
+      return await Auth.Logout(login.baseUrl, {
         ...request,
         sid: lastKnownAuth.sid,
-        session: settings.session,
+        session: login.session,
       });
     } else {
       return lastKnownAuth;
@@ -311,29 +364,29 @@ export class SynologyClient {
       shouldRetryTransientFailures: boolean = true,
     ): Promise<ClientRequestResult<U>> => {
       // Resolved once and threaded through the whole request: re-reading it partway would let a
-      // settings change mid-flight clear auth that belongs to the new settings.
-      let settings;
+      // change mid-flight clear auth that belongs to the new login.
+      let login;
       try {
-        settings = await this.getSettings();
-        if (ConnectionFailure.is(settings)) {
-          return settings;
+        login = await this.getLogin();
+        if (ConnectionFailure.is(login)) {
+          return login;
         }
       } catch {
         return { type: "internal-error" };
       }
 
-      const baseUrl = settings.baseUrl;
+      const baseUrl = login.baseUrl;
 
       try {
         // `await`s in this block aren't necessary to adhere to the type signature, but it changes
         // who's responsible for handling the errors. Currently, errors unhandled by lower levels
         // are bubbled up to this outermost `catch`.
         const auth =
-          (await this.getStoredAuth(settings)) ?? toSynologyAuth(await this.maybeLogIn(settings));
+          (await this.getStoredAuth(login)) ?? toLoginResult(await this.maybeLogIn(login));
 
-        if (!SynologyAuth.isSuccess(auth)) {
+        if (!SynologyLoginResult.isLoggedIn(auth)) {
           if (shouldRetryTransientFailures && !LoginFailure.requiresUserIntervention(auth)) {
-            await this.clearAuth(settings);
+            await this.clearAuth(login);
             return await wrappedFunction(options, false);
           } else {
             return auth;
@@ -347,7 +400,7 @@ export class SynologyClient {
           shouldRetryTransientFailures &&
           STALE_SESSION_ERROR_CODES.includes(response.error.code)
         ) {
-          await this.clearAuth(settings);
+          await this.clearAuth(login);
           return await wrappedFunction(options, false);
         } else {
           return response;
@@ -370,17 +423,17 @@ export class SynologyClient {
     fn: (baseUrl: string, options: T) => Promise<RestApiResponse<U>>,
   ): (options: T) => Promise<ClientRequestResult<U>> {
     return async (options: T) => {
-      let settings;
+      let login;
       try {
-        settings = await this.getSettings();
-        if (ConnectionFailure.is(settings)) {
-          return settings;
+        login = await this.getLogin();
+        if (ConnectionFailure.is(login)) {
+          return login;
         }
       } catch {
         return { type: "internal-error" };
       }
 
-      const baseUrl = settings.baseUrl;
+      const baseUrl = login.baseUrl;
 
       try {
         return await fn(baseUrl, options);
@@ -392,8 +445,8 @@ export class SynologyClient {
 
   public Auth = {
     Login: async (request?: BaseRequest): Promise<ClientRequestResult<AuthLoginResponse>> => {
-      const settings = await this.getSettings();
-      return ConnectionFailure.is(settings) ? settings : await this.maybeLogIn(settings, request);
+      const login = await this.getLogin();
+      return ConnectionFailure.is(login) ? login : await this.maybeLogIn(login, request);
     },
     Logout: this.maybeLogOut,
   };
