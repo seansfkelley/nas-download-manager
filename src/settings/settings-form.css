@@ -27,6 +27,7 @@ button {
 .settings-form {
   max-width: 450px;
   margin: auto;
+  padding: 5px;
 }
 
 ul.settings-list {
@@ -60,9 +61,11 @@ ul.settings-list {
   > .input {
     flex: 4;
     display: flex;
+    min-width: 0;
 
     input {
       flex: 1;
+      min-width: 0;
     }
   }
 }
