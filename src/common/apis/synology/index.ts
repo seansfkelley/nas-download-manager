@@ -11,4 +11,4 @@ export {
   FormFile,
   isFormFile,
 } from "./shared";
-export * from "./client";
+export * from "./SynologyClient";
