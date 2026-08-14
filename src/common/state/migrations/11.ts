@@ -15,7 +15,6 @@ export interface StateVersion {
   stateVersion: 11;
 }
 
-// Everything needed to address the NAS, none of which is secret.
 export interface ConnectionIdentifiers {
   protocol: Protocol;
   hostname: string;
@@ -25,16 +24,13 @@ export interface ConnectionIdentifiers {
 
 export interface ConnectionSecrets {
   password: string;
-  // The device token DSM issues when logging in with a one-time password. Sending it back in place
-  // of that password is what keeps two-step verification to a single prompt. Undefined when the
-  // account has no two-step verification, or when this device hasn't been remembered yet.
+  // Device tokens take the place of OTP, so re-authentication with 2FA configured does not require
+  // the user to enter a OTP every time.
   deviceToken: string | undefined;
 }
 
 export interface ConnectionSettings {
   identifiers: ConnectionIdentifiers;
-  // Absent when there is nothing to log in with yet, and when the user asked us not to remember it,
-  // in which case it lives in session state for as long as the browser is running.
   secrets: ConnectionSecrets | undefined;
   rememberSecrets: boolean;
 }
