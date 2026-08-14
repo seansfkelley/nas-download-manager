@@ -2,8 +2,8 @@ import "./connection-settings.css";
 
 import { useId, useState } from "react";
 
-import { testConnection } from "../common/apis/testConnection";
 import { ClientRequestResult } from "../common/apis/synology";
+import { testConnection } from "../common/apis/testConnection";
 import { disabledPropAndClassName, kludgeRefSetClassname } from "../common/classnameUtil";
 import { LoginStatus, Status } from "../common/components/LoginStatus";
 import { SettingsList } from "../common/components/SettingsList";

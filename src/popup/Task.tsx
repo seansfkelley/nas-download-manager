@@ -179,7 +179,7 @@ export function Task(props: Props) {
         }}
         title={title}
         disabled={disabled}
-        className={classNames("remove-button", { disabled: disabled })}
+        className={classNames("remove-button", { disabled })}
       >
         <div
           className={classNames("fa", {

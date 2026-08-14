@@ -1,4 +1,3 @@
-import { testConnection } from "../common/apis/testConnection";
 import { AddTaskOptions, Directory, Login, MessageResponse } from "../common/apis/messages";
 import {
   AddTasks,
@@ -10,6 +9,7 @@ import {
 } from "../common/apis/messages";
 import { ClientRequestResult } from "../common/apis/synology";
 import type { DownloadStationInfoConfig } from "../common/apis/synology/DownloadStation/Info";
+import { testConnection } from "../common/apis/testConnection";
 import { ConnectionSettings, getHostUrl } from "../common/state";
 
 export interface PopupClient {

@@ -87,7 +87,7 @@ export const SynologyLoginParameters = {
       return {
         baseUrl,
         username: identifiers.username,
-        password: password,
+        password,
         session: SessionName.DownloadStation,
         ...using,
       };

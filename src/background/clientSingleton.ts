@@ -33,7 +33,7 @@ async function onAuthChange(login: LoginCacheKey, auth: SynologyLoginResult | un
     if (auth == null) {
       await SessionState.set({ auth: undefined });
     } else {
-      await SessionState.set({ auth: { login: login, auth } });
+      await SessionState.set({ auth: { login, auth } });
     }
   } catch (e) {
     saveLastSevereError(e, "error while persisting auth to session state");

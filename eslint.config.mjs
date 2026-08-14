@@ -69,6 +69,7 @@ export default tseslint.config(
       "sort-imports": ["error", { ignoreDeclarationSort: true }],
       // "never" inverts the rule against null, where == is the only way to catch undefined too.
       eqeqeq: ["error", "always", { null: "never" }],
+      "object-shorthand": "error",
       "no-restricted-imports": [
         "error",
         {
