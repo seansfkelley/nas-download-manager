@@ -12,8 +12,9 @@ export interface TaskState {
 
 export interface SessionState extends TaskState {
   // Set imperatively by the login form when the user opts out of remembering their password, in
-  // which case the persistent settings deliberately do not have it.
+  // which case the persistent settings deliberately do not have them.
   password?: string;
+  deviceToken?: string;
   // Tagged with the login that produced it to detect changes that require reauthorization.
   auth?: { login: SynologyLoginParameters; auth: SynologyLoginResult };
   // Identifies the most recently initiated task fetch, so that a fetch can discard its own results

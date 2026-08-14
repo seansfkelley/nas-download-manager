@@ -72,6 +72,7 @@ export interface Directory {
 export interface Login {
   type: "login";
   password: string;
+  deviceToken: string | undefined;
 }
 
 export type Message =
@@ -159,9 +160,13 @@ export const ListDirectories = makeMessageOperations("list-directories", (path?:
   path,
 }));
 
-export const Login = makeMessageOperations("login", (password: string) => ({
-  password,
-}));
+export const Login = makeMessageOperations(
+  "login",
+  (password: string, deviceToken: string | undefined) => ({
+    password,
+    deviceToken,
+  }),
+);
 
 /* eslint-disable no-useless-assignment -- that is the point; only tsc reads this block. */
 {

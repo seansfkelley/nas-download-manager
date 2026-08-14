@@ -57,9 +57,11 @@ export function SettingsForm(props: Props) {
     if (connection.rememberPassword) {
       await saveSettings({ connection });
     } else {
-      await saveSettings({ connection: { ...connection, password: undefined } });
+      await saveSettings({
+        connection: { ...connection, password: undefined, deviceToken: undefined },
+      });
     }
-    await Login.send(connection.password);
+    await Login.send(connection.password, connection.deviceToken);
   }
 
   function maybeRenderDebuggingOutputAndSeparator() {

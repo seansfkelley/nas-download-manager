@@ -17,8 +17,9 @@ async function getLogin(): Promise<SynologyLoginParameters | ConnectionFailure> 
   // with. The background gets past two-step verification on the device token that login saved.
   return SynologyLoginParameters.fromConnection(
     connection,
-    // The password is stored in session state iff remember password is not set, so prefer it.
+    // Both are stored in session state iff remember password is not set, so prefer them.
     sessionState.password ?? connection?.password,
+    sessionState.deviceToken ?? connection?.deviceToken,
   );
 }
 

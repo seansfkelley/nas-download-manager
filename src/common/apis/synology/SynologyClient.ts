@@ -58,6 +58,7 @@ export const SynologyLoginParameters = {
   fromConnection: (
     connection: ConnectionSettings | undefined,
     password: string | undefined = connection?.password,
+    deviceToken: string | undefined = connection?.deviceToken,
     otpCode?: string,
   ): SynologyLoginParameters | ConnectionFailure => {
     const login: Partial<SynologyLoginParameters> = {
@@ -65,7 +66,7 @@ export const SynologyLoginParameters = {
       account: connection?.username,
       passwd: password,
       session: SessionName.DownloadStation,
-      deviceToken: connection?.deviceToken,
+      deviceToken,
       otpCode,
     };
 
