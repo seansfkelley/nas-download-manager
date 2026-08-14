@@ -49,11 +49,9 @@ NAS Download Manager needs your login credentials to communicate with your NAS. 
 
 ## Development
 
-Please note that development is not actively supported on Windows. Some of the below commands may fail and require manually invoking an analogous Windows command instead.
-
 ### Prerequisites
 
-Dependencies are managed with npm, which ships with [Node](https://nodejs.org/). The Node version is pinned in `.nvmrc`; run `nvm use` if you have [nvm](https://github.com/nvm-sh/nvm).
+The Node version is pinned in `.nvmrc`. Run `nvm use` if you have [nvm](https://github.com/nvm-sh/nvm).
 
 ### Actively Developing the Extension
 
@@ -79,7 +77,7 @@ Please note that while the build tasks will auto-recompile, the browser may not 
    npm run browser:firefox # or browser:chrome
    ```
 
-   This uses [web-ext](https://extensionworkshop.com/documentation/develop/web-ext-command-reference/), which opens the browser with the extension loaded and reloads it as files change. Use `npm run browser:firefox` and `npm run browser:chrome` to run them.
+   This uses [web-ext](https://extensionworkshop.com/documentation/develop/web-ext-command-reference/), which opens the browser with the extension loaded and reloads it as files change.
 
    Each runs with a dedicated directory-local profile created on first use, so the connection settings you enter survive between runs instead of needing to be re-entered every time. Note that this means your NAS password is stored there unencrypted, the same way the browser stores it for the installed extension. Delete the directory to start from a clean slate.
 
