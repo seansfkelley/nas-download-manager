@@ -1,6 +1,6 @@
-import { typesafeUnionMembers } from "../../lang";
+import { typesafeIsEqual, typesafePick } from "../../lang";
 import { ConnectionIdentifiers, ConnectionSecrets, getHostUrl } from "../../state";
-import { OmitStrict } from "../../types";
+import { Overwrite } from "../../types";
 
 import { Auth, AuthLoginRequest, AuthLoginResponse } from "./Auth";
 import { DownloadStation } from "./DownloadStation";
@@ -45,13 +45,32 @@ const AUTH_ERROR_CODES_REQUIRING_USER_INTERVENTION = [
   410, // Password must be changed.
 ];
 
-export interface SynologyLoginParameters {
-  baseUrl: string;
-  account: string;
-  passwd: string;
+// Everything a change to which invalidates a session, and nothing else, so that two of these are
+// interchangeable exactly when the sid one of them obtained is still good for the other.
+export interface LoginCacheKey {
+  identifiers: ConnectionIdentifiers;
+  secrets: Overwrite<ConnectionSecrets, { deviceToken: string | null }>;
   session: SessionName;
-  deviceToken?: string;
-  otpCode?: string;
+}
+
+export const LoginCacheKey = {
+  from: (login: SynologyLoginParameters): LoginCacheKey => ({
+    ...typesafePick(login, "identifiers", "session"),
+    // Null rather than undefined because these are compared deeply after a round trip through
+    // browser.storage, which drops undefined-valued keys -- and an absent key is not a key that is
+    // present and undefined.
+    secrets: { ...login.secrets, deviceToken: login.secrets.deviceToken ?? null },
+  }),
+};
+
+export interface SynologyLoginParameters {
+  identifiers: ConnectionIdentifiers;
+  secrets: ConnectionSecrets;
+  session: SessionName;
+  // Derived from the identifiers, but validated here so every request site can treat it as present.
+  baseUrl: string;
+  // Deliberately outside the cache key: it is spent by the login that carries it.
+  otpCode: string | undefined;
 }
 
 export const SynologyLoginParameters = {
@@ -60,56 +79,19 @@ export const SynologyLoginParameters = {
     secrets: ConnectionSecrets | undefined,
     otpCode?: string,
   ): SynologyLoginParameters | ConnectionFailure => {
-    const login: Partial<SynologyLoginParameters> = {
-      baseUrl: identifiers != null ? getHostUrl(identifiers) : undefined,
-      account: identifiers?.username,
-      passwd: secrets?.password,
-      session: SessionName.DownloadStation,
-      deviceToken: secrets?.deviceToken,
-      otpCode,
-    };
+    const baseUrl = identifiers != null ? getHostUrl(identifiers) : undefined;
 
-    const missingKeys = MINIMUM_LOGIN_KEYS_REQUIRED.filter((k) => {
-      const v = login[k];
-      return v == null || v.length === 0;
-    });
-
-    if (missingKeys.length === 0) {
-      return login as SynologyLoginParameters;
-    } else {
-      return {
-        type: "missing-config",
-        which: missingKeys.length === 1 && missingKeys[0] === "passwd" ? "password" : "other",
-      };
+    // A missing password is reported separately, and only when it is the only thing missing, because
+    // it is the one thing the popup can collect on its own.
+    if (baseUrl == null || !identifiers?.username) {
+      return { type: "missing-config", which: "other" };
+    } else if (!secrets?.password) {
+      return { type: "missing-config", which: "password" };
     }
-  },
 
-  // n.b. this is _not_ equality, but semantic equivalence for the purposes of caching.
-  isEquivalent: (a: SynologyLoginParameters, b: SynologyLoginParameters): boolean => {
-    return LOGIN_CACHE_KEY_FIELDS.every((k) => a[k] === b[k]);
+    return { baseUrl, identifiers, secrets, session: SessionName.DownloadStation, otpCode };
   },
 };
-
-// Which keys we can fail-fast as definitely being misconfigured, if missing.
-const MINIMUM_LOGIN_KEYS_REQUIRED = typesafeUnionMembers<
-  keyof OmitStrict<SynologyLoginParameters, "deviceToken" | "otpCode">
->({
-  baseUrl: true,
-  account: true,
-  passwd: true,
-  session: true,
-});
-
-// Which keys are used to invalidate a cached session.
-const LOGIN_CACHE_KEY_FIELDS = typesafeUnionMembers<
-  keyof OmitStrict<SynologyLoginParameters, "otpCode">
->({
-  baseUrl: true,
-  account: true,
-  passwd: true,
-  session: true,
-  deviceToken: true,
-});
 
 export type ConnectionFailure =
   | {
@@ -229,7 +211,7 @@ export class SynologyClient {
   private getInflightLoginPromise(login: SynologyLoginParameters) {
     if (
       this.inflightLogin != null &&
-      SynologyLoginParameters.isEquivalent(this.inflightLogin.login, login)
+      typesafeIsEqual(LoginCacheKey.from(this.inflightLogin.login), LoginCacheKey.from(login))
     ) {
       return this.inflightLogin.promise;
     } else {
@@ -247,15 +229,16 @@ export class SynologyClient {
     }
 
     const promise = (async () => {
-      const { baseUrl, account, passwd, session, otpCode, deviceToken } = login;
+      const { baseUrl, identifiers, secrets, session, otpCode } = login;
+      const { deviceToken } = secrets;
 
       const attempt = (version: AuthLoginRequest["version"]) =>
         Auth.Login(baseUrl, {
           ...request,
           // Spelled out rather than spread, so that the camelCased two-step verification fields
           // can't leak into the query string under names DSM doesn't know.
-          account,
-          passwd,
+          account: identifiers.username,
+          passwd: secrets.password,
           session,
           version,
           ...(version === 6 && (otpCode != null || deviceToken != null)

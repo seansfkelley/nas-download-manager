@@ -1,10 +1,12 @@
 import {
   ConnectionFailure,
+  LoginCacheKey,
   SynologyClient,
   SynologyLoginParameters,
   SynologyLoginResult,
 } from "../common/apis/synology";
 import { saveLastSevereError } from "../common/errorHandlers";
+import { typesafeIsEqual } from "../common/lang";
 import { PersistentState, SessionState } from "../common/state";
 
 async function getLogin(): Promise<SynologyLoginParameters | ConnectionFailure> {
@@ -24,7 +26,7 @@ async function getStoredAuth(
   login: SynologyLoginParameters,
 ): Promise<SynologyLoginResult | undefined> {
   const stored = (await SessionState.get()).auth;
-  return stored != null && SynologyLoginParameters.isEquivalent(stored.login, login)
+  return stored != null && typesafeIsEqual(stored.login, LoginCacheKey.from(login))
     ? stored.auth
     : undefined;
 }
@@ -36,7 +38,7 @@ async function onAuthChange(login: SynologyLoginParameters, auth: SynologyLoginR
     if (auth == null) {
       await SessionState.set({ auth: undefined });
     } else {
-      await SessionState.set({ auth: { login, auth } });
+      await SessionState.set({ auth: { login: LoginCacheKey.from(login), auth } });
     }
   } catch (e) {
     saveLastSevereError(e, "error while persisting auth to session state");
