@@ -1,5 +1,6 @@
-import { default as isEqual } from "lodash/isEqual";
 import { type DependencyList, useRef } from "react";
+
+import { typesafeIsEqual } from "../lang";
 
 /* eslint-disable react-hooks/refs -- the ref-during-render is how this hook memoizes. */
 
@@ -7,7 +8,7 @@ import { type DependencyList, useRef } from "react";
 export function useMemoDeep<T>(factory: () => T, deps: DependencyList): T {
   const memoized = useRef<{ deps: DependencyList; value: T } | undefined>(undefined);
 
-  if (memoized.current == null || !isEqual(memoized.current.deps, deps)) {
+  if (memoized.current == null || !typesafeIsEqual(memoized.current.deps, deps)) {
     memoized.current = { deps, value: factory() };
   }
 

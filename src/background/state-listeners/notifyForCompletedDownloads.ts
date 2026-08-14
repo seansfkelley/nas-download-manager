@@ -1,5 +1,4 @@
-import isEqual from "lodash/isEqual";
-
+import { typesafeIsEqual } from "../../common/lang";
 import { sendNotification } from "../../common/sendNotification";
 import { SessionState, Settings } from "../../common/state";
 
@@ -45,7 +44,7 @@ export async function notifyForCompletedDownloads(
     }
 
     // Watch out for event trigger cycles!
-    if (!isEqual(updatedFinishedTaskIds.toSorted(), finishedTaskIds?.toSorted())) {
+    if (!typesafeIsEqual(updatedFinishedTaskIds.toSorted(), finishedTaskIds?.toSorted())) {
       await SessionState.set({ finishedTaskIds: updatedFinishedTaskIds });
     }
   }

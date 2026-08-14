@@ -1,3 +1,6 @@
+// eslint-disable-next-line no-restricted-imports -- the one wrapper everything else has to go through.
+import { default as isEqual } from "lodash/isEqual";
+
 import type { OmitStrict } from "./types";
 
 export class AssertionError extends Error {}
@@ -74,4 +77,10 @@ export function typesafeMapValues<K extends string, V, U>(
     result[k] = mapper(o[k], k);
   }
   return result;
+}
+
+// lodash's own signature takes two anys, so comparing values that could never be equal is not an
+// error, just a very reliable false.
+export function typesafeIsEqual<T>(a: T, b: T): boolean {
+  return isEqual(a, b);
 }
