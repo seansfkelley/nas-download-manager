@@ -233,31 +233,37 @@ export class SynologyClient {
     const promise = (async () => {
       const { baseUrl, username, password, deviceToken, session, otpCode } = login;
 
-      const attempt = (version: AuthLoginRequest["version"]) =>
+      const attempt = (
+        version: AuthLoginRequest["version"],
+        extra: Partial<AuthLoginRequest> = {},
+      ) =>
         Auth.Login(baseUrl, {
           ...request,
-          // Spelled out rather than spread, so that the camelCased two-step verification fields
-          // can't leak into the query string under names DSM doesn't know.
           account: username,
           passwd: password,
           session,
           version,
-          ...(version === 6 && (otpCode != null || deviceToken != null)
-            ? {
-                otp_code: otpCode,
-                enable_device_token: "yes" as const,
-                device_name: DEVICE_NAME,
-                device_id: otpCode != null ? undefined : deviceToken,
-              }
-            : {}),
+          ...extra,
         });
 
       try {
-        // Only version 6 can issue or accept a device token. Versions 2 and 3 accept a OTP, but we
-        // need the token to be able to automatically re-authenticate on session expiration, so that
-        // isn't enough.
-        if (otpCode != null || deviceToken != null) {
-          return await attempt(6);
+        if (otpCode != null) {
+          // Only version 6 can issue or accept a device token. Versions 2 and 3 accept a OTP, but
+          // we need the token to be able to automatically re-authenticate on session expiration, so
+          // that isn't enough.
+          return await attempt(6, {
+            otp_code: otpCode,
+            enable_device_token: "yes",
+            device_name: DEVICE_NAME,
+          });
+        }
+
+        if (deviceToken != null) {
+          // This is the aforementioned re-authentication code path.
+          return await attempt(6, {
+            device_name: DEVICE_NAME,
+            device_id: deviceToken,
+          });
         }
 
         // Otherwise start at 2, the lowest version that supports sid, to reach the oldest DSMs we
