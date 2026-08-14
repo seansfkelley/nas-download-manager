@@ -4,9 +4,9 @@ If none of the below questions apply to you, feel free to [open an issue](https:
 
 ## How do I fix a connection failure?
 
-There are many ways NAS Download Manager's connection to your NAS can fail that are out of its control. NAS Download Manager does its best to guess what might be wrong and tell you (such as when it says "likely cause: wrong protocol"), but sometimes, for security reasons, browsers don't tell it enough to make a good guess.
-
 You can login again through NAS Download Manager's settings. This will replace the existing login session with a new one, which may work around transient issues you are having.
+
+There are many ways NAS Download Manager's connection to your NAS can fail that are out of its control. NAS Download Manager does its best to guess what might be wrong and tell you (such as when it says "likely cause: wrong protocol"), but sometimes, for security reasons, browsers don't tell it enough to make a good guess.
 
 ## What is an "invalid certificate"?
 
@@ -44,7 +44,7 @@ As a potential workaround, you can initiate the download in your browser, cancel
 
 Sort of. Your credentials are stored in a place where only NAS Download Manager is able to access them, but unencrypted. Browsers don't yet support encrypted storage for extensions. [Issue #85](https://github.com/seansfkelley/nas-download-manager/issues/85) tracks using that storage if and when it exists.
 
-Your credentials are only ever transmitted to the host you specify in the settings. If you [connect over HTTPS](#can-i-use-http-not-https-to-connect-to-the-nas), which is the default, they are transmitted encrypted; if you connect over HTTP, they are not. You can also uncheck the "Remember Password" checkbox during login to prevent the extension storing your password in the abovementioned extension-only storage.
+Your credentials are only ever transmitted to the host you specify in the settings. If you [connect over HTTPS](#can-i-use-http-not-https-to-connect-to-the-nas), which is the default, they are transmitted encrypted; if you connect over HTTP, they are not. You can also uncheck the "Remember Password" checkbox during login, so closing the browser will clear your stored password.
 
 NAS Download Manager collects and stores only information you provide, and only enough to perform its job. [Read more.](./PRIVACY.md)
 
