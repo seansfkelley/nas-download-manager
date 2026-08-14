@@ -9,6 +9,7 @@ import { TaskFilterSettingsForm } from "../common/components/TaskFilterSettingsF
 import { BUG_REPORT_URL } from "../common/constants";
 import {
   BadgeDisplayType,
+  ConnectionSecrets,
   ConnectionSettings,
   NotificationSettings,
   Settings,
@@ -52,16 +53,14 @@ export function SettingsForm(props: Props) {
   }
 
   async function updateConnectionSettings(
-    connection: Overwrite<ConnectionSettings, { password: string }>,
+    connection: Overwrite<ConnectionSettings, { secrets: ConnectionSecrets }>,
   ) {
-    if (connection.rememberPassword) {
+    if (connection.rememberSecrets) {
       await saveSettings({ connection });
     } else {
-      await saveSettings({
-        connection: { ...connection, password: undefined, deviceToken: undefined },
-      });
+      await saveSettings({ connection: { ...connection, secrets: undefined } });
     }
-    await Login.send(connection.password, connection.deviceToken);
+    await Login.send(connection.secrets);
   }
 
   function maybeRenderDebuggingOutputAndSeparator() {

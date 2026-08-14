@@ -13,13 +13,10 @@ async function getLogin(): Promise<SynologyLoginParameters | ConnectionFailure> 
     SessionState.get(),
   ]);
   const connection = persistentState?.settings.connection;
-  // No one-time password: it only ever reaches the ephemeral client the settings page logs in
-  // with. The background gets past two-step verification on the device token that login saved.
   return SynologyLoginParameters.fromConnection(
-    connection,
-    // Both are stored in session state iff remember password is not set, so prefer them.
-    sessionState.password ?? connection?.password,
-    sessionState.deviceToken ?? connection?.deviceToken,
+    connection?.identifiers,
+    // The secrets are stored in session state iff remember secrets is not set, so prefer those.
+    sessionState.secrets ?? connection?.secrets,
   );
 }
 

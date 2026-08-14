@@ -1,5 +1,5 @@
 import { typesafeUnionMembers } from "../../lang";
-import { ConnectionSettings, getHostUrl } from "../../state";
+import { ConnectionIdentifiers, ConnectionSecrets, getHostUrl } from "../../state";
 import { OmitStrict } from "../../types";
 
 import { Auth, AuthLoginRequest, AuthLoginResponse } from "./Auth";
@@ -56,17 +56,16 @@ export interface SynologyLoginParameters {
 
 export const SynologyLoginParameters = {
   fromConnection: (
-    connection: ConnectionSettings | undefined,
-    password: string | undefined = connection?.password,
-    deviceToken: string | undefined = connection?.deviceToken,
+    identifiers: ConnectionIdentifiers | undefined,
+    secrets: ConnectionSecrets | undefined,
     otpCode?: string,
   ): SynologyLoginParameters | ConnectionFailure => {
     const login: Partial<SynologyLoginParameters> = {
-      baseUrl: connection != null ? getHostUrl(connection) : undefined,
-      account: connection?.username,
-      passwd: password,
+      baseUrl: identifiers != null ? getHostUrl(identifiers) : undefined,
+      account: identifiers?.username,
+      passwd: secrets?.password,
       session: SessionName.DownloadStation,
-      deviceToken,
+      deviceToken: secrets?.deviceToken,
       otpCode,
     };
 

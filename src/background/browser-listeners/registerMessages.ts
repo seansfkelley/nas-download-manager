@@ -101,7 +101,7 @@ function messageHandlers(client: SynologyClient): MessageHandlers {
       // Dump this on the floor; it is a best-effort and we don't want to block on it.
       client.Auth.Logout();
 
-      await SessionState.set({ password: m.password, deviceToken: m.deviceToken });
+      await SessionState.set({ secrets: m.secrets });
       await clearCachedTasks();
       await fetchTasks(client);
     },

@@ -20,11 +20,14 @@ export interface PopupClient {
   deleteTasks: (taskIds: string[]) => Promise<MessageResponse>;
   getConfig: () => Promise<MessageResponse<DownloadStationInfoConfig>>;
   listDirectories: (path?: string) => Promise<MessageResponse<Directory[]>>;
-  testConnectionAndLogin: (password: string, otpCode?: string) => Promise<ClientRequestResult<{}>>;
+  testConnectionAndLogin: (
+    password: string,
+    otpCode: string | undefined,
+  ) => Promise<ClientRequestResult<{}>>;
 }
 
-export function getClient(settings: ConnectionSettings): PopupClient | undefined {
-  const hostUrl = getHostUrl(settings);
+export function getClient(connection: ConnectionSettings): PopupClient | undefined {
+  const hostUrl = getHostUrl(connection.identifiers);
   if (hostUrl) {
     return {
       openDownloadStationUi: () => {
@@ -39,10 +42,10 @@ export function getClient(settings: ConnectionSettings): PopupClient | undefined
       deleteTasks: DeleteTasks.send,
       getConfig: GetConfig.send,
       listDirectories: ListDirectories.send,
-      testConnectionAndLogin: async (password: string, otpCode?: string) => {
-        const result = await testConnection({ ...settings, password }, otpCode);
+      testConnectionAndLogin: async (password: string, otpCode: string | undefined) => {
+        const result = await testConnection(connection.identifiers, password, otpCode);
         if (!ClientRequestResult.isConnectionFailure(result) && result.success) {
-          await Login.send(password, result.data.did);
+          await Login.send({ password, deviceToken: result.data.did });
         }
         return result;
       },

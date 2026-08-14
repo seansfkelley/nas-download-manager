@@ -1,4 +1,4 @@
-import { ConnectionSettings } from "../state";
+import { ConnectionIdentifiers } from "../state";
 
 import {
   type AuthLoginResponse,
@@ -21,14 +21,14 @@ function createEphemeralClient(login: SynologyLoginParameters | ConnectionFailur
 }
 
 export async function testConnection(
-  settings: ConnectionSettings,
-  otpCode?: string,
+  identifiers: ConnectionIdentifiers,
+  password: string,
+  otpCode: string | undefined,
 ): Promise<ClientRequestResult<AuthLoginResponse>> {
   const client = createEphemeralClient(
     SynologyLoginParameters.fromConnection(
-      settings,
-      settings.password,
-      settings.deviceToken,
+      identifiers,
+      { password, deviceToken: undefined },
       otpCode,
     ),
   );

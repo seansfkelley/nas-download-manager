@@ -1,3 +1,4 @@
+import type { ConnectionSecrets } from "../state";
 import type { DiscriminateUnion, OmitStrict } from "../types";
 
 import type { DownloadStationInfoConfig } from "./synology/DownloadStation/Info";
@@ -71,8 +72,7 @@ export interface Directory {
 
 export interface Login {
   type: "login";
-  password: string;
-  deviceToken: string | undefined;
+  secrets: ConnectionSecrets;
 }
 
 export type Message =
@@ -160,13 +160,9 @@ export const ListDirectories = makeMessageOperations("list-directories", (path?:
   path,
 }));
 
-export const Login = makeMessageOperations(
-  "login",
-  (password: string, deviceToken: string | undefined) => ({
-    password,
-    deviceToken,
-  }),
-);
+export const Login = makeMessageOperations("login", (secrets: ConnectionSecrets) => ({
+  secrets,
+}));
 
 /* eslint-disable no-useless-assignment -- that is the point; only tsc reads this block. */
 {

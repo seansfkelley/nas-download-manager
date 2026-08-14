@@ -5,6 +5,8 @@ export type {
   NotificationSettings,
   Settings,
   ConnectionSettings,
+  ConnectionIdentifiers,
+  ConnectionSecrets,
   Logging,
   StateVersion,
   BadgeDisplayType,

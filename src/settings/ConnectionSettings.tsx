@@ -7,56 +7,55 @@ import { ClientRequestResult } from "../common/apis/synology";
 import { disabledPropAndClassName, kludgeRefSetClassname } from "../common/classnameUtil";
 import { LoginStatus, Status } from "../common/components/LoginStatus";
 import { SettingsList } from "../common/components/SettingsList";
-import { assert } from "../common/lang";
 import {
+  ConnectionIdentifiers,
+  ConnectionSecrets,
   ConnectionSettings as ConnectionSettingsObject,
   PROTOCOLS,
   Protocol,
 } from "../common/state";
 import type { Overwrite } from "../common/types";
 
-type ConnectionSettingsWithMandatoryPassword = Overwrite<
+type ConnectionSettingsWithSecrets = Overwrite<
   ConnectionSettingsObject,
-  { password: string }
+  { secrets: ConnectionSecrets }
 >;
 
 interface Props {
   connectionSettings: ConnectionSettingsObject;
-  saveConnectionSettings: (settings: ConnectionSettingsWithMandatoryPassword) => void;
+  saveConnectionSettings: (settings: ConnectionSettingsWithSecrets) => void;
 }
 
 export function ConnectionSettings(props: Props) {
-  const [changedSettings, setChangedSettings] = useState<
-    Partial<ConnectionSettingsWithMandatoryPassword>
-  >({});
+  const [identifiers, setIdentifiers] = useState(props.connectionSettings.identifiers);
+  const [password, setPassword] = useState(props.connectionSettings.secrets?.password ?? "");
+  const [rememberSecrets, setRememberSecrets] = useState(props.connectionSettings.rememberSecrets);
   const [loginStatus, setLoginStatus] = useState<Status>("none");
   const [otpCode, setOtpCode] = useState("");
   const checkboxId = useId();
 
   const canEditFields = loginStatus !== "in-progress";
-  const mergedSettings = { ...props.connectionSettings, ...changedSettings };
 
-  function setSetting<K extends keyof ConnectionSettingsWithMandatoryPassword>(
+  function setIdentifier<K extends keyof ConnectionIdentifiers>(
     key: K,
-    value: ConnectionSettingsWithMandatoryPassword[K],
+    value: ConnectionIdentifiers[K],
   ) {
     setLoginStatus("none");
-    setChangedSettings((settings) => ({ ...settings, [key]: value }));
+    setIdentifiers((identifiers) => ({ ...identifiers, [key]: value }));
   }
 
-  async function testConnectionAndSave(settings: ConnectionSettingsWithMandatoryPassword) {
+  async function testConnectionAndSave() {
     setLoginStatus("in-progress");
 
-    const result = await testConnection(settings, otpCode || undefined);
+    const result = await testConnection(identifiers, password, otpCode || undefined);
 
     setLoginStatus(result);
 
     if (!ClientRequestResult.isConnectionFailure(result) && result.success) {
-      // A device token only comes back from a login that used a one-time password, so keep the
-      // existing one when this login didn't need one.
       props.saveConnectionSettings({
-        ...settings,
-        deviceToken: result.data.did ?? settings.deviceToken,
+        identifiers,
+        secrets: { password, deviceToken: result.data.did },
+        rememberSecrets,
       });
       setOtpCode("");
     }
@@ -66,8 +65,7 @@ export function ConnectionSettings(props: Props) {
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        assert(mergedSettings.password != null);
-        testConnectionAndSave(mergedSettings as ConnectionSettingsWithMandatoryPassword);
+        testConnectionAndSave();
       }}
       className="connection-settings"
     >
@@ -77,9 +75,9 @@ export function ConnectionSettings(props: Props) {
           <div className="input">
             <select
               {...disabledPropAndClassName(!canEditFields)}
-              value={mergedSettings.protocol}
+              value={identifiers.protocol}
               onChange={(e) => {
-                setSetting("protocol", e.currentTarget.value as Protocol);
+                setIdentifier("protocol", e.currentTarget.value as Protocol);
               }}
               ref={kludgeRefSetClassname("protocol-setting")}
             >
@@ -94,9 +92,9 @@ export function ConnectionSettings(props: Props) {
               type="text"
               {...disabledPropAndClassName(!canEditFields)}
               placeholder={browser.i18n.getMessage("hostname_or_IP_address")}
-              value={mergedSettings.hostname}
+              value={identifiers.hostname}
               onChange={(e) => {
-                setSetting("hostname", e.currentTarget.value.trim());
+                setIdentifier("hostname", e.currentTarget.value.trim());
               }}
               ref={kludgeRefSetClassname("host-setting")}
             />
@@ -104,10 +102,10 @@ export function ConnectionSettings(props: Props) {
             <input
               {...disabledPropAndClassName(!canEditFields)}
               type="number"
-              value={mergedSettings.port === 0 ? "" : mergedSettings.port}
+              value={identifiers.port === 0 ? "" : identifiers.port}
               onChange={(e) => {
                 const port = +(e.currentTarget.value.replace(/[^0-9]/g, "") || 0);
-                setSetting("port", port);
+                setIdentifier("port", port);
               }}
               ref={kludgeRefSetClassname("port-setting")}
             />
@@ -120,9 +118,9 @@ export function ConnectionSettings(props: Props) {
             <input
               type="text"
               {...disabledPropAndClassName(!canEditFields)}
-              value={mergedSettings.username}
+              value={identifiers.username}
               onChange={(e) => {
-                setSetting("username", e.currentTarget.value);
+                setIdentifier("username", e.currentTarget.value);
               }}
             />
           </div>
@@ -134,9 +132,10 @@ export function ConnectionSettings(props: Props) {
             <input
               type="password"
               {...disabledPropAndClassName(!canEditFields)}
-              value={mergedSettings.password ?? ""}
+              value={password}
               onChange={(e) => {
-                setSetting("password", e.currentTarget.value);
+                setLoginStatus("none");
+                setPassword(e.currentTarget.value);
               }}
             />
           </div>
@@ -147,9 +146,10 @@ export function ConnectionSettings(props: Props) {
             type="checkbox"
             {...disabledPropAndClassName(!canEditFields)}
             id={checkboxId}
-            checked={mergedSettings.rememberPassword}
+            checked={rememberSecrets}
             onChange={() => {
-              setSetting("rememberPassword", !mergedSettings.rememberPassword);
+              setLoginStatus("none");
+              setRememberSecrets(!rememberSecrets);
             }}
           />
           <label htmlFor={checkboxId}>{browser.i18n.getMessage("Remember_Password")}</label>
@@ -180,11 +180,11 @@ export function ConnectionSettings(props: Props) {
             type="submit"
             {...disabledPropAndClassName(
               !canEditFields ||
-                !mergedSettings.protocol ||
-                !mergedSettings.hostname ||
-                !mergedSettings.port ||
-                !mergedSettings.username ||
-                !mergedSettings.password ||
+                !identifiers.protocol ||
+                !identifiers.hostname ||
+                !identifiers.port ||
+                !identifiers.username ||
+                !password ||
                 (loginStatus !== "none" &&
                   !ClientRequestResult.isConnectionFailure(loginStatus) &&
                   loginStatus.success),

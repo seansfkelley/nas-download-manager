@@ -37,13 +37,14 @@ function flush() {
 
 const SETTINGS: PersistentState["settings"] = {
   connection: {
-    protocol: "https",
-    hostname: "hostname",
-    port: 5001,
-    username: "username",
-    password: "password",
-    rememberPassword: true,
-    deviceToken: undefined,
+    identifiers: {
+      protocol: "https",
+      hostname: "hostname",
+      port: 5001,
+      username: "username",
+    },
+    secrets: { password: "password", deviceToken: undefined },
+    rememberSecrets: true,
   },
   visibleTasks: {
     downloading: true,
