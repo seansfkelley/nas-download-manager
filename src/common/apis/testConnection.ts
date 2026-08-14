@@ -26,11 +26,7 @@ export async function testConnection(
   otpCode: string | undefined,
 ): Promise<ClientRequestResult<AuthLoginResponse>> {
   const client = createEphemeralClient(
-    SynologyLoginParameters.fromConnection(
-      identifiers,
-      { password, deviceToken: undefined },
-      otpCode,
-    ),
+    SynologyLoginParameters.fromConnection(identifiers, password, { otpCode }),
   );
   const loginResult = await client.Auth.Login({ timeout: 30000 });
 

@@ -15,11 +15,10 @@ async function getLoginParameters(): Promise<SynologyLoginParameters | Connectio
     SessionState.get(),
   ]);
   const connection = persistentState?.settings.connection;
-  return SynologyLoginParameters.fromConnection(
-    connection?.identifiers,
-    // The secrets are stored in session state iff remember secrets is not set, so prefer those.
-    sessionState.secrets ?? connection?.secrets,
-  );
+  const secrets = sessionState.secrets ?? connection?.secrets;
+  return SynologyLoginParameters.fromConnection(connection?.identifiers, secrets?.password, {
+    deviceToken: secrets?.deviceToken,
+  });
 }
 
 async function getStoredAuth(login: LoginCacheKey): Promise<SynologyLoginResult | undefined> {

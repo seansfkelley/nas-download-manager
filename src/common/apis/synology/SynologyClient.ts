@@ -1,5 +1,5 @@
 import { typesafeIsEqual } from "../../lang";
-import { ConnectionIdentifiers, ConnectionSecrets, getHostUrl } from "../../state";
+import { ConnectionIdentifiers, getHostUrl } from "../../state";
 
 import { Auth, AuthLoginRequest, AuthLoginResponse } from "./Auth";
 import { DownloadStation } from "./DownloadStation";
@@ -58,44 +58,40 @@ export const LoginCacheKey = {
     baseUrl: login.baseUrl,
     username: login.username,
     password: login.password,
-    deviceToken: login.deviceToken ?? null,
+    deviceToken: "deviceToken" in login ? (login.deviceToken ?? null) : null,
     session: login.session,
   }),
 };
 
-export interface SynologyLoginParameters {
+export type SynologyLoginParameters = {
   baseUrl: string;
   username: string;
   password: string;
-  deviceToken: string | undefined;
   session: SessionName;
-  otpCode: string | undefined;
-}
+} & ({ deviceToken: string | undefined } | { otpCode: string | undefined } | {});
 
 export const SynologyLoginParameters = {
   fromConnection: (
     identifiers: ConnectionIdentifiers | undefined,
-    secrets: ConnectionSecrets | undefined,
-    otpCode?: string,
+    password: string | undefined,
+    using: { deviceToken: string | undefined } | { otpCode: string | undefined } | {} = {},
   ): SynologyLoginParameters | ConnectionFailure => {
     const baseUrl = identifiers != null ? getHostUrl(identifiers) : undefined;
-
     // A missing password is reported separately, and only when it is the only thing missing, because
     // it is the one thing the popup can collect on its own.
     if (baseUrl == null || !identifiers?.username) {
       return { type: "missing-config", which: "other" };
-    } else if (!secrets?.password) {
+    } else if (!password) {
       return { type: "missing-config", which: "password" };
+    } else {
+      return {
+        baseUrl,
+        username: identifiers.username,
+        password: password,
+        session: SessionName.DownloadStation,
+        ...using,
+      };
     }
-
-    return {
-      baseUrl,
-      username: identifiers.username,
-      password: secrets.password,
-      deviceToken: secrets.deviceToken,
-      session: SessionName.DownloadStation,
-      otpCode,
-    };
   },
 };
 
@@ -231,7 +227,7 @@ export class SynologyClient {
     }
 
     const promise = (async () => {
-      const { baseUrl, username, password, deviceToken, session, otpCode } = login;
+      const { baseUrl, username, password, session } = login;
 
       const attempt = (
         version: AuthLoginRequest["version"],
@@ -247,22 +243,22 @@ export class SynologyClient {
         });
 
       try {
-        if (otpCode != null) {
+        if ("otpCode" in login && login.otpCode) {
           // Only version 6 can issue or accept a device token. Versions 2 and 3 accept a OTP, but
           // we need the token to be able to automatically re-authenticate on session expiration, so
           // that isn't enough.
           return await attempt(6, {
-            otp_code: otpCode,
+            otp_code: login.otpCode,
             enable_device_token: "yes",
             device_name: DEVICE_NAME,
           });
         }
 
-        if (deviceToken != null) {
+        if ("deviceToken" in login && login.deviceToken) {
           // This is the aforementioned re-authentication code path.
           return await attempt(6, {
             device_name: DEVICE_NAME,
-            device_id: deviceToken,
+            device_id: login.deviceToken,
           });
         }
 

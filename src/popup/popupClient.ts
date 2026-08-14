@@ -1,4 +1,4 @@
-import { testConnection } from "../common/apis/connection";
+import { testConnection } from "../common/apis/testConnection";
 import { AddTaskOptions, Directory, Login, MessageResponse } from "../common/apis/messages";
 import {
   AddTasks,
