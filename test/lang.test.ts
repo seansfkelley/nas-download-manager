@@ -1,4 +1,4 @@
-import { nullToUndefined, undefinedToNull } from "../src/common/lang";
+import { nullToUndefined, typesafeIsEqual, undefinedToNull } from "../src/common/lang";
 
 // Compile-time only: fields that cannot hold the value being replaced must come back unwidened.
 const _requiredSurvivesUndefinedToNull: { a: string } = undefinedToNull({ a: "" } as { a: string });
@@ -7,6 +7,22 @@ const _requiredSurvivesNullToUndefined: { a: string } = nullToUndefined({ a: "" 
 const _nullableGainsUndefined: { a: string | undefined } = nullToUndefined({ a: null } as {
   a: string | null;
 });
+
+// Compile-time only: the whole point of the wrapper is that the type parameter does not widen to
+// something both arguments satisfy, which would make every comparison legal and lodash's signature
+// no better. Every @ts-expect-error here is itself an error if the call starts compiling.
+const _sameType: boolean = typesafeIsEqual({ a: 1 }, { a: 2 });
+const _widerSecondArgument: boolean = typesafeIsEqual(["a"], undefined as string[] | undefined);
+// @ts-expect-error -- different primitives.
+const _primitives: boolean = typesafeIsEqual("a", 1);
+// @ts-expect-error -- disjoint object shapes.
+const _disjointShapes: boolean = typesafeIsEqual({ a: 1 }, { b: 2 });
+// @ts-expect-error -- same key, different value type.
+const _valueTypes: boolean = typesafeIsEqual({ a: 1 }, { a: "1" });
+// @ts-expect-error -- different element types.
+const _elementTypes: boolean = typesafeIsEqual([1], ["a"]);
+// @ts-expect-error -- null is not undefined.
+const _nullAndUndefined: boolean = typesafeIsEqual(null, undefined);
 
 describe(undefinedToNull, () => {
   it("should replace an explicitly-undefined value with null", () => {

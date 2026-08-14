@@ -79,8 +79,12 @@ export function typesafeMapValues<K extends string, V, U>(
   return result;
 }
 
-// lodash's own signature takes two anys, so comparing values that could never be equal is not an
-// error, just a very reliable false.
-export function typesafeIsEqual<T>(a: T, b: T): boolean {
+// A single type parameter is not enough: given two object literals of unrelated shapes, inference
+// unions the candidates and both arguments satisfy the result. Requiring one type to be assignable
+// to the other is what rejects a comparison that could only ever be false. Tuples so that the
+// conditionals don't distribute over unions, which is the whole point of the wider-argument case.
+type Comparable<A, B> = [A] extends [B] ? unknown : [B] extends [A] ? unknown : never;
+
+export function typesafeIsEqual<A, B>(a: A, b: B & Comparable<A, B>): boolean {
   return isEqual(a, b);
 }
