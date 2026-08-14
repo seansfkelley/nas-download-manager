@@ -17,7 +17,7 @@ export interface SessionState extends TaskState {
   // the persistent settings deliberately do not have them.
   secrets?: ConnectionSecrets;
   // Tagged with the login that produced it to detect changes that require reauthorization.
-  auth?: { login: LoginCacheKey; auth: SynologyLoginResult };
+  auth?: { key: LoginCacheKey; result: SynologyLoginResult };
   // Identifies the most recently initiated task fetch, so that a fetch can discard its own results
   // if a newer one has started in the meantime.
   latestTaskFetchId?: string;

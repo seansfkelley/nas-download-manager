@@ -1,4 +1,4 @@
-// eslint-disable-next-line no-restricted-imports -- the one wrapper everything else has to go through.
+// eslint-disable-next-line no-restricted-imports -- required to wrap it
 import { default as isEqual } from "lodash/isEqual";
 
 import type { OmitStrict } from "./types";

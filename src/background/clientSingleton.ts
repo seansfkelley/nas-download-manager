@@ -23,7 +23,7 @@ async function getLoginParameters(): Promise<SynologyLoginParameters | Connectio
 
 async function getStoredAuth(login: LoginCacheKey): Promise<SynologyLoginResult | undefined> {
   const stored = (await SessionState.get()).auth;
-  return stored != null && typesafeIsEqual(stored.login, login) ? stored.auth : undefined;
+  return stored != null && typesafeIsEqual(stored.key, login) ? stored.result : undefined;
 }
 
 // Since we construct the client as a singleton, we defer the read/write lifecycle of this to it
@@ -33,7 +33,7 @@ async function onAuthChange(login: LoginCacheKey, auth: SynologyLoginResult | un
     if (auth == null) {
       await SessionState.set({ auth: undefined });
     } else {
-      await SessionState.set({ auth: { login, auth } });
+      await SessionState.set({ auth: { key: login, result: auth } });
     }
   } catch (e) {
     saveLastSevereError(e, "error while persisting auth to session state");
