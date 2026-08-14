@@ -1,7 +1,6 @@
 import { ConnectionIdentifiers } from "../state";
 
 import {
-  type AuthLoginResponse,
   ClientRequestResult,
   ConnectionFailure,
   SynologyClient,
@@ -24,27 +23,24 @@ export async function testConnection(
   identifiers: ConnectionIdentifiers,
   password: string,
   otpCode: string | undefined,
-): Promise<ClientRequestResult<AuthLoginResponse>> {
+): Promise<ClientRequestResult<{ did: string | undefined }>> {
   const client = createEphemeralClient(
     SynologyLoginParameters.fromConnection(identifiers, password, { otpCode }),
   );
   const loginResult = await client.Auth.Login({ timeout: 30000 });
 
   if (!ClientRequestResult.isConnectionFailure(loginResult) && loginResult.success) {
-    // Note that this is fire-and-forget.
-    client.Auth.Logout({ timeout: 10000 }).then((logoutResponse) => {
-      if (
-        logoutResponse === "not-logged-in" ||
-        ClientRequestResult.isConnectionFailure(logoutResponse) ||
-        !logoutResponse.success
-      ) {
-        console.error(
-          "ignoring unexpected failure while logging out after successful connection test",
-          logoutResponse,
-        );
-      }
-    });
+    // Fire and forget the cleanup, just to avoid stale sessions lying around on the NAS.
+    client.Auth.Logout({ timeout: 10000 });
+    return {
+      ...loginResult,
+      data: {
+        // Don't let anyone downstream use the SID that we just logged out. But the DID is useful
+        // and will be valid in future login attempts.
+        did: loginResult.data.did,
+      },
+    };
+  } else {
+    return loginResult;
   }
-
-  return loginResult;
 }

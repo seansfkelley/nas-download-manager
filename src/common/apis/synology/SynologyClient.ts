@@ -48,9 +48,12 @@ export interface LoginCacheKey {
   baseUrl: string;
   username: string;
   password: string;
-  // n.b. this is specifically null to survive browser.storage round-trips.
-  deviceToken: string | null;
   session: SessionName;
+  // n.b. does not include OTP because, obviously, it's not cacheable for any amount of time, but
+  // also does not include the device token because that is not something that can be refreshed
+  // without using an OTP, that is, it can only change if a human has re-logged-in, at which point,
+  // the cache has already been wiped explicitly. If device tokens ever expire, we will go into an
+  // error state and demand the user re-login anyway.
 }
 
 export const LoginCacheKey = {
@@ -58,7 +61,6 @@ export const LoginCacheKey = {
     baseUrl: login.baseUrl,
     username: login.username,
     password: login.password,
-    deviceToken: "deviceToken" in login ? (login.deviceToken ?? null) : null,
     session: login.session,
   }),
 };
@@ -298,15 +300,19 @@ export class SynologyClient {
     await this.onAuthChange(login, undefined);
   };
 
-  // Note that this method is a BEST EFFORT. It only logs out the session this client can see, and
-  // the next non-logout call is guaranteed to attempt to log back in. The result is provided for
-  // convenience and may not reflect the true state of the session by the time it resolves.
+  // This function is a BEST EFFORT. Its weird return type means you can await it to know that the
+  // local state has been cleared, but if you want to wait to hear back from the NAS itself, you can
+  // further await the nested promise.
+  //
+  // Note that the result from the full logout call may not reflect the current state of the session
+  // and that this call makes no effort to synchronize access to the underlying storage, so don't
+  // run it in parallel with any other requests that might trigger a login.
   private maybeLogOut = async (
     request?: BaseRequest,
-  ): Promise<ClientRequestResult<{}> | "not-logged-in"> => {
+  ): Promise<{ logout: Promise<ClientRequestResult<{}> | "not-logged-in"> }> => {
     const login = await this.getLoginParameters();
     if (ConnectionFailure.is(login)) {
-      return login;
+      return { logout: Promise.resolve(login) };
     }
 
     const loginCacheKey = LoginCacheKey.from(login);
@@ -319,29 +325,33 @@ export class SynologyClient {
     // desired.
     await this.clearAuth(loginCacheKey);
 
-    if (inflight != null) {
-      const response = await inflight;
-      const abandoned = toLoginResult(response);
-      if (SynologyLoginResult.isLoggedIn(abandoned)) {
-        return Auth.Logout(login.baseUrl, {
-          ...request,
-          sid: abandoned.sid,
-          session: login.session,
-        });
-      } else {
-        return response;
-      }
-    } else if (lastKnownAuth == null) {
-      return "not-logged-in" as const;
-    } else if (SynologyLoginResult.isLoggedIn(lastKnownAuth)) {
-      return await Auth.Logout(login.baseUrl, {
-        ...request,
-        sid: lastKnownAuth.sid,
-        session: login.session,
-      });
-    } else {
-      return lastKnownAuth;
-    }
+    return {
+      logout: (async () => {
+        if (inflight != null) {
+          const response = await inflight;
+          const abandoned = toLoginResult(response);
+          if (SynologyLoginResult.isLoggedIn(abandoned)) {
+            return Auth.Logout(login.baseUrl, {
+              ...request,
+              sid: abandoned.sid,
+              session: login.session,
+            });
+          } else {
+            return response;
+          }
+        } else if (lastKnownAuth == null) {
+          return "not-logged-in" as const;
+        } else if (SynologyLoginResult.isLoggedIn(lastKnownAuth)) {
+          return await Auth.Logout(login.baseUrl, {
+            ...request,
+            sid: lastKnownAuth.sid,
+            session: login.session,
+          });
+        } else {
+          return lastKnownAuth;
+        }
+      })(),
+    };
   };
 
   private proxy<T, U>(

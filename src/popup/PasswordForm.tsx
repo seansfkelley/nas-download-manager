@@ -13,7 +13,6 @@ export interface Props {
 export function PasswordForm(props: Props) {
   const [status, setStatus] = useState<Status>("none");
   const [password, setPassword] = useState("");
-  // Deliberately not remembered anywhere: a one-time password is good for one login.
   const [otpCode, setOtpCode] = useState("");
 
   return (
