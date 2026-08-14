@@ -9,7 +9,7 @@ import { saveLastSevereError } from "../common/errorHandlers";
 import { typesafeIsEqual } from "../common/lang";
 import { PersistentState, SessionState } from "../common/state";
 
-async function getLogin(): Promise<SynologyLoginParameters | ConnectionFailure> {
+async function getLoginParameters(): Promise<SynologyLoginParameters | ConnectionFailure> {
   const [persistentState, sessionState] = await Promise.all([
     PersistentState.get(),
     SessionState.get(),
@@ -22,23 +22,19 @@ async function getLogin(): Promise<SynologyLoginParameters | ConnectionFailure> 
   );
 }
 
-async function getStoredAuth(
-  login: SynologyLoginParameters,
-): Promise<SynologyLoginResult | undefined> {
+async function getStoredAuth(login: LoginCacheKey): Promise<SynologyLoginResult | undefined> {
   const stored = (await SessionState.get()).auth;
-  return stored != null && typesafeIsEqual(stored.login, LoginCacheKey.from(login))
-    ? stored.auth
-    : undefined;
+  return stored != null && typesafeIsEqual(stored.login, login) ? stored.auth : undefined;
 }
 
 // Since we construct the client as a singleton, we defer the read/write lifecycle of this to it
 // completely since we don't need to reconcile multiple readers and writers.
-async function onAuthChange(login: SynologyLoginParameters, auth: SynologyLoginResult | undefined) {
+async function onAuthChange(login: LoginCacheKey, auth: SynologyLoginResult | undefined) {
   try {
     if (auth == null) {
       await SessionState.set({ auth: undefined });
     } else {
-      await SessionState.set({ auth: { login: LoginCacheKey.from(login), auth } });
+      await SessionState.set({ auth: { login: login, auth } });
     }
   } catch (e) {
     saveLastSevereError(e, "error while persisting auth to session state");
@@ -51,4 +47,4 @@ async function onAuthChange(login: SynologyLoginParameters, auth: SynologyLoginR
 //
 // One per realm is also the point: two clients on a cold wake would both miss the stored auth and
 // race into a login, which the NAS reports as a session interrupted by duplicate login.
-export const singleton = new SynologyClient(getLogin, getStoredAuth, onAuthChange);
+export const singleton = new SynologyClient(getLoginParameters, getStoredAuth, onAuthChange);

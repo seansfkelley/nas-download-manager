@@ -411,7 +411,7 @@ export async function addDownloadTasksAndFetch(
   }
 
   // The client would report this itself, but only per-request and in less specific words, so pre-empt it.
-  const login = await client.getLogin();
+  const login = await client.getLoginParameters();
 
   if (ConnectionFailure.is(login)) {
     sendNotification(
