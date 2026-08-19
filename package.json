@@ -5,7 +5,7 @@
   "scripts": {
     "test": "jest",
     "lint": "prettier --check . && eslint .",
-    "typecheck": "tsc -p src --noemit && tsc -p test --noemit",
+    "typecheck": "tsc -p src --noemit && tsc -p test --noemit && tsc -p screenshots --noemit",
     "check:dist": "web-ext lint --source-dir dist",
     "browser:firefox": "web-ext run --source-dir dist --target firefox-desktop --firefox-profile ./.firefox-profile --profile-create-if-missing --keep-profile-changes --devtools --url about:debugging#/runtime/this-firefox",
     "browser:chrome": "web-ext run --source-dir dist --target chromium --chromium-profile ./.chrome-profile --profile-create-if-missing --url chrome://extensions",
@@ -13,7 +13,10 @@
     "dist": "rm -rf dist && parcel build manifest.json --no-source-maps",
     "package": "npm run dist && npm run check:dist && npm run zip",
     "zip": "rm -f addon.zip && cd dist && zip -qr ../addon.zip . -x '**/*.map' -x '**/.DS_Store'",
-    "zip-sources": "rm -f sources.zip && git archive --format=zip -o sources.zip HEAD"
+    "zip-sources": "rm -f sources.zip && git archive --format=zip -o sources.zip HEAD",
+    "mock:dist": "rm -rf .mock-dist && parcel build screenshots/mock/manifest.json --dist-dir .mock-dist --no-source-maps && rm -rf .mock-dist/up_ && cp -R _locales .mock-dist/_locales",
+    "mock:firefox": "npm run mock:dist && web-ext run --source-dir .mock-dist --target firefox-desktop",
+    "mock:chrome": "npm run mock:dist && web-ext run --source-dir .mock-dist --target chromium"
   },
   "repository": {
     "type": "git",

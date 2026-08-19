@@ -1,0 +1,5 @@
+{
+  "extends": "../src/tsconfig.json",
+  // The ambient declarations under src/ are not reachable from the mock's imports.
+  "include": [".", "../src/**/*.d.ts"]
+}
