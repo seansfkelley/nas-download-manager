@@ -141,6 +141,23 @@ export function ConnectionSettings(props: Props) {
           </div>
         </li>
 
+        <li className="label-and-input">
+          <span className="label">{browser.i18n.getMessage("2FA_code")}</span>
+          <div className="input">
+            <input
+              type="text"
+              autoComplete="one-time-code"
+              {...disabledPropAndClassName(!canEditFields)}
+              placeholder={browser.i18n.getMessage("only_if_required")}
+              value={otpCode}
+              onChange={(e) => {
+                setLoginStatus("none");
+                setOtpCode(e.currentTarget.value.trim());
+              }}
+            />
+          </div>
+        </li>
+
         <li className="label-and-input remember-me">
           <input
             type="checkbox"
@@ -153,25 +170,6 @@ export function ConnectionSettings(props: Props) {
             }}
           />
           <label htmlFor={checkboxId}>{browser.i18n.getMessage("Remember_Password")}</label>
-        </li>
-
-        <li className="label-and-input">
-          <span className="label">
-            {browser.i18n.getMessage("Twostep_verification_code_optional")}
-          </span>
-          <div className="input">
-            <input
-              type="text"
-              autoComplete="one-time-code"
-              {...disabledPropAndClassName(!canEditFields)}
-              placeholder={browser.i18n.getMessage("Only_if_2step_verification_is_enabled")}
-              value={otpCode}
-              onChange={(e) => {
-                setLoginStatus("none");
-                setOtpCode(e.currentTarget.value.trim());
-              }}
-            />
-          </div>
         </li>
 
         <li>

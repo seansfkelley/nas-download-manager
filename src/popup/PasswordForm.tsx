@@ -38,7 +38,7 @@ export function PasswordForm(props: Props) {
       <input
         type="text"
         autoComplete="one-time-code"
-        placeholder={browser.i18n.getMessage("Twostep_verification_code_optional")}
+        placeholder={browser.i18n.getMessage("2FA_code_only_if_required")}
         value={otpCode}
         disabled={status === "in-progress"}
         onChange={(e) => {
