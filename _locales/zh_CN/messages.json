@@ -146,8 +146,8 @@
     "message": "请在设置中配置主机名和登录信息",
     "description": "Body text for popup when no tasks are shown because nothing is configured."
   },
-  "Password_required": {
-    "message": "需要登录密码",
+  "Login_Required": {
+    "message": "需要登录",
     "description": "Body text for popup when user is being asked to log in again."
   },
   "No_download_tasks": {
@@ -358,8 +358,8 @@
     "message": "连接设置",
     "description": "Header for settings section."
   },
-  "Please_note_that_QuickConnect_IDs_and_twofactor_authentication_are_not_currently_supported": {
-    "message": "请注意：“QuickConnect ID” 和 “2步骤认证” 目前尚未支持",
+  "Please_note_that_QuickConnect_IDs_are_not_currently_supported": {
+    "message": "请注意：“QuickConnect ID” 目前尚未支持",
     "description": "Subheader for Connection settings section."
   },
   "hostname_or_IP_address": {
@@ -557,6 +557,38 @@
   "Twostep_verification_failed": {
     "message": "2步骤验证失败",
     "description": "Error message on Synology API call failure."
+  },
+  "Twostep_verification_is_enforced_for_this_account": {
+    "message": "此账户必须使用2步骤验证",
+    "description": "Error message on Synology API call failure."
+  },
+  "Blocked_IP_source": {
+    "message": "IP地址已被封锁",
+    "description": "Error message on Synology API call failure."
+  },
+  "Expired_password_cannot_be_changed": {
+    "message": "已过期的密码无法更改",
+    "description": "Error message on Synology API call failure."
+  },
+  "Expired_password": {
+    "message": "密码已过期",
+    "description": "Error message on Synology API call failure."
+  },
+  "Password_must_be_changed": {
+    "message": "必须更改密码",
+    "description": "Error message on Synology API call failure."
+  },
+  "2FA_code": {
+    "message": "2FA 验证码",
+    "description": "Label for field on settings page."
+  },
+  "only_if_required": {
+    "message": "（仅在需要时填写）",
+    "description": "Placeholder for settings input field."
+  },
+  "2FA_code_only_if_required": {
+    "message": "2FA 验证码（仅在需要时填写）",
+    "description": "Placeholder for popup input field."
   },
   "File_upload_failed": {
     "message": "文件上传出错",

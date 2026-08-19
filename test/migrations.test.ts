@@ -3,6 +3,7 @@ import { cloneDeep } from "lodash";
 import type { DownloadStationTask } from "../src/common/apis/synology/DownloadStation/Task";
 import type { State as State_1 } from "../src/common/state/migrations/1";
 import type { State as State_10 } from "../src/common/state/migrations/10";
+import type { State as State_11 } from "../src/common/state/migrations/11";
 import type { State as State_2 } from "../src/common/state/migrations/2";
 import type { State as State_3 } from "../src/common/state/migrations/3";
 import type { State as State_4 } from "../src/common/state/migrations/4";
@@ -61,7 +62,7 @@ const DUMMY_TASK: DownloadStationTask = {
   status: "downloading",
 };
 
-function testMigration<T>(before: T, after: State_10) {
+function testMigration<T>(before: T, after: State_11) {
   const originalBefore = cloneDeep(before);
   const transitioned = migrateState(before);
 
@@ -100,12 +101,14 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
-            protocol: "https",
-            hostname: "hostname",
-            port: 0,
-            username: "username",
-            password: "password",
-            rememberPassword: true,
+            identifiers: {
+              protocol: "https",
+              hostname: "hostname",
+              port: 0,
+              username: "username",
+            },
+            secrets: { password: "password", deviceToken: undefined },
+            rememberSecrets: true,
           },
           visibleTasks: {
             downloading: true,
@@ -124,7 +127,7 @@ describe("state versioning", () => {
           showInactiveTasks: true,
         },
         lastSevereError: undefined,
-        stateVersion: 10,
+        stateVersion: 11,
       },
     );
   });
@@ -161,12 +164,14 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
-            protocol: "https",
-            hostname: "hostname",
-            port: 0,
-            username: "username",
-            password: "password",
-            rememberPassword: true,
+            identifiers: {
+              protocol: "https",
+              hostname: "hostname",
+              port: 0,
+              username: "username",
+            },
+            secrets: { password: "password", deviceToken: undefined },
+            rememberSecrets: true,
           },
           visibleTasks: {
             downloading: true,
@@ -185,7 +190,7 @@ describe("state versioning", () => {
           showInactiveTasks: true,
         },
         lastSevereError: undefined,
-        stateVersion: 10,
+        stateVersion: 11,
       },
     );
   });
@@ -196,12 +201,14 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
-            protocol: "https",
-            hostname: "",
-            port: 5001,
-            username: "",
-            password: "",
-            rememberPassword: true,
+            identifiers: {
+              protocol: "https",
+              hostname: "",
+              port: 5001,
+              username: "",
+            },
+            secrets: undefined,
+            rememberSecrets: true,
           },
           visibleTasks: {
             downloading: true,
@@ -220,7 +227,7 @@ describe("state versioning", () => {
           showInactiveTasks: true,
         },
         lastSevereError: undefined,
-        stateVersion: 10,
+        stateVersion: 11,
       },
     );
   });
@@ -229,12 +236,14 @@ describe("state versioning", () => {
     testMigration<null>(null, {
       settings: {
         connection: {
-          protocol: "https",
-          hostname: "",
-          port: 5001,
-          username: "",
-          password: "",
-          rememberPassword: true,
+          identifiers: {
+            protocol: "https",
+            hostname: "",
+            port: 5001,
+            username: "",
+          },
+          secrets: undefined,
+          rememberSecrets: true,
         },
         visibleTasks: {
           downloading: true,
@@ -253,7 +262,7 @@ describe("state versioning", () => {
         showInactiveTasks: true,
       },
       lastSevereError: undefined,
-      stateVersion: 10,
+      stateVersion: 11,
     });
   });
 
@@ -290,12 +299,14 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
-            protocol: "https",
-            hostname: "hostname",
-            port: 0,
-            username: "username",
-            password: "password",
-            rememberPassword: true,
+            identifiers: {
+              protocol: "https",
+              hostname: "hostname",
+              port: 0,
+              username: "username",
+            },
+            secrets: { password: "password", deviceToken: undefined },
+            rememberSecrets: true,
           },
           visibleTasks: {
             downloading: true,
@@ -314,7 +325,7 @@ describe("state versioning", () => {
           showInactiveTasks: true,
         },
         lastSevereError: undefined,
-        stateVersion: 10,
+        stateVersion: 11,
       },
     );
   });
@@ -353,12 +364,14 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
-            protocol: "https",
-            hostname: "hostname",
-            port: 0,
-            username: "username",
-            password: "password",
-            rememberPassword: true,
+            identifiers: {
+              protocol: "https",
+              hostname: "hostname",
+              port: 0,
+              username: "username",
+            },
+            secrets: { password: "password", deviceToken: undefined },
+            rememberSecrets: true,
           },
           visibleTasks: {
             downloading: true,
@@ -377,7 +390,7 @@ describe("state versioning", () => {
           showInactiveTasks: true,
         },
         lastSevereError: undefined,
-        stateVersion: 10,
+        stateVersion: 11,
       },
     );
   });
@@ -414,12 +427,14 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
-            protocol: "https",
-            hostname: "hostname",
-            port: 0,
-            username: "username",
-            password: "password",
-            rememberPassword: true,
+            identifiers: {
+              protocol: "https",
+              hostname: "hostname",
+              port: 0,
+              username: "username",
+            },
+            secrets: { password: "password", deviceToken: undefined },
+            rememberSecrets: true,
           },
           visibleTasks: {
             downloading: true,
@@ -438,7 +453,7 @@ describe("state versioning", () => {
           showInactiveTasks: true,
         },
         lastSevereError: undefined,
-        stateVersion: 10,
+        stateVersion: 11,
       },
     );
   });
@@ -477,12 +492,14 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
-            protocol: "https",
-            hostname: "hostname",
-            port: 0,
-            username: "username",
-            password: "password",
-            rememberPassword: true,
+            identifiers: {
+              protocol: "https",
+              hostname: "hostname",
+              port: 0,
+              username: "username",
+            },
+            secrets: { password: "password", deviceToken: undefined },
+            rememberSecrets: true,
           },
           visibleTasks: {
             downloading: true,
@@ -501,7 +518,7 @@ describe("state versioning", () => {
           showInactiveTasks: true,
         },
         lastSevereError: undefined,
-        stateVersion: 10,
+        stateVersion: 11,
       },
     );
   });
@@ -541,12 +558,14 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
-            protocol: "https",
-            hostname: "hostname",
-            port: 0,
-            username: "username",
-            password: "password",
-            rememberPassword: true,
+            identifiers: {
+              protocol: "https",
+              hostname: "hostname",
+              port: 0,
+              username: "username",
+            },
+            secrets: { password: "password", deviceToken: undefined },
+            rememberSecrets: true,
           },
           visibleTasks: {
             downloading: true,
@@ -565,7 +584,7 @@ describe("state versioning", () => {
           shouldHandleDownloadLinks: true,
         },
         lastSevereError: undefined,
-        stateVersion: 10,
+        stateVersion: 11,
       },
     );
   });
@@ -607,12 +626,14 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
-            protocol: "https",
-            hostname: "hostname",
-            port: 0,
-            username: "username",
-            password: "password",
-            rememberPassword: true,
+            identifiers: {
+              protocol: "https",
+              hostname: "hostname",
+              port: 0,
+              username: "username",
+            },
+            secrets: { password: "password", deviceToken: undefined },
+            rememberSecrets: true,
           },
           visibleTasks: {
             downloading: true,
@@ -631,7 +652,7 @@ describe("state versioning", () => {
           shouldHandleDownloadLinks: true,
         },
         lastSevereError: undefined,
-        stateVersion: 10,
+        stateVersion: 11,
       },
     );
   });
@@ -673,12 +694,14 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
-            protocol: "https",
-            hostname: "hostname",
-            port: 0,
-            username: "username",
-            password: "password",
-            rememberPassword: true,
+            identifiers: {
+              protocol: "https",
+              hostname: "hostname",
+              port: 0,
+              username: "username",
+            },
+            secrets: { password: "password", deviceToken: undefined },
+            rememberSecrets: true,
           },
           visibleTasks: {
             downloading: true,
@@ -697,7 +720,7 @@ describe("state versioning", () => {
           shouldHandleDownloadLinks: true,
         },
         lastSevereError: undefined,
-        stateVersion: 10,
+        stateVersion: 11,
       },
     );
   });
@@ -740,12 +763,14 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
-            protocol: "https",
-            hostname: "hostname",
-            port: 0,
-            username: "username",
-            password: "password",
-            rememberPassword: true,
+            identifiers: {
+              protocol: "https",
+              hostname: "hostname",
+              port: 0,
+              username: "username",
+            },
+            secrets: { password: "password", deviceToken: undefined },
+            rememberSecrets: true,
           },
           visibleTasks: {
             downloading: true,
@@ -764,7 +789,7 @@ describe("state versioning", () => {
           shouldHandleDownloadLinks: true,
         },
         lastSevereError: undefined,
-        stateVersion: 10,
+        stateVersion: 11,
       },
     );
   });
@@ -808,12 +833,14 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
-            protocol: "https",
-            hostname: "hostname",
-            port: 0,
-            username: "username",
-            password: "password",
-            rememberPassword: true,
+            identifiers: {
+              protocol: "https",
+              hostname: "hostname",
+              port: 0,
+              username: "username",
+            },
+            secrets: { password: "password", deviceToken: undefined },
+            rememberSecrets: true,
           },
           visibleTasks: {
             downloading: true,
@@ -832,7 +859,7 @@ describe("state versioning", () => {
           showInactiveTasks: true,
         },
         lastSevereError: undefined,
-        stateVersion: 10,
+        stateVersion: 11,
       },
     );
   });
@@ -872,6 +899,42 @@ describe("state versioning", () => {
       {
         settings: {
           connection: {
+            identifiers: {
+              protocol: "https",
+              hostname: "hostname",
+              port: 0,
+              username: "username",
+            },
+            secrets: { password: "password", deviceToken: undefined },
+            rememberSecrets: true,
+          },
+          visibleTasks: {
+            downloading: true,
+            uploading: true,
+            completed: true,
+            errored: true,
+            other: true,
+          },
+          notifications: {
+            enableCompletionNotifications: true,
+            enableFeedbackNotifications: true,
+          },
+          shouldHandleDownloadLinks: true,
+          taskSortType: "name-asc",
+          badgeDisplayType: "total",
+          showInactiveTasks: true,
+        },
+        lastSevereError: undefined,
+        stateVersion: 11,
+      },
+    );
+  });
+
+  it("should add an empty remembered device token when upgrading from 10 to 11", () => {
+    testMigration<State_10>(
+      {
+        settings: {
+          connection: {
             protocol: "https",
             hostname: "hostname",
             port: 0,
@@ -898,19 +961,52 @@ describe("state versioning", () => {
         lastSevereError: undefined,
         stateVersion: 10,
       },
+      {
+        settings: {
+          connection: {
+            identifiers: {
+              protocol: "https",
+              hostname: "hostname",
+              port: 0,
+              username: "username",
+            },
+            secrets: { password: "password", deviceToken: undefined },
+            rememberSecrets: true,
+          },
+          visibleTasks: {
+            downloading: true,
+            uploading: true,
+            completed: true,
+            errored: true,
+            other: true,
+          },
+          notifications: {
+            enableCompletionNotifications: true,
+            enableFeedbackNotifications: true,
+          },
+          shouldHandleDownloadLinks: true,
+          taskSortType: "name-asc",
+          badgeDisplayType: "total",
+          showInactiveTasks: true,
+        },
+        lastSevereError: undefined,
+        stateVersion: 11,
+      },
     );
   });
 
   it("should do nothing when the state is already latest", () => {
-    const before: State_10 = {
+    const before: State_11 = {
       settings: {
         connection: {
-          protocol: "https",
-          hostname: "hostname",
-          port: 0,
-          username: "username",
-          password: "password",
-          rememberPassword: true,
+          identifiers: {
+            protocol: "https",
+            hostname: "hostname",
+            port: 0,
+            username: "username",
+          },
+          secrets: { password: "password", deviceToken: undefined },
+          rememberSecrets: true,
         },
         visibleTasks: {
           downloading: true,
@@ -929,7 +1025,7 @@ describe("state versioning", () => {
         shouldHandleDownloadLinks: true,
       },
       lastSevereError: undefined,
-      stateVersion: 10,
+      stateVersion: 11,
     };
 
     expect(migrateState(before)).toBe(before);

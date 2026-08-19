@@ -4,12 +4,14 @@ import type { Settings } from "../src/common/state/migrations/latest";
 
 const SETTINGS: Settings = {
   connection: {
-    protocol: "https",
-    hostname: "hostname",
-    port: 5001,
-    username: "username",
-    password: "password",
-    rememberPassword: true,
+    identifiers: {
+      protocol: "https",
+      hostname: "hostname",
+      port: 5001,
+      username: "username",
+    },
+    secrets: { password: "password", deviceToken: undefined },
+    rememberSecrets: true,
   },
   visibleTasks: {
     downloading: true,

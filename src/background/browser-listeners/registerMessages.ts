@@ -98,10 +98,8 @@ function messageHandlers(client: SynologyClient): MessageHandlers {
       }
     },
     login: async (m) => {
-      // Dump this on the floor; it is a best-effort and we don't want to block on it.
-      client.Auth.Logout();
-
-      await SessionState.set({ password: m.password });
+      await client.Auth.Logout();
+      await SessionState.set({ secrets: m.secrets, auth: undefined });
       await clearCachedTasks();
       await fetchTasks(client);
     },

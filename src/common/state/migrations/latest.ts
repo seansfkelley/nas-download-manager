@@ -5,8 +5,10 @@ export type {
   NotificationSettings,
   Settings,
   ConnectionSettings,
+  ConnectionIdentifiers,
+  ConnectionSecrets,
   Logging,
   StateVersion,
   BadgeDisplayType,
   State,
-} from "./10";
+} from "./11";

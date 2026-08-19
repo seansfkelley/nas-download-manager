@@ -13,6 +13,7 @@ export interface Props {
 export function PasswordForm(props: Props) {
   const [status, setStatus] = useState<Status>("none");
   const [password, setPassword] = useState("");
+  const [otpCode, setOtpCode] = useState("");
 
   return (
     <form
@@ -20,23 +21,34 @@ export function PasswordForm(props: Props) {
       onSubmit={async (e) => {
         e.preventDefault();
         setStatus("in-progress");
-        setStatus(await props.client.testConnectionAndLogin(password));
+        const result = await props.client.testConnectionAndLogin(password, otpCode || undefined);
+        setStatus(result);
       }}
     >
-      <div className="centering-wrapper">
-        <input
-          type="password"
-          value={password}
-          disabled={status === "in-progress"}
-          onChange={(e) => {
-            setStatus("none");
-            setPassword(e.currentTarget.value);
-          }}
-        />
-        <button type="submit" disabled={password.length === 0 || status === "in-progress"}>
-          {browser.i18n.getMessage("Login")}
-        </button>
-      </div>
+      <input
+        type="password"
+        placeholder={browser.i18n.getMessage("Password")}
+        value={password}
+        disabled={status === "in-progress"}
+        onChange={(e) => {
+          setStatus("none");
+          setPassword(e.currentTarget.value);
+        }}
+      />
+      <input
+        type="text"
+        autoComplete="one-time-code"
+        placeholder={browser.i18n.getMessage("2FA_code_only_if_required")}
+        value={otpCode}
+        disabled={status === "in-progress"}
+        onChange={(e) => {
+          setStatus("none");
+          setOtpCode(e.currentTarget.value.trim());
+        }}
+      />
+      <button type="submit" disabled={password.length === 0 || status === "in-progress"}>
+        {browser.i18n.getMessage("Login")}
+      </button>
       <LoginStatus status={status} />
     </form>
   );

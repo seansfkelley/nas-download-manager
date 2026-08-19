@@ -9,6 +9,7 @@ import { TaskFilterSettingsForm } from "../common/components/TaskFilterSettingsF
 import { BUG_REPORT_URL } from "../common/constants";
 import {
   BadgeDisplayType,
+  ConnectionSecrets,
   ConnectionSettings,
   NotificationSettings,
   Settings,
@@ -52,14 +53,14 @@ export function SettingsForm(props: Props) {
   }
 
   async function updateConnectionSettings(
-    connection: Overwrite<ConnectionSettings, { password: string }>,
+    connection: Overwrite<ConnectionSettings, { secrets: ConnectionSecrets }>,
   ) {
-    if (connection.rememberPassword) {
+    if (connection.rememberSecrets) {
       await saveSettings({ connection });
     } else {
-      await saveSettings({ connection: { ...connection, password: undefined } });
+      await saveSettings({ connection: { ...connection, secrets: undefined } });
     }
-    await Login.send(connection.password);
+    await Login.send(connection.secrets);
   }
 
   function maybeRenderDebuggingOutputAndSeparator() {
@@ -115,9 +116,7 @@ export function SettingsForm(props: Props) {
       <header>
         <h3>{browser.i18n.getMessage("Connection")}</h3>
         <p>
-          {browser.i18n.getMessage(
-            "Please_note_that_QuickConnect_IDs_and_twofactor_authentication_are_not_currently_supported",
-          )}
+          {browser.i18n.getMessage("Please_note_that_QuickConnect_IDs_are_not_currently_supported")}
         </p>
       </header>
 

@@ -1,6 +1,6 @@
 import { typesafeMapValues } from "../lang";
 
-import { type ConnectionSettings, Settings } from "./migrations/latest";
+import { type ConnectionIdentifiers, Settings } from "./migrations/latest";
 
 export * from "./constants";
 export * from "./listen";
@@ -8,22 +8,26 @@ export * from "./SessionState";
 export * from "./PersistentState";
 export * from "./migrations/latest";
 
-export function getHostUrl(settings: ConnectionSettings) {
-  if (settings.protocol && settings.hostname && settings.port) {
-    return `${settings.protocol}://${settings.hostname}:${settings.port}`;
+export function getHostUrl({ protocol, hostname, port }: ConnectionIdentifiers) {
+  if (protocol && hostname && port) {
+    return `${protocol}://${hostname}:${port}`;
   } else {
     return undefined;
   }
 }
 
 export function redactSettings(settings: Settings): object {
-  const sanitizedConnection = {
-    ...typesafeMapValues(settings.connection, Boolean),
-    protocol: settings.connection.protocol,
-  };
+  const { identifiers, secrets, rememberSecrets } = settings.connection;
 
   return {
     ...settings,
-    connection: sanitizedConnection,
+    connection: {
+      identifiers: {
+        ...typesafeMapValues(identifiers, Boolean),
+        protocol: identifiers.protocol,
+      },
+      secrets: secrets && typesafeMapValues(secrets, Boolean),
+      rememberSecrets,
+    },
   };
 }

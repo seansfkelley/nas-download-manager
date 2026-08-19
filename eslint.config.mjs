@@ -69,6 +69,23 @@ export default tseslint.config(
       "sort-imports": ["error", { ignoreDeclarationSort: true }],
       // "never" inverts the rule against null, where == is the only way to catch undefined too.
       eqeqeq: ["error", "always", { null: "never" }],
+      "object-shorthand": "error",
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "lodash/isEqual",
+              message: "Use typesafeIsEqual from common/lang, which requires matching types.",
+            },
+            {
+              name: "lodash",
+              importNames: ["isEqual"],
+              message: "Use typesafeIsEqual from common/lang, which requires matching types.",
+            },
+          ],
+        },
+      ],
       "no-restricted-syntax": [
         "error",
         {

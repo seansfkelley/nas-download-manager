@@ -73,7 +73,7 @@ export function Popup(props: Props) {
         return <NonIdealState />;
       } else {
         return (
-          <NonIdealState icon="fa-lock" text={browser.i18n.getMessage("Password_required")}>
+          <NonIdealState icon="fa-lock" text={browser.i18n.getMessage("Login_Required")}>
             <PasswordForm client={props.client} />
           </NonIdealState>
         );

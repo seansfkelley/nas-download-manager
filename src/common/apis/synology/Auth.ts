@@ -9,11 +9,19 @@ export interface AuthLoginRequest extends BaseRequest {
   session: SessionName;
   // 2 is the lowest version that actually provides an sid.
   // 3 is the lowest version that DSM 7 supports.
-  version: 2 | 3;
+  // 6 is the lowest version that supports device tokens.
+  version: 2 | 3 | 6;
+  otp_code?: string;
+  enable_device_token?: "yes" | "no";
+  device_name?: string;
+  device_id?: string;
 }
 
 export interface AuthLoginResponse {
+  // "session ID"
   sid: string;
+  // "device ID"
+  did?: string;
 }
 
 export interface AuthLogoutRequest extends BaseRequest {

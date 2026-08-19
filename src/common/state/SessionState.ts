@@ -1,6 +1,8 @@
-import type { SynologyAuth, SynologyClientSettings } from "../apis/synology";
+import type { LoginCacheKey, SynologyLoginResult } from "../apis/synology";
 import type { DownloadStationTask } from "../apis/synology/DownloadStation/Task";
 import { nullToUndefined, undefinedToNull } from "../lang";
+
+import type { ConnectionSecrets } from "./migrations/latest";
 
 // Type split only for convenience; a lot of the frontend does not care one whit about the other fields.
 export interface TaskState {
@@ -11,11 +13,11 @@ export interface TaskState {
 }
 
 export interface SessionState extends TaskState {
-  // Set imperatively by the login form when the user opts out of remembering their password, in
-  // which case the persistent settings deliberately do not have it.
-  password?: string;
-  // Tagged with the settings that produced it to detect changes that require reauthorization.
-  auth?: { settings: SynologyClientSettings; auth: SynologyAuth };
+  // Set imperatively by the login form when the user opts out of remembering them, in which case
+  // the persistent settings deliberately do not have them.
+  secrets?: ConnectionSecrets;
+  // Tagged with the login that produced it to detect changes that require reauthorization.
+  auth?: { key: LoginCacheKey; result: SynologyLoginResult };
   // Identifies the most recently initiated task fetch, so that a fetch can discard its own results
   // if a newer one has started in the meantime.
   latestTaskFetchId?: string;

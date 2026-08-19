@@ -14,6 +14,6 @@ export function kludgeRefSetClassname(className: string) {
 export function disabledPropAndClassName(disabled: boolean, otherClassNames?: string) {
   return {
     disabled,
-    className: classNames({ disabled: disabled }, otherClassNames),
+    className: classNames({ disabled }, otherClassNames),
   };
 }
