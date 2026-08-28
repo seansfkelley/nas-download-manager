@@ -82,7 +82,9 @@ function task({
 const GIGABYTE = 1024 * 1024 * 1024;
 const MEGABYTE = 1024 * 1024;
 
-const TYPICAL_TASKS: DownloadStationTask[] = [
+// Ordered so that a prefix of it is a whole scenario. The errored task comes second, which is what
+// puts exactly one task behind the "N more hidden" row in the two small scenarios.
+const TASKS: DownloadStationTask[] = [
   task({
     id: "1",
     title: "debian-13.1.0-amd64-netinst.iso",
@@ -94,6 +96,14 @@ const TYPICAL_TASKS: DownloadStationTask[] = [
   }),
   task({
     id: "2",
+    title: "enwiki-20260801-pages-articles-multistream.xml.bz2",
+    status: "error",
+    size: 23.4 * GIGABYTE,
+    downloaded: 8.1 * GIGABYTE,
+    ageSeconds: 720,
+  }),
+  task({
+    id: "3",
     title: "big-buck-bunny-1080p-30fps.mp4",
     status: "finished",
     size: 1.2 * GIGABYTE,
@@ -101,39 +111,51 @@ const TYPICAL_TASKS: DownloadStationTask[] = [
     ageSeconds: 5400,
   }),
   task({
-    id: "3",
-    title: "enwiki-20260801-pages-articles-multistream.xml.bz2",
-    status: "error",
-    size: 23.4 * GIGABYTE,
-    downloaded: 8.1 * GIGABYTE,
-    ageSeconds: 720,
+    id: "4",
+    title: "ubuntu-24.04.3-desktop-amd64.iso",
+    status: "downloading",
+    size: 5.9 * GIGABYTE,
+    downloaded: 1.4 * GIGABYTE,
+    downloadSpeed: 11.7 * MEGABYTE,
+    ageSeconds: 130,
+  }),
+  task({
+    id: "5",
+    title: "tears-of-steel-1080p-surround.mkv",
+    status: "finished",
+    size: 3.7 * GIGABYTE,
+    downloaded: 3.7 * GIGABYTE,
+    uploaded: 1.9 * GIGABYTE,
+    uploadSpeed: 0.6 * MEGABYTE,
+    ageSeconds: 21600,
+  }),
+  task({
+    id: "6",
+    title: "sprite-fright-4k-surround.mov",
+    status: "downloading",
+    size: 18.2 * GIGABYTE,
+    downloaded: 2.3 * GIGABYTE,
+    downloadSpeed: 8.4 * MEGABYTE,
+    ageSeconds: 460,
+  }),
+  task({
+    id: "7",
+    title: "librivox-the-time-machine-64kb-mp3.zip",
+    status: "finished",
+    size: 0.18 * GIGABYTE,
+    downloaded: 0.18 * GIGABYTE,
+    ageSeconds: 86400,
+  }),
+  task({
+    id: "8",
+    title: "cosmos-laundromat-1080p.mp4",
+    status: "finished",
+    size: 2.1 * GIGABYTE,
+    downloaded: 2.1 * GIGABYTE,
+    uploaded: 0.4 * GIGABYTE,
+    ageSeconds: 43200,
   }),
 ];
-
-const LONG_TASK_LIST: DownloadStationTask[] = [
-  "charge-blender-open-movie-2160p.mp4",
-  "cosmos-laundromat-1080p.mp4",
-  "debian-13.1.0-amd64-netinst.iso",
-  "librivox-the-time-machine-64kb-mp3.zip",
-  "night-of-the-living-dead-1968-1080p.mkv",
-  "planet-260810.osm.pbf",
-  "plan-9-from-outer-space-1959.mkv",
-  "spring-blender-open-movie-2160p.mp4",
-  "sprite-fright-4k-surround.mov",
-  "tears-of-steel-1080p-surround.mkv",
-  "ubuntu-24.04.3-desktop-amd64.iso",
-  "wikidata-20260803-all.json.gz",
-].map((title, i) =>
-  task({
-    id: `long-${i}`,
-    title,
-    status: i % 3 === 0 ? "downloading" : "finished",
-    size: (1 + i / 4) * GIGABYTE,
-    downloaded: i % 3 === 0 ? (0.4 + i / 20) * GIGABYTE : (1 + i / 4) * GIGABYTE,
-    downloadSpeed: i % 3 === 0 ? (1 + i) * MEGABYTE : 0,
-    ageSeconds: 300 * (i + 1),
-  }),
-);
 
 const FETCHED_JUST_NOW = {
   tasksLastInitiatedFetchTimestamp: Date.now() - 3000,
@@ -145,9 +167,11 @@ export interface Scenario {
   state: TaskState;
 }
 
+// Indexed by the number key that selects them, shortest first.
 export const SCENARIOS: Scenario[] = [
-  { name: "typical", state: { tasks: TYPICAL_TASKS, ...FETCHED_JUST_NOW } },
   { name: "no tasks", state: { tasks: [], ...FETCHED_JUST_NOW } },
+  { name: "2 tasks", state: { tasks: TASKS.slice(0, 2), ...FETCHED_JUST_NOW } },
+  { name: "3 tasks", state: { tasks: TASKS.slice(0, 3), ...FETCHED_JUST_NOW } },
+  { name: "8 tasks", state: { tasks: TASKS, ...FETCHED_JUST_NOW } },
   { name: "login required", state: { taskFetchFailureReason: "login-required" } },
-  { name: "long task list", state: { tasks: LONG_TASK_LIST, ...FETCHED_JUST_NOW } },
 ];

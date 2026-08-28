@@ -27,14 +27,17 @@ Two things to do on every launch:
 With the popup open, the keyboard steps through states. Keys are ignored while a text field has
 focus, so typing a URL into the add-download form is safe.
 
-| Key | State                                                        |
-| --- | ------------------------------------------------------------ |
-| `1` | Typical: two visible tasks, one hidden by the errored filter |
-| `2` | No tasks                                                     |
-| `3` | Login required                                               |
-| `4` | A long task list                                             |
-| `n` | Fires a completion notification                              |
-| `w` | Re-maximizes the window                                      |
+| Key | State                                              |
+| --- | -------------------------------------------------- |
+| `0` | No tasks                                           |
+| `1` | Two tasks, one of them behind the errored filter   |
+| `2` | Three tasks, one of them behind the errored filter |
+| `3` | Eight tasks                                        |
+| `4` | Login required                                     |
+| `n` | Fires a completion notification                    |
+| `w` | Re-maximizes the window                            |
+
+It opens on `2`, which is what the store shots use.
 
 ## Capturing
 
@@ -58,16 +61,17 @@ captured image's width, so the window can be any size; only the vertical one is 
 it is per-browser because Chrome's tab strip is taller than Firefox's. `CROP=0` skips the crop, which
 is how you capture a full window to measure against.
 
-`mock/popup.html` zooms the popup so it fills more of that frame — 1280x800 is the only size
-Chrome accepts besides 640x400, and at 1:1 the popup leaves most of it empty. The crop is anchored to
-the window rather than to the popup, so changing the zoom does not mean re-measuring it.
+`mock/popup.html` drops the 400px `min-height` the add-download overlay reserves for the blurred task
+list behind it, which is what otherwise stretches the directory picker and leaves the advanced-add
+shot mostly empty. The crop is anchored to the window rather than to the popup, so changing the
+popup's own size does not mean re-measuring it.
 
 Neither the window's size nor its position affects these shots. The mock maximizes its own window on
 install via `mock/window.ts`, and `w` in the popup re-maximizes it; that is for comfort and for
 keeping the window clear of the screen edges, where a capture can come back clipped. Maximized, not
 fullscreen — fullscreen has no window shadow, and the crop measures in from it.
 
-Three shots per browser, all from scenario `1`:
+Three shots per browser, all from scenario `2`:
 
 | Name           | How                                      |
 | -------------- | ---------------------------------------- |
@@ -122,9 +126,9 @@ the "Download with DownloadStation" item appears.
 ```
 
 The only shot that is not a window capture. The banner belongs to Notification Center rather than to
-either browser, and the popup behind it is half the picture, so this one takes the whole screen —
-menu bar included — on a `SCREEN_DELAY` timer. Switch to the browser, open the popup, press `n`. The
-banner carries the browser's icon, so each listing needs its own.
+either browser, and the popup behind it is half the picture, so this one takes the whole screen on a
+`SCREEN_DELAY` timer. Switch to the browser, open the popup, press `n`. The banner carries the
+browser's icon, so each listing needs its own.
 
 The frame is cut out of the screen's top-right corner at native resolution, so there is no scaling
 and it stays as sharp as the window captures. That corner holds the right end of the menu bar, the

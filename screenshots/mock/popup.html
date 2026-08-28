@@ -15,10 +15,12 @@
     />
 
     <style>
-      /* So the popup fills more of the 1280x800 frame the stores require. Scenario 4 is tall enough
-         at this zoom to hit the browser's own popup height limit and grow a scrollbar. */
-      html {
-        zoom: 1.15;
+      /* The add-download overlay reserves 400px so the blurred task list behind it has room, and the
+         directory picker stretches to fill whatever is left. The canned list is five entries, so the
+         advanced-add shot comes out mostly empty. !important because the rule it overrides is more
+         specific than this one. */
+      .popup-body.with-foreground {
+        min-height: 300px !important;
       }
     </style>
   </head>

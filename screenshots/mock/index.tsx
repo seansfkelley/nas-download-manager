@@ -11,7 +11,8 @@ import { maximizeWindow } from "./window";
 
 function MockPopup() {
   const [settings, setSettings] = useState(SETTINGS);
-  const [scenario, setScenario] = useState(0);
+  // Opens on the scenario the store shots use rather than on the empty one.
+  const [scenario, setScenario] = useState(2);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -21,7 +22,9 @@ function MockPopup() {
         return;
       }
 
-      const index = Number(event.key) - 1;
+      // Tested rather than coerced because Number(" ") is 0, which would make space select the first
+      // scenario.
+      const index = /^[0-9]$/.test(event.key) ? Number(event.key) : -1;
       if (index >= 0 && index < SCENARIOS.length) {
         console.log("scenario:", SCENARIOS[index].name);
         setScenario(index);
