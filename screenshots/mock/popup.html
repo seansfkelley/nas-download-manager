@@ -15,12 +15,23 @@
     />
 
     <style>
+      /* The last few percent of height the filtering shot needs to fit the frame. */
+      html {
+        zoom: 0.95;
+      }
+
       /* The add-download overlay reserves 400px so the blurred task list behind it has room, and the
          directory picker stretches to fill whatever is left. The canned list is five entries, so the
          advanced-add shot comes out mostly empty. !important because the rule it overrides is more
          specific than this one. */
       .popup-body.with-foreground {
         min-height: 280px !important;
+      }
+
+      /* The filter panel plus a task list is taller than the 800px frame, and the heading is the
+         only part of it that costs height without showing a feature. */
+      .display-settings .title {
+        display: none;
       }
     </style>
   </head>

@@ -83,7 +83,7 @@ const GIGABYTE = 1024 * 1024 * 1024;
 const MEGABYTE = 1024 * 1024;
 
 // Ordered so that a prefix of it is a whole scenario. The errored task comes second, which is what
-// puts exactly one task behind the "N more hidden" row in the two small scenarios.
+// puts exactly one task behind the "N more hidden" row in everything but the single-task scenario.
 const TASKS: DownloadStationTask[] = [
   task({
     id: "1",
@@ -170,7 +170,8 @@ export interface Scenario {
 // Indexed by the number key that selects them, shortest first.
 export const SCENARIOS: Scenario[] = [
   { name: "no tasks", state: { tasks: [], ...FETCHED_JUST_NOW } },
-  { name: "2 tasks", state: { tasks: TASKS.slice(0, 2), ...FETCHED_JUST_NOW } },
+  // One task and nothing hidden, so the filter panel fits the frame with a task list under it.
+  { name: "1 task", state: { tasks: TASKS.slice(0, 1), ...FETCHED_JUST_NOW } },
   { name: "3 tasks", state: { tasks: TASKS.slice(0, 3), ...FETCHED_JUST_NOW } },
   { name: "8 tasks", state: { tasks: TASKS, ...FETCHED_JUST_NOW } },
   { name: "login required", state: { taskFetchFailureReason: "login-required" } },

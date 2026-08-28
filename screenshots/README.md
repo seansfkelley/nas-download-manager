@@ -33,7 +33,7 @@ focus, so typing a URL into the add-download form is safe.
 | Key | State                                              |
 | --- | -------------------------------------------------- |
 | `0` | No tasks                                           |
-| `1` | Two tasks, one of them behind the errored filter   |
+| `1` | One task, nothing hidden                           |
 | `2` | Three tasks, one of them behind the errored filter |
 | `3` | Eight tasks                                        |
 | `4` | Login required                                     |
@@ -64,17 +64,22 @@ captured image's width, so the window can be any size; only the vertical one is 
 it is per-browser because Chrome's tab strip is taller than Firefox's. `CROP=0` skips the crop, which
 is how you capture a full window to measure against.
 
-`mock/popup.html` drops the 400px `min-height` the add-download overlay reserves for the blurred task
-list behind it, which is what otherwise stretches the directory picker and leaves the advanced-add
-shot mostly empty. The crop is anchored to the window rather than to the popup, so changing the
-popup's own size does not mean re-measuring it.
+Nothing is ever scaled: the frame is cut out of the capture at native resolution. Fitting the popup
+into it is the mock's job instead, in `mock/popup.html`. It drops the 400px `min-height` the
+add-download overlay reserves for the blurred task list behind it, which otherwise stretches the
+directory picker and leaves the advanced-add shot mostly empty; hides the filter panel's "Task
+Display Settings" heading, worth about 110px and naming the panel rather than showing a feature; and
+zooms to 0.95, which is the last few percent the filtering shot needs. That zoom is the dial to turn
+if a view outgrows the frame again. The crop is anchored to the window rather than to the popup, so
+changing the popup's own size does not mean re-measuring it.
 
 Neither the window's size nor its position affects these shots. The mock maximizes its own window on
 install via `mock/window.ts`, and `w` in the popup re-maximizes it; that is for comfort and for
 keeping the window clear of the screen edges, where a capture can come back clipped. Maximized, not
 fullscreen — fullscreen has no window shadow, and the crop measures in from it.
 
-Three shots per browser, all from scenario `2`:
+Three shots per browser. `filtering` comes from scenario `1`, whose single task is what lets the
+panel and a task list share the frame; the other two come from `2`:
 
 | Name           | How                                   |
 | -------------- | ------------------------------------- |
