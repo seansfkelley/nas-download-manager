@@ -7,7 +7,7 @@ import { sendNotification } from "../../src/common/sendNotification";
 import { PopupWrapper } from "../../src/popup/PopupWrapper";
 
 import { SCENARIOS, SETTINGS } from "./fixtures";
-import { positionWindow } from "./geometry";
+import { maximizeWindow } from "./window";
 
 function MockPopup() {
   const [settings, setSettings] = useState(SETTINGS);
@@ -27,7 +27,7 @@ function MockPopup() {
         setScenario(index);
       } else if (event.key === "w") {
         // Dismisses the popup, since the window it is anchored to moves out from under it.
-        positionWindow();
+        maximizeWindow();
       } else if (event.key === "n") {
         sendNotification(
           "big-buck-bunny-1080p-30fps.mp4",

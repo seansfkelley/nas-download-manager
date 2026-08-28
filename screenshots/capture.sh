@@ -62,7 +62,8 @@ capture() {
 capture_window() {
   echo "$2"
   id=$(swift "$here/window.swift" "$owner" "$TIMEOUT")
-  sleep "$SETTLE"
+  echo "capturing in ${settle}s"
+  sleep "$settle"
   screencapture -x -l "$id" "$1"
   # CROP=0 leaves the whole window, which is how you measure CROP_Y in the first place.
   if [ -n "$crop_y" ] && [ "${CROP:-1}" = 1 ]; then
@@ -89,8 +90,11 @@ case "${1:-}" in
     if [ "$2" = "context-menu" ]; then
       # The menu opens wherever the click lands, so there is no crop that frames it; do that by hand.
       crop_y=""
-      capture_window "$here/$1/context-menu.png" "right-click a link on the links page now"
+      settle="$MENU_SETTLE"
+      capture_window "$here/$1/context-menu.png" \
+        "right-click a link on the links page now, then hover the item to highlight"
     else
+      settle="$SETTLE"
       capture_window "$here/$1/$2.png" "focus the browser and open the popup now"
     fi
     ;;

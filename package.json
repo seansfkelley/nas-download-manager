@@ -15,8 +15,8 @@
     "zip": "rm -f addon.zip && cd dist && zip -qr ../addon.zip . -x '**/*.map' -x '**/.DS_Store'",
     "zip-sources": "rm -f sources.zip && git archive --format=zip -o sources.zip HEAD -- ':!screenshots/mock'",
     "mock:dist": "rm -rf .mock-dist && parcel build screenshots/mock/manifest.json --dist-dir .mock-dist --no-source-maps && rm -rf .mock-dist/up_ && cp -R _locales .mock-dist/_locales",
-    "mock:firefox": "npm run mock:dist && web-ext run --source-dir .mock-dist --target firefox-desktop --firefox-profile ./screenshots/firefox-profile --pref toolkit.legacyUserProfileCustomizations.stylesheets=true",
-    "mock:chrome": "npm run mock:dist && web-ext run --source-dir .mock-dist --target chromium"
+    "mock:firefox": "npm run mock:dist && web-ext run --source-dir .mock-dist --target firefox-desktop --firefox-profile ./screenshots/firefox-profile --pref toolkit.legacyUserProfileCustomizations.stylesheets=true --pref browser.tabs.splitView.enabled=false --pref privacy.userContext.enabled=false --pref browser.ml.linkPreview.enabled=false --pref privacy.query_stripping.strip_on_share.enabled=false --pref browser.translations.select.enable=false --pref devtools.inspector.enabled=false",
+    "mock:chrome": "npm run mock:dist && web-ext run --source-dir .mock-dist --target chromium --args=\"--disable-features=SideBySide\""
   },
   "repository": {
     "type": "git",

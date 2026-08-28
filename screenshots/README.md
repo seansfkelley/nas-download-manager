@@ -34,7 +34,7 @@ focus, so typing a URL into the add-download form is safe.
 | `3` | Login required                                               |
 | `4` | A long task list                                             |
 | `n` | Fires a completion notification                              |
-| `w` | Restores the window size and position the capture assumes    |
+| `w` | Re-maximizes the window                                      |
 
 ## Capturing
 
@@ -58,13 +58,14 @@ captured image's width, so the window can be any size; only the vertical one is 
 it is per-browser because Chrome's tab strip is taller than Firefox's. `CROP=0` skips the crop, which
 is how you capture a full window to measure against.
 
-`mock/popup.html` zooms the popup 1.25x so it fills more of that frame — 1280x800 is the only size
+`mock/popup.html` zooms the popup so it fills more of that frame — 1280x800 is the only size
 Chrome accepts besides 640x400, and at 1:1 the popup leaves most of it empty. The crop is anchored to
 the window rather than to the popup, so changing the zoom does not mean re-measuring it.
 
-The window's position does not affect these shots, since the capture is of the window rather than a
-screen rect; its size does. The mock sizes and positions its own window on install using
-`browser.windows.update` from `mock/geometry.ts`, and `w` in the popup puts it back.
+Neither the window's size nor its position affects these shots. The mock maximizes its own window on
+install via `mock/window.ts`, and `w` in the popup re-maximizes it; that is for comfort and for
+keeping the window clear of the screen edges, where a capture can come back clipped. Maximized, not
+fullscreen — fullscreen has no window shadow, and the crop measures in from it.
 
 Three shots per browser, all from scenario `1`:
 
@@ -85,7 +86,29 @@ browser's, so it captures the same way the popup does, and comes out composited 
 command, right-click a link, and the capture fires when the menu opens.
 
 This one is not cropped. The menu appears wherever the click lands, so there is no fixed frame that
-suits it; crop the full window by hand afterwards.
+suits it; crop the full window by hand afterwards. The shutter fires `MENU_SETTLE` seconds after the
+menu opens, which is time to hover the item you want highlighted.
+
+Firefox's link menu runs to fifteen items with ours last, so `mock:firefox` turns six of them off.
+Each is a pref read by `nsContextMenu.sys.mjs` when it builds the menu:
+
+| Pref                                             | Removes                        |
+| ------------------------------------------------ | ------------------------------ |
+| `browser.tabs.splitView.enabled`                 | Open Link in Split View        |
+| `privacy.userContext.enabled`                    | Open Link in New Container Tab |
+| `browser.ml.linkPreview.enabled`                 | Preview Link                   |
+| `privacy.query_stripping.strip_on_share.enabled` | Copy Clean Link                |
+| `browser.translations.select.enable`             | Translate Link Text…           |
+| `devtools.inspector.enabled`                     | Inspect                        |
+
+`devtools.policy.disabled` also removes Inspect, but web-ext installs the extension over the remote
+debugging protocol, so leave that one alone.
+
+Chrome has no such prefs, and most of its menu is selection-driven: it selects a link's text when you
+right-click it, which merges in Copy, Search, Print and Translate, and macOS piles Speech, Writing
+Tools, Summarize and Services on top of those. `links.html` sets `user-select: none` to stop that at
+the source. `mock:chrome` passes `--disable-features=SideBySide` for the Split View item; Inspect can
+only go via enterprise policy, so it stays.
 
 The target is the `links.html` tab the mock opens on install — a fake Debian directory index of
 `.torrent` links, shipped in the extension so the page content is identical every run. The mock's

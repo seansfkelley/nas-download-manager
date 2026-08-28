@@ -1,4 +1,4 @@
-import { positionWindow } from "./geometry";
+import { maximizeWindow } from "./window";
 
 // The contextMenus.create call is duplicated from registerRuntimeInstalled rather than imported:
 // that module pulls in the whole background action graph, and this is the only part of it a
@@ -15,5 +15,5 @@ browser.runtime.onInstalled.addListener(async () => {
   // moz-extension UUID for every throwaway profile, so it cannot be written down anywhere.
   await browser.tabs.create({ url: browser.runtime.getURL("links.html") });
 
-  await positionWindow();
+  await maximizeWindow();
 });
