@@ -2,39 +2,29 @@
 set -eu
 
 # How long to wait for the popup to open, and how long to let it finish fading in once it has. The
-# window exists before it is done animating.
+# window exists before it is done animating. The menu gets longer, since it is also the window in
+# which you hover the item you want highlighted.
 TIMEOUT=30
 SETTLE=1
+MENU_SETTLE=6
 DELAY=5
 
-# The crop, in pixels of the 2x window capture. Anchored so the right edge of the frame is the right
-# edge of the browser window and the top is the toolbar, cutting off the tab strip above it.
+# The crop, in pixels of the 2x window capture. The right edge of the frame is the right edge of the
+# browser window and the top is the toolbar, cutting off the tab strip above it.
 #
-# To re-measure, which changing the window in mock/geometry.ts means doing, shoot one with CROP=0 and
-# find the window inside the shadow screencapture leaves around it:
-#
-#   magick out.png -alpha extract -threshold 99% -format '%@' info:   # e.g. 1920x1240+112+76
-#
-# X is that offset plus that width, less CROP_W, less two pixels to stay inside the antialiased edge.
-# Y is by eye: rerun `sips -c $CROP_H $CROP_W --cropOffset <y> <x> out.png` until the tab strip is
-# just gone.
+# X is derived per capture so the window can be any size: screencapture leaves a shadow margin around
+# the window, so the window's right edge is SHADOW_X in from the image's, and two more pixels stay
+# inside the antialiased edge. Y is measured by eye, and only changes when the tab strip's height
+# does. To redo it, shoot one with CROP=0 and rerun `sips -c $CROP_H $CROP_W --cropOffset <y> <x>`
+# until the tab strip is just gone.
 CROP_W=1280
 CROP_H=800
-FIREFOX_CROP_X=750
+SHADOW_X=112
+EDGE_INSET=2
 FIREFOX_CROP_Y=164
 
-# Chrome's window and shadow come out the same size, but its tab strip is taller, so the toolbar
-# starts lower.
-CHROME_CROP_X=750
+# Chrome's tab strip is taller, so its toolbar starts lower.
 CHROME_CROP_Y=157
-
-# Where to right-click on the links page for the context-menu shot, and how far up and left of that
-# point the capture starts. Measure the click point once per browser with `cliclick p`, which prints
-# the cursor position; it moves whenever the toolbar height does.
-CONTEXT_CLICK_X=240
-CONTEXT_CLICK_Y=260
-CONTEXT_OFFSET_X=200
-CONTEXT_OFFSET_Y=120
 
 # The notification banner is drawn by Notification Center in the top-right corner of the screen,
 # nowhere near the browser window, so it gets its own rect measured from the right screen edge.
@@ -48,12 +38,12 @@ usage() {
   echo "       $0 notification" >&2
   echo >&2
   echo "  $0 chrome popup           captures the popup into chrome/popup.png" >&2
-  echo "  $0 firefox context-menu   right-clicks a link, captures into firefox/context-menu.png" >&2
+  echo "  $0 firefox context-menu   captures the menu into firefox/context-menu.png, uncropped" >&2
   echo "  $0 notification           captures the top-right corner into notification.png" >&2
   echo >&2
-  echo "The popup is captured as a window, so its position does not matter. The context-menu and" >&2
-  echo "notification shots are rects; re-measure one with 'screencapture -i', which prints origin" >&2
-  echo "and size as you drag." >&2
+  echo "The popup and context-menu shots capture a window, so window size and position do not" >&2
+  echo "matter. The notification shot is a rect; re-measure it with 'screencapture -i', which" >&2
+  echo "prints origin and size as you drag." >&2
   exit 1
 }
 
@@ -66,15 +56,18 @@ capture() {
 }
 
 # Captures a window rather than a rect, which is what "capture this window" in the screenshot UI does:
-# the window on transparency, with nothing behind it and nothing on top of it. The popup is a child
-# window of the browser, and window capture takes the whole group, so the browser comes along with it.
+# the window on transparency, with nothing behind it and nothing on top of it. The popup and the
+# context menu are both child windows of the browser, and window capture takes the whole group, so the
+# browser comes along with either. An empty $crop_y means hand-crop it afterwards.
 capture_window() {
-  echo "focus the browser and open the popup now"
+  echo "$2"
   id=$(swift "$here/window.swift" "$owner" "$TIMEOUT")
   sleep "$SETTLE"
   screencapture -x -l "$id" "$1"
-  # CROP=0 leaves the whole window, which is how you measure the offsets in the first place.
-  if [ "${CROP:-1}" = 1 ]; then
+  # CROP=0 leaves the whole window, which is how you measure CROP_Y in the first place.
+  if [ -n "$crop_y" ] && [ "${CROP:-1}" = 1 ]; then
+    width=$(sips -g pixelWidth "$1" | awk '/pixelWidth/ { print $2 }')
+    crop_x=$((width - SHADOW_X - EDGE_INSET - CROP_W))
     sips -c "$CROP_H" "$CROP_W" --cropOffset "$crop_y" "$crop_x" "$1" >/dev/null
   fi
   sips -g pixelWidth -g pixelHeight "$1"
@@ -87,28 +80,18 @@ case "${1:-}" in
     # "chrom" matches both "Google Chrome" and "Chromium", whichever web-ext found.
     if [ "$1" = "chrome" ]; then
       owner="chrom"
-      crop_x="$CHROME_CROP_X"
       crop_y="$CHROME_CROP_Y"
     else
       owner="firefox"
-      crop_x="$FIREFOX_CROP_X"
       crop_y="$FIREFOX_CROP_Y"
     fi
 
     if [ "$2" = "context-menu" ]; then
-      command -v cliclick >/dev/null || {
-        echo "context-menu needs cliclick: brew install cliclick" >&2
-        exit 1
-      }
-      # The menu is a native NSMenu in a modal tracking loop, so it stays up while screencapture
-      # runs. Nothing may click or type until the shutter.
-      cliclick "rc:$CONTEXT_CLICK_X,$CONTEXT_CLICK_Y"
-      capture \
-        "$((CONTEXT_CLICK_X - CONTEXT_OFFSET_X)),$((CONTEXT_CLICK_Y - CONTEXT_OFFSET_Y)),640,400" \
-        "$here/$1/context-menu.png"
-      cliclick "kp:esc"
+      # The menu opens wherever the click lands, so there is no crop that frames it; do that by hand.
+      crop_y=""
+      capture_window "$here/$1/context-menu.png" "right-click a link on the links page now"
     else
-      capture_window "$here/$1/$2.png"
+      capture_window "$here/$1/$2.png" "focus the browser and open the popup now"
     fi
     ;;
   notification)
