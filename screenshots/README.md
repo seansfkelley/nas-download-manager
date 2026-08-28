@@ -3,8 +3,11 @@
 The images in `chrome/` and `firefox/` are what the Chrome Web Store and AMO listings show. They are
 captured by hand from the mock extension in `mock/`, which renders the real popup against canned data
 from `mock/fixtures.ts` and answers the popup's `get-config` and `list-directories` messages from
-`mock/stubMessages.ts`. `capture.sh` drives the capture, with `window.swift` finding the popup's
-window id — CoreGraphics is the only source for that and no shell tool exposes it.
+`mock/stubMessages.ts`. `mock/prefill.ts` fills the advanced-add form in as it opens — the URL and
+the selected directory are that form's own internal state, so the mock types and clicks rather than
+passing them in, which would mean changing `src/`. `capture.sh` drives the capture, with
+`window.swift` finding the popup's window id — CoreGraphics is the only source for that and no shell
+tool exposes it.
 
 ## Running the mock
 
@@ -73,11 +76,11 @@ fullscreen — fullscreen has no window shadow, and the crop measures in from it
 
 Three shots per browser, all from scenario `2`:
 
-| Name           | How                                      |
-| -------------- | ---------------------------------------- |
-| `popup`        | The default view                         |
-| `filtering`    | Click the filter button in the header    |
-| `advanced-add` | Click `+` in the header, then type a URL |
+| Name           | How                                   |
+| -------------- | ------------------------------------- |
+| `popup`        | The default view                      |
+| `filtering`    | Click the filter button in the header |
+| `advanced-add` | Click `+` in the header               |
 
 ## Context menu
 

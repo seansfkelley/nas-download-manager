@@ -17,7 +17,6 @@ const CONFIG: DownloadStationInfoConfig = {
 
 const DIRECTORIES: Record<string, Directory[]> = {
   "/": [
-    { name: "docker", path: "/docker" },
     { name: "downloads", path: "/downloads" },
     { name: "music", path: "/music" },
     { name: "photo", path: "/photo" },

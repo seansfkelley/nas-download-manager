@@ -7,6 +7,7 @@ import { sendNotification } from "../../src/common/sendNotification";
 import { PopupWrapper } from "../../src/popup/PopupWrapper";
 
 import { SCENARIOS, SETTINGS } from "./fixtures";
+import { prefillAdvancedAddForm } from "./prefill";
 import { maximizeWindow } from "./window";
 
 function MockPopup() {
@@ -56,3 +57,4 @@ function MockPopup() {
 }
 
 createRoot(document.getElementById("body")!).render(<MockPopup />);
+prefillAdvancedAddForm();
