@@ -13,8 +13,12 @@ npm run mock:chrome
 npm run mock:firefox
 ```
 
-Each builds to `.mock-dist/` and launches `web-ext run` with a throwaway profile. Two things to do on
-every launch:
+Each builds to `.mock-dist/` and launches `web-ext run` with a throwaway profile. Firefox gets a copy
+of `firefox-profile/`, which exists only to carry the `userChrome.css` that stops Firefox hatching the
+address bar red while a remote agent is attached — web-ext attaches one to install the extension, and
+there is no pref for it. It is copied, not used in place, so runs stay isolated from each other.
+
+Two things to do on every launch:
 
 - **Chrome only:** pin the extension from the puzzle-piece menu. Firefox puts a temporarily-installed
   extension in the toolbar on its own; Chrome does not.

@@ -1,0 +1,10 @@
+/* web-ext attaches a remote agent to install the extension, and Firefox hatches the address bar red
+   and shows a robot icon for as long as one is attached. There is no pref for it. Selectors are from
+   browser/themes/shared/urlbar-searchbar.css; #urlbar-background is now a class. */
+:root[remotecontrol] .urlbar-background {
+  background-image: none !important;
+}
+
+:root[remotecontrol] #remote-control-box {
+  display: none !important;
+}
