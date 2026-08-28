@@ -1,4 +1,4 @@
-// Screen points, and the single source of truth for where the window goes. capture.sh's REGION is
+// Screen points, and the single source of truth for where the window goes. capture.sh's crop is
 // measured against these, so changing them means re-measuring it.
 export const WINDOW = {
   left: 40,

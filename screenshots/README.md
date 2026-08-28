@@ -3,7 +3,8 @@
 The images in `chrome/` and `firefox/` are what the Chrome Web Store and AMO listings show. They are
 captured by hand from the mock extension in `mock/`, which renders the real popup against canned data
 from `mock/fixtures.ts` and answers the popup's `get-config` and `list-directories` messages from
-`mock/stubMessages.ts`.
+`mock/stubMessages.ts`. `capture.sh` drives the capture, with `window.swift` finding the popup's
+window id — CoreGraphics is the only source for that and no shell tool exposes it.
 
 ## Running the mock
 
@@ -29,7 +30,7 @@ focus, so typing a URL into the add-download form is safe.
 | `3` | Login required                                               |
 | `4` | A long task list                                             |
 | `n` | Fires a completion notification                              |
-| `w` | Moves the window back to where the capture rect expects it   |
+| `w` | Restores the window size and position the capture assumes    |
 
 ## Capturing
 
@@ -37,19 +38,25 @@ focus, so typing a URL into the add-download form is safe.
 ./screenshots/capture.sh chrome popup
 ```
 
-Captures a fixed rect after five seconds. The delay exists because the popup dismisses the instant
-the browser loses focus, so nothing can require a keystroke or a click outside the browser while it
-is open. Run the script, switch to the browser, open the popup, wait for the shutter.
+Run it, switch to the browser, open the popup. Nothing needs timing: `window.swift` watches for a
+window to appear and the capture fires when the popup does. Nothing steals focus either, which
+matters because the popup dismisses the instant the browser loses it.
 
-The window has to be where the rect expects it. The mock positions its own window on install, using
-`browser.windows.update` from `mock/geometry.ts`; press `w` in the popup to put it back after moving
-it. This goes through the extension API rather than AppleScript deliberately — Firefox does not
-reliably expose an accessibility tree, so System Events cannot move its window, and Chrome would
-need a separate macOS automation grant.
+The capture is `screencapture -l`, the non-interactive form of "capture this window": the window on
+transparency, with the desktop excluded and anything floating on top of the browser excluded too.
+The popup is a child window of the browser, and window capture takes the whole group, so the browser
+comes along with it.
 
-Both stores want 1280x800. On a retina display `screencapture` records at 2x, so the rect is 640x400
-points. To re-measure it, use `screencapture -i`, which prints origin and size as you drag, then edit
-`REGION` at the top of the script to match whatever `mock/geometry.ts` says.
+`screencapture` adds a shadow margin around the window — 112 px at the sides, 76 above, 148 below —
+and both stores want 1280x800, so the script crops. The frame is anchored to the right edge of the
+browser window, with the tab strip cut off above the toolbar. The offsets at the top of the script
+are per-browser, since Chrome's tab strip is taller than Firefox's, and are measured against the
+window size in `mock/geometry.ts`; the comment there says how to redo them. `CROP=0` skips the crop,
+which is how you capture a full window to measure against.
+
+The window's position does not affect these shots, since the capture is of the window rather than a
+screen rect; its size does. The mock sizes and positions its own window on install using
+`browser.windows.update` from `mock/geometry.ts`, and `w` in the popup puts it back.
 
 Three shots per browser, all from scenario `1`:
 
