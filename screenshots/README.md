@@ -118,10 +118,17 @@ the "Download with DownloadStation" item appears.
 ## Notification
 
 ```
-./screenshots/capture.sh notification
+./screenshots/capture.sh chrome notification
 ```
 
-Arms a delayed capture over the top-right corner of the screen and waits for you to press `n` in the
-popup. The banner is drawn by Notification Center rather than by either browser, so one image serves
-both listings and it lives at the top level rather than under `chrome/` and `firefox/`. The browser
-needs notification permission in System Settings the first time.
+The only shot that is not a window capture. The banner belongs to Notification Center rather than to
+either browser, and the popup behind it is half the picture, so this one takes the whole screen —
+menu bar included — on a `SCREEN_DELAY` timer. Switch to the browser, open the popup, press `n`. The
+banner carries the browser's icon, so each listing needs its own.
+
+The frame is cut out of the screen's top-right corner at native resolution, so there is no scaling
+and it stays as sharp as the window captures. That corner holds the right end of the menu bar, the
+banner, and the popup. 640x400, the stores' other size, is not enough: the banner is nearly that wide
+on its own and comes out clipped.
+
+The browser needs notification permission in System Settings the first time.

@@ -7,7 +7,10 @@ set -eu
 TIMEOUT=30
 SETTLE=1
 MENU_SETTLE=6
-DELAY=5
+
+# The notification shot is on a timer instead, being a whole screen rather than a window: long enough
+# to switch to the browser, open the popup and press 'n'.
+SCREEN_DELAY=5
 
 # The crop, in pixels of the 2x window capture. The right edge of the frame is the right edge of the
 # browser window and the top is the toolbar, cutting off the tab strip above it.
@@ -19,6 +22,7 @@ DELAY=5
 # until the tab strip is just gone.
 CROP_W=1280
 CROP_H=800
+
 SHADOW_X=112
 EDGE_INSET=2
 FIREFOX_CROP_Y=164
@@ -26,34 +30,19 @@ FIREFOX_CROP_Y=164
 # Chrome's tab strip is taller, so its toolbar starts lower.
 CHROME_CROP_Y=157
 
-# The notification banner is drawn by Notification Center in the top-right corner of the screen,
-# nowhere near the browser window, so it gets its own rect measured from the right screen edge.
-BANNER_W=420
-BANNER_H=140
-BANNER_INSET_X=20
-BANNER_INSET_Y=20
-
 usage() {
   echo "usage: $0 <chrome|firefox> <name>" >&2
-  echo "       $0 notification" >&2
   echo >&2
   echo "  $0 chrome popup           captures the popup into chrome/popup.png" >&2
   echo "  $0 firefox context-menu   captures the menu into firefox/context-menu.png, uncropped" >&2
-  echo "  $0 notification           captures the top-right corner into notification.png" >&2
+  echo "  $0 chrome notification    captures the whole screen into chrome/notification.png" >&2
   echo >&2
-  echo "The popup and context-menu shots capture a window, so window size and position do not" >&2
-  echo "matter. The notification shot is a rect; re-measure it with 'screencapture -i', which" >&2
-  echo "prints origin and size as you drag." >&2
+  echo "The popup and context-menu shots capture a window, so nothing depends on where anything" >&2
+  echo "is on screen. The notification shot is the screen itself, on a timer." >&2
   exit 1
 }
 
 here="$(dirname "$0")"
-
-capture() {
-  echo "capturing $2 in ${DELAY}s"
-  screencapture -x -T"$DELAY" -R"$1" "$2"
-  sips -g pixelWidth -g pixelHeight "$2"
-}
 
 # Captures a window rather than a rect, which is what "capture this window" in the screenshot UI does:
 # the window on transparency, with nothing behind it and nothing on top of it. The popup and the
@@ -74,6 +63,16 @@ capture_window() {
   sips -g pixelWidth -g pixelHeight "$1"
 }
 
+# Takes the frame out of the top-right corner of a whole-screen capture, at native resolution: the
+# right end of the menu bar, the banner below it, and the popup below that. No scaling, so it stays
+# as sharp as the window captures. 640x400 is the stores' other size, but the banner is nearly that
+# wide on its own and comes out clipped.
+crop_corner() {
+  width=$(sips -g pixelWidth "$1" | awk '/pixelWidth/ { print $2 }')
+  sips -c "$CROP_H" "$CROP_W" --cropOffset 0 $((width - CROP_W)) "$1" >/dev/null
+  sips -g pixelWidth -g pixelHeight "$1"
+}
+
 case "${1:-}" in
   chrome | firefox)
     [ $# -eq 2 ] || usage
@@ -87,22 +86,28 @@ case "${1:-}" in
       crop_y="$FIREFOX_CROP_Y"
     fi
 
-    if [ "$2" = "context-menu" ]; then
-      # The menu opens wherever the click lands, so there is no crop that frames it; do that by hand.
-      crop_y=""
-      settle="$MENU_SETTLE"
-      capture_window "$here/$1/context-menu.png" \
-        "right-click a link on the links page now, then hover the item to highlight"
-    else
-      settle="$SETTLE"
-      capture_window "$here/$1/$2.png" "focus the browser and open the popup now"
-    fi
-    ;;
-  notification)
-    screen_width=$(osascript -e 'tell application "Finder" to get item 3 of (get bounds of window of desktop)')
-    echo "press 'n' in the popup now"
-    capture "$((screen_width - BANNER_W - BANNER_INSET_X)),$BANNER_INSET_Y,$BANNER_W,$BANNER_H" \
-      "$here/notification.png"
+    settle="$SETTLE"
+
+    case "$2" in
+      context-menu)
+        # The menu opens wherever the click lands, so no crop frames it; do that one by hand.
+        crop_y=""
+        settle="$MENU_SETTLE"
+        capture_window "$here/$1/context-menu.png" \
+          "right-click a link on the links page now, then hover the item to highlight"
+        ;;
+      notification)
+        # The whole screen, because the banner is Notification Center's window rather than the
+        # browser's and the popup behind it is half the point of the shot; the corner it all happens
+        # in is cropped out after. Under the browser's directory because the banner carries its icon.
+        echo "switch to the browser, open the popup and press 'n' within ${SCREEN_DELAY}s"
+        screencapture -x -m -T"$SCREEN_DELAY" "$here/$1/notification.png"
+        crop_corner "$here/$1/notification.png"
+        ;;
+      *)
+        capture_window "$here/$1/$2.png" "focus the browser and open the popup now"
+        ;;
+    esac
     ;;
   *) usage ;;
 esac
