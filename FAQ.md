@@ -12,7 +12,19 @@ There are many ways NAS Download Manager's connection to your NAS can fail that 
 
 Certificates are how servers prove to browsers they are who they claim. Browsers will, by default, prevent you from accessing sites with invalid certificates unless you explicitly tell them to ignore the issue. Self-signed certificates, commonly used with Synology NASes, are generally considered invalid until you manually tell the browser to accept them.
 
-NAS Download Manager is subject to the same security restrictions as regular browser tabs. However, unlike a browser tab, it is unable to show you the page where you can override the browser's protections/tell it to accept a self-signed certificate. To fix this issue, visit the DSM page in a browser tab using the _same hostname/port you use for NAS Download Manager_, which should prompt you to override protections/accept the certificate.
+NAS Download Manager is subject to the same security restrictions as regular browser tabs. However, unlike a browser tab, it is unable to show you the page where you can override the browser's protections/tell it to accept a self-signed certificate. How to fix this depends on your browser.
+
+**Firefox:** visit the DSM page in a browser tab using the _same hostname/port you use for NAS Download Manager_, which should prompt you to override protections/accept the certificate.
+
+**Chrome and other Chromium-based browsers:** accepting the certificate in a tab only works until the extension is idle or you close the browser. Instead, do one of the following:
+
+- Trust the certificate in your operating system, then restart the browser. You can download the certification from the NAS at Control Panel > Security > Certificate > Action > Export Certificate.
+  - **macOS:** import it into Keychain Access, open it, and under "Trust" set "When using this certificate" to "Always Trust".
+  - **Windows:** import it into "Trusted Root Certification Authorities".
+- Replace the self-signed certificate with a trusted one. DSM can issue a free Let's Encrypt certificate under Control Panel > Security > Certificate > Add.
+- [Connect over HTTP](#can-i-use-http-not-https-to-connect-to-the-nas) instead.
+
+Whichever certificate you use, its name has to match the hostname you've configured in NAS Download Manager.
 
 ## Can I use HTTP (not HTTPS) to connect to the NAS?
 
