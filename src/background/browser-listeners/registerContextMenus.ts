@@ -17,8 +17,8 @@ export function registerContextMenus() {
       addDownloadTasksAndFetch(singleton, [data.srcUrl]);
     } else if (data.selectionText) {
       const urls = data.selectionText
-        .split("\n")
-        .map((url) => url.trim())
+        // Not "\n": browsers don't reliably preserve line breaks in selectionText.
+        .split(/\s+/)
         // The cheapest of checks. Actual invalid URLs will be caught later.
         .filter((url) => startsWithAnyProtocol(url, ALL_DOWNLOADABLE_PROTOCOLS));
 

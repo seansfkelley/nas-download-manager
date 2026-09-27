@@ -1,6 +1,8 @@
+import { Login } from "../common/apis/messages";
 import { useMemoDeep } from "../common/hooks/useMemoDeep";
 import type {
   BadgeDisplayType,
+  ConnectionSecrets,
   Settings,
   TaskSortType,
   TaskState,
@@ -13,7 +15,7 @@ import { getClient } from "./popupClient";
 interface Props {
   settings: Settings;
   tasks: TaskState;
-  updateSettings: (settings: Settings) => void;
+  updateSettings: (settings: Settings) => Promise<void>;
 }
 
 export function PopupWrapper(props: Props) {
@@ -41,6 +43,12 @@ export function PopupWrapper(props: Props) {
       showInactiveTasks={props.settings.showInactiveTasks}
       changeShowInactiveTasks={(showInactiveTasks: boolean) => {
         props.updateSettings({ ...props.settings, showInactiveTasks });
+      }}
+      logIn={async (secrets: ConnectionSecrets) => {
+        if (connection.rememberSecrets) {
+          await props.updateSettings({ ...props.settings, connection: { ...connection, secrets } });
+        }
+        await Login.send(secrets);
       }}
       client={client}
     />

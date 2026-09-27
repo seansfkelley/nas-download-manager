@@ -7,7 +7,12 @@ import type { DownloadStationTask } from "../common/apis/synology/DownloadStatio
 import { NonIdealState } from "../common/components/NonIdealState";
 import { TaskFilterSettingsForm } from "../common/components/TaskFilterSettingsForm";
 import { filterTasks, sortTasks } from "../common/filtering";
-import type { BadgeDisplayType, TaskSortType, VisibleTaskSettings } from "../common/state";
+import type {
+  BadgeDisplayType,
+  ConnectionSecrets,
+  TaskSortType,
+  VisibleTaskSettings,
+} from "../common/state";
 
 import { AdvancedAddDownloadForm } from "./AdvancedAddDownloadForm";
 import { Footer } from "./Footer";
@@ -30,6 +35,7 @@ export interface Props {
   changeBadgeDisplay: (display: BadgeDisplayType) => void;
   showInactiveTasks: boolean;
   changeShowInactiveTasks: (show: boolean) => void;
+  logIn: (secrets: ConnectionSecrets) => Promise<void>;
   client?: PopupClient;
 }
 
@@ -74,7 +80,7 @@ export function Popup(props: Props) {
       } else {
         return (
           <NonIdealState icon="fa-lock" text={browser.i18n.getMessage("Login_Required")}>
-            <PasswordForm client={props.client} />
+            <PasswordForm client={props.client} logIn={props.logIn} />
           </NonIdealState>
         );
       }

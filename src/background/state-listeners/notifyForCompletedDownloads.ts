@@ -1,4 +1,3 @@
-import { typesafeIsEqual } from "../../common/lang";
 import { sendNotification } from "../../common/sendNotification";
 import { SessionState, Settings } from "../../common/state";
 
@@ -22,13 +21,11 @@ export async function notifyForCompletedDownloads(
         .filter((t) => t.status === "finished" || t.status === "seeding")
         .map((t) => [t.id, t.title] as const),
     );
-    const updatedFinishedTaskIds = [...finishedTaskTitlesById.keys()];
+    const newlyFinishedTaskIds = new Set(finishedTaskTitlesById.keys()).difference(
+      new Set(finishedTaskIds),
+    );
 
     if (finishedTaskIds != null) {
-      const newlyFinishedTaskIds = new Set(updatedFinishedTaskIds).difference(
-        new Set(finishedTaskIds),
-      );
-
       if (settings.notifications.enableCompletionNotifications && newlyFinishedTaskIds.size > 0) {
         const titles = [...newlyFinishedTaskIds].map((id) => finishedTaskTitlesById.get(id)!);
 
@@ -43,9 +40,12 @@ export async function notifyForCompletedDownloads(
       }
     }
 
-    // Watch out for event trigger cycles!
-    if (!typesafeIsEqual(updatedFinishedTaskIds.toSorted(), finishedTaskIds?.toSorted())) {
-      await SessionState.set({ finishedTaskIds: updatedFinishedTaskIds });
+    // Accumulated rather than replaced, so a finished task that is paused and resumed isn't new.
+    // Only write when something changed; watch out for event trigger cycles!
+    if (finishedTaskIds == null || newlyFinishedTaskIds.size > 0) {
+      await SessionState.set({
+        finishedTaskIds: [...(finishedTaskIds ?? []), ...newlyFinishedTaskIds],
+      });
     }
   }
 }

@@ -2,12 +2,15 @@ import "./password-form.css";
 
 import { useState } from "react";
 
+import { ClientRequestResult } from "../common/apis/synology";
 import { LoginStatus, Status } from "../common/components/LoginStatus";
+import type { ConnectionSecrets } from "../common/state";
 
 import type { PopupClient } from "./popupClient";
 
 export interface Props {
   client: PopupClient;
+  logIn: (secrets: ConnectionSecrets) => Promise<void>;
 }
 
 export function PasswordForm(props: Props) {
@@ -21,8 +24,11 @@ export function PasswordForm(props: Props) {
       onSubmit={async (e) => {
         e.preventDefault();
         setStatus("in-progress");
-        const result = await props.client.testConnectionAndLogin(password, otpCode || undefined);
+        const result = await props.client.testConnection(password, otpCode || undefined);
         setStatus(result);
+        if (!ClientRequestResult.isConnectionFailure(result) && result.success) {
+          await props.logIn({ password, deviceToken: result.data.did });
+        }
       }}
     >
       <input

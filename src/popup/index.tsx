@@ -22,7 +22,7 @@ const ROOT = createRoot(document.getElementById("body")!, {
 });
 
 function updateSettings(settings: Settings) {
-  PersistentState.set({ settings });
+  return PersistentState.set({ settings });
 }
 
 const POLL_INTERVAL_MS = 3000;

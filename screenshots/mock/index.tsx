@@ -51,7 +51,7 @@ function MockPopup() {
     <PopupWrapper
       settings={settings}
       tasks={SCENARIOS[scenario].state}
-      updateSettings={setSettings}
+      updateSettings={async (s) => setSettings(s)}
     />
   );
 }

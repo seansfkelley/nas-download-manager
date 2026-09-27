@@ -21,8 +21,8 @@ export interface SessionState extends TaskState {
   // Identifies the most recently initiated task fetch, so that a fetch can discard its own results
   // if a newer one has started in the meantime.
   latestTaskFetchId?: string;
-  // Undefined means we haven't yet seen a task list this session, so there's nothing to compare
-  // against to decide which completions are new.
+  // Every task seen finished this session. Undefined means we haven't yet seen a task list this
+  // session, so there's nothing to compare against to decide which completions are new.
   finishedTaskIds?: string[];
 }
 

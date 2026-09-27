@@ -1,4 +1,4 @@
-import { AddTaskOptions, Directory, Login, MessageResponse } from "../common/apis/messages";
+import { AddTaskOptions, Directory, MessageResponse } from "../common/apis/messages";
 import {
   AddTasks,
   DeleteTasks,
@@ -20,10 +20,10 @@ export interface PopupClient {
   deleteTasks: (taskIds: string[]) => Promise<MessageResponse>;
   getConfig: () => Promise<MessageResponse<DownloadStationInfoConfig>>;
   listDirectories: (path?: string) => Promise<MessageResponse<Directory[]>>;
-  testConnectionAndLogin: (
+  testConnection: (
     password: string,
     otpCode: string | undefined,
-  ) => Promise<ClientRequestResult<{}>>;
+  ) => Promise<ClientRequestResult<{ did: string | undefined }>>;
 }
 
 export function getClient(connection: ConnectionSettings): PopupClient | undefined {
@@ -42,12 +42,8 @@ export function getClient(connection: ConnectionSettings): PopupClient | undefin
       deleteTasks: DeleteTasks.send,
       getConfig: GetConfig.send,
       listDirectories: ListDirectories.send,
-      testConnectionAndLogin: async (password: string, otpCode: string | undefined) => {
-        const result = await testConnection(connection.identifiers, password, otpCode);
-        if (!ClientRequestResult.isConnectionFailure(result) && result.success) {
-          await Login.send({ password, deviceToken: result.data.did });
-        }
-        return result;
+      testConnection: (password: string, otpCode: string | undefined) => {
+        return testConnection(connection.identifiers, password, otpCode);
       },
     };
   } else {
