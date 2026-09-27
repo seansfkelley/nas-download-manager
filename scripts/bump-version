@@ -32,6 +32,7 @@ temp_file=$(mktemp)
 
 jq --arg v "$next_version" '.version = $v' manifest.json > "$temp_file"
 mv "$temp_file" manifest.json
+npx prettier --write manifest.json
 
 git add manifest.json
 git commit -m "v$next_version"

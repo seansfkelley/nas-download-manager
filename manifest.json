@@ -9,39 +9,22 @@
       "id": "{b17c0686-033c-4d03-b526-b16c99998c98}",
       "strict_min_version": "140.0",
       "data_collection_permissions": {
-        "required": [
-          "none"
-        ]
+        "required": ["none"]
       }
     }
   },
   "minimum_chrome_version": "148",
   "background": {
     "service_worker": "src/background/index.ts",
-    "scripts": [
-      "src/background/index.ts"
-    ],
+    "scripts": ["src/background/index.ts"],
     "type": "module"
   },
-  "permissions": [
-    "alarms",
-    "contextMenus",
-    "storage",
-    "notifications"
-  ],
-  "host_permissions": [
-    "http://*/*",
-    "https://*/*"
-  ],
+  "permissions": ["alarms", "contextMenus", "storage", "notifications"],
+  "host_permissions": ["http://*/*", "https://*/*"],
   "content_scripts": [
     {
-      "matches": [
-        "http://*/*",
-        "https://*/*"
-      ],
-      "js": [
-        "src/content/index.ts"
-      ]
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["src/content/index.ts"]
     }
   ],
   "action": {
